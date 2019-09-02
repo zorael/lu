@@ -1,0 +1,19 @@
+name "lu"
+description "General-purpose tools. Used in the kameloso bot."
+authors "JR"
+copyright "Copyright © 2019, JR"
+license "MIT"
+targetType "library"
+dflags "-dip25" "-dip1008"
+libs "phobos2" platform="posix-dmd"
+
+x:ddoxTool "scod"
+
+sourcePaths "source"
+importPaths "source"
+
+subPackage {
+    name "core"
+    sourcePaths "source/lu/core"
+    importPaths "source/lu/core"
+}
