@@ -15,7 +15,7 @@ importPaths "source"
 subPackage {
     name "core"
     sourcePaths "source/lu/core"
-    importPaths "source/lu/core"
+    //importPaths "source/lu/core"
     sourceFiles \
         "source/lu/core/conv.d" \
         "source/lu/core/meld.d" \
