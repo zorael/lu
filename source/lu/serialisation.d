@@ -39,11 +39,17 @@
  +  `;
  +
  +  Appender!string sink;
- +  FooSettings mirror;
  +
- +  assert(serialize(sink, f).justifiedConfigurationText == fooJustified);
+ +  sink.serialise(f);
+ +  assert(sink.data.justifiedConfigurationText == fooJustified);
+ +
+ +  FooSettings mirror;
  +  applyConfiguration(fooSerialised, mirror);
  +  assert(mirror == f);
+ +
+ +  FooSettings mirror2;
+ +  applyConfiguration(fooJustified, mirror2);
+ +  assert(mirror2 == mirror);
  +  ---
  +/
 module lu.serialisation;
