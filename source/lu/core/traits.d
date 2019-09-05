@@ -465,3 +465,89 @@ unittest
     static assert((ofFoo2 == "string, int"), ofFoo2);
     static assert((ofFoo3 == "bool, bool, bool"), ofFoo3);
 }
+
+
+static if (__VERSION__ == 2088L)
+{
+    // getSymbolsByUDA
+    /++
+     +  Provide a pre-2.088 `std.traits.getSymbolsByUDA`.
+     +
+     +  The `std.traits.getSymbolsByUDA` in 2.088 breaks kameloso completely by
+     +  inserting a constraint to force it to only work on aggregates, which a module
+     +  apparently isn't.
+     +/
+    template getSymbolsByUDA(alias symbol, alias attribute)
+    //if (isAggregateType!symbol)  // <--
+    {
+        import std.traits : hasUDA;
+
+        alias membersWithUDA = getSymbolsByUDAImpl!(symbol, attribute, __traits(allMembers, symbol));
+
+        // if the symbol itself has the UDA, tack it on to the front of the list
+        static if (hasUDA!(symbol, attribute))
+        {
+            alias getSymbolsByUDA = AliasSeq!(symbol, membersWithUDA);
+        }
+        else
+        {
+            alias getSymbolsByUDA = membersWithUDA;
+        }
+    }
+
+
+    // getSymbolsByUDAImpl
+    /++
+     +  Implementation of `std.traits.getSymbolsByUDA`, copy/pasted.
+     +/
+    private template getSymbolsByUDAImpl(alias symbol, alias attribute, names...)
+    {
+        import std.meta : Alias, AliasSeq, Filter;
+        import std.traits : hasUDA;
+
+        static if (names.length == 0)
+        {
+            alias getSymbolsByUDAImpl = AliasSeq!();
+        }
+        else
+        {
+            alias tail = getSymbolsByUDAImpl!(symbol, attribute, names[1 .. $]);
+
+            // Filtering inaccessible members.
+            static if (!__traits(compiles, __traits(getMember, symbol, names[0])))
+            {
+                alias getSymbolsByUDAImpl = tail;
+            }
+            else
+            {
+                alias member = __traits(getMember, symbol, names[0]);
+
+                // Filtering not compiled members such as alias of basic types.
+                static if (!__traits(compiles, hasUDA!(member, attribute)))
+                {
+                    alias getSymbolsByUDAImpl = tail;
+                }
+                // Get overloads for functions, in case different overloads have different sets of UDAs.
+                else static if (isFunction!member)
+                {
+                    enum hasSpecificUDA(alias member) = hasUDA!(member, attribute);
+                    alias overloadsWithUDA = Filter!(hasSpecificUDA, __traits(getOverloads, symbol, names[0]));
+                    alias getSymbolsByUDAImpl = AliasSeq!(overloadsWithUDA, tail);
+                }
+                else static if (hasUDA!(member, attribute))
+                {
+                    alias getSymbolsByUDAImpl = AliasSeq!(member, tail);
+                }
+                else
+                {
+                    alias getSymbolsByUDAImpl = tail;
+                }
+            }
+        }
+    }
+}
+else
+{
+    // Merely forward to the real template.
+    public import std.traits : getSymbolsByUDA;
+}
