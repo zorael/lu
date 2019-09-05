@@ -1,5 +1,5 @@
 /++
- +  Various functions related to serialising structs into .INI file-like files.
+ +  Various functions related to serialising structs into .ini file-like files.
  +
  +  Example:
  +  ---
