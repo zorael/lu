@@ -1,5 +1,5 @@
 /++
- +  Various compile-time traits used in `lu`.
+ +  Various compile-time traits, mostly for internal use.
  +/
 module lu.core.traits;
 
@@ -447,7 +447,7 @@ template stringofParams(alias fun)
     enum stringofParams = FunParams.stringof[1..$-1];
 }
 
-//
+///
 unittest
 {
     void foo();
