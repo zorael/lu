@@ -1,5 +1,5 @@
 name "lu"
-description "General-purpose library. Used in the kameloso IRC bot."
+description "Library of reusable miscellanea"
 authors "JR"
 copyright "Copyright © 2019, JR"
 license "MIT"
