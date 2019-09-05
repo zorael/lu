@@ -1,8 +1,8 @@
 # lu [![CircleCI Linux/OSX](https://img.shields.io/circleci/project/github/zorael/lu/master.svg?maxAge=3600&logo=circleci)](https://circleci.com/gh/zorael/lu) [![Travis Linux/OSX and documentation](https://img.shields.io/travis/zorael/lu/master.svg?maxAge=3600&logo=travis)](https://travis-ci.org/zorael/lu) [![Windows](https://img.shields.io/appveyor/ci/zorael/lu/master.svg?maxAge=3600&logo=appveyor)](https://ci.appveyor.com/project/zorael/lu) [![GitHub commits since last release](https://img.shields.io/github/commits-since/zorael/lu/v0.0.1.svg?maxAge=3600&logo=github)](https://github.com/zorael/lu/compare/v0.0.1...master)
 
-Miscellaneous general-purpose library modules. Used in the [kameloso bot](https://github.com/zorael/kameloso) but wholly decoupled from it.
+Miscellaneous general-purpose library modules. API documentation is [here](https://zorael.github.io/lu).
 
-The split was made so that we could in turn fork the IRC-parsing modules from kameloso into a dub package of its own. It's a work in progress, but this is more than halfway.
+Used in the [kameloso bot](https://github.com/zorael/kameloso) but wholly decoupled from it. The split was made so that we could in turn fork the IRC-parsing modules from kameloso into a dub package of its own. It's a work in progress, but this is more than halfway.
 
 * [`core/conv.d`](source/lu/core/conv.d): Conversion functions and templates.
 * [`core/meld.d`](source/lu/core/meld.d): *Melding*, or taking two structs/classes of the same type and merging the two.
@@ -15,13 +15,9 @@ The split was made so that we could in turn fork the IRC-parsing modules from ka
 * [`objmanip.d`](source/lu/objmanip.d): Struct/class manipulation, such as setting a member field by its string name.
 * [`serialisation.d`](source/lu/serialisation.d): Functions and templates for serialising structs into an INI file-like format.
 
-API documentation is [here](https://zorael.github.io/lu).
-
 # Roadmap
 
-* set up CIs
-* have Travis generate API docs
-* fix comments mentioning *kameloso* everywhere
+* figure out better subpackaging
 
 # License
 
