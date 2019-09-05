@@ -1,0 +1,35 @@
+language: d
+
+sudo: required
+dist: bionic
+
+d:
+  - dmd
+  - ldc
+
+os:
+  - linux
+  - osx
+
+script:
+  - dub test --compiler=${DC}
+  - dub test --compiler=${DC} :core
+  - test ${DC} = ldc2 || dub build --compiler=${DC} -b ddox
+
+before_deploy:
+  - cp -rv .circleci docs/
+
+deploy:
+  provider: pages
+  local_dir: docs
+  skip_cleanup: true
+  github_token: $GH_REPO_TOKEN
+  on:
+    branch: master
+    condition:
+      - ${DC} = dmd
+      - ${TRAVIS_OS_NAME} = linux
+  cache:
+    directories:
+      - $HOME/.dub
+  verbose: true
