@@ -1,4 +1,4 @@
-# lu
+# lu [![CircleCI Linux/OSX](https://img.shields.io/circleci/project/github/zorael/lu/master.svg?maxAge=3600&logo=circleci)](https://circleci.com/gh/zorael/lu) [![Travis Linux/OSX and documentation](https://img.shields.io/travis/zorael/lu/master.svg?maxAge=3600&logo=travis)](https://travis-ci.org/zorael/lu) [![Windows](https://img.shields.io/appveyor/ci/zorael/lu/master.svg?maxAge=3600&logo=appveyor)](https://ci.appveyor.com/project/zorael/lu) [![GitHub commits since last release](https://img.shields.io/github/commits-since/zorael/lu/v0.0.1.svg?maxAge=3600&logo=github)](https://github.com/zorael/lu/compare/v0.0.1...master)
 
 Miscellaneous general-purpose library modules. Used in the [kameloso bot](https://github.com/zorael/kameloso) but wholly decoupled from it.
 
@@ -14,6 +14,8 @@ The split was made so that we could in turn fork the IRC-parsing modules from ka
 * [`net.d`](source/lu/net.d): Connection helpers, including Fibers that help resolve addresses, connect to one and read from one.
 * [`objmanip.d`](source/lu/objmanip.d): Struct/class manipulation, such as setting a member field by its string name.
 * [`serialisation.d`](source/lu/serialisation.d): Functions and templates for serialising structs into an INI file-like format.
+
+API documentation is [here](https://zorael.github.io/lu).
 
 # Roadmap
 
