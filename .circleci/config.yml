@@ -1,0 +1,22 @@
+version: 2
+
+general:
+  branches:
+    ignore:
+      - gh-pages
+
+jobs:
+  build:
+    docker:
+      - image: circleci/buildpack-deps:19.04
+    steps:
+      - checkout
+      - run:
+          name: Install compilers
+          command: ./.circleci/run.sh install-deps
+      - run:
+          name: Build (dub)
+          command: ./.circleci/run.sh build
+      #- store_artifacts:
+          #path: ./artifacts
+
