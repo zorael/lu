@@ -1,9 +1,9 @@
 /++
- +  User-defined attributes (UDAs) used in the non-plugin parts of the program.
+ +  User-defined attributes (UDAs) used here and there.
  +/
 module lu.core.uda;
 
-/// UDA conveying that a field is not to be saved in configuration files.
+/// UDA conveying that a field may not be serialised to configuration files.
 struct Unconfigurable;
 
 /// UDA conveying that a string is an array with this token as separator.
@@ -26,6 +26,6 @@ struct Hidden;
 struct CannotContainComments;
 
 /++
- +  UDA conveying that this member's value must be quoted in the configuration file.
+ +  UDA conveying that this member's value must be quoted when serialised.
  +/
 struct Quoted;
