@@ -63,7 +63,7 @@ struct JSONStorage
      +
      +  Throws:
      +      Whatever `std.file.readText` and/or `std.json.parseJSON` throws.
-     +      `kameloso.common.FileTypeMismatchException` if the filename exists
+     +      `lu.common.FileTypeMismatchException` if the filename exists
      +      but is not a file.
      +/
     void load(const string filename) @safe

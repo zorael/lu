@@ -1,6 +1,17 @@
 /++
  +  This module contains functions that in some way or another manipulates
  +  struct and class instances.
+ +
+ +  Example:
+ +  ---
+ +  IRCUser bot;
+ +
+ +  bot.setMemberByName("nickname", "kameloso");
+ +  bot.setMemberByName("address", "blarbh.hlrehg.org");
+ +
+ +  assert(bot.nickname == "kameloso");
+ +  assert(bot.address == "blarbh.hlrehg.org");
+ +  ---
  +/
 module lu.objmanip;
 
@@ -22,11 +33,9 @@ import lu.core.meld;
  +
  +  bot.setMemberByName("nickname", "kameloso");
  +  bot.setMemberByName("address", "blarbh.hlrehg.org");
- +  bot.setMemberByName("special", "false");
  +
  +  assert(bot.nickname == "kameloso");
  +  assert(bot.address == "blarbh.hlrehg.org");
- +  assert(!bot.special);
  +  ---
  +
  +  Params:

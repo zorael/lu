@@ -1,5 +1,50 @@
 /++
- +  Various functions related to serialising structs into .ini file-like files.
+ +  Various functions related to serialising structs into .INI file-like files.
+ +
+ +  Example:
+ +  ---
+ +  struct FooSettings
+ +  {
+ +      string fooasdf;
+ +      string bar;
+ +      string bazzzzzzz;
+ +      @Quoted flerrp;
+ +      double pi;
+ +  }
+ +
+ +  FooSettings f;
+ +
+ +  f.fooasdf = "foo";
+ +  f.bar = "bar";
+ +  f.bazzzzzzz = "baz";
+ +  f.flerrp = "hirr steff  ";
+ +  f.pi = 3.14159;
+ +
+ +  enum fooSerialised =
+ + `[Foo]
+ +  fooasdf foo
+ +  bar bar
+ +  bazzzzzzz baz
+ +  flerrp "hirr steff  "
+ +  pi 3.14159
+ +  `
+ +
+ +  enum fooJustified =
+ +  `[Foo]
+ +  fooasdf                 foo
+ +  bar                     bar
+ +  bazzzzzzz               baz
+ +  flerrp                  "hirr steff  "
+ +  pi                      3.14159
+ +  `;
+ +
+ +  Appender!string sink;
+ +  FooSettings mirror;
+ +
+ +  assert(serialize(sink, f).justifiedConfigurationText == fooJustified);
+ +  applyConfiguration(fooSerialised, mirror);
+ +  assert(mirror == f);
+ +  ---
  +/
 module lu.serialisation;
 
@@ -25,7 +70,7 @@ import std.typecons : Flag, No, Yes;
  +      The contents of the supplied file.
  +
  +  Throws:
- +      `kameloso.common.FileTypeMismatchException` if the configuration file is a directory, a
+ +      `lu.common.FileTypeMismatchException` if the configuration file is a directory, a
  +      character file or any other non-file type we can't write to.
  +      `ConfigurationFileReadFailureException` if the reading and decoding of
  +      the configuration file failed.
@@ -362,7 +407,7 @@ pipyon 3
  +  IRCServer server;
  +
  +  "kameloso.conf"
- +      .configReader
+ +      .configurationText
  +      .splitter("\n")
  +      .applyConfiguration(client, server);
  +  ---

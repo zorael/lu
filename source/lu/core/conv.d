@@ -1,6 +1,8 @@
 /++
  +  This module contains functions that in one way or another converts its
  +  arguments into something else.
+ +
+ +  Credit for `Enum` goes to Stephan Koch (https://github.com/UplinkCoder).
  +/
 module lu.core.conv;
 

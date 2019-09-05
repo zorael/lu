@@ -2,6 +2,41 @@
  +  This module contains the `meldInto` functions; functions that take two
  +  structs and combines them, creating a resulting struct with values from both
  +  parent structs. Array and associative array variants exist too.
+ +
+ +  Example:
+ +  ---
+ +  struct Foo
+ +  {
+ +      string abc;
+ +      string def;
+ +      int i;
+ +      float f;
+ +      double d;
+ +  }
+ +
+ +  Foo f1; // = new Foo;
+ +  f1.abc = "ABC";
+ +  f1.def = "DEF";
+ +
+ +  Foo f2; // = new Foo;
+ +  f2.abc = "this won't get copied";
+ +  f2.def = "neither will this";
+ +  f2.i = 42;
+ +  f2.f = 3.14f;
+ +
+ +  f2.meldInto(f1);
+ +
+ +  with (f1)
+ +  {
+ +      import std.math : isNaN;
+ +
+ +      assert(abc == "ABC");
+ +      assert(def == "DEF");
+ +      assert(i == 42);
+ +      assert(f == 3.14f);
+ +      assert(d.isNaN);
+ +  }
+ +  ---
  +/
 module lu.core.meld;
 

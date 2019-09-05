@@ -373,11 +373,7 @@ struct ConnectionAttempt
 /++
  +  Fiber function that tries to connect to IPs in the `conn.ips` array,
  +  yielding at certain points throughout the process to let the calling function
- +  (here `kameloso.kameloso.tryConnect`) output progress text to the local terminal.
- +
- +  It would make sense to just make this a single normal function, but then it
- +  would need knowledge of internals such as `kameloso.common.settings` that it
- +  really has no business with, separation of concerns-wise.
+ +  output progress text to the local terminal.
  +
  +  Params:
  +      conn = Reference to the current, unconnected `Connection`.

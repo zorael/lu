@@ -1,5 +1,5 @@
 /++
- +  Various compile-time traits used throughout the program.
+ +  Various compile-time traits used in `lu`.
  +/
 module lu.core.traits;
 
@@ -12,7 +12,7 @@ import std.typecons : Flag, No, Yes;
 // isConfigurableVariable
 /++
  +  Eponymous template bool of whether a variable can be configured via the
- +  functions in `kameloso.config` or not.
+ +  functions in `lu.config` or not.
  +
  +  Currently it does not support static arrays.
  +
@@ -146,7 +146,7 @@ unittest
 // longestUnconfigurableMemberName
 /++
  +  Gets the name of the longest member in one or more structs, including
- +  `kameloso.uda.Unconfigurable` ones.
+ +  `lu.uda.Unconfigurable` ones.
  +
  +  This is used for formatting terminal output of objects, so that columns line up.
  +
