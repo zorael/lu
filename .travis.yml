@@ -14,10 +14,10 @@ os:
 script:
   - dub test --compiler=${DC}
   - dub test --compiler=${DC} :core
-  - dub test --compiler=${DC} -b plain
-  - dub test --compiler=${DC} -b plain :core
-  - dub test --compiler=${DC} -b release
-  - dub test --compiler=${DC} -b release :core
+  - dub build --compiler=${DC} -b plain
+  - dub build --compiler=${DC} -b plain :core
+  - dub build --compiler=${DC} -b release
+  - dub build --compiler=${DC} -b release :core
   - test ${DC} = ldc2 || dub build --compiler=${DC} -b ddox
 
 before_deploy:
