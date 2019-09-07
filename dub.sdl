@@ -14,8 +14,16 @@ importPaths "source"
 
 subPackage {
     name "core"
-    sourcePaths "source/lu/core"
+    //sourcePaths "source/lu/core"
     //importPaths "source/lu/core"
+
+    excludedSourceFiles \
+        "source/lu/common.d" \
+        "source/lu/json.d" \
+        "source/lu/net.d" \
+        "source/lu/objmanip.d" \
+        "source/lu/serialisation.d"
+
     sourceFiles \
         "source/lu/core/conv.d" \
         "source/lu/core/meld.d" \
