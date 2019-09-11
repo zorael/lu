@@ -362,6 +362,69 @@ unittest
 }
 
 
+// NomException
+/++
+ +  Exception, to be thrown when a call to `nom` went wrong.
+ +
+ +  It is a normal `object.Exception` but with an attached needle and haystack.
+ +/
+abstract class NomException : Exception
+{
+    string haystack();
+    string needle();
+
+    /// Create a new `NomExceptionImpl`, without attaching anything.
+    this(const string message, const string file = __FILE__, const size_t line = __LINE__) pure @nogc
+    {
+        super(message, file, line);
+    }
+}
+
+
+// NomExceptionImpl
+/++
+ +  Exception, to be thrown when a call to `nom` went wrong.
+ +
+ +  This is the templated implementation, so that we can support more than one
+ +  kind of needle and haystack combination.
+ +
+ +  It is a normal `object.Exception` but with an attached needle and haystack.
+ +/
+final class NomExceptionImpl(T, C) : NomException
+{
+@safe:
+    T _haystack;
+    C _needle;
+
+    override string haystack()
+    {
+        import std.conv : to;
+        return _haystack.to!string;
+    }
+
+    override string needle()
+    {
+        import std.conv : to;
+        return _needle.to!string;
+    }
+
+    /// Create a new `NomExceptionImpl`, without attaching anything.
+    this(const string message, const string file = __FILE__, const size_t line = __LINE__) pure @nogc
+    {
+        super(message, file, line);
+    }
+
+    /// Create a new `NomExceptionImpl`, attaching a command.
+    this(const string message, const T _haystack, const C _needle,
+        const string file = __FILE__, const size_t line = __LINE__) pure @nogc
+    {
+        this._haystack = _haystack;
+        this._needle = _needle;
+        super(message, file, line);
+    }
+}
+
+
 // plurality
 /++
  +  Selects the correct singular or plural form of a word depending on the
