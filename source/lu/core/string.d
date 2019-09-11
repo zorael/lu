@@ -41,30 +41,28 @@ import std.typecons : Flag, No, Yes;
  +  Params:
  +      decode = Whether to use auto-decoding functions, or try to keep to non-
  +          decoding ones (when possible).
- +      line = String to walk and advance.
- +      separator = Token that deliminates what should be returned and to where to advance.
+ +      haystack = String to walk and advance.
+ +      needle = Token that deliminates what should be returned and to where to advance.
  +      callingFile = Name of the calling source file, used to pass along when
  +          throwing an exception.
  +      callingLine = Line number where in the source file this is called, used
  +          to pass along when throwing an exception.
  +
  +  Returns:
- +      The string `line` from the start up to the separator token. The original
+ +      The string `haystack` from the start up to the needle token. The original
  +      variable is advanced to after the token.
  +
- +  Throws: `object.Exception` if the separator could not be found in the string.
+ +  Throws: `object.Exception` if the needle could not be found in the string.
  +/
 pragma(inline)
-T nom(Flag!"decode" decode = No.decode, T, C)(auto ref T line, const C separator,
-    const string callingFile = __FILE__, const size_t callingLine = __LINE__) pure
+T nom(Flag!"decode" decode = No.decode, T, C)(auto ref T haystack, const C needle,
+    const string callingFile = __FILE__, const size_t callingLine = __LINE__) pure @nogc
 if (isMutable!T && isSomeString!T && (is(C : T) || is(C : ElementType!T) || is(C : ElementEncodingType!T)))
 in
 {
-    static if (is(C : T))
+    static if (__traits(compiles, needle.length))
     {
-        import std.format : format;
-        assert(separator.length, "Tried to nom with no separator given (at %s:%d)"
-            .format(callingFile, callingLine));
+        assert(needle.length, "Tried to nom with no needle given");
     }
 }
 do
@@ -73,7 +71,7 @@ do
     {
         import std.string : indexOf;
         // dstring and wstring only work with indexOf, not countUntil
-        immutable index = line.indexOf(separator);
+        immutable index = haystack.indexOf(needle);
     }
     else
     {
@@ -83,36 +81,34 @@ do
 
         static if (isSomeString!C)
         {
-            immutable index = line.representation.countUntil(separator.representation);
+            immutable index = haystack.representation.countUntil(needle.representation);
         }
         else
         {
-            immutable index = line.representation.countUntil(cast(ubyte)separator);
+            immutable index = haystack.representation.countUntil(cast(ubyte)needle);
         }
     }
 
     if (index == -1)
     {
-        import std.format : format;
-        throw new Exception(`Tried to nom too much: "%s" with "%s"`
-            .format(line, separator), callingFile, callingLine);
+        throw new NomExceptionImpl!(T, C)("Tried to nom too much", haystack, needle);
     }
 
     static if (isSomeString!C)
     {
-        immutable separatorLength = separator.length;
+        immutable separatorLength = needle.length;
     }
     else
     {
         enum separatorLength = 1;
     }
 
-    static if (__traits(isRef, line))
+    static if (__traits(isRef, haystack))
     {
-        scope(exit) line = line[(index+separatorLength)..$];
+        scope(exit) haystack = haystack[(index+separatorLength)..$];
     }
 
-    return line[0..index];
+    return haystack[0..index];
 }
 
 ///
@@ -229,7 +225,7 @@ unittest
 
 // nom
 /++
- +  Given some string, finds the supplied separator token in it, returns the
+ +  Given some string, finds the supplied needle token in it, returns the
  +  string up to that point, and advances the passed string by ref to after the token.
  +
  +  The naming is in line with standard library functions such as
@@ -237,7 +233,7 @@ unittest
  +
  +  Overload that takes an extra `Flag!"inherit"` template parameter, to toggle
  +  whether the return value inherits the passed line (and clearing it) upon no
- +  separator match.
+ +  needle match.
  +
  +  Example:
  +  ---
@@ -258,56 +254,54 @@ unittest
  +
  +  Params:
  +      inherit = Whether or not to have the returned string inherit (and clear)
- +          the passed line by ref.
+ +          the passed haystack by ref.
  +      decode = Whether to use auto-decoding functions, or try to keep to non-
  +          decoding ones (when possible).
- +      line = String to walk and advance.
- +      separator = Token that deliminates what should be returned and to where to advance.
+ +      haystack = String to walk and advance.
+ +      needle = Token that deliminates what should be returned and to where to advance.
  +      callingFile = Name of the calling source file, used to pass along when
  +          throwing an exception.
  +      callingLine = Line number where in the source file this is called, used
  +          to pass along when throwing an exception.
  +
  +  Returns:
- +      The string `line` from the start up to the separator token, if it exists.
+ +      The string `haystack` from the start up to the needle token, if it exists.
  +      If so, the original variable is advanced to after the token.
- +      If it doesn't exist, the string in `line` is inherited into the return
- +      value and returned, while the `line` symbol itself is cleared.
+ +      If it doesn't exist, the string in `haystack` is inherited into the return
+ +      value and returned, while the `haystack` symbol itself is cleared.
  +/
 pragma(inline)
 T nom(Flag!"inherit" inherit, Flag!"decode" decode = No.decode, T, C)
-    (ref T line, const C separator, const string callingFile = __FILE__,
-    const size_t callingLine = __LINE__) pure
+    (ref T haystack, const C needle, const string callingFile = __FILE__,
+    const size_t callingLine = __LINE__) pure @nogc
 if (isMutable!T && isSomeString!T && (is(C : T) || is(C : ElementType!T) || is(C : ElementEncodingType!T)))
 in
 {
-    static if (is(C : T))
+    static if (__traits(compiles, needle.length))
     {
-        import std.format : format;
-        assert(separator.length, "Tried to nom with no separator given (at %s:%d)"
-            .format(callingFile, callingLine));
+        assert(needle.length, "Tried to nom with no needle given");
     }
 }
 do
 {
     static if (inherit)
     {
-        if (line.contains!decode(separator))
+        if (haystack.contains!decode(needle))
         {
             // Separator exists, no inheriting will take place, call original nom
-            return line.nom!decode(separator, callingFile, callingLine);
+            return haystack.nom!decode(needle, callingFile, callingLine);
         }
         else
         {
-            // No separator match; inherit string and clear the original
-            scope(exit) line = string.init;
-            return line;
+            // No needle match; inherit string and clear the original
+            scope(exit) haystack = string.init;
+            return haystack;
         }
     }
     else
     {
         // Not inheriting due to argument No.inherit, so just pass onto original nom
-        return line.nom!decode(separator, callingFile, callingLine);
+        return haystack.nom!decode(needle, callingFile, callingLine);
     }
 }
 
