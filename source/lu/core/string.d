@@ -370,7 +370,10 @@ unittest
  +/
 abstract class NomException : Exception
 {
+    /// Returns a string of the original haystack the call to `nom` was operating on.
     string haystack();
+
+    /// Returns a string of the original needle the call to `nom` was operating on.
     string needle();
 
     /// Create a new `NomExceptionImpl`, without attaching anything.
@@ -396,12 +399,14 @@ final class NomExceptionImpl(T, C) : NomException
     T _haystack;
     C _needle;
 
+    /// Returns a string of the original needle the call to `nom` was operating on.
     override string haystack()
     {
         import std.conv : to;
         return _haystack.to!string;
     }
 
+    /// Returns a string of the original needle the call to `nom` was operating on.
     override string needle()
     {
         import std.conv : to;
