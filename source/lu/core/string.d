@@ -91,7 +91,8 @@ do
 
     if (index == -1)
     {
-        throw new NomExceptionImpl!(T, C)("Tried to nom too much", haystack, needle);
+        throw new NomExceptionImpl!(T, C)("Tried to nom too much",
+            haystack, needle, callingFile, callingLine);
     }
 
     static if (isSomeString!C)
