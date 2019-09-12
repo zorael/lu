@@ -430,7 +430,7 @@ pipyon 3
  +
  +  Throws: `ConfigurationFileParsingException` if there were bad lines.
  +/
-string[][string] applyConfiguration(Range, Things...)(Range range, ref Things things)
+string[][string] applyConfiguration(Range, Things...)(Range range, ref Things things) pure
 {
     import lu.core.string : stripSuffix, stripped;
     import std.format : format;
@@ -683,7 +683,7 @@ naN     !"¤%&/`;
  +  Returns:
  +      .ini file-like configuration text, justified into two columns.
  +/
-auto justifiedConfigurationText(const string origLines)
+auto justifiedConfigurationText(const string origLines) pure
 {
     import lu.core.string : stripped;
     import std.algorithm.comparison : max;
@@ -880,7 +880,7 @@ final class ConfigurationFileReadFailureException : Exception
      +  Create a new `ConfigurationFileReadFailureException`, without attaching
      +  a filename.
      +/
-    this(const string message, const string file = __FILE__, const size_t line = __LINE__) pure
+    this(const string message, const string file = __FILE__, const size_t line = __LINE__) pure nothrow @nogc
     {
         super(message, file, line);
     }
@@ -889,7 +889,8 @@ final class ConfigurationFileReadFailureException : Exception
      +  Create a new `ConfigurationFileReadFailureException`, attaching a
      +  filename.
      +/
-    this(const string message, const string filename, const string file = __FILE__, const size_t line = __LINE__) pure
+    this(const string message, const string filename, const string file = __FILE__,
+        const size_t line = __LINE__) pure nothrow @nogc
     {
         this.filename = filename;
         super(message, file, line);
@@ -908,7 +909,7 @@ final class ConfigurationFileParsingException : Exception
     /++
      +  Create a new `ConfigurationFileParsingException`.
      +/
-    this(const string message, const string file = __FILE__, const size_t line = __LINE__) pure
+    this(const string message, const string file = __FILE__, const size_t line = __LINE__) pure nothrow @nogc
     {
         super(message, file, line);
     }
@@ -927,7 +928,7 @@ final class ConfigurationFileParsingException : Exception
  +  Returns:
  +      A Voldemort struct with an `entry` and a `value` member.
  +/
-auto splitEntryValue(const string line)
+auto splitEntryValue(const string line) pure nothrow @nogc
 {
     import std.string : representation;
     import std.ascii : isWhite;
