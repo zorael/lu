@@ -899,8 +899,8 @@ unittest
  +  ---
  +
  +  Params:
- +      rawOne = First domain string.
- +      rawOther = Second domain string.
+ +      one = First domain string.
+ +      other = Second domain string.
  +
  +  Returns:
  +      The number of domains the two strings share.
@@ -908,47 +908,58 @@ unittest
  +  TODO:
  +      Support partial globs.
  +/
-auto sharedDomains(const string rawOne, const string rawOther) pure nothrow
+auto sharedDomains(const string one, const string other) pure @nogc nothrow
 {
-    uint dots;
-    bool doubleDots;
+    if (!one.length || !other.length) return 0;
 
-    // If both strings are the same, act as if there's an extra dot.
-    // That gives (.)rizon.net and (.)rizon.net two suffixes.
-    if (rawOne.length && (rawOne == rawOther)) ++dots;
-
-    immutable one = (rawOne != rawOther) ? '.' ~ rawOne : rawOne;
-    immutable other = (rawOne != rawOther) ? '.' ~ rawOther : rawOther;
-
-    foreach (immutable i; 0..one.length)
+    static uint numDomains(const ubyte[] one, const ubyte[] other)
     {
-        if (i == other.length)
-        {
-            // The first string was longer than the second
-            break;
-        }
+        uint dots;
+        double doubleDots;
 
-        if (one[$-i-1] != other[$-i-1])
-        {
-            // There was a character mismatch
-            break;
-        }
+        // If both strings are the same, act as if there's an extra dot.
+        // That gives (.)rizon.net and (.)rizon.net two suffixes.
+        if (one.length && (one == other)) ++dots;
 
-        if (one[$-i-1] == '.')
+        foreach (immutable i; 0..one.length)
         {
-            if (!doubleDots)
+            immutable c1 = one[$-i-1];
+
+            if (i == other.length)
             {
-                ++dots;
-                doubleDots = true;
+                if (c1 == '.') ++dots;
+                break;
+            }
+
+            immutable c2 = other[$-i-1];
+
+            if (c1 != c2) break;
+
+            if (c1 == '.')
+            {
+                if (!doubleDots)
+                {
+                    ++dots;
+                    doubleDots = true;
+                }
+            }
+            else
+            {
+                doubleDots = false;
             }
         }
-        else
-        {
-            doubleDots = false;
-        }
+
+        return dots;
     }
 
-    return dots;
+    import std.string : representation;
+
+    immutable oneAsUbytes = one.representation;
+    immutable otherAsUbytes = other.representation;
+
+    return (one.length > other.length) ?
+        numDomains(oneAsUbytes, otherAsUbytes) :
+        numDomains(otherAsUbytes, oneAsUbytes);
 }
 
 ///
@@ -968,8 +979,8 @@ unittest
     immutable n4 = sharedDomains("www.google.se", "www.google.co.uk");
     assert((n4 == 0), n4.text);
 
-    /*immutable n5 = sharedDomains("", string.init);
-    assert((n5 == 0), n5.text);*/
+    immutable n5 = sharedDomains("", string.init);
+    assert((n5 == 0), n5.text);
 
     immutable n6 = sharedDomains("irc.rizon.net", "rizon.net");
     assert((n6 == 2), n6.text);
@@ -982,6 +993,15 @@ unittest
 
     immutable n9 = sharedDomains("forum.dlang.org", "...");
     assert((n9 == 0), n8.text);
+
+    immutable n10 = sharedDomains("blahrizon.net", "rizon.net");
+    assert((n10 == 1), n10.text);
+
+    immutable n11 = sharedDomains("rizon.net", "blahrizon.net");
+    assert((n11 == 1), n11.text);
+
+    immutable n12 = sharedDomains("rizon.net", "irc.rizon.net");
+    assert((n12 == 2), n12.text);
 }
 
 
