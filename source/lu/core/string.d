@@ -1219,7 +1219,7 @@ so shrug"), '\n' ~ indentedTwo);
  +      Whether or not the passed `haystack` string contained the passed `needle`
  +      substring or token.
  +/
-bool contains(Flag!"decode" decode = No.decode, T, C)(const T haystack, const C needle) pure
+bool contains(Flag!"decode" decode = No.decode, T, C)(const T haystack, const C needle) pure nothrow @nogc
 if (isSomeString!T && (isSomeString!C || (is(C : T) || is(C : ElementType!T) ||
     is(C : ElementEncodingType!T))))
 {
@@ -1342,7 +1342,7 @@ unittest
  +  Returns:
  +      The passed line without any trailing passed characters.
  +/
-T strippedRight(T, C)(T line, C chaff)
+T strippedRight(T, C)(T line, C chaff) pure nothrow @nogc
 if (isSomeString!T && (is(C : T) || is(C : ElementType!T) || is(C : ElementEncodingType!T)))
 {
     import std.traits : isSomeString;
@@ -1500,7 +1500,7 @@ unittest
  +  Returns:
  +      The passed line without any preceding passed characters.
  +/
-T strippedLeft(T, C)(T line, C chaff)
+T strippedLeft(T, C)(T line, C chaff) pure nothrow @nogc
 if (isSomeString!T && (is(C : T) || is(C : ElementType!T) || is(C : ElementEncodingType!T)))
 {
     import std.traits : isSomeString;
@@ -1605,7 +1605,7 @@ unittest
  +  Returns:
  +      The passed line, stripped of surrounding whitespace.
  +/
-T stripped(T)(T line)
+T stripped(T)(T line) pure nothrow @nogc
 {
     return line.strippedLeft.strippedRight;
 }
@@ -1658,7 +1658,7 @@ unittest
  +  Returns:
  +      The passed line, stripped of surrounding passed characters.
  +/
-T stripped(T, C)(T line, C chaff)
+T stripped(T, C)(T line, C chaff) pure nothrow @nogc
 if (isSomeString!T && (is(C : T) || is(C : ElementType!T) || is(C : ElementEncodingType!T)))
 {
     return line.strippedLeft(chaff).strippedRight(chaff);
@@ -1826,7 +1826,7 @@ unittest
  +  Returns:
  +      A `string[]` array with lines split out of the passed `line`.
  +/
-T[] splitOnWord(T, C)(const T line, const C separator, const size_t maxLength)
+T[] splitOnWord(T, C)(const T line, const C separator, const size_t maxLength) pure nothrow
 if (isSomeString!T && (is(C : ElementType!T) || is(C : ElementEncodingType!T)))
 in
 {
@@ -1945,7 +1945,7 @@ unittest
  +      line = String line to escape characters in.
  +/
 void escapeControlCharacters(Flag!"remove" remove = No.remove, Sink)
-    (auto ref Sink sink, const string line)
+    (auto ref Sink sink, const string line) // pure nothrow
 if (isOutputRange!(Sink, char[]))
 {
     import std.string : representation;
@@ -2062,7 +2062,7 @@ unittest
  +      A new string with no such control characters, either due to replacements
  +      or due to removal.
  +/
-string escapeControlCharacters(Flag!"remove" remove = No.remove)(const string line)
+string escapeControlCharacters(Flag!"remove" remove = No.remove)(const string line) pure nothrow
 {
     import std.array : Appender;
 
