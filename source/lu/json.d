@@ -46,7 +46,7 @@ struct JSONStorage
     /++
      +  Initialises and clears the `std.json.JSONValue`, preparing it for object storage.
      +/
-    void reset() @safe
+    void reset() @safe pure nothrow @nogc
     {
         storage.object = null;
     }
