@@ -8,11 +8,11 @@ API documentation can be found [here](https://zorael.github.io/lu).
 
 In summary:
 
-* [`core/conv.d`](source/lu/core/conv.d): Conversion functions and templates.
-* [`core/meld.d`](source/lu/core/meld.d): *Melding*, or taking two structs/classes of the same type and merging the two.
-* [`core/string.d`](source/lu/core/string.d): String manipulation functions and templates; notably `nom` which advances a string passed a supplied substring.
-* [`core/traits.d`](source/lu/core/traits.d): Miscellaneous traits and cleverness.
-* [`core/uda.d`](source/lu/core/uda.d): Some user-defined attributes used here and there.
+* [`conv.d`](source/lu/conv.d): Conversion functions and templates.
+* [`meld.d`](source/lu/meld.d): *Melding*, or taking two structs/classes of the same type and merging the two.
+* [`string.d`](source/lu/string.d): String manipulation functions and templates; notably `nom` which advances a string passed a supplied substring.
+* [`traits.d`](source/lu/traits.d): Miscellaneous traits and cleverness.
+* [`uda.d`](source/lu/uda.d): Some user-defined attributes used here and there.
 * [`common.d`](source/lu/common.d): Things that don't have a better home yet.
 * [`json.d`](source/lu/json.d): Convenience wrappers around a `JSONValue`.
 * [`net.d`](source/lu/net.d): Connection helpers, including `Fiber`s that resolve addresses, connect to servers and read full strings from connections.
@@ -21,7 +21,7 @@ In summary:
 
 # Roadmap
 
-* figure out better subpackaging
+* nothing right now, ideas needed
 
 # License
 
