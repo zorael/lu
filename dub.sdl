@@ -16,11 +16,163 @@ subPackage {
     name "core"
     dflags "-dip25" "-dip1008"
 
-    // Express :core as just having these excluded to appease AppVeyor dub...
     excludedSourceFiles \
         "source/lu/common.d" \
         "source/lu/json.d" \
         "source/lu/net.d" \
         "source/lu/objmanip.d" \
         "source/lu/serialisation.d"
+}
+
+subPackage {
+    name "conv"
+    dflags "-dip25" "-dip1008"
+
+    excludedSourceFiles \
+        "source/lu/meld.d" \
+        "source/lu/string.d" \
+        "source/lu/traits.d" \
+        "source/lu/uda.d" \
+        "source/lu/common.d" \
+        "source/lu/json.d" \
+        "source/lu/net.d" \
+        "source/lu/objmanip.d" \
+        "source/lu/serialisation.d"
+}
+
+subPackage {
+    name "meld"
+    dflags "-dip25" "-dip1008"
+
+    excludedSourceFiles \
+        "source/lu/conv.d" \
+        "source/lu/string.d" \
+        "source/lu/traits.d" \
+        "source/lu/uda.d" \
+        "source/lu/common.d" \
+        "source/lu/json.d" \
+        "source/lu/net.d" \
+        "source/lu/objmanip.d" \
+        "source/lu/serialisation.d"
+}
+subPackage {
+    name "string"
+    dflags "-dip25" "-dip1008"
+
+    excludedSourceFiles \
+        "source/lu/conv.d" \
+        "source/lu/meld.d" \
+        "source/lu/traits.d" \
+        "source/lu/uda.d" \
+        "source/lu/common.d" \
+        "source/lu/json.d" \
+        "source/lu/net.d" \
+        "source/lu/objmanip.d" \
+        "source/lu/serialisation.d"
+}
+subPackage {
+    name "traits"
+    dflags "-dip25" "-dip1008"
+
+    excludedSourceFiles \
+        "source/lu/conv.d" \
+        "source/lu/meld.d" \
+        "source/lu/string.d" \
+        "source/lu/uda.d" \
+        "source/lu/common.d" \
+        "source/lu/json.d" \
+        "source/lu/net.d" \
+        "source/lu/objmanip.d" \
+        "source/lu/serialisation.d"
+}
+subPackage {
+    name "uda"
+    dflags "-dip25" "-dip1008"
+
+    excludedSourceFiles \
+        "source/lu/conv.d" \
+        "source/lu/meld.d" \
+        "source/lu/string.d" \
+        "source/lu/traits.d" \
+        "source/lu/common.d" \
+        "source/lu/json.d" \
+        "source/lu/net.d" \
+        "source/lu/objmanip.d" \
+        "source/lu/serialisation.d"
+}
+subPackage {
+    name "common"
+    dflags "-dip25" "-dip1008"
+
+    excludedSourceFiles \
+        "source/lu/conv.d" \
+        "source/lu/meld.d" \
+        "source/lu/string.d" \
+        "source/lu/traits.d" \
+        "source/lu/uda.d" \
+        "source/lu/json.d" \
+        "source/lu/net.d" \
+        "source/lu/objmanip.d" \
+        "source/lu/serialisation.d"
+}
+subPackage {
+    name "json"
+    dflags "-dip25" "-dip1008"
+
+    excludedSourceFiles \
+        "source/lu/conv.d" \
+        "source/lu/meld.d" \
+        "source/lu/string.d" \
+        "source/lu/traits.d" \
+        "source/lu/uda.d" \
+        "source/lu/json.d" \
+        "source/lu/net.d" \
+        "source/lu/objmanip.d" \
+        "source/lu/serialisation.d"
+}
+subPackage {
+    name "net"
+    dflags "-dip25" "-dip1008"
+
+    excludedSourceFiles \
+        "source/lu/conv.d" \
+        "source/lu/meld.d" \
+        "source/lu/string.d" \
+        "source/lu/traits.d" \
+        "source/lu/uda.d" \
+        "source/lu/common.d" \
+        "source/lu/json.d" \
+        "source/lu/objmanip.d" \
+        "source/lu/serialisation.d"
+}
+subPackage {
+    name "objmanip"
+    dflags "-dip25" "-dip1008"
+
+    excludedSourceFiles \
+        "source/lu/conv.d" \
+        "source/lu/meld.d" \
+        "source/lu/string.d" \
+        "source/lu/traits.d" \
+        "source/lu/uda.d" \
+        "source/lu/common.d" \
+        "source/lu/json.d" \
+        "source/lu/net.d" \
+        "source/lu/serialisation.d"
+}
+
+subPackage {
+    name "serialisation"
+    dflags "-dip25" "-dip1008"
+
+    excludedSourceFiles \
+        "source/lu/conv.d" \
+        "source/lu/meld.d" \
+        "source/lu/string.d" \
+        "source/lu/traits.d" \
+        "source/lu/uda.d" \
+        "source/lu/common.d" \
+        "source/lu/json.d" \
+        "source/lu/net.d" \
+        "source/lu/objmanip.d"
 }
