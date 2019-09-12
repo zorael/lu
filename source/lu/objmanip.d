@@ -378,7 +378,7 @@ do
         {
             if ((member.length == 1) && (member[0] == emptyToken))
             {
-                member.length = 0;
+                member = typeof(member).init;
             }
         }
     }
