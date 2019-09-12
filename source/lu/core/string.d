@@ -387,25 +387,42 @@ abstract class NomException : Exception
  +  kind of needle and haystack combination.
  +
  +  It is a normal `object.Exception` but with an attached needle and haystack.
+ +
+ +  Params:
+ +      T = Haystack type (`string`, `wstring` or `dstring`).
+ +      C = Needle type (any type of character or any string).
  +/
 final class NomExceptionImpl(T, C) : NomException
 {
 @safe:
-    T _haystack;
-    C _needle;
+    /// Raw haystack that `haystack` converts to string and returns.
+    T rawHaystack;
 
-    /// Returns a string of the original needle the call to `nom` was operating on.
+    /// Raw needle that `needle` converts to string and returns.
+    C rawNeedle;
+
+    /++
+     +  Returns a string of the original needle the call to `nom` was operating on.
+     +
+     +  Returns:
+     +      The raw haystack (be it any kind of string), converted to a `string`.
+     +/
     override string haystack()
     {
         import std.conv : to;
-        return _haystack.to!string;
+        return rawHaystack.to!string;
     }
 
-    /// Returns a string of the original needle the call to `nom` was operating on.
+    /++
+     +  Returns a string of the original needle the call to `nom` was operating on.
+     +
+     +  Returns:
+     +      The raw needle (be it any kind of string or character), converted to a `string`.
+     +/
     override string needle()
     {
         import std.conv : to;
-        return _needle.to!string;
+        return rawNeedle.to!string;
     }
 
     /// Create a new `NomExceptionImpl`, without attaching anything.
@@ -415,11 +432,11 @@ final class NomExceptionImpl(T, C) : NomException
     }
 
     /// Create a new `NomExceptionImpl`, attaching a command.
-    this(const string message, const T _haystack, const C _needle,
+    this(const string message, const T rawHaystack, const C rawNeedle,
         const string file = __FILE__, const size_t line = __LINE__) pure @nogc
     {
-        this._haystack = _haystack;
-        this._needle = _needle;
+        this.rawHaystack = rawHaystack;
+        this.rawNeedle = rawNeedle;
         super(message, file, line);
     }
 }
