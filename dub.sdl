@@ -14,6 +14,7 @@ importPaths "source"
 
 subPackage {
     name "core"
+    dflags "-dip25" "-dip1008"
 
     // Express :core as just having these excluded to appease AppVeyor dub...
     excludedSourceFiles \
