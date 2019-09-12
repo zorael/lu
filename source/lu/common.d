@@ -9,6 +9,9 @@ import std.range.primitives : isOutputRange;
 import std.typecons : Flag, No, Yes;
 
 
+@safe:
+
+
 // getMultipleOf
 /++
  +  Given a number, calculate the largest multiple of `n` needed to reach that number.
@@ -33,7 +36,7 @@ import std.typecons : Flag, No, Yes;
  +      The multiple of `n` that reaches and possibly overshoots `num`.
  +/
 Number getMultipleOf(Flag!"alwaysOneUp" oneUp = No.alwaysOneUp, Number)
-    (const Number num, const int n)
+    (const Number num, const int n) pure nothrow @nogc
 in ((n > 0), "Cannot get multiple of 0 or negatives")
 in ((num >= 0), "Cannot get multiples for a negative number")
 do
@@ -182,7 +185,7 @@ unittest
  +      The passed object, wrapped and labeled with the supplied ID.
  +/
 auto labeled(Thing, Label, Flag!"disableThis" disableThis = No.disableThis)
-    (Thing thing, Label label) pure nothrow @nogc @safe
+    (Thing thing, Label label) pure nothrow @nogc
 {
     import std.traits : Unqual;
     return Labeled!(Unqual!Thing, Unqual!Label, disableThis)(thing, label);
@@ -369,7 +372,7 @@ unittest
  +  Returns:
  +      A string with the passed duration expressed in natural English language.
  +/
-string timeSince(Flag!"abbreviate" abbreviate = No.abbreviate)(const Duration duration)
+string timeSince(Flag!"abbreviate" abbreviate = No.abbreviate)(const Duration duration) pure
 {
     import std.array : Appender;
 
@@ -447,14 +450,14 @@ final class ReturnValueException : Exception
     int retval;
 
     /// Create a new `ReturnValueException`, without attaching anything.
-    this(const string message, const string file = __FILE__, const size_t line = __LINE__) pure
+    this(const string message, const string file = __FILE__, const size_t line = __LINE__) pure @nogc
     {
         super(message, file, line);
     }
 
     /// Create a new `ReturnValueException`, attaching a command.
     this(const string message, const string command, const string file = __FILE__,
-        const size_t line = __LINE__) pure
+        const size_t line = __LINE__) pure @nogc
     {
         this.command = command;
         super(message, file, line);
@@ -462,7 +465,7 @@ final class ReturnValueException : Exception
 
     /// Create a new `ReturnValueException`, attaching a command and a returned value.
     this(const string message, const string command, const int retval,
-        const string file = __FILE__, const size_t line = __LINE__) pure
+        const string file = __FILE__, const size_t line = __LINE__) pure @nogc
     {
         this.command = command;
         this.retval = retval;
@@ -485,13 +488,14 @@ final class FileExistsException : Exception
     string filename;
 
     /// Create a new `FileExistsException`, without attaching a filename.
-    this(const string message, const string file = __FILE__, const size_t line = __LINE__) pure
+    this(const string message, const string file = __FILE__, const size_t line = __LINE__) pure @nogc
     {
         super(message, file, line);
     }
 
     /// Create a new `FileExistsException`, attaching a filename.
-    this(const string message, const string filename, const string file = __FILE__, const size_t line = __LINE__) pure
+    this(const string message, const string filename, const string file = __FILE__,
+        const size_t line = __LINE__) pure @nogc
     {
         this.filename = filename;
         super(message, file, line);
@@ -517,14 +521,14 @@ final class FileTypeMismatchException : Exception
     ushort attrs;
 
     /// Create a new `FileTypeMismatchException`, without embedding a filename.
-    this(const string message, const string file = __FILE__, const size_t line = __LINE__) pure
+    this(const string message, const string file = __FILE__, const size_t line = __LINE__) pure @nogc
     {
         super(message, file, line);
     }
 
     /// Create a new `FileTypeMismatchException`, embedding a filename.
     this(const string message, const string filename, const ushort attrs,
-        const string file = __FILE__, const size_t line = __LINE__) pure
+        const string file = __FILE__, const size_t line = __LINE__) pure @nogc
     {
         this.filename = filename;
         this.attrs = attrs;
@@ -741,6 +745,7 @@ unittest
  +/
 struct Buffer(T, size_t bufferSize = 128)
 {
+pure nothrow @nogc:
     /// Internal buffer static array.
     T[bufferSize] buf;
 
