@@ -232,7 +232,7 @@ if (isOutputRange!(Sink, char[]))
 in ((duration >= 0.seconds), "Cannot call timeSince on a negative duration")
 do
 {
-    import lu.core.string : plurality;
+    import lu.string : plurality;
     import std.format : formattedWrite;
 
     static if (!__traits(hasMember, Sink, "put")) import std.range.primitives : put;

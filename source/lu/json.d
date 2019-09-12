@@ -111,7 +111,7 @@ struct JSONStorage
     in (filename.length, "Tried to save a JSON storage to an empty filename")
     do
     {
-        import lu.core.conv : Enum;
+        import lu.conv : Enum;
         import std.array : Appender;
         import std.json : JSONType;
         import std.stdio : File, writeln;
@@ -190,7 +190,7 @@ struct JSONStorage
     in (givenOrder.length, "Tried to serialise a JSON storage in order given without a given order")
     do
     {
-        import lu.core.string : indent;
+        import lu.string : indent;
         import std.format : formattedWrite;
 
         if (storage.isNull)
@@ -250,7 +250,7 @@ struct JSONStorage
         }
         else
         {
-            import lu.core.string : indent;
+            import lu.string : indent;
             import std.array : array;
             import std.format : formattedWrite;
             import std.range : retro;

@@ -15,7 +15,7 @@
  +/
 module lu.objmanip;
 
-import lu.core.meld;
+import lu.meld;
 
 @safe:
 
@@ -56,7 +56,7 @@ bool setMemberByName(Thing)(ref Thing thing, const string memberToSet,
 in (memberToSet.length, "Tried to set member by name but no member string was given")
 do
 {
-    import lu.core.string : stripSuffix, stripped, unquoted;
+    import lu.string : stripSuffix, stripped, unquoted;
     import std.conv : ConvException, to;
     import std.format : format;
 
@@ -67,7 +67,7 @@ do
     {
     static foreach (immutable i; 0..thing.tupleof.length)
     {{
-        import lu.core.traits : isConfigurableVariable;
+        import lu.traits : isConfigurableVariable;
         import std.traits : Unqual, isType;
 
         alias T = Unqual!(typeof(thing.tupleof[i]));
@@ -87,7 +87,7 @@ do
                 }
                 else static if (!isSomeString!T && isArray!T)
                 {
-                    import lu.core.uda : Separator;
+                    import lu.uda : Separator;
                     import std.array : replace;
                     import std.traits : getUDAs, hasUDA;
 
@@ -114,7 +114,7 @@ do
                             .replace(escapedPlaceholder, separator.token);
                     }
 
-                    import lu.core.string : contains;
+                    import lu.string : contains;
                     while (values.contains(doubleEphemeral))
                     {
                         values = values.replace(doubleEphemeral, ephemeralSeparator);
@@ -192,7 +192,7 @@ do
                     {
                         static if (is(T == enum))
                         {
-                            import lu.core.conv : Enum;
+                            import lu.conv : Enum;
 
                             immutable asString = valueToSet
                                 .stripped
@@ -235,7 +235,7 @@ do
 ///
 unittest
 {
-    import lu.core.uda : Separator;
+    import lu.uda : Separator;
     import std.conv : to;
 
     struct Foo
@@ -324,7 +324,7 @@ unittest
     assert(success);
     assert((c.def == 42), c.def.to!string);
 
-    import lu.core.conv : Enum;
+    import lu.conv : Enum;
 
     enum E { abc, def, ghi }
 

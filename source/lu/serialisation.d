@@ -179,7 +179,7 @@ if ((Things.length > 1) && isOutputRange!(Sink, char[]))
 /++
  +  Serialises the fields of an object into an .ini file-like format.
  +
- +  It only serialises fields not annotated with `lu.core.uda.Unconfigurable`,
+ +  It only serialises fields not annotated with `lu.uda.Unconfigurable`,
  +  and it doesn't recurse into other structs or classes.
  +
  +  Example:
@@ -198,7 +198,7 @@ if ((Things.length > 1) && isOutputRange!(Sink, char[]))
 void serialise(Sink, QualThing)(ref Sink sink, QualThing thing)
 if (isOutputRange!(Sink, char[]))
 {
-    import lu.core.string : stripSuffix;
+    import lu.string : stripSuffix;
     import std.format : format, formattedWrite;
     import std.traits : Unqual;
 
@@ -216,8 +216,8 @@ if (isOutputRange!(Sink, char[]))
 
     foreach (immutable i, member; thing.tupleof)
     {
-        import lu.core.uda : Separator, Unconfigurable;
-        import lu.core.traits : isConfigurableVariable;
+        import lu.uda : Separator, Unconfigurable;
+        import lu.traits : isConfigurableVariable;
         import std.traits : hasUDA, isType;
 
         alias T = Unqual!(typeof(member));
@@ -285,7 +285,7 @@ if (isOutputRange!(Sink, char[]))
             }
             else static if (is(T == enum))
             {
-                import lu.core.conv : Enum;
+                import lu.conv : Enum;
                 immutable value = Enum!T.toString(member);
             }
             else
@@ -321,7 +321,7 @@ if (isOutputRange!(Sink, char[]))
             }
             else
             {
-                import lu.core.uda : Quoted;
+                import lu.uda : Quoted;
 
                 static if (isSomeString!T && hasUDA!(Thing.tupleof[i], Quoted))
                 {
@@ -338,7 +338,7 @@ if (isOutputRange!(Sink, char[]))
 
 unittest
 {
-    import lu.core.uda : Quoted;
+    import lu.uda : Quoted;
     import std.array : Appender;
 
     struct FooSettings
@@ -432,7 +432,7 @@ pipyon 3
  +/
 string[][string] applyConfiguration(Range, Things...)(Range range, ref Things things) pure
 {
-    import lu.core.string : stripSuffix, stripped;
+    import lu.string : stripSuffix, stripped;
     import std.format : format;
 
     string section;
@@ -504,7 +504,7 @@ string[][string] applyConfiguration(Range, Things...)(Range range, ref Things th
 
                 static if (!is(T == enum))
                 {
-                    import lu.core.uda : CannotContainComments, Unconfigurable;
+                    import lu.uda : CannotContainComments, Unconfigurable;
 
                     switch (entry)
                     {
@@ -524,7 +524,7 @@ string[][string] applyConfiguration(Range, Things...)(Range range, ref Things th
                                 }
                                 else
                                 {
-                                    import lu.core.string : contains, nom;
+                                    import lu.string : contains, nom;
 
                                     // Slice away any comments
                                     value = value.contains('#') ? value.nom('#') : value;
@@ -553,7 +553,7 @@ string[][string] applyConfiguration(Range, Things...)(Range range, ref Things th
 
 unittest
 {
-    import lu.core.uda : Separator;
+    import lu.uda : Separator;
     import std.algorithm.iteration : splitter;
     import std.conv : text;
 
@@ -685,7 +685,7 @@ naN     !"¤%&/`;
  +/
 auto justifiedConfigurationText(const string origLines) pure
 {
-    import lu.core.string : stripped;
+    import lu.string : stripped;
     import std.algorithm.comparison : max;
     import std.algorithm.iteration : splitter;
     import std.array : Appender;
@@ -771,7 +771,7 @@ unittest
 {
     import std.algorithm.iteration : splitter;
     import std.array : Appender;
-    import lu.core.uda : Separator;
+    import lu.uda : Separator;
 
     struct Foo
     {
