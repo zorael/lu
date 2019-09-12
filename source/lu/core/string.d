@@ -784,14 +784,11 @@ unittest
  +      The passed line with the `prefix` sliced away.
  +/
 string stripSeparatedPrefix(Flag!"demandSeparatingChars" demandSeparatingChars = Yes.demandSeparatingChars)
-    (const string line, const string prefix) pure
+    (const string line, const string prefix) pure @nogc
 in (prefix.length, "Tried to strip separated prefix but no prefix was given")
 do
 {
-    import std.algorithm.searching : skipOver, startsWith;
-    import std.meta : AliasSeq;
-
-    alias separatingChars = AliasSeq!(':', ' ', '!', '?');
+    enum separatingChars = ": !?";
 
     string slice = line.strippedLeft;  // mutable
 
@@ -802,19 +799,11 @@ do
     {
         // Return the whole line, a non-match, if there are no separating characters
         // (at least one of the chars in separatingChars
-        if (!slice.startsWith(separatingChars)) return line;
+        if (!slice.beginsWithOneOf(separatingChars)) return line;
         slice = slice[1..$];
     }
 
-    bool strippedSomething;
-
-    do
-    {
-        strippedSomething = slice.skipOver(separatingChars);
-    }
-    while (strippedSomething);
-
-    return slice;
+    return slice.strippedLeft(separatingChars);
 }
 
 ///
