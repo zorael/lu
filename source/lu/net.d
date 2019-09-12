@@ -389,13 +389,12 @@ void connectFiber(ref Connection conn, const bool endlesslyConnect,
     const uint connectionRetries, ref bool abort) @system
 in (!conn.connected, "Tried to set up a connecting fiber on an already live connection")
 in (!abort, "Tried to set up a connecting fiber when the abort flag was set")
+in ((conn.ips.length > 0), "Tried to connect to an unresolved connection")
+in (!conn.connected, "Tried to connect to a connected connection!")
 do
 {
     import std.concurrency : yield;
     import std.socket : AddressFamily, Socket, SocketException;
-
-    assert((conn.ips.length > 0), "Tried to connect to an unresolved connection");
-    assert(!conn.connected, "Tried to connect to a connected connection!");
 
     alias State = ConnectionAttempt.State;
     ConnectionAttempt attempt;
