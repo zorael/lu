@@ -38,7 +38,7 @@
  +  }
  +  ---
  +/
-module lu.core.meld;
+module lu.meld;
 
 import std.traits : isArray, isAssociativeArray;
 
@@ -115,7 +115,7 @@ void meldInto(MeldingStrategy strategy = MeldingStrategy.conservative, Thing)
 if ((is(Thing == struct) || is(Thing == class)) && (!is(intoThis == const) &&
     !is(intoThis == immutable)))
 {
-    import lu.core.traits : hasElaborateInit, isOfAssignableType;
+    import lu.traits : hasElaborateInit, isOfAssignableType;
     import std.traits : isArray, isSomeString, isType;
 
     static if (is(Thing == struct) && !hasElaborateInit!Thing &&
@@ -397,7 +397,7 @@ unittest
         class_ = User.Class.blacklist;
     }
 
-    import lu.core.conv : Enum;
+    import lu.conv : Enum;
 
     User twoCopy = two;
 

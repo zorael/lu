@@ -1,7 +1,7 @@
 /++
  +  User-defined attributes (UDAs) used here and there.
  +/
-module lu.core.uda;
+module lu.uda;
 
 /// UDA conveying that a field may not be serialised to configuration files.
 struct Unconfigurable;

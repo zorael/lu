@@ -4,7 +4,7 @@
  +
  +  Credit for `Enum` goes to Stephan Koch (https://github.com/UplinkCoder).
  +/
-module lu.core.conv;
+module lu.conv;
 
 import std.typecons : Flag, No, Yes;
 

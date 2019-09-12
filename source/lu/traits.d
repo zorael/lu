@@ -1,9 +1,9 @@
 /++
  +  Various compile-time traits, mostly for internal use.
  +/
-module lu.core.traits;
+module lu.traits;
 
-import lu.core.uda;
+import lu.uda;
 
 import std.traits : Unqual, isArray, isAssociativeArray, isFunction, isType;
 import std.typecons : Flag, No, Yes;
