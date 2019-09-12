@@ -3,6 +3,8 @@
  +/
 module lu.net;
 
+@safe:
+
 /// Buffer sizes in bytes.
 enum BufferSize
 {
@@ -206,7 +208,7 @@ struct ListenAttempt
  +  Yields:
  +      `ListenAttempt`s with information about the line receieved in its member values.
  +/
-void listenFiber(Connection conn, ref bool abort)
+void listenFiber(Connection conn, ref bool abort) @system
 in ((conn.connected), "Tried to set up a listening fiber on a dead connection")
 in (!abort, "Tried to set up a listening fiber when the abort flag was set")
 do
@@ -384,7 +386,7 @@ struct ConnectionAttempt
  +          make the function return.
  +/
 void connectFiber(ref Connection conn, const bool endlesslyConnect,
-    const uint connectionRetries, ref bool abort)
+    const uint connectionRetries, ref bool abort) @system
 in (!conn.connected, "Tried to set up a connecting fiber on an already live connection")
 in (!abort, "Tried to set up a connecting fiber when the abort flag was set")
 do
@@ -539,7 +541,7 @@ struct ResolveAttempt
  +      abort = Reference bool which, if set, should make us abort and return.
  +/
 void resolveFiber(ref Connection conn, const string address, const ushort port,
-    const bool useIPv6, const uint resolveAttempts, ref bool abort)
+    const bool useIPv6, const uint resolveAttempts, ref bool abort) @system
 in (!conn.connected, "Tried to set up a resolving fiber on an already live connection")
 in (address.length, "Tried to set up a resolving fiber on an empty address")
 in (!abort, "Tried to set up a resolving fiber when the abort flag was set")
