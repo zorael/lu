@@ -51,7 +51,8 @@ import lu.core.meld;
  +      array, if a passed string could not be converted into a bool, or if
  +      `std.conv.to` failed to convert a string into wanted type T.
  +/
-bool setMemberByName(Thing)(ref Thing thing, const string memberToSet, const string valueToSet)
+bool setMemberByName(Thing)(ref Thing thing, const string memberToSet,
+    const string valueToSet) pure
 in (memberToSet.length, "Tried to set member by name but no member string was given")
 do
 {
@@ -351,7 +352,7 @@ unittest
  +      emptyToken = What string to look for when zeroing out members.
  +      thing = Reference to a struct whose members to iterate over, zeroing.
  +/
-void zeroMembers(string emptyToken = "-", Thing)(ref Thing thing)
+void zeroMembers(string emptyToken = "-", Thing)(ref Thing thing) pure nothrow @nogc
 if (is(Thing == struct))
 in (emptyToken.length, "Tried to zero members with no empty token given")
 do
