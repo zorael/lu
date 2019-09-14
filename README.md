@@ -2,6 +2,8 @@
 
 Miscellaneous general-purpose library modules. Nothing extraordinary.
 
+Used in the [kameloso](https://github.com/zorael/kameloso) bot and in the [`dialect`](https://github.com/zorael/dialect) IRC parsing library.
+
 # What it is
 
 API documentation can be found [here](https://zorael.github.io/lu).
