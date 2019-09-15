@@ -473,8 +473,8 @@ static if (__VERSION__ == 2088L)
     /++
      +  Provide a pre-2.088 `std.traits.getSymbolsByUDA`.
      +
-     +  The `std.traits.getSymbolsByUDA` in 2.088 breaks kameloso completely by
-     +  inserting a constraint to force it to only work on aggregates, which a module
+     +  The `std.traits.getSymbolsByUDA` in 2.088 is completely broken by having
+     +  inserted a constraint to force it to only work on aggregates, which a module
      +  apparently isn't.
      +/
     template getSymbolsByUDA(alias symbol, alias attribute)
