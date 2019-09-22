@@ -2,7 +2,7 @@
 
 Miscellaneous general-purpose library modules. Nothing extraordinary.
 
-Used in the [kameloso](https://github.com/zorael/kameloso) bot and in the [`dialect`](https://github.com/zorael/dialect) IRC parsing library.
+Used in the [kameloso](https://github.com/zorael/kameloso) bot and in the [dialect](https://github.com/zorael/dialect) IRC parsing library.
 
 # What it is
 
@@ -11,12 +11,12 @@ API documentation can be found [here](https://zorael.github.io/lu).
 In summary:
 
 * [`conv.d`](source/lu/conv.d): Conversion functions and templates.
-* [`meld.d`](source/lu/meld.d): *Melding*, or taking two structs/classes of the same type and merging the two.
+* [`meld.d`](source/lu/meld.d): *Melding*, or taking two structs/classes of the same type and merging the two into a union of their members.
 * [`string.d`](source/lu/string.d): String manipulation functions and templates; notably `nom` which advances a string passed a supplied substring.
 * [`traits.d`](source/lu/traits.d): Miscellaneous traits and cleverness.
 * [`uda.d`](source/lu/uda.d): Some user-defined attributes used here and there.
 * [`common.d`](source/lu/common.d): Things that don't have a better home yet.
-* [`json.d`](source/lu/json.d): Convenience wrappers around a `JSONValue`.
+* [`json.d`](source/lu/json.d): Convenience wrappers around a `JSONValue`, which can be unwieldy.
 * [`net.d`](source/lu/net.d): Connection helpers, including `Fiber`s that resolve addresses, connect to servers and read full strings from connections.
 * [`objmanip.d`](source/lu/objmanip.d): Struct/class manipulation, such as setting a member field by its string name.
 * [`serialisation.d`](source/lu/serialisation.d): Functions and templates for serialising structs into an .ini file-like format.
