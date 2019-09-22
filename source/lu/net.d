@@ -193,7 +193,7 @@ struct ListenAttempt
  +  import std.concurrency : Generator;
  +
  +  auto listener = new Generator!ListenAttempt(() => listenFiber(conn, abort));
- +  generator.call();
+ +  listener.call();
  +
  +  foreach (const attempt; listener)
  +  {

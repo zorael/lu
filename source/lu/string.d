@@ -18,7 +18,7 @@ import std.typecons : Flag, No, Yes;
 
 // nom
 /++
- +  Given some string, finds the supplied separator token in it, returns the
+ +  Given some string, finds the supplied needle token in it, returns the
  +  string up to that point, and advances the passed string by ref to after the token.
  +
  +  The naming is in line with standard library functions such as
