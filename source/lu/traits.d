@@ -293,22 +293,25 @@ if (is(QualT == struct))
     {
         bool match;
 
-        foreach (immutable memberstring; __traits(allMembers, T))
+        T thing;  // need a `this`
+
+        foreach (immutable i, member; thing.tupleof)
         {
-            import std.meta : Alias;
             import std.traits : isSomeFunction, isType;
 
-            alias member = Alias!(__traits(getMember, T.init, memberstring));
-            static if (!isType!member && !isSomeFunction!member && !__traits(isTemplate, member))
+            static if (!__traits(isDeprecated, thing.tupleof[i]) &&
+                !isType!(thing.tupleof[i]) &&
+                !isSomeFunction!(thing.tupleof[i]) &&
+                !__traits(isTemplate, thing.tupleof[i]))
             {
-                alias memberType = typeof(member);
+                alias MemberType = typeof(thing.tupleof[i]);
 
-                static if (is(memberType == float) || is(memberType == double))
+                static if (is(MemberType == float) || is(MemberType == double))
                 {
                     import std.math : isNaN;
                     match = !member.isNaN;
                 }
-                else static if (member != memberType.init)
+                else static if (T.init.tupleof[i] != MemberType.init)
                 {
                     match = true;
                 }
