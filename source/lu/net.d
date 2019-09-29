@@ -203,13 +203,16 @@ struct ListenAttempt
  +  Params:
  +      conn = `Connection` whose `std.socket.Socket` it reads from the server with.
  +      abort = Reference flag which, if set, means we should abort and return.
+ +      connectionLost = How many seconds may pass before we consider the connection lost.
  +
  +  Yields:
  +      `ListenAttempt`s with information about the line receieved in its member values.
  +/
-void listenFiber(Connection conn, ref bool abort) @system
+void listenFiber(Connection conn, ref bool abort,
+    const int connectionLost = Timeout.connectionLost) @system
 in ((conn.connected), "Tried to set up a listening fiber on a dead connection")
 in (!abort, "Tried to set up a listening fiber when the abort flag was set")
+in ((connectionLost > 0), "Tried to set up a listening fiber with connection timeut of <= 0")
 do
 {
     import core.time : seconds;
