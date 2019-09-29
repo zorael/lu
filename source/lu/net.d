@@ -18,7 +18,6 @@ enum Timeout
 {
     send = 5,
     receive = 1,
-    keepalive = 300,
     connectionLost = 600,
 }
 
