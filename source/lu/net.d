@@ -221,7 +221,6 @@ do
 
     ubyte[BufferSize.socketReceive*2] buffer;
     auto timeLastReceived = Clock.currTime;
-    bool pingingToTestConnection;
     size_t start;
 
     alias State = ListenAttempt.State;
@@ -252,15 +251,7 @@ do
             attempt.elapsed = elapsed;
             attempt.line = string.init;
 
-            if (!pingingToTestConnection && (elapsed > Timeout.keepalive.seconds))
-            {
-                conn.send("PING :helloasdf");
-                pingingToTestConnection = true;
-                attempt.state = State.isEmpty;
-                yield(attempt);
-                continue;
-            }
-            else if (elapsed > Timeout.connectionLost.seconds)
+            if (elapsed > connectionLost.seconds)
             {
                 attempt.state = State.timeout;
                 yield(attempt);
@@ -303,7 +294,6 @@ do
         }
 
         timeLastReceived = Clock.currTime;
-        pingingToTestConnection = false;
 
         immutable ptrdiff_t end = (start + bytesReceived);
         ptrdiff_t newline = (cast(char[])buffer[0..end]).indexOf('\n');
