@@ -330,7 +330,7 @@ do
 
         start = (end - pos);
 
-        // logger.logf("REMNANT:|%s|", cast(string)buffer[pos..end]);
+        // writefln("REMNANT:|%s|", cast(string)buffer[pos..end]);
         import core.stdc.string : memmove;
         memmove(buffer.ptr, (buffer.ptr + pos), (ubyte.sizeof * start));
     }
