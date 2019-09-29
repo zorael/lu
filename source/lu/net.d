@@ -212,7 +212,7 @@ void listenFiber(Connection conn, ref bool abort,
     const int connectionLost = Timeout.connectionLost) @system
 in ((conn.connected), "Tried to set up a listening fiber on a dead connection")
 in (!abort, "Tried to set up a listening fiber when the abort flag was set")
-in ((connectionLost > 0), "Tried to set up a listening fiber with connection timeut of <= 0")
+in ((connectionLost > 0), "Tried to set up a listening fiber with connection timeout of <= 0")
 do
 {
     import core.time : seconds;
