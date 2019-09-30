@@ -1027,6 +1027,15 @@ unittest
 
     immutable n12 = sharedDomains("rizon.net", "irc.rizon.net");
     assert((n12 == 2), n12.text);
+
+    immutable n13 = sharedDomains!(No.caseSensitive)("irc.gamesurge.net", "Stuff.GameSurge.net");
+    assert((n13 == 2), n13.text);
+
+    immutable n14 = sharedDomains!(No.caseSensitive)("irc.freenode.net", "irc.FREENODE.net");
+    assert((n14 == 3), n14.text);
+
+    immutable n15 = sharedDomains!(No.caseSensitive)("irc.SpotChat.org", "irc.FREENODE.net");
+    assert((n15 == 0), n15.text);
 }
 
 
