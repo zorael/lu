@@ -903,9 +903,13 @@ unittest
  +  ---
  +  int numDomains = sharedDomains("irc.freenode.net", "leguin.freenode.net");
  +  assert(numDomains == 2);  // freenode.net
+ +
+ +  int numDomains2 = sharedDomains("Portlane2.EU.GameSurge.net", "services.gamesurge.net");
+ +  assert(numDomains2 == 2);  // gamesurge.net
  +  ---
  +
  +  Params:
+ +      caseSensitive = Whether or not comparison should be done on a case-sensitive basis.
  +      one = First domain string.
  +      other = Second domain string.
  +
@@ -915,18 +919,29 @@ unittest
  +  TODO:
  +      Support partial globs.
  +/
-auto sharedDomains(const string one, const string other) pure @nogc nothrow
+auto sharedDomains(Flag!"caseSensitive" caseSensitive = Yes.caseSensitive)
+    (const string one, const string other) pure @nogc nothrow
 {
     if (!one.length || !other.length) return 0;
 
-    static uint numDomains(const ubyte[] one, const ubyte[] other)
+    static uint numDomains(const char[] one, const char[] other)
     {
         uint dots;
         double doubleDots;
 
         // If both strings are the same, act as if there's an extra dot.
         // That gives (.)rizon.net and (.)rizon.net two suffixes.
-        if (one.length && (one == other)) ++dots;
+
+        static if (caseSensitive)
+        {
+            if (one.length && (one == other)) ++dots;
+        }
+        else
+        {
+            import std.algorithm.comparison : equal;
+            import std.uni : asLowerCase;
+            if (one.length && one.asLowerCase.equal(other.asLowerCase)) ++dots;
+        }
 
         foreach (immutable i; 0..one.length)
         {
@@ -940,7 +955,15 @@ auto sharedDomains(const string one, const string other) pure @nogc nothrow
 
             immutable c2 = other[$-i-1];
 
-            if (c1 != c2) break;
+            static if (caseSensitive)
+            {
+                if (c1 != c2) break;
+            }
+            else
+            {
+                import std.ascii : toLower;
+                if (c1.toLower != c2.toLower) break;
+            }
 
             if (c1 == '.')
             {
@@ -959,14 +982,9 @@ auto sharedDomains(const string one, const string other) pure @nogc nothrow
         return dots;
     }
 
-    import std.string : representation;
-
-    immutable oneAsUbytes = one.representation;
-    immutable otherAsUbytes = other.representation;
-
     return (one.length > other.length) ?
-        numDomains(oneAsUbytes, otherAsUbytes) :
-        numDomains(otherAsUbytes, oneAsUbytes);
+        numDomains(one, other) :
+        numDomains(other, one);
 }
 
 ///
