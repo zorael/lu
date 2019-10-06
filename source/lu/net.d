@@ -98,31 +98,25 @@ public:
     /++
      +  Sends a line to the server.
      +
-     +  Sadly the IRC server requires lines to end with a newline, so we need
-     +  to chain one directly after the line itself. If several threads are
-     +  allowed to write to the same socket in parallel, this would be a race
-     +  condition.
-     +
-     +  Additionally lines are only allowed to be 512 bytes.
+     +  Intended for servers that deliminates lines by linebreaks, such as IRC servers.
      +
      +  Example:
      +  ---
      +  conn.sendline("NICK kameloso");
      +  conn.sendline("PRIVMSG #channel :text");
-     +  conn.sendline("NICK ", nickname, " :", content);
+     +  conn.sendline("PRIVMSG " ~ channel ~ " :" ~ content);
+     +  conn.sendline("PRIVMSG ", channel, " :", content);  // Identical to above
      +  ---
      +
      +  Params:
      +      maxLineLength = Maximum line length before the sent message will be truncated.
-     +      data = Variadic list of strings or characters to send.
-     +
-     +  Bugs:
-     +      Limits lines to `maxLineLength` but doesn't take into consideration whether or not a
-     +      line included a newline, which would have already broken the line.
+     +      data = Variadic list of strings or characters to send. May contain
+     +          complete substrings separated by newline characters.
      +/
     void sendline(uint maxLineLength = 512, Data...)(const Data data)
     {
         int remainingMaxLength = (maxLineLength - 1);
+        bool justSentNewline;
 
         foreach (immutable piece; data)
         {
@@ -133,22 +127,45 @@ public:
 
             static if (isSomeString!T || hasLength!T)
             {
-                import std.algorithm.comparison : min;
+                import std.algorithm.iteration : splitter;
+                import std.string : indexOf;
 
-                immutable p = min(piece.length, remainingMaxLength);
-                socket.send(piece[0..p]);
-                remainingMaxLength -= p;
+                if (piece.indexOf('\n') != -1)
+                {
+                    // Line is made up of smaller sublines
+                    foreach (immutable line; piece.splitter("\n"))
+                    {
+                        import std.algorithm.comparison : min;
+
+                        immutable end = min(line.length, remainingMaxLength);
+                        socket.send(line[0..end]);
+                        socket.send("\n");
+                        justSentNewline = true;
+                        remainingMaxLength = (maxLineLength - 1);  // sent newline; reset
+                    }
+                }
+                else
+                {
+                    // Plain line *or* part of a line
+                    import std.algorithm.comparison : min;
+
+                    immutable end = min(piece.length, remainingMaxLength);
+                    socket.send(piece[0..end]);
+                    justSentNewline = false;
+                    remainingMaxLength -= end;
+                }
             }
             else
             {
                 socket.send(piece);
+                justSentNewline = false;
                 --remainingMaxLength;
             }
 
             if (remainingMaxLength <= 0) break;
         }
 
-        socket.send("\n");
+        if (!justSentNewline) socket.send("\n");
     }
 }
 
