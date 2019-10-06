@@ -111,16 +111,16 @@ unittest
     enum Baz { abc, def, ghi }
     Baz baz;
 
-    assert(isOfAssignableType!int);
-    assert(!isOfAssignableType!(const int));
-    assert(!isOfAssignableType!(immutable int));
-    assert(isOfAssignableType!(string[]));
-    assert(isOfAssignableType!Foo);
-    assert(isOfAssignableType!Bar);
-    assert(!isOfAssignableType!boo);  // room for improvement: @property
-    assert(isOfAssignableType!Baz);
-    assert(!isOfAssignableType!baz);
-    assert(isOfAssignableType!string);
+    static assert(isOfAssignableType!int);
+    static assert(!isOfAssignableType!(const int));
+    static assert(!isOfAssignableType!(immutable int));
+    static assert(isOfAssignableType!(string[]));
+    static assert(isOfAssignableType!Foo);
+    static assert(isOfAssignableType!Bar);
+    static assert(!isOfAssignableType!boo);  // room for improvement: @property
+    static assert(isOfAssignableType!Baz);
+    static assert(!isOfAssignableType!baz);
+    static assert(isOfAssignableType!string);
 }
 
 
@@ -138,12 +138,12 @@ enum isTrulyString(S) = is(S == string) || is(S == dstring) || is(S == wstring);
 ///
 unittest
 {
-    assert(isTrulyString!string);
-    assert(isTrulyString!dstring);
-    assert(isTrulyString!wstring);
-    assert(!isTrulyString!(char[]));
-    assert(!isTrulyString!(dchar[]));
-    assert(!isTrulyString!(wchar[]));
+    static assert(isTrulyString!string);
+    static assert(isTrulyString!dstring);
+    static assert(isTrulyString!wstring);
+    static assert(!isTrulyString!(char[]));
+    static assert(!isTrulyString!(dchar[]));
+    static assert(!isTrulyString!(wchar[]));
 }
 
 
