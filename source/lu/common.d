@@ -123,6 +123,17 @@ public:
         this.id = id;
     }
 
+    /++
+     +  Assign `thing` a new value.
+     +
+     +  Params:
+     +      thing = New value for `thing`.
+     +/
+    void opAssign(Thing thing)
+    {
+        this.thing = thing;
+    }
+
     static if (disableThis)
     {
         /// Never copy this.
