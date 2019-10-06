@@ -762,8 +762,9 @@ pure nothrow @nogc:
      +      more = Item to add.
      +/
     void put(const T more)
+    in ((end < bufferSize), typeof(this).stringof ~ " buffer overflow")
+    do
     {
-        assert((end < bufferSize), typeof(this).stringof ~ " buffer overflow");
         buf[end++] = more;
     }
 
@@ -786,8 +787,9 @@ pure nothrow @nogc:
      +      An item T.
      +/
     T front()
+    in ((end > 0), "Empty range")
+    do
     {
-        assert((end > 0), "Empty range");
         return buf[pos];
     }
 
