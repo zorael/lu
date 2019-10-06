@@ -109,26 +109,42 @@ public:
      +  ---
      +  conn.sendline("NICK kameloso");
      +  conn.sendline("PRIVMSG #channel :text");
+     +  conn.sendline("NICK ", nickname, " :", content);
      +  ---
      +
      +  Params:
-     +      strings = Variadic list of strings to send.
+     +      maxLineLength = Maximum line length before the sent message will be truncated.
+     +      data = Variadic list of strings or characters to send.
      +
      +  Bugs:
-     +      Limits lines to 512 but doesn't take into consideration whether or not a
-     +      line included a newline, which would break.
+     +      Limits lines to `maxLineLength` but doesn't take into consideration whether or not a
+     +      line included a newline, which would have already broken the line.
      +/
-    void sendline(Strings...)(const Strings strings)
+    void sendline(uint maxLineLength = 512, Data...)(const Data data)
     {
-        int remainingMaxLength = 511;
+        int remainingMaxLength = (maxLineLength - 1);
 
-        foreach (immutable string_; strings)
+        foreach (immutable piece; data)
         {
-            import std.algorithm.comparison : min;
+            import std.range.primitives : hasLength;
+            import std.traits : isSomeString;
 
-            immutable thisLength = min(string_.length, remainingMaxLength);
-            socket.send(string_[0..thisLength]);
-            remainingMaxLength -= thisLength;
+            alias T = typeof(piece);
+
+            static if (isSomeString!T || hasLength!T)
+            {
+                import std.algorithm.comparison : min;
+
+                immutable p = min(piece.length, remainingMaxLength);
+                socket.send(piece[0..p]);
+                remainingMaxLength -= p;
+            }
+            else
+            {
+                socket.send(piece);
+                --remainingMaxLength;
+            }
+
             if (remainingMaxLength <= 0) break;
         }
 
