@@ -170,6 +170,14 @@ unittest
 
     assert(arr[0].b);
     assert(!arr[1].wefpok);
+
+    Labeled!(string, int) item;
+    item.thing = "harbl";
+    item.label = 42;
+    assert(item.id == 42);
+    assert(item.thing == "harbl");
+    item = "snarbl";
+    assert(item.thing == "snarbl");
 }
 
 
