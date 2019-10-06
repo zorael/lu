@@ -21,9 +21,9 @@ import std.typecons : Flag, No, Yes;
  +
  +  Example:
  +  ---
- +  immutable width = 16.getMultipleOf(4);
+ +  immutable width = 15.getMultipleOf(4);
  +  assert(width == 16);
- +  immutable width2 = 16.getMultipleOf!(Yes.oneUp)(4);
+ +  immutable width2 = 16.getMultipleOf!(Yes.alwaysOneUp)(4);
  +  assert(width2 == 20);
  +  ---
  +
@@ -98,6 +98,15 @@ unittest
  +  Access to the `thing` is passed on by use of `alias this` proxying, so this
  +  will transparently act like the original `thing` in most cases. The original
  +  object can be accessed via the `thing` member when it doesn't.
+ +
+ +  Example:
+ +  ---
+ +  Labeled!(string, long) timestring;
+ +
+ +  timestring.thing = "Some string";
+ +  timestring.long = Clock.currTime.toUnixTime;
+ +  timestring = "New string value";
+ +  ---
  +
  +  Params:
  +      Thing = The type to embed and label.
@@ -562,6 +571,23 @@ final class FileTypeMismatchException : Exception
  +  `cygwin` as an alternative next to `win32` and `win64`, as well as embedded
  +  terminal consoles like in Visual Studio Code.
  +
+ +  Example:
+ +  ---
+ +  immutable currentPlatform = getPlatform();
+ +
+ +  switch (currentPlatform)
+ +  {
+ +  case "Cygwin":
+ +  case "vscode":
+ +      // Special code for the terminal not being a conventional terminal (such as a pager)...
+ +      break;
+ +
+ +  default:
+ +      // Code for normal terminal
+ +      break;
+ +  }
+ +  ---
+ +
  +  Returns:
  +      String name of the current platform.
  +/
@@ -615,6 +641,27 @@ import std.traits : isAssociativeArray;
  +  when foreaching through it. So far we have been doing a simple mark-sweep
  +  garbage collection whenever we encounter this use-case in the code, so why
  +  not just make a generic solution instead and deduplicate code?
+ +
+ +  Example:
+ +  ---
+ +  auto aa =
+ +  [
+ +      "abc" : "def",
+ +      "ghi" : string.init;
+ +      "mno" : "123",
+ +      "pqr" : string.init,
+ +  ];
+ +
+ +  pruneAA(aa);
+ +
+ +  assert("ghi" !in aa);
+ +  assert("pqr" !in aa);
+ +
+ +  pruneAA!((entry) => entry.length > 0)(aa);
+ +
+ +  assert("abc" !in aa);
+ +  assert("mno" !in aa);
+ +  ---
  +
  +  Params:
  +      pred = Optional predicate if special logic is needed to determine whether

@@ -19,7 +19,7 @@ import std.typecons : Flag, No, Yes;
  +  the binary and is supposedly not performant on larger enums.
  +
  +  Params:
- +      E = `enum` to base this template on.
+ +      E = enum to base this template on.
  +/
 template Enum(E)
 if (is(E == enum))
@@ -29,7 +29,9 @@ if (is(E == enum))
      +  Takes the member of an enum by string and returns that enum member.
      +
      +  It lowers to a big switch of the enum member strings. It is faster than
-     +  `std.conv.to` and generates less template bloat.
+     +  `std.conv.to` and generates less template bloat. However, it does not work
+     +  with enums where multiple members share the same values, as the big switch
+     +  ends up getting duplicate cases.
      +
      +  Taken from: https://forum.dlang.org/post/bfnwstkafhfgihavtzsz@forum.dlang.org
      +  written by Stephan Koch (https://github.com/UplinkCoder).
@@ -54,6 +56,9 @@ if (is(E == enum))
      +
      +  Throws: `std.conv.ConvException` if no matching enum member with the
      +      passed name could be found.
+     +
+     +  Bugs:
+     +      Does not work with enums that have members with duplicate values.
      +/
     E fromString(const string enumstring) pure
     {
@@ -95,7 +100,7 @@ if (is(E == enum))
      +  enum SomeEnum { one, two, three };
      +
      +  string foo = Enum!SomeEnum.toString(one);
-     +  assert((foo == "one"), foo);
+     +  assert(foo == "one");
      +  ---
      +
      +  Params:

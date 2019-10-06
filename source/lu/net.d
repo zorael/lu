@@ -106,6 +106,7 @@ public:
      +  conn.sendline("PRIVMSG #channel :text");
      +  conn.sendline("PRIVMSG " ~ channel ~ " :" ~ content);
      +  conn.sendline("PRIVMSG ", channel, " :", content);  // Identical to above
+     +  conn.sendline!1024(longerLine);  // Now with custom line lengths
      +  ---
      +
      +  Params:

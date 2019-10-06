@@ -904,7 +904,7 @@ unittest
  +  int numDomains = sharedDomains("irc.freenode.net", "leguin.freenode.net");
  +  assert(numDomains == 2);  // freenode.net
  +
- +  int numDomains2 = sharedDomains("Portlane2.EU.GameSurge.net", "services.gamesurge.net");
+ +  int numDomains2 = sharedDomains!(No.caseSensitive)("Portlane2.EU.GameSurge.net", "services.gamesurge.net");
  +  assert(numDomains2 == 2);  // gamesurge.net
  +  ---
  +
@@ -1065,7 +1065,6 @@ do
     import std.range : repeat, takeExactly;
     import std.algorithm.iteration : joiner;
     import std.array : array;
-
 
     enum char[spaces] tab = ' '.repeat.takeExactly(spaces).array;
 
