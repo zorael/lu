@@ -223,10 +223,18 @@ auto labeled(Flag!"disableThis" disableThis = No.disableThis, Thing, Label)
 unittest
 {
     auto foo = labeled("FOO", "foo");
-    assert(is(typeof(foo) == Labeled!(string, string)));
+    static assert(is(typeof(foo) == Labeled!(string, string)));
 
     assert(foo.thing == "FOO");
     assert(foo.id == "foo");
+
+    auto bar = labeled!(Yes.disableThis)("hirf", 0);
+    assert(bar.thing == "hirf");
+    assert(bar.label == 0);
+
+    void takesByValue(typeof(bar) bar) {}
+
+    static assert(!__traits(compiles, takesByValue(bar)));
 }
 
 
