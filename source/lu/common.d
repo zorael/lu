@@ -463,9 +463,9 @@ unittest
  +/
 enum Next
 {
-    continue_,     /// Keep doing whatever is being done.
+    continue_,     /// Keep doing whatever is being done, alternatively continue on to the next step.
     retry,         /// Halt what's being done and give it another attempt.
-    returnSuccess, /// Exit or abort with a positive return value.
+    returnSuccess, /// Exit or return with a positive return value.
     returnFailure, /// Exit or abort with a negative return value.
 }
 
