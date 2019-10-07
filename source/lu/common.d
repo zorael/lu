@@ -212,7 +212,7 @@ unittest
  +  Returns:
  +      The passed object, wrapped and labeled with the supplied ID.
  +/
-auto labeled(Thing, Label, Flag!"disableThis" disableThis = No.disableThis)
+auto labeled(Flag!"disableThis" disableThis = No.disableThis, Thing, Label)
     (Thing thing, Label label) pure nothrow @nogc
 {
     import std.traits : Unqual;
