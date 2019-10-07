@@ -25,6 +25,11 @@ In summary:
 
 * nothing right now, ideas needed
 
+# Built with
+
+* [**D**](https://dlang.org)
+* [`dub`](https://code.dlang.org)
+
 # License
 
 This project is licensed under the **MIT** license - see the [LICENSE](LICENSE) file for details.
