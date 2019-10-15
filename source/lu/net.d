@@ -608,6 +608,7 @@ do
             {
             case "getaddrinfo error: Name or service not known":
             case "getaddrinfo error: Temporary failure in name resolution":
+            case "getaddrinfo error: No such host is known.":
                 // Assume net down, wait and try again
                 attempt.state = State.exception;
                 attempt.error = e.msg;
