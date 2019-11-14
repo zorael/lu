@@ -298,6 +298,19 @@ do
 
             attempt.lastSocketError_ = lastSocketError;
 
+            version(Posix)
+            {
+                import core.stdc.errno : EINTR, errno;
+
+                if (errno == EINTR)
+                {
+                    // Interrupted read; try again
+                    attempt.state = State.isEmpty;
+                    yield(attempt);
+                    continue;
+                }
+            }
+
             switch (attempt.lastSocketError_)
             {
             case "Resource temporarily unavailable":
