@@ -272,11 +272,24 @@ do
     {
         immutable ptrdiff_t bytesReceived = conn.receive(buffer[start..$]);
         attempt.bytesReceived = bytesReceived;
+        attempt.lastSocketError_ = lastSocketError;
+
+        version(Posix)
+        {
+            import core.stdc.errno : EINTR, errno;
+
+            if (errno == EINTR)
+            {
+                // Interrupted read; try again
+                attempt.state = State.isEmpty;
+                yield(attempt);
+                continue;
+            }
+        }
 
         if (!bytesReceived)
         {
             attempt.state = State.error;
-            attempt.lastSocketError_ = lastSocketError;
             yield(attempt);
             // Should never get here
             assert(0, "Dead listenFiber resumed after yield (no bytes received)");
@@ -294,21 +307,6 @@ do
                 // Should never get here
                 assert(0, "Timed out listenFiber resumed after yield " ~
                     "(received error, elapsed > timeout)");
-            }
-
-            attempt.lastSocketError_ = lastSocketError;
-
-            version(Posix)
-            {
-                import core.stdc.errno : EINTR, errno;
-
-                if (errno == EINTR)
-                {
-                    // Interrupted read; try again
-                    attempt.state = State.isEmpty;
-                    yield(attempt);
-                    continue;
-                }
             }
 
             switch (attempt.lastSocketError_)
