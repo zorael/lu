@@ -1,4 +1,3 @@
-module lu.deltastrings;
 /++
  +  Functions used to generate strings of statements describing the differences
  +  (or delta) between two instances of a struct. They can be either assignment
@@ -6,6 +5,7 @@ module lu.deltastrings;
  +
  +  See the unit tests of `formatDeltaInto` for examples.
  +/
+module lu.deltastrings;
 
 import std.typecons : Flag, No, Yes;
 import std.range.primitives : isOutputRange;
