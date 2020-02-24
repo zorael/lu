@@ -20,6 +20,7 @@ In summary:
 * [`net.d`](source/lu/net.d): Connection helpers, including `Fiber`s that resolve addresses, connect to servers and read full strings from connections.
 * [`objmanip.d`](source/lu/objmanip.d): Struct/class manipulation, such as setting a member field by its string name.
 * [`serialisation.d`](source/lu/serialisation.d): Functions and templates for serialising structs into an .ini file-like format.
+* [`deltastrings.d`](source/lu/deltastrings.d): Expressing the differences (or delta) between two instances of a struct, as either assignment statements or assert statements.
 
 # Roadmap
 
