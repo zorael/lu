@@ -13,7 +13,7 @@ install_deps() {
     # fingerprint 0xEBCF975E5BA24D5E
     sudo apt install -y --allow-unauthenticated --reinstall d-apt-keyring
     sudo apt update
-    sudo apt install dmd-compiler dub ldc
+    sudo apt install dmd-compiler dub #ldc
 }
 
 build() {
@@ -58,11 +58,11 @@ case "$1" in
 
         dub --version
         dmd --version
-        ldc2 --version
+        #ldc2 --version
         ;;
     build)
         time build dmd
-        time build ldc2
+        #time build ldc2  # Still too old, 1.12.0
         ;;
     *)
         echo "Unknown command: $1"
