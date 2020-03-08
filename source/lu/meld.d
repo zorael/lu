@@ -557,6 +557,21 @@ unittest
     b.server = Asdf.init.server;
     b.meldInto!(MeldingStrategy.aggressive)(a);
     assert((a.server == "a"), a.server);
+
+    import lu.uda : Unmeldable;
+
+    struct Blah
+    {
+        int yes = 42;
+        @Unmeldable int no = 24;
+    }
+
+    Blah blah1, blah2;
+    blah1.yes = 5;
+    blah1.no = 42;
+    blah1.meldInto!(MeldingStrategy.aggressive)(blah2);
+    assert((blah2.yes == 5), blah2.yes.to!string);
+    assert((blah2.no == 24), blah2.no.to!string);
 }
 
 
