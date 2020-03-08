@@ -116,7 +116,8 @@ if ((is(Thing == struct) || is(Thing == class)) && (!is(intoThis == const) &&
     !is(intoThis == immutable)))
 {
     import lu.traits : hasElaborateInit, isOfAssignableType;
-    import std.traits : isArray, isSomeString, isType;
+    import lu.uda : Unmeldable;
+    import std.traits : isArray, isSomeString, isType, hasUDA;
 
     static if (is(Thing == struct) && !hasElaborateInit!Thing &&
         (strategy == MeldingStrategy.conservative))
@@ -135,7 +136,11 @@ if ((is(Thing == struct) || is(Thing == class)) && (!is(intoThis == const) &&
         {
             alias T = typeof(targetMember);
 
-            static if (is(T == struct) || is(T == class))
+            static if (hasUDA!(intoThis.tupleof[i], Unmeldable))
+            {
+                // Do nothing
+            }
+            else static if (is(T == struct) || is(T == class))
             {
                 // Recurse
                 meldThis.tupleof[i].meldInto!strategy(targetMember);
