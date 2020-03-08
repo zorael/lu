@@ -116,11 +116,6 @@ struct JSONStorage
         import std.json : JSONType;
         import std.stdio : File, writeln;
 
-        assert(((strategy != KeyOrderStrategy.inGivenOrder) || !givenOrder.length),
-            "Tried to save a JSONStorage with a " ~ Enum!KeyOrderStrategy.toString(strategy) ~
-            " while also supplying a given order, which is only relevant with " ~
-            "KeyOrderStrategy.inGivenOrder");
-
         Appender!string sink;
 
         if (storage.type == JSONType.object)
