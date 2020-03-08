@@ -29,3 +29,8 @@ struct CannotContainComments;
  +  UDA conveying that this member's value must be quoted when serialised.
  +/
 struct Quoted;
+
+/++
+ +  UDA conveying that this member's value cannot or should not be melded.
+ +/
+struct Unmeldable;
