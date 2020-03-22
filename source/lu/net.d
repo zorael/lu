@@ -272,7 +272,6 @@ do
     {
         immutable ptrdiff_t bytesReceived = conn.receive(buffer[start..$]);
         attempt.bytesReceived = bytesReceived;
-        attempt.lastSocketError_ = lastSocketError;
 
         version(Posix)
         {
@@ -282,6 +281,7 @@ do
             {
                 // Interrupted read; try again
                 attempt.state = State.isEmpty;
+                attempt.lastSocketError_ = lastSocketError;
                 yield(attempt);
                 continue;
             }
@@ -290,6 +290,7 @@ do
         if (!bytesReceived)
         {
             attempt.state = State.error;
+            attempt.lastSocketError_ = lastSocketError;
             yield(attempt);
             // Should never get here
             assert(0, "Dead listenFiber resumed after yield (no bytes received)");
@@ -299,6 +300,7 @@ do
             immutable elapsed = (Clock.currTime - timeLastReceived);
             attempt.elapsed = elapsed;
             attempt.line = string.init;
+            attempt.lastSocketError_ = lastSocketError;
 
             if (elapsed > connectionLost.seconds)
             {
@@ -340,6 +342,7 @@ do
             }
         }
 
+        attempt.lastSocketError_ = string.init;
         timeLastReceived = Clock.currTime;
 
         immutable ptrdiff_t end = (start + bytesReceived);
