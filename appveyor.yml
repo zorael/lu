@@ -4,6 +4,18 @@ environment:
   matrix:
     - DC: dmd
       DReleaseType: releases
+      DVersion: 2.091.0
+      DSubversion:
+      arch: x64
+      dubArgs:
+    - DC: dmd
+      DReleaseType: releases
+      DVersion: 2.091.0
+      DSubversion:
+      arch: x86
+      dubArgs:
+    - DC: dmd
+      DReleaseType: releases
       DVersion: 2.090.1
       DSubversion:
       arch: x64
@@ -23,18 +35,6 @@ environment:
     - DC: dmd
       DReleaseType: releases
       DVersion: 2.089.1
-      DSubversion:
-      arch: x86
-      dubArgs:
-    - DC: dmd
-      DReleaseType: releases
-      DVersion: 2.088.1
-      DSubversion:
-      arch: x64
-      dubArgs:
-    - DC: dmd
-      DReleaseType: releases
-      DVersion: 2.088.1
       DSubversion:
       arch: x86
       dubArgs:
