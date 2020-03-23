@@ -2176,7 +2176,7 @@ unittest
 }
 
 
-// integerToAlpha
+// integerToAlphaInto
 /++
  +  Translates an integer into an alphanumeric string. Assumes ASCII.
  +
@@ -2186,7 +2186,7 @@ unittest
  +  ---
  +  Appender!string sink;
  +  int num = 12345;
- +  integerToAlpha(sink, num);
+ +  integerToAlphaInto(sink, num);
  +  assert(sink.data == "12345");
  +  assert(sink.data == num.to!string);
  +  ---
@@ -2196,7 +2196,7 @@ unittest
  +      sink = Output range sink.
  +      num = Integer to translate into string.
  +/
-void integerToAlpha(size_t maxDigits = 12, Sink)(auto ref Sink sink, const int num)
+void integerToAlphaInto(size_t maxDigits = 12, Sink)(auto ref Sink sink, const int num)
 {
     import std.math : abs;
 
@@ -2233,25 +2233,25 @@ unittest
 
     {
         enum num = 123_456;
-        integerToAlpha(sink, num);
+        integerToAlphaInto(sink, num);
         assert((sink.data == "123456"), sink.data);
         sink.clear();
     }
     {
         enum num = 0;
-        integerToAlpha(sink, num);
+        integerToAlphaInto(sink, num);
         assert((sink.data == "0"), sink.data);
         sink.clear();
     }
     {
         enum num = 999;
-        integerToAlpha(sink, num);
+        integerToAlphaInto(sink, num);
         assert((sink.data == "999"), sink.data);
         sink.clear();
     }
     {
         enum num = -987;
-        integerToAlpha(sink, num);
+        integerToAlphaInto(sink, num);
         assert((sink.data == "-987"), sink.data);
         //sink.clear();
     }
@@ -2285,7 +2285,7 @@ string integerToAlpha(size_t maxDigits = 12)(const uint num)
 
     Appender!string sink;
     sink.reserve(maxDigits);
-    sink.integerToAlpha!maxDigits(num);
+    integerToAlphaInto!maxDigits(sink, num);
     return sink.data;
 }
 
@@ -2294,22 +2294,22 @@ unittest
 {
     {
         enum num = 123_456;
-        immutable translated = integerToAlpha(num);
+        immutable translated = num.integerToAlpha;
         assert((translated == "123456"), translated);
     }
     {
         enum num = 0;
-        immutable translated = integerToAlpha(num);
+        immutable translated = num.integerToAlpha;
         assert((translated == "0"), translated);
     }
     {
         enum num = 999;
-        immutable translated = integerToAlpha(num);
+        immutable translated = num.integerToAlpha;
         assert((translated == "999"), translated);
     }
     {
         enum num = -987;
-        immutable translated = integerToAlpha(num);
+        immutable translated = num.integerToAlpha;
         assert((translated == "-987"), translated);
     }
 }
