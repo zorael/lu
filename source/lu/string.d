@@ -2183,18 +2183,24 @@ unittest
  +      sink = Output range sink.
  +      num = Integer to translate into string.
  +/
-void integerToAlpha(size_t maxDigits = 12, Sink)(auto ref Sink sink, const uint num)
+void integerToAlpha(size_t maxDigits = 12, Sink)(auto ref Sink sink, const int num)
 {
+    import std.math : abs;
+
     if (num == 0)
     {
         sink.put('0');
         return;
     }
+    else if (num < 0)
+    {
+        sink.put('-');
+    }
 
     uint[maxDigits] digits;
     size_t pos;
 
-    for (uint window = num; window > 0; window /= 10)
+    for (uint window = abs(num); window > 0; window /= 10)
     {
         digits[pos++] = (window % 10);
     }
