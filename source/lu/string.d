@@ -2182,6 +2182,15 @@ unittest
  +
  +  Overload that takes an output range sink.
  +
+ +  Example:
+ +  ---
+ +  Appender!string sink;
+ +  int num = 12345;
+ +  integerToAlpha(sink, num);
+ +  assert(sink.data == "12345");
+ +  assert(sink.data == num.to!string);
+ +  ---
+ +
  +  Params:
  +      maxDigits = The maximum number of digits to expect input of.
  +      sink = Output range sink.
@@ -2254,6 +2263,14 @@ unittest
  +  Translates an integer into an alphanumeric string. Assumes ASCII.
  +
  +  Overload that returns the string.
+ +
+ +  Example:
+ +  ---
+ +  int num = 12345;
+ +  string asString = num.integerToAlpha;
+ +  assert(asString == "12345");
+ +  assert(asString = num.to!string);
+ +  ---
  +
  +  Params:
  +      maxDigits = The maximum number of digits to expect input of.
