@@ -2170,3 +2170,108 @@ unittest
         assert((actual == expected), actual);
     }
 }
+
+
+// integerToAlpha
+/++
+ +  Translates an integer into an alphanumeric string. Assumes ASCII.
+ +
+ +  Overload that takes an output range sink.
+ +
+ +  Params:
+ +      maxDigits = The maximum number of digits to expect input of.
+ +      sink = Output range sink.
+ +      num = Integer to translate into string.
+ +/
+void integerToAlpha(size_t maxDigits = 12, Sink)(auto ref Sink sink, const uint num)
+{
+    if (num == 0)
+    {
+        sink.put('0');
+        return;
+    }
+
+    uint[maxDigits] digits;
+    size_t pos;
+
+    for (uint window = num; window > 0; window /= 10)
+    {
+        digits[pos++] = (window % 10);
+    }
+
+    foreach_reverse (immutable digit; digits[0..pos])
+    {
+        sink.put(cast(char)(digit + '0'));
+    }
+}
+
+///
+unittest
+{
+    import std.array : Appender;
+
+    Appender!(char[]) sink;
+
+    {
+        enum num = 123_456;
+        integerToAlpha(sink, num);
+        assert((sink.data == "123456"), sink.data);
+        sink.clear();
+    }
+    {
+        enum num = 0;
+        integerToAlpha(sink, num);
+        assert((sink.data == "0"), sink.data);
+        sink.clear();
+    }
+    {
+        enum num = 999;
+        integerToAlpha(sink, num);
+        assert((sink.data == "999"), sink.data);
+        //sink.clear();
+    }
+}
+
+
+// integerToAlpha
+/++
+ +  Translates an integer into an alphanumeric string. Assumes ASCII.
+ +
+ +  Overload that returns the string.
+ +
+ +  Params:
+ +      maxDigits = The maximum number of digits to expect input of.
+ +      num = Integer to translate into string.
+ +
+ +  Returns:
+ +      The passed integer `num` in string form.
+ +/
+string integerToAlpha(size_t maxDigits = 12)(const uint num)
+{
+    import std.array : Appender;
+
+    Appender!string sink;
+    sink.reserve(maxDigits);
+    sink.integerToAlpha!maxDigits(num);
+    return sink.data;
+}
+
+///
+unittest
+{
+    {
+        enum num = 123_456;
+        immutable translated = integerToAlpha(num);
+        assert((translated == "123456"), translated);
+    }
+    {
+        enum num = 0;
+        immutable translated = integerToAlpha(num);
+        assert((translated == "0"), translated);
+    }
+    {
+        enum num = 999;
+        immutable translated = integerToAlpha(num);
+        assert((translated == "999"), translated);
+    }
+}
