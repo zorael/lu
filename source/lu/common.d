@@ -96,54 +96,57 @@ unittest
 
 // Labeled
 /++
- +  Labels an item by wrapping it in a struct with an `id` field.
+ +  Labels an item by wrapping it in a struct with a `label` field.
  +
- +  Access to the `thing` is passed on by use of `alias this` proxying, so this
- +  will transparently act like the original `thing` in most cases. The original
- +  object can be accessed via the `thing` member when it doesn't.
+ +  Access to the `item` is passed on by use of `alias this` proxying, so this
+ +  will transparently act like the original `item` in most cases. The original
+ +  object can be accessed via the `item` member when it doesn't.
  +
  +  Example:
  +  ---
  +  Labeled!(string, long) timestring;
  +
- +  timestring.thing = "Some string";
- +  timestring.long = Clock.currTime.toUnixTime;
+ +  timestring.item = "Some string";
+ +  timestring.label = Clock.currTime.toUnixTime;
  +  timestring = "New string value";
  +  ---
  +
  +  Params:
- +      Thing = The type to embed and label.
+ +      Item = The type to embed and label.
  +      Label = The type to embed as label.
  +      disableThis = Whether or not to disable copying of the resulting struct.
  +/
-struct Labeled(Thing, Label, Flag!"disableThis" disableThis = No.disableThis)
+struct Labeled(Item, Label, Flag!"disableThis" disableThis = No.disableThis)
 {
 public:
     /// The wrapped item.
-    Thing thing;
+    Item item;
+
+    /// Backwards-compatibility alias to `item`.
+    alias thing = item;
 
     /// The label applied to the wrapped item.
-    Label id;
+    Label label;
 
-    /// Alias to `id` because it makes sense.
-    alias label = id;
+    /// Backwards-compatibility alias to `label`.
+    alias id = label;
 
-    /// Create a new `Labeled` struct with the passed `id` identifier.
-    this(Thing thing, Label id) pure nothrow @nogc @safe
+    /// Create a new `Labeled` struct with the passed `labl` identifier.
+    this(Item item, Label label) pure nothrow @nogc @safe
     {
-        this.thing = thing;
-        this.id = id;
+        this.item = item;
+        this.label = label;
     }
 
     /++
-     +  Assign `thing` a new value.
+     +  Assign `item` a new value.
      +
      +  Params:
-     +      thing = New value for `thing`.
+     +      item = New value for `item`.
      +/
-    void opAssign(Thing thing)
+    void opAssign(Item item)
     {
-        this.thing = thing;
+        this.item = item;
     }
 
     static if (disableThis)
@@ -152,8 +155,8 @@ public:
         @disable this(this);
     }
 
-    /// Transparently proxy all `Thing`-related calls to `thing`.
-    alias thing this;
+    /// Transparently proxy all `Item`-related calls to `item`.
+    alias item this;
 }
 
 ///
@@ -177,19 +180,19 @@ unittest
     arr ~= labeled(foo, 1);
     arr ~= labeled(bar, 2);
 
-    assert(arr[0].id == 1);
-    assert(arr[1].id == 2);
+    assert(arr[0].label == 1);
+    assert(arr[1].label == 2);
 
     assert(arr[0].b);
     assert(!arr[1].wefpok);
 
     Labeled!(string, int) item;
-    item.thing = "harbl";
+    item.item = "harbl";
     item.label = 42;
-    assert(item.id == 42);
-    assert(item.thing == "harbl");
+    assert(item.label == 42);
+    assert(item.item == "harbl");
     item = "snarbl";
-    assert(item.thing == "snarbl");
+    assert(item.item == "snarbl");
 }
 
 
@@ -209,17 +212,17 @@ unittest
  +
  +  Params:
  +      disableThis = Whether or not to disable copying of the resulting struct.
- +      thing = Object to wrap.
+ +      item = Object to wrap.
  +      label = Label ID to apply to the wrapped item.
  +
  +  Returns:
  +      The passed object, wrapped and labeled with the supplied ID.
  +/
-auto labeled(Flag!"disableThis" disableThis = No.disableThis, Thing, Label)
-    (Thing thing, Label label) pure nothrow @nogc
+auto labeled(Flag!"disableThis" disableThis = No.disableThis, Item, Label)
+    (Item item, Label label) pure nothrow @nogc
 {
     import std.traits : Unqual;
-    return Labeled!(Unqual!Thing, Unqual!Label, disableThis)(thing, label);
+    return Labeled!(Unqual!Item, Unqual!Label, disableThis)(item, label);
 }
 
 ///
@@ -228,11 +231,11 @@ unittest
     auto foo = labeled("FOO", "foo");
     static assert(is(typeof(foo) == Labeled!(string, string)));
 
-    assert(foo.thing == "FOO");
-    assert(foo.id == "foo");
+    assert(foo.item == "FOO");
+    assert(foo.label == "foo");
 
     auto bar = labeled!(Yes.disableThis)("hirf", 0);
-    assert(bar.thing == "hirf");
+    assert(bar.item == "hirf");
     assert(bar.label == 0);
 
     void takesByValue(typeof(bar) bar) {}
