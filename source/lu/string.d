@@ -2234,6 +2234,12 @@ unittest
         enum num = 999;
         integerToAlpha(sink, num);
         assert((sink.data == "999"), sink.data);
+        sink.clear();
+    }
+    {
+        enum num = -987;
+        integerToAlpha(sink, num);
+        assert((sink.data == "-987"), sink.data);
         //sink.clear();
     }
 }
@@ -2279,5 +2285,10 @@ unittest
         enum num = 999;
         immutable translated = integerToAlpha(num);
         assert((translated == "999"), translated);
+    }
+    {
+        enum num = -987;
+        immutable translated = integerToAlpha(num);
+        assert((translated == "-987"), translated);
     }
 }
