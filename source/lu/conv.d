@@ -6,7 +6,11 @@
  +/
 module lu.conv;
 
+private:
+
 import std.typecons : Flag, No, Yes;
+
+public:
 
 @safe:
 

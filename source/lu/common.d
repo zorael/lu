@@ -4,10 +4,13 @@
  +/
 module lu.common;
 
+private:
+
 import core.time : Duration, seconds;
 import std.range.primitives : isOutputRange;
 import std.typecons : Flag, No, Yes;
 
+public:
 
 @safe:
 

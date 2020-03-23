@@ -54,8 +54,12 @@
  +/
 module lu.serialisation;
 
+private:
+
 import std.range.primitives : isOutputRange;
 import std.typecons : Flag, No, Yes;
+
+public:
 
 @safe:
 

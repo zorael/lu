@@ -9,9 +9,13 @@
  +/
 module lu.string;
 
+private:
+
 import std.range.primitives : ElementEncodingType, ElementType, isOutputRange;
 import std.traits : isIntegral, isMutable, isSomeString;
 import std.typecons : Flag, No, Yes;
+
+public:
 
 @safe:
 

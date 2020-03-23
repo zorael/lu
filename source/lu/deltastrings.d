@@ -7,8 +7,12 @@
  +/
 module lu.deltastrings;
 
+private:
+
 import std.typecons : Flag, No, Yes;
 import std.range.primitives : isOutputRange;
+
+public:
 
 @safe:
 

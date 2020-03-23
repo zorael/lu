@@ -3,7 +3,11 @@
  +/
 module lu.json;
 
+private:
+
 import std.range.primitives : isOutputRange;
+
+public:
 
 
 // JSONStorage

@@ -40,7 +40,11 @@
  +/
 module lu.meld;
 
+private:
+
 import std.traits : isArray, isAssociativeArray;
+
+public:
 
 
 /++

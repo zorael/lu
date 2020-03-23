@@ -3,10 +3,13 @@
  +/
 module lu.traits;
 
-import lu.uda;
+private:
 
+import lu.uda;
 import std.traits : Unqual, isArray, isAssociativeArray, isFunction, isType;
 import std.typecons : Flag, No, Yes;
+
+public:
 
 
 // isConfigurableVariable
