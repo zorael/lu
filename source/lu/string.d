@@ -2197,6 +2197,7 @@ unittest
  +      sink = Output range sink.
  +/
 void toAlphaInto(size_t maxDigits = 12, Sink)(const int num, auto ref Sink sink)
+if (isOutputRange!(Sink, char[]))
 {
     import std.math : abs;
 
