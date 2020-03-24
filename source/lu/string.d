@@ -2279,7 +2279,7 @@ unittest
  +  Returns:
  +      The passed integer `num` in string form.
  +/
-string toAlpha(size_t maxDigits = 12)(const uint num)
+string toAlpha(size_t maxDigits = 12)(const int num)
 {
     import std.array : Appender;
 
