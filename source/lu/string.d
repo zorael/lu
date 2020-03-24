@@ -2176,7 +2176,7 @@ unittest
 }
 
 
-// integerToAlphaInto
+// toAlphaInto
 /++
  +  Translates an integer into an alphanumeric string. Assumes ASCII.
  +
@@ -2186,17 +2186,17 @@ unittest
  +  ---
  +  Appender!string sink;
  +  int num = 12345;
- +  integerToAlphaInto(sink, num);
+ +  num.toAlphaInto(sink);
  +  assert(sink.data == "12345");
  +  assert(sink.data == num.to!string);
  +  ---
  +
  +  Params:
  +      maxDigits = The maximum number of digits to expect input of.
- +      sink = Output range sink.
  +      num = Integer to translate into string.
+ +      sink = Output range sink.
  +/
-void integerToAlphaInto(size_t maxDigits = 12, Sink)(auto ref Sink sink, const int num)
+void toAlphaInto(size_t maxDigits = 12, Sink)(const int num, auto ref Sink sink)
 {
     import std.math : abs;
 
@@ -2233,43 +2233,43 @@ unittest
 
     {
         enum num = 123_456;
-        integerToAlphaInto(sink, num);
+        num.toAlphaInto(sink);
         assert((sink.data == "123456"), sink.data);
         sink.clear();
     }
     {
         enum num = 0;
-        integerToAlphaInto(sink, num);
+        num.toAlphaInto(sink);
         assert((sink.data == "0"), sink.data);
         sink.clear();
     }
     {
         enum num = 999;
-        integerToAlphaInto(sink, num);
+        num.toAlphaInto(sink);
         assert((sink.data == "999"), sink.data);
         sink.clear();
     }
     {
         enum num = -987;
-        integerToAlphaInto(sink, num);
+        num.toAlphaInto(sink);
         assert((sink.data == "-987"), sink.data);
         //sink.clear();
     }
 }
 
 
-// integerToAlpha
+// toAlpha
 /++
  +  Translates an integer into an alphanumeric string. Assumes ASCII.
  +
- +  Overload that returns the string.
+ +  Overload that returns the string. Merely leverages `toAlphaInto`.
  +
  +  Example:
  +  ---
  +  int num = 12345;
- +  string asString = num.integerToAlpha;
+ +  string asString = num.toAlpha;
  +  assert(asString == "12345");
- +  assert(asString = num.to!string);
+ +  assert(asString == num.to!string);
  +  ---
  +
  +  Params:
@@ -2279,13 +2279,13 @@ unittest
  +  Returns:
  +      The passed integer `num` in string form.
  +/
-string integerToAlpha(size_t maxDigits = 12)(const uint num)
+string toAlpha(size_t maxDigits = 12)(const uint num)
 {
     import std.array : Appender;
 
     Appender!string sink;
     sink.reserve(maxDigits);
-    integerToAlphaInto!maxDigits(sink, num);
+    num.toAlphaInto!maxDigits(sink);
     return sink.data;
 }
 
@@ -2294,22 +2294,22 @@ unittest
 {
     {
         enum num = 123_456;
-        immutable translated = num.integerToAlpha;
+        immutable translated = num.toAlpha;
         assert((translated == "123456"), translated);
     }
     {
         enum num = 0;
-        immutable translated = num.integerToAlpha;
+        immutable translated = num.toAlpha;
         assert((translated == "0"), translated);
     }
     {
         enum num = 999;
-        immutable translated = num.integerToAlpha;
+        immutable translated = num.toAlpha;
         assert((translated == "999"), translated);
     }
     {
         enum num = -987;
-        immutable translated = num.integerToAlpha;
+        immutable translated = num.toAlpha;
         assert((translated == "-987"), translated);
     }
 }
