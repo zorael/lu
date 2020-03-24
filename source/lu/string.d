@@ -2210,7 +2210,7 @@ void toAlphaInto(size_t maxDigits = 12, Sink)(const int num, auto ref Sink sink)
         sink.put('-');
     }
 
-    uint[maxDigits] digits;
+    uint[maxDigits] digits = void;
     size_t pos;
 
     for (uint window = abs(num); window > 0; window /= 10)
