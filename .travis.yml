@@ -24,7 +24,7 @@ script:
   - dub build --compiler=${DC} -b plain :core
   - dub build --compiler=${DC} -b release
   - dub build --compiler=${DC} -b release :core
-  - test "${DC}" = dmd -a "$(uname)" = Linux || exit
+  - test "${DC}" = dmd -a "$(uname)" = Linux || exit 0
   - dub fetch ddox
   - test ! -e "$HOME/.dub/packages/ddox-0.16.13" || sed -i "s/import std.conv;/public import std.conv;/" "$HOME/.dub/packages/ddox-0.16.13/ddox/source/ddox/api.d"
   - dub build --compiler=${DC} -b ddox
