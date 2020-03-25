@@ -2193,17 +2193,30 @@ unittest
  +
  +  Params:
  +      maxDigits = The maximum number of digits to expect input of.
+ +      leadingZeroes = The minimum amount of leading zeroes to include in the
+ +          output, mirroring the format specifier "`%0nd`".
  +      num = Integer to translate into string.
  +      sink = Output range sink.
  +/
-void toAlphaInto(size_t maxDigits = 12, Sink)(const int num, auto ref Sink sink)
+void toAlphaInto(size_t maxDigits = 12, uint leadingZeroes = 0, Sink)
+    (const int num, auto ref Sink sink)
 if (isOutputRange!(Sink, char[]))
 {
     import std.math : abs;
 
     if (num == 0)
     {
-        sink.put('0');
+        static if (leadingZeroes > 0)
+        {
+            foreach (immutable i; 0..leadingZeroes)
+            {
+                sink.put('0');
+            }
+        }
+        else
+        {
+            sink.put('0');
+        }
         return;
     }
     else if (num < 0)
@@ -2211,7 +2224,16 @@ if (isOutputRange!(Sink, char[]))
         sink.put('-');
     }
 
-    uint[maxDigits] digits = void;
+    static if (leadingZeroes > 0)
+    {
+        // Need default-initialised fields to be zeroes
+        uint[maxDigits] digits;
+    }
+    else
+    {
+        uint[maxDigits] digits = void;
+    }
+
     size_t pos;
 
     for (uint window = abs(num); window > 0; window /= 10)
@@ -2219,7 +2241,17 @@ if (isOutputRange!(Sink, char[]))
         digits[pos++] = (window % 10);
     }
 
-    foreach_reverse (immutable digit; digits[0..pos])
+    static if (leadingZeroes > 0)
+    {
+        import std.algorithm.comparison : max;
+        size_t startingPos = max(leadingZeroes, pos);
+    }
+    else
+    {
+        alias startingPos = pos;
+    }
+
+    foreach_reverse (immutable digit; digits[0..startingPos])
     {
         sink.put(cast(char)(digit + '0'));
     }
@@ -2275,18 +2307,20 @@ unittest
  +
  +  Params:
  +      maxDigits = The maximum number of digits to expect input of.
+ +      leadingZeroes = The minimum amount of leading zeroes to include in the
+ +          output, mirroring the format specifier "`%0nd`".
  +      num = Integer to translate into string.
  +
  +  Returns:
  +      The passed integer `num` in string form.
  +/
-string toAlpha(size_t maxDigits = 12)(const int num)
+string toAlpha(size_t maxDigits = 12, uint leadingZeroes = 0)(const int num)
 {
     import std.array : Appender;
 
     Appender!string sink;
-    sink.reserve(maxDigits);
-    num.toAlphaInto!maxDigits(sink);
+    sink.reserve((num >= 0) ? maxDigits : maxDigits+1);
+    num.toAlphaInto!(maxDigits, leadingZeroes)(sink);
     return sink.data;
 }
 
