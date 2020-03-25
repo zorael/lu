@@ -15,7 +15,7 @@ install_deps() {
     sudo apt update
     sudo apt install -y dmd-compiler dub
 
-    curl -fsS --retry 3 https://dlang.org/install.sh | bash -s ldc
+    #curl -fsS --retry 3 https://dlang.org/install.sh | bash -s ldc
 }
 
 build() {
@@ -60,11 +60,11 @@ case "$1" in
 
         dub --version
         dmd --version
-        ldc --version
+        #ldc --version
         ;;
     build)
         time build dmd
-        time build ldc
+        #time build ldc
         ;;
     *)
         echo "Unknown command: $1"
