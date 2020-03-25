@@ -73,10 +73,10 @@ environment:
 
 skip_tags: true
 branches:
-  only:
-    - master
-    - stable
-    - /appveyor-.+/
+  except:
+    - /circleci-.*/
+    - /travis-.*/
+    - gh-pages
 
 install:
   - ps: function SetUpDCompiler

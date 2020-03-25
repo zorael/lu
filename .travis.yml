@@ -3,6 +3,12 @@ language: d
 sudo: required
 dist: bionic
 
+branches:
+  except:
+    - /appveyor-.*/
+    - /circleci-.*/
+    - gh-pages
+
 d:
   - dmd
   - ldc
