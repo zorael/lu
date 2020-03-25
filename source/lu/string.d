@@ -2286,6 +2286,18 @@ unittest
         enum num = -987;
         num.toAlphaInto(sink);
         assert((sink.data == "-987"), sink.data);
+        sink.clear();
+    }
+    {
+        enum num = 123;
+        num.toAlphaInto!(12, 6)(sink);
+        assert((sink.data == "000123"), sink.data);
+        sink.clear();
+    }
+    {
+        enum num = -1;
+        num.toAlphaInto!(3, 3)(sink);
+        assert((sink.data == "-001"), sink.data);
         //sink.clear();
     }
 }
@@ -2346,5 +2358,15 @@ unittest
         enum num = -987;
         immutable translated = num.toAlpha;
         assert((translated == "-987"), translated);
+    }
+    {
+        enum num = 123;
+        immutable translated = num.toAlpha!(12, 6);
+        assert((translated == "000123"), translated);
+    }
+    {
+        enum num = -1;
+        immutable translated = num.toAlpha!(3, 3);
+        assert((translated == "-001"), translated);
     }
 }
