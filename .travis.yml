@@ -25,7 +25,7 @@ script:
   - dub build --compiler=${DC} -b release
   - dub build --compiler=${DC} -b release :core
   - dub fetch ddox
-  - test ! ${DC} = dmd -a ! ${TRAVIS_OS_NAME} = linux -a ! -e ~/.dub/packages/ddox-0.16.13 || sed -i "s/import std.conv;/public import std.conv;/" "$HOME/.dub/packages/ddox-0.16.13/ddox/source/ddox/api.d"
+  - test ! ${DC} = dmd -a ! ${TRAVIS_OS_NAME} = linux -a ! -e "$HOME/.dub/packages/ddox-0.16.13" || sed -i "s/import std.conv;/public import std.conv;/" "$HOME/.dub/packages/ddox-0.16.13/ddox/source/ddox/api.d"
   - test ! ${DC} = dmd -a ! ${TRAVIS_OS_NAME} = linux || dub build --compiler=${DC} -b ddox
 
 before_deploy:
