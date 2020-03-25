@@ -18,8 +18,6 @@ os:
   - osx
 
 script:
-  - echo "${TRAVIS_OS_NAME}"
-  - uname
   - dub test --compiler=${DC}
   - dub test --compiler=${DC} :core
   - dub build --compiler=${DC} -b plain
@@ -27,7 +25,7 @@ script:
   - dub build --compiler=${DC} -b release
   - dub build --compiler=${DC} -b release :core
   - dub fetch ddox
-  - test "${DC}" = dmd -a "$(uname)" = "Linux" || return 0
+  - test "${DC}" = dmd -a "${TRAVIS_OS_NAME" = linux || return 0
   - test ! -e "$HOME/.dub/packages/ddox-0.16.13" || sed -i "s/import std.conv;/public import std.conv;/" "$HOME/.dub/packages/ddox-0.16.13/ddox/source/ddox/api.d"
   - dub build --compiler=${DC} -b ddox
 
