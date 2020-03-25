@@ -486,7 +486,7 @@ void populateFromJSON(Flag!"lowercaseValues" lowercaseValues = No.lowercaseValue
         final switch (json.type)
         {
         case string:
-            target = json.str.to!(typeof(target));
+            target = json.str.to!T;
 
             static if (lowercaseValues && is(typeof(target) : string))
             {
@@ -497,21 +497,21 @@ void populateFromJSON(Flag!"lowercaseValues" lowercaseValues = No.lowercaseValue
 
         case integer:
             // .integer returns long, keep .to for int compatibility
-            target = json.integer.to!(typeof(target));
+            target = json.integer.to!T;
             break;
 
         case uinteger:
             // as above
-            target = json.uinteger.to!(typeof(target));
+            target = json.uinteger.to!T;
             break;
 
         case float_:
-            target = json.floating.to!(typeof(target));
+            target = json.floating.to!T;
             break;
 
         case true_:
         case false_:
-            target = json.boolean.to!(typeof(target));
+            target = json.boolean.to!T;
             break;
 
         case null_:
