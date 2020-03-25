@@ -280,6 +280,7 @@ do
             if (errno == EINTR)
             {
                 // Interrupted read; try again
+                // Unlucky callgrind_control -d timing
                 attempt.state = State.isEmpty;
                 attempt.lastSocketError_ = lastSocketError;
                 yield(attempt);
@@ -315,8 +316,7 @@ do
             {
             case "Resource temporarily unavailable":
                 // Nothing received
-            case "Interrupted system call":
-                // Unlucky callgrind_control -d timing
+            //case "Interrupted system call":
             case "A connection attempt failed because the connected party did not " ~
                  "properly respond after a period of time, or established connection " ~
                  "failed because connected host has failed to respond.":
