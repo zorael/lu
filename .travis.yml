@@ -17,10 +17,12 @@ os:
   - linux
   - osx
 
+before_install:
+    - sudo apt install -y sed
+
 addons:
   apt:
-    packages:
-      - sed
+    update: true
 
 script:
   - dub test --compiler=${DC}
