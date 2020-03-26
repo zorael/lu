@@ -9,6 +9,7 @@ module lu.conv;
 private:
 
 import std.typecons : Flag, No, Yes;
+import std.range.primitives : isOutputRange;
 
 public:
 
@@ -317,5 +318,201 @@ unittest
         assert((r == 154), r.text);
         assert((g == 75), g.text);
         assert((b == 124), b.text);
+    }
+}
+
+
+// toAlphaInto
+/++
+ +  Translates an integer into an alphanumeric string. Assumes ASCII.
+ +
+ +  Overload that takes an output range sink.
+ +
+ +  Example:
+ +  ---
+ +  Appender!string sink;
+ +  int num = 12345;
+ +  num.toAlphaInto(sink);
+ +  assert(sink.data == "12345");
+ +  assert(sink.data == num.to!string);
+ +  ---
+ +
+ +  Params:
+ +      maxDigits = The maximum number of digits to expect input of.
+ +      leadingZeroes = The minimum amount of leading zeroes to include in the
+ +          output, mirroring the format specifier "`%0nd`".
+ +      num = Integer to translate into string.
+ +      sink = Output range sink.
+ +/
+void toAlphaInto(size_t maxDigits = 12, uint leadingZeroes = 0, Sink)
+    (const int num, auto ref Sink sink)
+if (isOutputRange!(Sink, char[]))
+{
+    import std.math : abs;
+
+    if (num == 0)
+    {
+        static if (leadingZeroes > 0)
+        {
+            foreach (immutable i; 0..leadingZeroes)
+            {
+                sink.put('0');
+            }
+        }
+        else
+        {
+            sink.put('0');
+        }
+        return;
+    }
+    else if (num < 0)
+    {
+        sink.put('-');
+    }
+
+    static if (leadingZeroes > 0)
+    {
+        // Need default-initialised fields to be zeroes
+        uint[maxDigits] digits;
+    }
+    else
+    {
+        uint[maxDigits] digits = void;
+    }
+
+    size_t pos;
+
+    for (uint window = abs(num); window > 0; window /= 10)
+    {
+        digits[pos++] = (window % 10);
+    }
+
+    static if (leadingZeroes > 0)
+    {
+        import std.algorithm.comparison : max;
+        size_t startingPos = max(leadingZeroes, pos);
+    }
+    else
+    {
+        alias startingPos = pos;
+    }
+
+    foreach_reverse (immutable digit; digits[0..startingPos])
+    {
+        sink.put(cast(char)(digit + '0'));
+    }
+}
+
+///
+unittest
+{
+    import std.array : Appender;
+
+    Appender!(char[]) sink;
+
+    {
+        enum num = 123_456;
+        num.toAlphaInto(sink);
+        assert((sink.data == "123456"), sink.data);
+        sink.clear();
+    }
+    {
+        enum num = 0;
+        num.toAlphaInto(sink);
+        assert((sink.data == "0"), sink.data);
+        sink.clear();
+    }
+    {
+        enum num = 999;
+        num.toAlphaInto(sink);
+        assert((sink.data == "999"), sink.data);
+        sink.clear();
+    }
+    {
+        enum num = -987;
+        num.toAlphaInto(sink);
+        assert((sink.data == "-987"), sink.data);
+        sink.clear();
+    }
+    {
+        enum num = 123;
+        num.toAlphaInto!(12, 6)(sink);
+        assert((sink.data == "000123"), sink.data);
+        sink.clear();
+    }
+    {
+        enum num = -1;
+        num.toAlphaInto!(3, 3)(sink);
+        assert((sink.data == "-001"), sink.data);
+        //sink.clear();
+    }
+}
+
+
+// toAlpha
+/++
+ +  Translates an integer into an alphanumeric string. Assumes ASCII.
+ +
+ +  Overload that returns the string. Merely leverages `toAlphaInto`.
+ +
+ +  Example:
+ +  ---
+ +  int num = 12345;
+ +  string asString = num.toAlpha;
+ +  assert(asString == "12345");
+ +  assert(asString == num.to!string);
+ +  ---
+ +
+ +  Params:
+ +      maxDigits = The maximum number of digits to expect input of.
+ +      leadingZeroes = The minimum amount of leading zeroes to include in the
+ +          output, mirroring the format specifier "`%0nd`".
+ +      num = Integer to translate into string.
+ +
+ +  Returns:
+ +      The passed integer `num` in string form.
+ +/
+string toAlpha(size_t maxDigits = 12, uint leadingZeroes = 0)(const int num)
+{
+    import std.array : Appender;
+
+    Appender!string sink;
+    sink.reserve((num >= 0) ? maxDigits : maxDigits+1);
+    num.toAlphaInto!(maxDigits, leadingZeroes)(sink);
+    return sink.data;
+}
+
+///
+unittest
+{
+    {
+        enum num = 123_456;
+        immutable translated = num.toAlpha;
+        assert((translated == "123456"), translated);
+    }
+    {
+        enum num = 0;
+        immutable translated = num.toAlpha;
+        assert((translated == "0"), translated);
+    }
+    {
+        enum num = 999;
+        immutable translated = num.toAlpha;
+        assert((translated == "999"), translated);
+    }
+    {
+        enum num = -987;
+        immutable translated = num.toAlpha;
+        assert((translated == "-987"), translated);
+    }
+    {
+        enum num = 123;
+        immutable translated = num.toAlpha!(12, 6);
+        assert((translated == "000123"), translated);
+    }
+    {
+        enum num = -1;
+        immutable translated = num.toAlpha!(3, 3);
+        assert((translated == "-001"), translated);
     }
 }
