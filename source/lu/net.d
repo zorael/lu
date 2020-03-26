@@ -256,7 +256,7 @@ do
     import std.string : indexOf;
 
     ubyte[BufferSize.socketReceive*2] buffer;
-    auto timeLastReceived = Clock.currTime;
+    long timeLastReceived = Clock.currTime.toUnixTime;
     size_t start;
 
     alias State = ListenAttempt.State;
@@ -298,12 +298,11 @@ do
         }
         else if (bytesReceived == Socket.ERROR)
         {
-            immutable elapsed = (Clock.currTime - timeLastReceived);
-            attempt.elapsed = elapsed;
+            attempt.error = lastSocketError;
             attempt.line = string.init;
             attempt.lastSocketError_ = lastSocketError;
 
-            if (elapsed > connectionLost.seconds)
+            if ((Clock.currTime.toUnixTime - timeLastReceived) > connectionLost)
             {
                 attempt.state = State.timeout;
                 yield(attempt);
@@ -342,8 +341,8 @@ do
             }
         }
 
-        attempt.lastSocketError_ = string.init;
-        timeLastReceived = Clock.currTime;
+        attempt.error = string.init;
+        timeLastReceived = Clock.currTime.toUnixTime;
 
         immutable ptrdiff_t end = (start + bytesReceived);
         ptrdiff_t newline = (cast(char[])buffer[0..end]).indexOf('\n');
