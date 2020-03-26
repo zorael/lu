@@ -8,8 +8,9 @@ module lu.conv;
 
 private:
 
-import std.typecons : Flag, No, Yes;
 import std.range.primitives : isOutputRange;
+import std.traits : isIntegral;
+import std.typecons : Flag, No, Yes;
 
 public:
 
@@ -344,9 +345,9 @@ unittest
  +      num = Integer to translate into string.
  +      sink = Output range sink.
  +/
-void toAlphaInto(size_t maxDigits = 12, uint leadingZeroes = 0, Sink)
-    (const int num, auto ref Sink sink)
-if (isOutputRange!(Sink, char[]))
+void toAlphaInto(size_t maxDigits = 12, uint leadingZeroes = 0, Num, Sink)
+    (const Num num, auto ref Sink sink)
+if (isIntegral!Num && isOutputRange!(Sink, char[]))
 {
     import std.math : abs;
 
@@ -373,18 +374,18 @@ if (isOutputRange!(Sink, char[]))
     static if (leadingZeroes > 0)
     {
         // Need default-initialised fields to be zeroes
-        uint[maxDigits] digits;
+        ubyte[maxDigits] digits;
     }
     else
     {
-        uint[maxDigits] digits = void;
+        ubyte[maxDigits] digits = void;
     }
 
     size_t pos;
 
-    for (uint window = abs(num); window > 0; window /= 10)
+    for (Num window = abs(num); window > 0; window /= 10)
     {
-        digits[pos++] = (window % 10);
+        digits[pos++] = cast(ubyte)(window % 10);
     }
 
     static if (leadingZeroes > 0)
@@ -472,13 +473,13 @@ unittest
  +  Returns:
  +      The passed integer `num` in string form.
  +/
-string toAlpha(size_t maxDigits = 12, uint leadingZeroes = 0)(const int num)
+string toAlpha(size_t maxDigits = 12, uint leadingZeroes = 0, Num)(const Num num)
 {
     import std.array : Appender;
 
     Appender!string sink;
     sink.reserve((num >= 0) ? maxDigits : maxDigits+1);
-    num.toAlphaInto!(maxDigits, leadingZeroes)(sink);
+    num.toAlphaInto!(maxDigits, leadingZeroes, Num)(sink);
     return sink.data;
 }
 
