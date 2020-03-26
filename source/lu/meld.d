@@ -618,7 +618,7 @@ if (isArray!Array1 && isArray!Array2 && !is(Array2 == const)
     }
     else static if (isStaticArray!Array2)
     {
-        assert((intoThis.length >= meldThis.length), "Can't meld a larger array into a smaller static one");
+        static assert((Array2.length >= Array1.length), "Can't meld a larger array into a smaller static one");
     }
     else
     {
