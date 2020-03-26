@@ -674,6 +674,10 @@ unittest
     char[] harr3;
     harr2.meldInto(harr3);
     assert((harr2 == harr3), harr3.to!string);
+
+    int[3] asdf;
+    int[3] hasdf;
+    asdf.meldInto(hasdf);
 }
 
 
