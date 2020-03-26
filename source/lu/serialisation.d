@@ -91,7 +91,10 @@ string configurationText(const string configFile)
     import std.file : exists, getAttributes, isFile, readText;
     import std.string : chomp;
 
-    if (!configFile.exists) return string.init;
+    if (!configFile.exists)
+    {
+        return string.init;
+    }
     else if (!configFile.isFile)
     {
         throw new FileTypeMismatchException("Configuration file is not a file",
