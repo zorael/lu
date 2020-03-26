@@ -282,7 +282,8 @@ do
                 // Interrupted read; try again
                 // Unlucky callgrind_control -d timing
                 attempt.state = State.isEmpty;
-                attempt.lastSocketError_ = lastSocketError;
+                attempt.error = lastSocketError;
+                attempt.line = string.init;
                 yield(attempt);
                 continue;
             }
@@ -291,7 +292,8 @@ do
         if (!bytesReceived)
         {
             attempt.state = State.error;
-            attempt.lastSocketError_ = lastSocketError;
+            attempt.error = lastSocketError;
+            attempt.line = string.init;
             yield(attempt);
             // Should never get here
             assert(0, "Dead listenFiber resumed after yield (no bytes received)");
@@ -300,7 +302,6 @@ do
         {
             attempt.error = lastSocketError;
             attempt.line = string.init;
-            attempt.lastSocketError_ = lastSocketError;
 
             if ((Clock.currTime.toUnixTime - timeLastReceived) > connectionLost)
             {
@@ -311,7 +312,7 @@ do
                     "(received error, elapsed > timeout)");
             }
 
-            switch (attempt.lastSocketError_)
+            switch (attempt.error)
             {
             case "Resource temporarily unavailable":
                 // Nothing received
