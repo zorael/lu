@@ -204,9 +204,6 @@ struct ListenAttempt
 
     /// The amount of bytes received this attempt.
     long bytesReceived;
-
-    /// The duration since the last string was successfully read.
-    Duration elapsed;
 }
 
 
