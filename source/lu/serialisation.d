@@ -432,33 +432,56 @@ private enum isStruct(T) = is(T == struct);
  +  ---
  +  IRCClient client;
  +  IRCServer server;
+ +  string[][string] missingEntries;
+ +  string[][string] invalidEntries;
  +
  +  "kameloso.conf"
  +      .configurationText
  +      .splitter("\n")
- +      .applyConfiguration(client, server);
+ +      .applyConfiguration(missingEntries, invalidEntries, client, server);
  +  ---
  +
  +  Params:
  +      range = Input range from which to read the configuration text.
+ +      missingEntries = Out reference of an associative array of string arrays
+ +          of expected entries that were missing.
+ +      invalidEntries = Out reference of an associative array of string arrays
+ +          of unexpected entries that did not belong.
  +      things = Reference variadic list of one or more objects to apply the
  +          configuration to.
  +
- +  Returns:
- +      An associative array of string arrays of invalid configuration entries.
- +      The associative array key is the section the entry was found under, and
- +      the arrays merely lists of such erroneous entries thereunder.
- +
  +  Throws: `ConfigurationFileParsingException` if there were bad lines.
  +/
-string[][string] applyConfiguration(Range, Things...)(Range range, ref Things things) pure
+void applyConfiguration(Range, Things...)(Range range, out string[][string] missingEntries,
+    out string[][string] invalidEntries, ref Things things) //pure
+if (allSatisfy!(isStruct, Things))
 {
     import lu.string : stripSuffix, stripped;
+    import lu.uda : Unconfigurable;
     import std.format : format;
 
     string section;
-    string[][string] invalidEntries;
     bool[Things.length] processedThings;
+    bool[string][string] encounteredOptions;
+
+    // Populate `encounteredOptions` with all the options in `Things`, but
+    // set them to false. Flip to true when we encounter one.
+    foreach (immutable i, thing; things)
+    {
+        import std.traits : Unqual, hasUDA, isType;
+
+        alias Thing = typeof(thing);
+
+        static foreach (immutable n; 0..things[i].tupleof.length)
+        {{
+            static if (!isType!(Things[i].tupleof[n]) &&
+                !hasUDA!(Things[i].tupleof[n], Unconfigurable))
+            {
+                enum memberstring = __traits(identifier, Things[i].tupleof[n]);
+                encounteredOptions[Thing.stringof][memberstring] = false;
+            }
+        }}
+    }
 
     lineloop:
     foreach (const rawline; range)
@@ -544,7 +567,7 @@ string[][string] applyConfiguration(Range, Things...)(Range range, ref Things th
 
                 static if (!is(T == enum))
                 {
-                    import lu.uda : CannotContainComments, Unconfigurable;
+                    import lu.uda : CannotContainComments;
 
                     switch (entry)
                     {
@@ -573,6 +596,7 @@ string[][string] applyConfiguration(Range, Things...)(Range range, ref Things th
                                     things[i].setMemberByName(entry, value);
                                 }
 
+                                encounteredOptions[Things[i].stringof][memberstring] = true;
                                 continue lineloop;
                         }
                     }}
@@ -589,7 +613,58 @@ string[][string] applyConfiguration(Range, Things...)(Range range, ref Things th
         }
     }
 
-    return invalidEntries;
+    // Compose missing entries and save them as arrays in `missingEntries`.
+    foreach (immutable encounteredSection, const entryMatches; encounteredOptions)
+    {
+        foreach (immutable entry, immutable encountered; entryMatches)
+        {
+            if (!encountered) missingEntries[encounteredSection] ~= entry;
+        }
+    }
+}
+
+
+// applyConfiguration
+/++
+ +  Takes an input range containing configuration text and applies the contents
+ +  therein to one or more passed struct/class objects.
+ +
+ +  This is one of our last few uses of regex, but the use case lends itself to
+ +  it for separating values with the [ \t] deliminator. While slicing would
+ +  probably lower compilation memory use considerably, it becomes very tricky
+ +  as we're supporting both spaces and tabs.
+ +
+ +  Example:
+ +  ---
+ +  IRCClient client;
+ +  IRCServer server;
+ +
+ +  "kameloso.conf"
+ +      .configurationText
+ +      .splitter("\n")
+ +      .applyConfiguration(client, server);
+ +  ---
+ +
+ +  Params:
+ +      range = Input range from which to read the configuration text.
+ +      things = Reference variadic list of one or more objects to apply the
+ +          configuration to.
+ +
+ +  Returns:
+ +      An associative array of string arrays of invalid configuration entries.
+ +      The associative array key is the section the entry was found under, and
+ +      the arrays merely lists of such erroneous entries thereunder.
+ +
+ +  Throws: `ConfigurationFileParsingException` if there were bad lines.
+ +/
+string[][string] applyConfiguration(Range, Things...)(Range range, ref Things things) //pure
+if (allSatisfy!(isStruct, Things))
+{
+    string[][string] missing;
+    string[][string] invalid;
+
+    applyConfiguration(range, missing, invalid, things);
+    return invalid;
 }
 
 unittest
