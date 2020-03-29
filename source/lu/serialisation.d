@@ -56,6 +56,7 @@ module lu.serialisation;
 
 private:
 
+import std.meta : allSatisfy;
 import std.range.primitives : isOutputRange;
 import std.typecons : Flag, No, Yes;
 
@@ -144,13 +145,55 @@ string configurationText(const string configFile)
  +      the arrays merely lists of such erroneous entries thereunder.
  +/
 string[][string] readConfigInto(T...)(const string configFile, ref T things)
+if (allSatisfy!(isStruct, T))
+{
+    import std.algorithm.iteration : splitter;
+
+    string[][string] missingEntries;
+    string[][string] invalidEntries;
+
+    configFile
+        .configurationText
+        .splitter("\n")
+        .applyConfiguration(missingEntries, invalidEntries, things);
+
+    return invalidEntries;
+}
+
+
+// readConfigInto
+/++
+ +  Reads a configuration file and applies the settings therein to passed objects.
+ +
+ +  More than one can be supplied, and invalid ones for which there are no
+ +  settings will be silently ignored with no errors.
+ +
+ +  Example:
+ +  ---
+ +  IRCClient client;
+ +  IRCServer server;
+ +
+ +  "kameloso.conf".readConfigInto(client, server);
+ +  ---
+ +
+ +  Params:
+ +      configFile = Filename of file to read from.
+ +      missingEntries = Out reference of an associative array of string arrays
+ +          of expected configuration entries that were missing.
+ +      invalidEntries = Out reference of an associative array of string arrays
+ +          of unexpected configuration entries that did not belong.
+ +      things = Reference variadic list of things to set values of, according
+ +          to the text in the configuration file.
+ +/
+void readConfigInto(T...)(const string configFile, out string[][string] missingEntries,
+    out string[][string] invalidEntries, ref T things)
 {
     import std.algorithm.iteration : splitter;
 
     return configFile
         .configurationText
         .splitter("\n")
-        .applyConfiguration(things);
+        .applyConfiguration(missingEntries, invalidEntries, things);
 }
 
 
