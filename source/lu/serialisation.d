@@ -404,6 +404,20 @@ pipyon 3
 }
 
 
+// isStruct
+/++
+ +  Eponymous template that is true if the passed type is a struct.
+ +
+ +  Used with `std.meta.Filter`, which cannot take `is()` expressions.
+ +
+ +  Copied from `lu.traits` to keep from having to import it.
+ +
+ +  Params:
+ +      T = Type to introspect.
+ +/
+private enum isStruct(T) = is(T == struct);
+
+
 // applyConfiguration
 /++
  +  Takes an input range containing configuration text and applies the contents
