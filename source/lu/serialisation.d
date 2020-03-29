@@ -496,7 +496,7 @@ private enum isStruct(T) = is(T == struct);
  +  Throws: `ConfigurationFileParsingException` if there were bad lines.
  +/
 void applyConfiguration(Range, Things...)(Range range, out string[][string] missingEntries,
-    out string[][string] invalidEntries, ref Things things) //pure
+    out string[][string] invalidEntries, ref Things things) pure
 if (allSatisfy!(isStruct, Things))
 {
     import lu.string : stripSuffix, stripped;
@@ -700,7 +700,7 @@ if (allSatisfy!(isStruct, Things))
  +
  +  Throws: `ConfigurationFileParsingException` if there were bad lines.
  +/
-string[][string] applyConfiguration(Range, Things...)(Range range, ref Things things) //pure
+string[][string] applyConfiguration(Range, Things...)(Range range, ref Things things) pure
 if (allSatisfy!(isStruct, Things))
 {
     string[][string] missing;
