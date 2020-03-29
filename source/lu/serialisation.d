@@ -606,11 +606,11 @@ ba      true,false,true
 
 # comment
 ; other type of comment
+// third type of comment
 
-
-f       3.14
-fa      0.0,1.1,-2.2,3.3
-d       99.9
+f       3.14 #hirp
+fa      0.0,1.1,-2.2,3.3 ;herp
+d       99.9 //derp
 da      99.9999,0.0001,-1
 bar     oorgle
 bara    blaawp,oorgle,blaawp
