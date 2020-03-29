@@ -444,6 +444,7 @@ string[][string] applyConfiguration(Range, Things...)(Range range, ref Things th
 
     string section;
     string[][string] invalidEntries;
+    bool[Things.length] processedThings;
 
     lineloop:
     foreach (const rawline; range)
@@ -467,8 +468,16 @@ string[][string] applyConfiguration(Range, Things...)(Range range, ref Things th
             goto default;
 
         case '[':
-            // New section
+            // New section. Check if there's still something to do
             immutable sectionBackup = line;
+            bool stillSomethingToProcess;
+
+            static foreach (immutable size_t i; 0..Things.length)
+            {
+                stillSomethingToProcess = !processedThings[i];
+            }
+
+            if (!stillSomethingToProcess) break lineloop;  // All done, early break
 
             try
             {
@@ -516,6 +525,8 @@ string[][string] applyConfiguration(Range, Things...)(Range range, ref Things th
                 enum settingslessT = T.stringof.stripSuffix("Settings");
 
                 if (section != settingslessT) continue thingloop;
+
+                processedThings[i] = true;
 
                 static if (!is(T == enum))
                 {
