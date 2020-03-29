@@ -458,6 +458,14 @@ string[][string] applyConfiguration(Range, Things...)(Range range, ref Things th
             // Comment
             continue;
 
+        case '/':
+            if ((line.length > 1) && (line[1] == '/'))
+            {
+                // Also a comment; //
+                continue;
+            }
+            goto default;
+
         case '[':
             // New section
             immutable sectionBackup = line;
@@ -536,6 +544,7 @@ string[][string] applyConfiguration(Range, Things...)(Range range, ref Things th
                                     // Slice away any comments
                                     value = value.contains('#') ? value.nom('#') : value;
                                     value = value.contains(';') ? value.nom(';') : value;
+                                    value = value.contains("//") ? value.nom("//") : value;
                                     things[i].setMemberByName(entry, value);
                                 }
 
