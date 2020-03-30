@@ -15,10 +15,6 @@
  +/
 module lu.objmanip;
 
-private:
-
-import lu.meld;
-
 public:
 
 @safe:
