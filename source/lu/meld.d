@@ -620,8 +620,8 @@ if (isArray!Array1 && isArray!Array2 && !is(Array2 == const)
     {
         import std.format : format;
         static assert((Array2.length >= Array1.length),
-            "Cannot meld a larger static array (`%d`) into a smaller static one (`%d`)"
-            .format(Array1.length, Array2.length));
+            "Cannot meld a larger `%s` static array into a smaller `%s` static one"
+            .format(Array1.stringof, Array2.stringof));
     }
     else static if (isDynamicArray!Array1 && isStaticArray!Array2)
     {
