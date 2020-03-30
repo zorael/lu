@@ -1,7 +1,7 @@
 name "lu"
 description "Library of reusable miscellanea"
 authors "JR"
-copyright "Copyright © 2019, JR"
+copyright "Copyright © 2020, JR"
 license "MIT"
 targetType "library"
 dflags "-dip25" "-dip1008"
@@ -15,10 +15,6 @@ importPaths "source"
 subPackage {
     name "core"
     dflags "-dip25" "-dip1008"
-    /*dependency "lu:conv" version="*"
-    dependency "lu:string" version="*"
-    dependency "lu:traits" version="*"
-    dependency "lu:uda" version="*"*/
 
     excludedSourceFiles \
         "source/lu/meld.d" \
@@ -27,7 +23,8 @@ subPackage {
         "source/lu/net.d" \
         "source/lu/objmanip.d" \
         "source/lu/serialisation.d" \
-        "source/lu/deltastrings.d"
+        "source/lu/deltastrings.d" \
+        "source/lu/semver.d"
         #"source/lu/conv.d" \
         #"source/lu/string.d" \
         #"source/lu/traits.d" \
@@ -37,7 +34,6 @@ subPackage {
 subPackage {
     name "conv"
     dflags "-dip25" "-dip1008"
-    #dependency "lu:string" version="*"
 
     excludedSourceFiles \
         "source/lu/meld.d" \
@@ -48,15 +44,15 @@ subPackage {
         "source/lu/net.d" \
         "source/lu/objmanip.d" \
         "source/lu/serialisation.d" \
-        "source/lu/deltastrings.d"
-        #"source/lu/string.d" \
+        "source/lu/deltastrings.d" \
+        "source/lu/semver.d" \
+        "source/lu/string.d"
+        #"source/lu/conv.d" \
 }
 
 subPackage {
     name "meld"
     dflags "-dip25" "-dip1008"
-    /*dependency "lu:traits" version="*"
-    dependency "lu:conv" version="*"*/
 
     excludedSourceFiles \
         "source/lu/string.d" \
@@ -66,14 +62,18 @@ subPackage {
         "source/lu/net.d" \
         "source/lu/objmanip.d" \
         "source/lu/serialisation.d" \
-        "source/lu/deltastrings.d"
+        "source/lu/deltastrings.d" \
+        "source/lu/semver.d"
+        #"source/lu/meld.d" \
         #"source/lu/conv.d" \
         #"source/lu/traits.d" \
+        #"source/lu/uda.d"
 }
 
 subPackage {
     name "string"
     dflags "-dip25" "-dip1008"
+    // Wholly self-contained
 
     excludedSourceFiles \
         "source/lu/conv.d" \
@@ -85,13 +85,14 @@ subPackage {
         "source/lu/net.d" \
         "source/lu/objmanip.d" \
         "source/lu/serialisation.d" \
-        "source/lu/deltastrings.d"
+        "source/lu/deltastrings.d" \
+        "source/lu/semver.d"
+        #"source/lu/string.d"
 }
 
 subPackage {
     name "traits"
     dflags "-dip25" "-dip1008"
-    #dependency "lu:uda" version="*"
 
     excludedSourceFiles \
         "source/lu/conv.d" \
@@ -102,13 +103,16 @@ subPackage {
         "source/lu/net.d" \
         "source/lu/objmanip.d" \
         "source/lu/serialisation.d" \
-        "source/lu/deltastrings.d"
-        #"source/lu/uda.d" \
+        "source/lu/deltastrings.d" \
+        "source/lu/semver.d"
+        #"source/lu/traits.d" \
+        #"source/lu/uda.d"
 }
 
 subPackage {
     name "uda"
     dflags "-dip25" "-dip1008"
+    // Wholly self-contained
 
     excludedSourceFiles \
         "source/lu/conv.d" \
@@ -120,13 +124,14 @@ subPackage {
         "source/lu/net.d" \
         "source/lu/objmanip.d" \
         "source/lu/serialisation.d" \
-        "source/lu/deltastrings.d"
+        "source/lu/deltastrings.d" \
+        "source/lu/semver.d"
+        #"source/lu/uda.d"
 }
 
 subPackage {
     name "common"
     dflags "-dip25" "-dip1008"
-    #dependency "lu:string" version="*"
 
     excludedSourceFiles \
         "source/lu/conv.d" \
@@ -137,17 +142,15 @@ subPackage {
         "source/lu/net.d" \
         "source/lu/objmanip.d" \
         "source/lu/serialisation.d" \
-        "source/lu/deltastrings.d"
-        #"source/lu/string.d" \
+        "source/lu/deltastrings.d" \
+        "source/lu/semver.d"
+        #"source/lu/common.d" \
+        #"source/lu/string.d"
 }
 
 subPackage {
     name "json"
     dflags "-dip25" "-dip1008"
-    /*dependency "lu:traits" version="*"
-    dependency "lu:string" version="*"
-    dependency "lu:common" version="*"
-    dependency "lu:conv" version="*"*/
 
     excludedSourceFiles \
         "source/lu/meld.d" \
@@ -156,7 +159,8 @@ subPackage {
         "source/lu/objmanip.d" \
         "source/lu/serialisation.d" \
         "source/lu/traits.d" \
-        "source/lu/deltastrings.d"
+        "source/lu/deltastrings.d" \
+        "source/lu/semver.d"
         #"source/lu/string.d" \
         #"source/lu/conv.d" \
         #"source/lu/common.d"
@@ -178,26 +182,25 @@ subPackage {
         "source/lu/json.d" \
         "source/lu/objmanip.d" \
         "source/lu/serialisation.d" \
-        "source/lu/deltastrings.d"
+        "source/lu/deltastrings.d" \
+        "source/lu/semver.d"
+        #"source/lu/net.d"
 }
 
 subPackage {
     name "objmanip"
     dflags "-dip25" "-dip1008"
-    /*dependency "lu:conv" version="*"
-    dependency "lu:meld" version="*"
-    dependency "lu:string" version="*"
-    dependency "lu:traits" version="*"
-    dependency "lu:uda" version="*"*/
 
     excludedSourceFiles \
         "source/lu/common.d" \
         "source/lu/json.d" \
         "source/lu/net.d" \
         "source/lu/serialisation.d" \
-        "source/lu/deltastrings.d"
+        "source/lu/deltastrings.d" \
+        "source/lu/meld.d" \
+        "source/lu/semver.d"
+        #"source/lu/objmanip.d" \
         #"source/lu/conv.d" \
-        #"source/lu/meld.d" \
         #"source/lu/string.d" \
         #"source/lu/traits.d" \
         #"source/lu/uda.d" \
@@ -206,18 +209,13 @@ subPackage {
 subPackage {
     name "serialisation"
     dflags "-dip25" "-dip1008"
-    /*dependency "lu:conv" version="*"
-    dependency "lu:string" version="*"
-    dependency "lu:traits" version="*"
-    dependency "lu:uda" version="*"
-    dependency "lu:common" version="*"
-    dependency "lu:objmanip" version="*"*/
 
     excludedSourceFiles \
         "source/lu/meld.d" \
         "source/lu/json.d" \
         "source/lu/net.d" \
-        "source/lu/deltastrings.d"
+        "source/lu/deltastrings.d" \
+        "source/lu/semver.d"
         #"source/lu/conv.d" \
         #"source/lu/string.d" \
         #"source/lu/traits.d" \
@@ -229,23 +227,39 @@ subPackage {
 subPackage {
     name "deltastrings"
     dflags "-dip25" "-dip1008"
-    /*dependency "lu:conv" version="*"
-    dependency "lu:string" version="*"
-    dependency "lu:traits" version="*"
-    dependency "lu:uda" version="*"
-    dependency "lu:common" version="*"
-    dependency "lu:objmanip" version="*"*/
 
     excludedSourceFiles \
         "source/lu/meld.d" \
         "source/lu/json.d" \
-        "source/lu/net.d"
-        #"source/lu/conv.d" \
+        "source/lu/net.d" \
+        "source/lu/serialisation.d" \
+        "source/lu/objmanip.d" \
+        "source/lu/common.d" \
+        "source/lu/conv.d" \
+        "source/lu/semver.d" \
+        "source/lu/traits.d"
+        #"source/lu/deltastrings.d" \
         #"source/lu/string.d" \
-        #"source/lu/traits.d" \
         #"source/lu/uda.d" \
-        #"source/lu/common.d" \
-        #"source/lu/objmanip.d"
+}
+
+subPackage {
+    name "semver"
+    dflags "-dip25" "-dip1008"
+
+    excludedSourceFiles \
+        "source/lu/json.d" \
+        "source/lu/net.d" \
+        "source/lu/conv.d" \
+        "source/lu/string.d" \
+        "source/lu/traits.d" \
+        "source/lu/uda.d" \
+        "source/lu/common.d" \
+        "source/lu/objmanip.d" \
+        "source/lu/deltastrings.d" \
+        "source/lu/meld.d" \
+        "source/lu/serialisation.d"
+        #"source/lu/semver.d"
 }
 
 configuration "library" {
@@ -266,4 +280,5 @@ configuration "unittest" {
     dependency "lu:objmanip" version="*"
     dependency "lu:serialisation" version="*"
     dependency "lu:deltastrings" version="*"
+    dependency "lu:semver" version="*"
 }
