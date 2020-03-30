@@ -688,6 +688,10 @@ unittest
     int[3] asdf;
     int[3] hasdf;
     asdf.meldInto(hasdf);
+
+    int[] dyn = new int[2];
+    int[3] stat;
+    dyn.meldInto(stat);
 }
 
 
