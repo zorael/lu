@@ -94,7 +94,7 @@ do
                     thing.tupleof[i].length = 0;
 
                     static assert(hasUDA!(thing.tupleof[i], Separator),
-                        "%s.%s is missing a Separator annotation"
+                        "`%s.%s` is missing a `Separator` annotation"
                         .format(Thing.stringof, memberstring));
 
                     alias separators = getUDAs!(thing.tupleof[i], Separator);

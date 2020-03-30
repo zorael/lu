@@ -66,7 +66,7 @@ in
 {
     static if (__traits(compiles, needle.length))
     {
-        assert(needle.length, "Tried to nom with no needle given");
+        assert(needle.length, "Tried to `nom` with no `needle` given");
     }
 }
 do
@@ -284,7 +284,7 @@ in
 {
     static if (__traits(compiles, needle.length))
     {
-        assert(needle.length, "Tried to nom with no needle given");
+        assert(needle.length, "Tried to `nom` with no `needle` given");
     }
 }
 do

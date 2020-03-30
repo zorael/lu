@@ -290,7 +290,7 @@ struct JSONStorage
             }
             else
             {
-                static assert(0, "Invalid KeyOrderStrategy passed to serialiseObjectInto");
+                static assert(0, "Invalid `KeyOrderStrategy` passed to `serialiseObjectInto`");
             }
 
             sink.put("}");

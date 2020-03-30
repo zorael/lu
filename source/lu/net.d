@@ -294,7 +294,7 @@ do
             attempt.line = string.init;
             yield(attempt);
             // Should never get here
-            assert(0, "Dead listenFiber resumed after yield (no bytes received)");
+            assert(0, "Dead `listenFiber` resumed after yield (no bytes received)");
         }
         else if (bytesReceived == Socket.ERROR)
         {
@@ -306,7 +306,7 @@ do
                 attempt.state = State.timeout;
                 yield(attempt);
                 // Should never get here
-                assert(0, "Timed out listenFiber resumed after yield " ~
+                assert(0, "Timed out `listenFiber` resumed after yield " ~
                     "(received error, elapsed > timeout)");
             }
 
@@ -331,7 +331,7 @@ do
                 attempt.state = State.error;
                 yield(attempt);
                 // Should never get here
-                assert(0, "Dead listenFiber resumed after yield (lastSocketError error)");
+                assert(0, "Dead `listenFiber` resumed after yield (`lastSocketError` error)");
 
             default:
                 attempt.state = State.warning;
@@ -476,7 +476,7 @@ do
                     attempt.state = State.connected;
                     yield(attempt);
                     // Should never get here
-                    assert(0, "Finished connectFiber resumed after yield");
+                    assert(0, "Finished `connectFiber` resumed after yield");
                 }
                 catch (SocketException e)
                 {
@@ -503,7 +503,7 @@ do
                         attempt.error = e.msg;
                         yield(attempt);
                         // Should never get here
-                        assert(0, "Dead connectFiber resumed after yield");
+                        assert(0, "Dead `connectFiber` resumed after yield");
 
                     //case "Unable to connect socket: Network is unreachable":
                     default:
@@ -533,7 +533,7 @@ do
     attempt.state = State.noMoreIPs;
     yield(attempt);
     // Should never get here
-    assert(0, "Dead connectFiber resumed after yield");
+    assert(0, "Dead `connectFiber` resumed after yield");
 }
 
 
@@ -612,7 +612,7 @@ do
             attempt.state = State.success;
             yield(attempt);
             // Should never get here
-            assert(0, "Dead resolveFiber resumed after yield");
+            assert(0, "Dead `resolveFiber` resumed after yield");
         }
         catch (SocketException e)
         {
@@ -632,7 +632,7 @@ do
                 attempt.error = e.msg;
                 yield(attempt);
                 // Should never get here
-                assert(0, "Dead resolveFiber resumed after yield");
+                assert(0, "Dead `resolveFiber` resumed after yield");
             }
         }
     }

@@ -147,7 +147,8 @@ if (isOutputRange!(Sink, char[]) && is(QualThing == struct))
         }
         else
         {
-            static assert(0, "Trying to format assignment delta of a %s, which can't be done".format(Thing.stringof));
+            static assert(0, "Cannot produce deltastrings for type `%s`"
+                .format(Thing.stringof));
         }
     }
 }

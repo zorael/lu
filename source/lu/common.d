@@ -709,7 +709,7 @@ if (isAssociativeArray!T)
             }
             else
             {
-                static assert(0, "Unknown predicate type passed to pruneAA");
+                static assert(0, "Unknown predicate type passed to `pruneAA`");
             }
         }
         else
