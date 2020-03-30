@@ -616,13 +616,23 @@ if (isArray!Array1 && isArray!Array2 && !is(Array2 == const)
         // Ensure there's room for all elements
         if (meldThis.length > intoThis.length) intoThis.length = meldThis.length;
     }
-    else static if (isStaticArray!Array2)
+    else static if (isStaticArray!Array1 && isStaticArray!Array2)
     {
-        static assert((Array2.length >= Array1.length), "Can't meld a larger array into a smaller static one");
+        import std.format : format;
+        static assert((Array2.length >= Array1.length),
+            "Cannot meld a larger static array (`%d`) into a smaller static one (`%d`)"
+            .format(Array1.length, Array2.length));
+    }
+    else static if (isDynamicArray!Array1 && isStaticArray!Array2)
+    {
+        assert((meldThis.length <= Array2.length),
+            "Cannot meld a larger dynamic array into a smaller static one");
     }
     else
     {
-        static assert(0, "Attempted to meld an unsupported type");
+        import std.format : format;
+        static assert(0, "Attempted to meld an unsupported array type: `%s` into `%s`"
+            .format(Array1.stringof, Array2.stringof));
     }
 
     foreach (immutable i, const val; meldThis)
