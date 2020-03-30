@@ -631,7 +631,7 @@ template CategoryName(alias sym)
         }
         else static if (__VERSION__ < 2087L)
         {
-            return "(module?)";
+            return "module(?)";
         }
         else
         {
@@ -696,7 +696,7 @@ unittest
     }
     else
     {
-        static assert(Fm.type == "(module?)");
+        static assert(Fm.type == "module(?)");
     }
 
     static assert(Fm.name == "traits");
