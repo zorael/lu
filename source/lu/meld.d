@@ -637,26 +637,27 @@ if (isArray!Array1 && isArray!Array2 && !is(Array2 == const)
 
     foreach (immutable i, const val; meldThis)
     {
-        with (MeldingStrategy)
-        final switch (strategy)
+        static if (strategy == MeldingStrategy.conservative)
         {
-        case conservative:
             if ((val != typeof(val).init) && (intoThis[i] == typeof(intoThis[i]).init))
             {
                 intoThis[i] = val;
             }
-            break;
-
-        case aggressive:
+        }
+        else static if (strategy == MeldingStrategy.aggressive)
+        {
             if (val != typeof(val).init)
             {
                 intoThis[i] = val;
             }
-            break;
-
-        case overwriting:
+        }
+        else static if (strategy == MeldingStrategy.overwriting)
+        {
             intoThis[i] = val;
-            break;
+        }
+        else
+        {
+            static assert(0, "Logic error; unexpected `MeldingStrategy` passed to array `meldInto`");
         }
     }
 }
@@ -726,36 +727,38 @@ if (isAssociativeArray!AA)
 {
     foreach (immutable key, val; meldThis)
     {
-        with (MeldingStrategy)
-        final switch (strategy)
+        static if (strategy == MeldingStrategy.conservative)
         {
-        case conservative:
-            const target = key in intoThis;
             if (val == typeof(val).init)
             {
                 // Source value is .init; do nothing
+                continue;
             }
-            else if (!target || (*target == typeof(*target).init))
+
+            const target = key in intoThis;
+
+            if (!target || (*target == typeof(*target).init))
             {
                 // Target value doesn't exist or is .init; meld
                 intoThis[key] = val;
             }
-            break;
-
-        case aggressive:
-            //const target = key in intoThis;
-            //if (!target || (*target == typeof(*target).init))
+        }
+        else static if (strategy == MeldingStrategy.aggressive)
+        {
             if (val != typeof(val).init)
             {
                 // Target value doesn't exist; meld
                 intoThis[key] = val;
             }
-            break;
-
-        case overwriting:
+        }
+        else static if (strategy == MeldingStrategy.overwriting)
+        {
             // Always overwrite
             intoThis[key] = val;
-            break;
+        }
+        else
+        {
+            static assert(0, "Logic error; unexpected `MeldingStrategy` passed to AA `meldInto`");
         }
     }
 }
