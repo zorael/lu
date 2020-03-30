@@ -171,18 +171,18 @@ unittest
 
     with (T)
     {
-        assert(Enum!T.fromString("QUERY") == QUERY);
-        assert(Enum!T.fromString("PRIVMSG") == PRIVMSG);
-        assert(Enum!T.fromString("RPL_ENDOFMOTD") == RPL_ENDOFMOTD);
-        assert(Enum!T.fromString("UNSET") == UNSET);
+        static assert(Enum!T.fromString("QUERY") == QUERY);
+        static assert(Enum!T.fromString("PRIVMSG") == PRIVMSG);
+        static assert(Enum!T.fromString("RPL_ENDOFMOTD") == RPL_ENDOFMOTD);
+        static assert(Enum!T.fromString("UNSET") == UNSET);
         assertThrown!ConvException(Enum!T.fromString("DOESNTEXIST"));  // needs @system
     }
 
     with (T)
     {
-        assert(Enum!T.toString(QUERY) == "QUERY");
-        assert(Enum!T.toString(PRIVMSG) == "PRIVMSG");
-        assert(Enum!T.toString(RPL_ENDOFMOTD) == "RPL_ENDOFMOTD");
+        static assert(Enum!T.toString(QUERY) == "QUERY");
+        static assert(Enum!T.toString(PRIVMSG) == "PRIVMSG");
+        static assert(Enum!T.toString(RPL_ENDOFMOTD) == "RPL_ENDOFMOTD");
     }
 }
 

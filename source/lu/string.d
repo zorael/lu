@@ -482,10 +482,10 @@ if (isIntegral!Num && isSomeString!T)
 ///
 unittest
 {
-    assert(10.plurality("one","many") == "many");
-    assert(1.plurality("one", "many") == "one");
-    assert((-1).plurality("one", "many") == "one");
-    assert(0.plurality("one", "many") == "many");
+    static assert(10.plurality("one","many") == "many");
+    static assert(1.plurality("one", "many") == "one");
+    static assert((-1).plurality("one", "many") == "one");
+    static assert(0.plurality("one", "many") == "many");
 }
 
 
