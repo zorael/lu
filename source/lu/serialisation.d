@@ -267,7 +267,6 @@ if (isOutputRange!(Sink, char[]))
     foreach (immutable i, member; thing.tupleof)
     {
         import lu.uda : Separator, Unconfigurable;
-        import lu.traits : isConfigurableVariable;
         import std.traits : hasUDA, isType;
 
         alias T = Unqual!(typeof(member));
@@ -1147,4 +1146,55 @@ unittest
         assert((result.entry == "ha"), result.entry);
         assert((result.value == "ha"), result.value);
     }
+}
+
+
+// isConfigurableVariable
+/++
+ +  Eponymous template bool of whether a variable can be configured via the
+ +  functions in `lu.serialisation` or not.
+ +
+ +  Currently it does not support static arrays.
+ +
+ +  Params:
+ +      var = Alias of variable to introspect.
+ +/
+template isConfigurableVariable(alias var)
+{
+    static if (!isType!var)
+    {
+        import std.traits : isSomeFunction;
+
+        alias T = typeof(var);
+
+        enum isConfigurableVariable =
+            !isSomeFunction!T &&
+            !__traits(isTemplate, T) &&
+            //!__traits(isAssociativeArray, T) &&
+            !__traits(isStaticArray, T);
+    }
+    else
+    {
+        enum isConfigurableVariable = false;
+    }
+}
+
+///
+unittest
+{
+    int i;
+    char[] c;
+    char[8] c2;
+    struct S {}
+    class C {}
+    enum E { foo }
+    E e;
+
+    static assert(isConfigurableVariable!i);
+    static assert(isConfigurableVariable!c);
+    static assert(!isConfigurableVariable!c2); // should static arrays pass?
+    static assert(!isConfigurableVariable!S);
+    static assert(!isConfigurableVariable!C);
+    static assert(!isConfigurableVariable!E);
+    static assert(isConfigurableVariable!e);
 }
