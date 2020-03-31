@@ -819,37 +819,37 @@ unittest
 {
     void fun()
     {
-        // MixinConstraints!("MixinConstrainedToFunction", MixinScope.function_);
-        mixin MixinConstrainedToFunction;
+        // MixinConstraints!(MixinScope.function_, "TestMixinConstrainedToFunctions");
+        mixin TestMixinConstrainedToFunctions;
     }
 
     class C
     {
-        // MixinConstraints!("MixinConstrainedToClass", MixinScope.class_);
-        mixin MixinConstrainedToClass;
+        // MixinConstraints!(MixinScope.class_, "TestMixinConstrainedToClass");
+        mixin TestMixinConstrainedToClass;
     }
 
     struct S
     {
-        // mixin MixinConstraints!("MixinConstrainedToStruct", MixinScope.struct_);
-        mixin MixinConstrainedToStruct;
+        // mixin MixinConstraints!(MixinScope.struct_, "TestMixinConstrainedToStruct");
+        mixin TestMixinConstrainedToStruct;
     }
 }
 
 version(unittest)
 {
-    mixin template MixinConstrainedToFunction()
+    mixin template TestMixinConstrainedToFunctions()
     {
-        mixin MixinConstraints!("MixinConstrainedToFunction", MixinScope.function_);
+        mixin MixinConstraints!(MixinScope.function_, "TestMixinConstrainedToFunctions");
     }
 
-    mixin template MixinConstrainedToClass()
+    mixin template TestMixinConstrainedToClass()
     {
-        mixin MixinConstraints!("MixinConstrainedToClass", MixinScope.class_);
+        mixin MixinConstraints!(MixinScope.class_, "TestMixinConstrainedToClass");
     }
 
-    mixin template MixinConstrainedToStruct()
+    mixin template TestMixinConstrainedToStruct()
     {
-        mixin MixinConstraints!("MixinConstrainedToStruct", MixinScope.struct_);
+        mixin MixinConstraints!(MixinScope.struct_, "TestMixinConstrainedToStruct");
     }
 }
