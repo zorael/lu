@@ -6,7 +6,7 @@ module lu.traits;
 private:
 
 import lu.uda;
-import std.traits : Unqual, isArray, isAssociativeArray, isFunction, isType;
+import std.traits : isArray, isAssociativeArray, isSomeFunction;
 import std.typecons : Flag, No, Yes;
 
 public:
@@ -47,6 +47,8 @@ unittest
 template UnqualArray(QualArray : QualType[], QualType)
 if (!isAssociativeArray!QualType)
 {
+    import std.traits : Unqual;
+
     alias UnqualArray = Unqual!QualType[];
 }
 
@@ -84,6 +86,8 @@ unittest
 template UnqualArray(QualArray : QualElem[QualKey], QualElem, QualKey)
 if (!isArray!QualElem)
 {
+    import std.traits : Unqual;
+
     alias UnqualArray = Unqual!QualElem[Unqual!QualKey];
 }
 
@@ -121,6 +125,8 @@ unittest
 template UnqualArray(QualArray : QualElem[QualKey], QualElem, QualKey)
 if (isArray!QualElem)
 {
+    import std.traits : Unqual;
+
     static if (isTrulyString!(Unqual!QualElem))
     {
         alias UnqualArray = Unqual!QualElem[Unqual!QualKey];
@@ -191,7 +197,7 @@ enum isStruct(T) = is(T == struct);
  +      P = Variadic list of types to compare `fun`'s function parameters with.
  +/
 template TakesParams(alias fun, P...)
-if (isFunction!fun)
+if (isSomeFunction!fun)
 {
     import std.traits : Parameters, Unqual, staticMap;
 
