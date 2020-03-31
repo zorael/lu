@@ -84,12 +84,20 @@ if (isOutputRange!(Sink, char[]) && is(QualThing == struct))
                 }
                 else static if (is(T == enum))
                 {
-                    import lu.string : nom;
                     import std.algorithm.searching : count;
                     import std.traits : fullyQualifiedName;
 
-                    string typename = fullyQualifiedName!T;
-                    while (typename.count('.') > 1) typename.nom('.');
+                    // We could use __traits(identifier, T) but we'd get
+                    // State.connected instead of Connection.State.connected
+                    enum typename = ()
+                    {
+                        import lu.string : nom;
+
+                        string typename = fullyQualifiedName!T;
+                        while (typename.count('.') > 1) typename.nom('.');
+
+                        return typename;
+                    }().idup;
 
                     static if (asserts)
                     {
