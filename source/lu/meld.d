@@ -119,7 +119,6 @@ void meldInto(MeldingStrategy strategy = MeldingStrategy.conservative, Thing)
 if ((is(Thing == struct) || is(Thing == class)) && (!is(intoThis == const) &&
     !is(intoThis == immutable)))
 {
-    import lu.traits : hasElaborateInit, isOfAssignableType;
     import lu.uda : Unmeldable;
     import std.traits : isArray, isSomeString, isType, hasUDA;
 
@@ -799,4 +798,162 @@ unittest
     saa1["a"] = "A";
     saa1.meldInto!(MeldingStrategy.aggressive)(saa2);
     assert(saa2["a"] == "A");
+}
+
+
+import std.traits : isType;
+
+// isOfAssignableType
+/++
+ +  Eponymous template bool of whether or not a variable is "assignable"; if it is
+ +  an lvalue that isn't protected from being written to.
+ +
+ +  Params:
+ +      T = Type to introspect.
+ +/
+template isOfAssignableType(T)
+if (isType!T)
+{
+    import std.traits : isSomeFunction;
+
+    enum isOfAssignableType = isType!T &&
+        !isSomeFunction!T &&
+        !__traits(isTemplate, T) &&
+        !is(T == const) &&
+        !is(T == immutable);
+}
+
+
+// isOfAssignableType
+/++
+ +  Eponymous template bool of whether or not a variable is "assignable"; if it is
+ +  an lvalue that isn't protected from being written to.
+ +
+ +  Overload that takes an alias symbol instead of a normal template parameter.
+ +
+ +  Params:
+ +      symbol = Symbol to introspect.
+ +/
+enum isOfAssignableType(alias symbol) = isType!symbol && is(symbol == enum);
+
+///
+unittest
+{
+    struct Foo
+    {
+        string bar, baz;
+    }
+
+    class Bar
+    {
+        int i;
+    }
+
+    void boo(int i) {}
+
+    enum Baz { abc, def, ghi }
+    Baz baz;
+
+    static assert(isOfAssignableType!int);
+    static assert(!isOfAssignableType!(const int));
+    static assert(!isOfAssignableType!(immutable int));
+    static assert(isOfAssignableType!(string[]));
+    static assert(isOfAssignableType!Foo);
+    static assert(isOfAssignableType!Bar);
+    static assert(!isOfAssignableType!boo);  // room for improvement: @property
+    static assert(isOfAssignableType!Baz);
+    static assert(!isOfAssignableType!baz);
+    static assert(isOfAssignableType!string);
+}
+
+
+// hasElaborateInit
+/++
+ +  Eponymous template that is true if the passed type has default values to
+ +  any of its fields.
+ +
+ +  Params:
+ +      QualT = Qualified struct type to introspect for elaborate .init.
+ +/
+template hasElaborateInit(QualT)
+if (is(QualT == struct))
+{
+    import std.traits : Unqual, isType;
+
+    alias T = Unqual!QualT;
+
+    enum hasElaborateInit = ()
+    {
+        bool match;
+
+        T thing;  // need a `this`
+
+        foreach (immutable i, member; thing.tupleof)
+        {
+            import std.traits : isSomeFunction, isType;
+
+            static if (!__traits(isDeprecated, thing.tupleof[i]) &&
+                !isType!(thing.tupleof[i]) &&
+                !isSomeFunction!(thing.tupleof[i]) &&
+                !__traits(isTemplate, thing.tupleof[i]))
+            {
+                alias MemberType = typeof(thing.tupleof[i]);
+
+                static if (is(MemberType == float) || is(MemberType == double))
+                {
+                    import std.math : isNaN;
+                    match = !member.isNaN;
+                }
+                else static if (T.init.tupleof[i] != MemberType.init)
+                {
+                    match = true;
+                }
+
+                if (match) break;
+            }
+        }
+
+        return match;
+    }();
+}
+
+///
+unittest
+{
+    struct NoDefaultValues
+    {
+        string s;
+        int i;
+        bool b;
+        float f;
+    }
+
+    struct HasDefaultValues
+    {
+        string s;
+        int i = 42;
+        bool b;
+        float f;
+    }
+
+    struct HasDefaultValuesToo
+    {
+        string s;
+        int i;
+        bool b;
+        float f = 3.14f;
+    }
+
+    struct HasDefaultValuesThree
+    {
+        string s;
+        int i;
+        bool b;
+        double d = 99.9;
+    }
+
+    static assert(!hasElaborateInit!NoDefaultValues);
+    static assert(hasElaborateInit!HasDefaultValues);
+    static assert(hasElaborateInit!HasDefaultValuesToo);
+    static assert(hasElaborateInit!HasDefaultValuesThree);
 }
