@@ -740,12 +740,12 @@ unittest
  +  ---
  +
  +  Params:
- +      mixinName = String name of the mixing-in mixin. Can be anything; it's
- +          just used for the static assert error messages.
  +      mixinScope = The scope into which to only allow the mixin to be mixed in.
  +          All other kinds of scopes will be statically rejected.
+ +      mixinName = Optional string name of the mixing-in mixin.
+ +          Can be anything; it's just used for the error messages.
  +/
-mixin template MixinConstraints(string mixinName, MixinScope mixinScope)
+mixin template MixinConstraints(MixinScope mixinScope, string mixinName = "a constrained mixin")
 {
 private:
     import lu.traits : CategoryName, MixinScope;
