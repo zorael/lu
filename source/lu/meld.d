@@ -405,7 +405,7 @@ unittest
         class_ = User.Class.blacklist;
     }
 
-    import lu.conv : Enum;
+    //import lu.conv : Enum;
 
     User twoCopy = two;
 
@@ -418,7 +418,7 @@ unittest
         assert((address == "asdf.org"), address);
         assert((login == "kamelusu"), login);
         assert(special);
-        assert((class_ == User.Class.whitelist), Enum!(User.Class).toString(class_));
+        assert(class_ == User.Class.whitelist);//, Enum!(User.Class).toString(class_));
     }
 
     one.class_ = User.Class.blacklist;
@@ -432,7 +432,7 @@ unittest
         assert((address == "herpderp.net"), address);
         assert((login == "kamelusu"), login);
         assert(!special);
-        assert((class_ == User.Class.blacklist), Enum!(User.Class).toString(class_));
+        assert(class_ == User.Class.blacklist);//, Enum!(User.Class).toString(class_));
     }
 
     struct EnumThing
@@ -444,9 +444,9 @@ unittest
     EnumThing e1;
     EnumThing e2;
     e2.enum_ = EnumThing.Enum.three;
-    assert((e1.enum_ == EnumThing.Enum.init), Enum!(EnumThing.Enum).toString(e1.enum_));
+    assert(e1.enum_ == EnumThing.Enum.init);//, Enum!(EnumThing.Enum).toString(e1.enum_));
     e2.meldInto(e1);
-    assert((e1.enum_ == EnumThing.Enum.three), Enum!(EnumThing.Enum).toString(e1.enum_));
+    assert(e1.enum_ == EnumThing.Enum.three);//, Enum!(EnumThing.Enum).toString(e1.enum_));
 
     struct WithArray
     {
