@@ -274,13 +274,20 @@ if (isOutputRange!(Sink, char[]))
 in ((duration >= 0.seconds), "Cannot call timeSince on a negative duration")
 do
 {
-    import lu.string : plurality;
     import std.format : formattedWrite;
+    import std.traits : isIntegral, isSomeString;
 
     static if (!__traits(hasMember, Sink, "put")) import std.range.primitives : put;
 
     int days, hours, minutes, seconds;
     duration.split!("days", "hours", "minutes", "seconds")(days, hours, minutes, seconds);
+
+    // Copied from lu.string to avoid importing it
+    pragma(inline)
+    static string plurality(const int num, const string singular, const string plural) pure nothrow @nogc
+    {
+        return ((num == 1) || (num == -1)) ? singular : plural;
+    }
 
     if (days)
     {
@@ -290,7 +297,7 @@ do
         }
         else
         {
-            sink.formattedWrite("%d %s", days, days.plurality("day", "days"));
+            sink.formattedWrite("%d %s", days, plurality(days, "day", "days"));
         }
     }
 
@@ -308,7 +315,7 @@ do
                 if (minutes) sink.put(", ");
                 else sink.put("and ");
             }
-            sink.formattedWrite("%d %s", hours, hours.plurality("hour", "hours"));
+            sink.formattedWrite("%d %s", hours, plurality(hours, "hour", "hours"));
         }
     }
 
@@ -322,7 +329,7 @@ do
         else
         {
             if (hours || days) sink.put(" and ");
-            sink.formattedWrite("%d %s", minutes, minutes.plurality("minute", "minutes"));
+            sink.formattedWrite("%d %s", minutes, plurality(minutes, "minute", "minutes"));
         }
     }
 
@@ -334,7 +341,7 @@ do
         }
         else
         {
-            sink.formattedWrite("%d %s", seconds, seconds.plurality("second", "seconds"));
+            sink.formattedWrite("%d %s", seconds, plurality(seconds, "second", "seconds"));
         }
     }
 }
