@@ -266,6 +266,7 @@ if (isOutputRange!(Sink, char[]))
 
     foreach (immutable i, member; thing.tupleof)
     {
+        import lu.traits : isConfigurableVariable;
         import lu.uda : Separator, Unconfigurable;
         import std.traits : hasUDA, isType;
 

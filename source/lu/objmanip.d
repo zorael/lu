@@ -67,7 +67,7 @@ do
     {
     static foreach (immutable i; 0..thing.tupleof.length)
     {{
-        import lu.serialisation : isConfigurableVariable;
+        import lu.traits : isConfigurableVariable;
         import std.traits : Unqual, isType;
 
         alias T = Unqual!(typeof(thing.tupleof[i]));
