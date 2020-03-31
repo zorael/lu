@@ -1161,6 +1161,8 @@ unittest
  +/
 template isConfigurableVariable(alias var)
 {
+    import std.traits : isType;
+
     static if (!isType!var)
     {
         import std.traits : isSomeFunction;
