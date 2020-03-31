@@ -18,12 +18,10 @@ os:
   - osx
 
 script:
-  - dub test --compiler=${DC}
-  - dub test --compiler=${DC} :core
+  - dub test  --compiler=${DC}
+  - dub build --compiler=${DC} -b debug
   - dub build --compiler=${DC} -b plain
-  - dub build --compiler=${DC} -b plain :core
   - dub build --compiler=${DC} -b release
-  - dub build --compiler=${DC} -b release :core
 
 before_deploy:
   - dub build --compiler=${DC} -b ddox

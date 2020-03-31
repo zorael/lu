@@ -19,35 +19,10 @@ install_deps() {
 }
 
 build() {
-    time dub test --compiler=$1
-
+    time dub test  --compiler=$1
+    time dub build --compiler=$1 -b debug
     time dub build --compiler=$1 -b plain
-    time dub build --compiler=$1 -b plain :core
-    time dub build --compiler=$1 -b plain :conv
-    time dub build --compiler=$1 -b plain :meld
-    time dub build --compiler=$1 -b plain :string
-    time dub build --compiler=$1 -b plain :traits
-    time dub build --compiler=$1 -b plain :uda
-    time dub build --compiler=$1 -b plain :common
-    time dub build --compiler=$1 -b plain :json
-    time dub build --compiler=$1 -b plain :net
-    time dub build --compiler=$1 -b plain :objmanip
-    time dub build --compiler=$1 -b plain :serialisation
-    time dub build --compiler=$1 -b plain :deltastrings
-
     time dub build --compiler=$1 -b release
-    time dub build --compiler=$1 -b release :core
-    time dub build --compiler=$1 -b release :conv
-    time dub build --compiler=$1 -b release :meld
-    time dub build --compiler=$1 -b release :string
-    time dub build --compiler=$1 -b release :traits
-    time dub build --compiler=$1 -b release :uda
-    time dub build --compiler=$1 -b release :common
-    time dub build --compiler=$1 -b release :json
-    time dub build --compiler=$1 -b release :net
-    time dub build --compiler=$1 -b release :objmanip
-    time dub build --compiler=$1 -b release :serialisation
-    time dub build --compiler=$1 -b release :deltastrings
 }
 
 # execution start
