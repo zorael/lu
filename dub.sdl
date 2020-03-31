@@ -34,6 +34,7 @@ subPackage {
 subPackage {
     name "conv"
     dflags "-dip25" "-dip1008"
+    // self-contained
 
     excludedSourceFiles \
         "source/lu/meld.d" \
@@ -56,24 +57,23 @@ subPackage {
 
     excludedSourceFiles \
         "source/lu/string.d" \
-        "source/lu/uda.d" \
         "source/lu/common.d" \
         "source/lu/json.d" \
         "source/lu/net.d" \
         "source/lu/objmanip.d" \
         "source/lu/serialisation.d" \
         "source/lu/deltastrings.d" \
+        "source/lu/traits.d" \
+        "source/lu/conv.d" \
         "source/lu/semver.d"
         #"source/lu/meld.d" \
-        #"source/lu/conv.d" \
-        #"source/lu/traits.d" \
         #"source/lu/uda.d"
 }
 
 subPackage {
     name "string"
     dflags "-dip25" "-dip1008"
-    // Wholly self-contained
+    // self-contained
 
     excludedSourceFiles \
         "source/lu/conv.d" \
@@ -112,7 +112,7 @@ subPackage {
 subPackage {
     name "uda"
     dflags "-dip25" "-dip1008"
-    // Wholly self-contained
+    // self-contained
 
     excludedSourceFiles \
         "source/lu/conv.d" \
@@ -143,9 +143,9 @@ subPackage {
         "source/lu/objmanip.d" \
         "source/lu/serialisation.d" \
         "source/lu/deltastrings.d" \
+        "source/lu/string.d" \
         "source/lu/semver.d"
         #"source/lu/common.d" \
-        #"source/lu/string.d"
 }
 
 subPackage {
@@ -160,9 +160,9 @@ subPackage {
         "source/lu/serialisation.d" \
         "source/lu/traits.d" \
         "source/lu/deltastrings.d" \
+        "source/lu/conv.d" \
         "source/lu/semver.d"
         #"source/lu/string.d" \
-        #"source/lu/conv.d" \
         #"source/lu/common.d"
         #"source/lu/json.d" \
 }
@@ -170,7 +170,7 @@ subPackage {
 subPackage {
     name "net"
     dflags "-dip25" "-dip1008"
-    // Wholly self-contained
+    // self-contained
 
     excludedSourceFiles \
         "source/lu/conv.d" \
@@ -195,14 +195,14 @@ subPackage {
         "source/lu/common.d" \
         "source/lu/json.d" \
         "source/lu/net.d" \
-        "source/lu/serialisation.d" \
         "source/lu/deltastrings.d" \
         "source/lu/meld.d" \
+        "source/lu/traits.d" \
         "source/lu/semver.d"
         #"source/lu/objmanip.d" \
+        #"source/lu/serialisation.d" \
         #"source/lu/conv.d" \
         #"source/lu/string.d" \
-        #"source/lu/traits.d" \
         #"source/lu/uda.d" \
 }
 
@@ -215,10 +215,10 @@ subPackage {
         "source/lu/json.d" \
         "source/lu/net.d" \
         "source/lu/deltastrings.d" \
+        "source/lu/traits.d" \
         "source/lu/semver.d"
         #"source/lu/conv.d" \
         #"source/lu/string.d" \
-        #"source/lu/traits.d" \
         #"source/lu/uda.d" \
         #"source/lu/common.d" \
         #"source/lu/objmanip.d"
