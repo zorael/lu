@@ -415,7 +415,11 @@ unittest
         @Quoted flerrp = "hirr steff  ";
         double pi = 3.14159;
         @Separator(",") arr = [ 1, 2, 3 ];
-        @("|") matey = [ "a", "b", "c" ];
+
+        static if (__VERSION__ >= 2087L)
+        {
+            @("|") matey = [ "a", "b", "c" ];
+        }
     }
 
     struct BarSettings
@@ -427,7 +431,9 @@ unittest
         double pipyon = 3.0;
     }
 
-    enum fooSerialised =
+    static if (__VERSION__ >= 2087L)
+    {
+        enum fooSerialised =
 `[Foo]
 fooasdf foo 1
 bar foo 1
@@ -437,6 +443,19 @@ pi 3.14159
 arr 1,2,3
 matey a|b|c
 `;
+    }
+    else
+    {
+        enum fooSerialised =
+`[Foo]
+fooasdf foo 1
+bar foo 1
+bazzzzzzz foo 1
+flerrp "hirr steff  "
+pi 3.14159
+arr 1,2,3
+`;
+    }
 
     Appender!string fooSink;
     fooSink.reserve(64);
