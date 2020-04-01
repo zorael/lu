@@ -97,8 +97,8 @@ subPackage {
     sourcePaths "include"
     importPaths "include" "source"
 
-    sourceFiles \
-        "include/lu/semver.d"
+    /*sourceFiles \
+        "include/lu/semver.d"*/
 }
 
 subPackage {
@@ -143,8 +143,8 @@ subPackage {
     sourcePaths "include"
     importPaths "include"
 
-    sourceFiles \
-        "include/lu/uda.d"
+    /*sourceFiles \
+        "include/lu/uda.d"*/
 }
 
 configuration "library" {
