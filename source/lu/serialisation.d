@@ -269,7 +269,7 @@ if (isOutputRange!(Sink, char[]))
     {
         import lu.traits : isAnnotated, isConfigurableVariable;
         import lu.uda : Separator, Unconfigurable;
-        import std.traits : hasUDA, isType;
+        import std.traits : isType;
 
         alias T = Unqual!(typeof(member));
 
@@ -284,7 +284,7 @@ if (isOutputRange!(Sink, char[]))
 
             static if (!isSomeString!T && isArray!T)
             {
-                import std.traits : getUDAs;
+                import std.traits : getUDAs, hasUDA;
 
                 // array, join it together
 
@@ -389,7 +389,7 @@ if (isOutputRange!(Sink, char[]))
             {
                 import lu.uda : Quoted;
 
-                static if (isSomeString!T && hasUDA!(Thing.tupleof[i], Quoted))
+                static if (isSomeString!T && isAnnotated!(thing.tupleof[i], Quoted))
                 {
                     sink.formattedWrite("%s \"%s\"\n", memberstring, value);
                 }
@@ -506,6 +506,7 @@ void applyConfiguration(Range, Things...)(Range range, out string[][string] miss
 if (allSatisfy!(isStruct, Things))
 {
     import lu.string : stripSuffix, stripped;
+    import lu.traits : isAnnotated;
     import lu.uda : Unconfigurable;
     import std.format : format;
 
@@ -517,14 +518,14 @@ if (allSatisfy!(isStruct, Things))
     // set them to false. Flip to true when we encounter one.
     foreach (immutable i, thing; things)
     {
-        import std.traits : Unqual, hasUDA, isType;
+        import std.traits : Unqual, isType;
 
         alias Thing = typeof(thing);
 
         static foreach (immutable n; 0..things[i].tupleof.length)
         {{
             static if (!isType!(Things[i].tupleof[n]) &&
-                !hasUDA!(Things[i].tupleof[n], Unconfigurable))
+                !isAnnotated!(things[i].tupleof[n], Unconfigurable))
             {
                 enum memberstring = __traits(identifier, Things[i].tupleof[n]);
                 encounteredOptions[Thing.stringof][memberstring] = false;
@@ -589,7 +590,7 @@ if (allSatisfy!(isStruct, Things))
             foreach (immutable i, thing; things)
             {
                 import lu.uda : CannotContainComments;
-                import std.traits : Unqual, hasUDA, isType;
+                import std.traits : Unqual, isType;
 
                 alias T = Unqual!(typeof(thing));
                 enum settingslessT = T.stringof.stripSuffix("Settings").idup;
@@ -608,14 +609,14 @@ if (allSatisfy!(isStruct, Things))
                 static foreach (immutable n; 0..things[i].tupleof.length)
                 {{
                     static if (!isType!(Things[i].tupleof[n]) &&
-                        !hasUDA!(Things[i].tupleof[n], Unconfigurable))
+                        !isAnnotated!(things[i].tupleof[n], Unconfigurable))
                     {
                         enum memberstring = __traits(identifier, Things[i].tupleof[n]);
 
                         case memberstring:
                             import lu.objmanip : setMemberByName;
 
-                            static if (hasUDA!(Things[i].tupleof[n], CannotContainComments))
+                            static if (isAnnotated!(things[i].tupleof[n], CannotContainComments))
                             {
                                 things[i].setMemberByName(entry, value);
                             }
