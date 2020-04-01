@@ -1,6 +1,6 @@
 /++
  +  This module contains functions that in some way or another manipulates
- +  struct and class instances.
+ +  struct and class instances, as well as (associative) arrays.
  +
  +  Example:
  +  ---
@@ -18,6 +18,7 @@ module lu.objmanip;
 public:
 
 @safe:
+
 
 // setMemberByName
 /++
