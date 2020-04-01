@@ -95,7 +95,7 @@ do
                     {
                         alias separators = getUDAs!(thing.tupleof[i], Separator);
                     }
-                    else static if (hasUDA!(thing.tupleof[i], string))
+                    else static if ((__VERSION__ >= 2087L) && hasUDA!(thing.tupleof[i], string))
                     {
                         alias separators = getUDAs!(thing.tupleof[i], string);
                     }
@@ -281,9 +281,12 @@ unittest
             string[] withSpaces;
         }
 
-        @(`\o/`)
+        static if (__VERSION__ >= 2087L)
         {
-            int[] blargh;
+            @(`\o/`)
+            {
+                int[] blargh;
+            }
         }
     }
 
@@ -338,9 +341,12 @@ unittest
     assert(success);
     assert((foo.matey == [ "asdf fdsa\\", "hirr", "steff" ]), foo.matey.to!string);
 
-    success = foo.setMemberByName("blargh", `1\o/2\o/3\o/4\o/5`);
-    assert(success);
-    assert((foo.blargh == [ 1, 2, 3, 4, 5 ]), foo.blargh.to!string);
+    static if (__VERSION__ >= 2087L)
+    {
+        success = foo.setMemberByName("blargh", `1\o/2\o/3\o/4\o/5`);
+        assert(success);
+        assert((foo.blargh == [ 1, 2, 3, 4, 5 ]), foo.blargh.to!string);
+    }
 
     class C
     {
