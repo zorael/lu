@@ -283,19 +283,33 @@ if (isOutputRange!(Sink, char[]))
 
             static if (!isSomeString!T && isArray!T)
             {
-                // array, join it together
-                static assert (hasUDA!(thing.tupleof[i], Separator),
-                    "`%s.%s` is not annotated with a `Separator`"
-                    .format(Thing.stringof, memberstring));
-
                 import std.traits : getUDAs;
 
-                alias separators = getUDAs!(thing.tupleof[i], Separator);
-                enum separator = separators[0].token;
+                // array, join it together
 
-                static assert(separator.length, ("`%s.%s` is annotated with an " ~
-                    "invalid `Separator` (empty)")
-                    .format(Thing.stringof, memberstring));
+                static if (hasUDA!(thing.tupleof[i], Separator))
+                {
+                    alias separators = getUDAs!(thing.tupleof[i], Separator);
+                    enum separator = separators[0].token;
+
+                    static assert(separator.length, ("`%s.%s` is annotated with an " ~
+                        "invalid `Separator` (empty)")
+                        .format(Thing.stringof, memberstring));
+                }
+                else static if (hasUDA!(thing.tupleof[i], string))
+                {
+                    alias separators = getUDAs!(thing.tupleof[i], string);
+                    enum separator = separators[0];
+
+                    static assert(separator.length, ("`%s.%s` is annotated with an " ~
+                        "empty separator string")
+                        .format(Thing.stringof, memberstring));
+                }
+                else
+                {
+                    static assert (0, "`%s.%s` is not annotated with a `Separator`"
+                        .format(Thing.stringof, memberstring));
+                }
 
                 enum arrayPattern = "%-(%s" ~ separator ~ "%)";
 
