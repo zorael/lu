@@ -271,7 +271,7 @@ struct ListenAttempt
  +      `ListenAttempt`s with information about the line receieved in its member values.
  +/
 void listenFiber(Connection conn, ref bool abort,
-    const int connectionLost = Timeout.connectionLost) @system
+    const int connectionLost = DefaultTimeout.connectionLost) @system
 in ((conn.connected), "Tried to set up a listening fiber on a dead connection")
 in (!abort, "Tried to set up a listening fiber when the abort flag was set")
 in ((connectionLost > 0), "Tried to set up a listening fiber with connection timeout of <= 0")
@@ -283,7 +283,7 @@ do
     import std.socket : Socket, lastSocketError;
     import std.string : indexOf;
 
-    ubyte[BufferSize.socketReceive*2] buffer;
+    ubyte[DefaultBufferSize.socketReceive*2] buffer;
     long timeLastReceived = Clock.currTime.toUnixTime;
     size_t start;
 
