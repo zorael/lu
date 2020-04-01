@@ -65,6 +65,106 @@ unittest
 }
 
 
+// isAnnotated
+/++
+ +  True if the passed symbol is annotated with the passed User-defined Attribute,
+ +  or by its string identifier. False otherwise.
+ +
+ +  Example:
+ +  ---
+ +  struct Fun;
+ +
+ +  bool unfun;
+ +  @Fun bool fun;
+ +  @("Fun") bool alsoFun;
+ +
+ +  static assert(isAnnotated!(fun, Fun));
+ +  static assert(isAnnotated!(alsoFun, Fun));
+ +  ---
+ +
+ +  Params:
+ +      sym = Symbol to inspect.
+ +      UDA = Annotation to look for.
+ +/
+template isAnnotated(alias sym, UDA)
+{
+    import std.traits : fullyQualifiedName, hasUDA;
+
+    enum isAnnotated =
+        hasUDA!(sym, UDA) ||
+        hasUDA!(sym, __traits(identifier, UDA)) ||
+        hasUDA!(sym, fullyQualifiedName!UDA);
+}
+
+///
+unittest
+{
+    import lu.uda : Hidden, Unconfigurable;
+
+    @("Bar")
+    struct Foo
+    {
+        bool configurable;
+        @Unconfigurable bool unconfigurable;
+        @("Unconfigurable") bool alsoUnconfigurable;
+    }
+
+    @Foo
+    struct Bar
+    {
+        bool visible;
+        @Hidden bool hidden;
+        @("Hidden") bool alsoHidden;
+    }
+
+    Foo f;
+    Bar b;
+
+    static assert (!isAnnotated!(b.visible, Hidden));
+    static assert (isAnnotated!(b.hidden, Hidden));
+    static assert (isAnnotated!(b.alsoHidden, Hidden));
+    static assert (isAnnotated!(b.alsoHidden, "Hidden"));
+
+    static assert (!isAnnotated!(f.configurable, Unconfigurable));
+    static assert (isAnnotated!(f.unconfigurable, Unconfigurable));
+    static assert (isAnnotated!(f.alsoUnconfigurable, Unconfigurable));
+    static assert (isAnnotated!(f.alsoUnconfigurable, "Unconfigurable"));
+
+    static assert (isAnnotated!(Bar, Foo));
+    static assert (isAnnotated!(Foo, Bar));
+    static assert (isAnnotated!(Foo, "Bar"));
+}
+
+
+// isAnnotated
+/++
+ +  True if the passed symbol is annotated with the passed User-defined Attribute
+ +  fundamental literal. False otherwise.
+ +
+ +  Overload that takes the UDA as an alias and merely wraps `std.traits.hasUDA`.
+ +
+ +  Example:
+ +  ---
+ +  struct Fun;
+ +
+ +  bool unfun;
+ +  @("Fun") bool fun;
+ +
+ +  static assert(!isAnnotated!(unfun, "Fun"));
+ +  static assert(isAnnotated!(fun, "Fun"));
+ +  ---
+ +
+ +  Params:
+ +      sym = Symbol to inspect.
+ +      UDA = Annotation to look for.
+ +/
+template isAnnotated(alias sym, alias UDA)
+{
+    import std.traits : getUDAs, hasUDA;
+    enum isAnnotated = hasUDA!(sym, UDA);
+}
+
+
 // isTrulyString
 /++
  +  True if a type is `string`, `dstring` or `wstring`; otherwise false.
