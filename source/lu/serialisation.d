@@ -892,7 +892,7 @@ auto justifiedConfigurationText(const string origLines) pure
         }
     }
 
-    import lu.common : getMultipleOf;
+    import lu.numeric : getMultipleOf;
     import std.algorithm.iteration : joiner;
 
     Appender!string justified;
