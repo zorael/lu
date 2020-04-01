@@ -472,11 +472,6 @@ pipyon 3
  +  Takes an input range containing configuration text and applies the contents
  +  therein to one or more passed struct/class objects.
  +
- +  This is one of our last few uses of regex, but the use case lends itself to
- +  it for separating values with the [ \t] deliminator. While slicing would
- +  probably lower compilation memory use considerably, it becomes very tricky
- +  as we're supporting both spaces and tabs.
- +
  +  Example:
  +  ---
  +  IRCClient client;
@@ -662,11 +657,6 @@ if (allSatisfy!(isStruct, Things))
 /++
  +  Takes an input range containing configuration text and applies the contents
  +  therein to one or more passed struct/class objects.
- +
- +  This is one of our last few uses of regex, but the use case lends itself to
- +  it for separating values with the [ \t] deliminator. While slicing would
- +  probably lower compilation memory use considerably, it becomes very tricky
- +  as we're supporting both spaces and tabs.
  +
  +  Example:
  +  ---
