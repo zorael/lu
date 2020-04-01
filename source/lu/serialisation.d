@@ -297,7 +297,7 @@ if (isOutputRange!(Sink, char[]))
                         "invalid `Separator` (empty)")
                         .format(Thing.stringof, memberstring));
                 }
-                else static if (hasUDA!(thing.tupleof[i], string))
+                else static if ((__VERSION__ >= 2087L) && hasUDA!(thing.tupleof[i], string))
                 {
                     alias separators = getUDAs!(thing.tupleof[i], string);
                     enum separator = separators[0];
