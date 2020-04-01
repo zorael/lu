@@ -56,6 +56,7 @@ module lu.serialisation;
 
 private:
 
+import lu.traits : isStruct;
 import std.meta : allSatisfy;
 import std.range.primitives : isOutputRange;
 import std.typecons : Flag, No, Yes;
@@ -464,20 +465,6 @@ pipyon 3
     bothSink.serialise(FooSettings.init, BarSettings.init);
     assert(bothSink.data == fooSink.data ~ '\n' ~ barSink.data);
 }
-
-
-// isStruct
-/++
- +  Eponymous template that is true if the passed type is a struct.
- +
- +  Used with `std.meta.Filter`, which cannot take `is()` expressions.
- +
- +  Copied from `lu.traits` to keep from having to import it.
- +
- +  Params:
- +      T = Type to introspect.
- +/
-private enum isStruct(T) = is(T == struct);
 
 
 // applyConfiguration
