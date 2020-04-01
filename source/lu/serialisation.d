@@ -875,6 +875,14 @@ auto justifiedConfigurationText(const string origLines) pure
             unjustified.put(line);
             continue;
 
+        case '/':
+            if ((line.length > 1) && (line[1] == '/'))
+            {
+                // Also a comment
+                goto case '#';
+            }
+            goto default;
+
         default:
             import std.format : format;
 
@@ -914,6 +922,14 @@ auto justifiedConfigurationText(const string origLines) pure
             justified.put(line);
             justified.put("\n");
             continue;
+
+        case '/':
+            if ((line.length > 1) && (line[1] == '/'))
+            {
+                // Also a comment
+                goto case '#';
+            }
+            goto default;
 
         default:
             import std.format : formattedWrite;
