@@ -580,76 +580,60 @@ if (allSatisfy!(isStruct, Things))
                     `line, sectionless orphan "%s"`.format(line));
             }
 
-            static if (Things.length == 1)
-            {
-                import std.traits : Unqual;
-
-                enum settingslessThing = Unqual!Things.stringof.stripSuffix("Settings");
-                // Early continue if there's only one Thing and we're in the wrong section
-
-                if (section != settingslessThing) continue lineloop;
-            }
-
-            immutable result = splitEntryValue(line);
-            immutable entry = result.entry;
-
-            if (!entry.length) continue;
-
-            string value = result.value;  // mutable for later slicing
-
             thingloop:
             foreach (immutable i, thing; things)
             {
+                import lu.uda : CannotContainComments;
                 import std.traits : Unqual, hasUDA, isType;
 
                 alias T = Unqual!(typeof(thing));
-                enum settingslessT = T.stringof.stripSuffix("Settings");
+                enum settingslessT = T.stringof.stripSuffix("Settings").idup;
 
                 if (section != settingslessT) continue thingloop;
-
                 processedThings[i] = true;
 
-                static if (!is(T == enum))
+                immutable result = splitEntryValue(line);
+                immutable entry = result.entry;
+                if (!entry.length) continue;
+
+                string value = result.value;  // mutable for later slicing
+
+                switch (entry)
                 {
-                    import lu.uda : CannotContainComments;
-
-                    switch (entry)
+                static foreach (immutable n; 0..things[i].tupleof.length)
+                {{
+                    static if (!isType!(Things[i].tupleof[n]) &&
+                        !hasUDA!(Things[i].tupleof[n], Unconfigurable))
                     {
-                    static foreach (immutable n; 0..things[i].tupleof.length)
-                    {{
-                        static if (!isType!(Things[i].tupleof[n]) &&
-                            !hasUDA!(Things[i].tupleof[n], Unconfigurable))
-                        {
-                            enum memberstring = __traits(identifier, Things[i].tupleof[n]);
+                        enum memberstring = __traits(identifier, Things[i].tupleof[n]);
 
-                            case memberstring:
-                                import lu.objmanip : setMemberByName;
+                        case memberstring:
+                            import lu.objmanip : setMemberByName;
 
-                                static if (hasUDA!(Things[i].tupleof[n], CannotContainComments))
-                                {
-                                    things[i].setMemberByName(entry, value);
-                                }
-                                else
-                                {
-                                    import lu.string : contains, nom;
+                            static if (hasUDA!(Things[i].tupleof[n], CannotContainComments))
+                            {
+                                things[i].setMemberByName(entry, value);
+                            }
+                            else
+                            {
+                                import lu.string : contains, nom;
 
-                                    // Slice away any comments
-                                    value = value.contains('#') ? value.nom('#') : value;
-                                    value = value.contains(';') ? value.nom(';') : value;
-                                    value = value.contains("//") ? value.nom("//") : value;
-                                    things[i].setMemberByName(entry, value);
-                                }
+                                // Slice away any comments
+                                value = value.contains('#') ? value.nom('#') : value;
+                                value = value.contains(';') ? value.nom(';') : value;
+                                value = value.contains("//") ? value.nom("//") : value;
+                                things[i].setMemberByName(entry, value);
+                            }
 
-                                encounteredOptions[Things[i].stringof][memberstring] = true;
-                                continue lineloop;
-                        }
-                    }}
-
-                    default:
-                        // Unknown setting in known section
-                        invalidEntries[section] ~= entry.length ? entry : line;
-                        break;
+                            encounteredOptions[Things[i].stringof][memberstring] = true;
+                            continue lineloop;
                     }
+                }}
+
+                default:
+                    // Unknown setting in known section
+                    invalidEntries[section] ~= entry.length ? entry : line;
+                    break;
                 }
             }
 
