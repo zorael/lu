@@ -39,15 +39,16 @@ if (isOutputRange!(Sink, char[]) && is(QualThing == struct))
 
     foreach (immutable i, ref member; after.tupleof)
     {
+        import lu.traits : isAnnotated;
         import lu.uda : Hidden;
         import std.functional : unaryFun;
-        import std.traits : Unqual, hasUDA, isSomeFunction, isSomeString, isType;
+        import std.traits : Unqual, isSomeFunction, isSomeString, isType;
 
-        alias Thing = Unqual!QualThing;
         alias T = Unqual!(typeof(member));
         enum memberstring = __traits(identifier, before.tupleof[i]);
 
-        static if (hasUDA!(Thing.tupleof[i], Hidden))
+
+        static if (isAnnotated!(after.tupleof[i], Hidden))
         {
             // Member is annotated as Hidden; skip
             continue;

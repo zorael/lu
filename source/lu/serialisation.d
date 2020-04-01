@@ -266,7 +266,7 @@ if (isOutputRange!(Sink, char[]))
 
     foreach (immutable i, member; thing.tupleof)
     {
-        import lu.traits : isConfigurableVariable;
+        import lu.traits : isAnnotated, isConfigurableVariable;
         import lu.uda : Separator, Unconfigurable;
         import std.traits : hasUDA, isType;
 
@@ -274,7 +274,7 @@ if (isOutputRange!(Sink, char[]))
 
         static if (!isType!member &&
             isConfigurableVariable!member &&
-            !hasUDA!(Thing.tupleof[i], Unconfigurable) &&
+            !isAnnotated!(thing.tupleof[i], Unconfigurable) &&
             !is(T == struct) && !is(T == class))
         {
             import std.traits : isArray, isSomeString;

@@ -119,8 +119,8 @@ void meldInto(MeldingStrategy strategy = MeldingStrategy.conservative, Thing)
 if ((is(Thing == struct) || is(Thing == class)) && (!is(intoThis == const) &&
     !is(intoThis == immutable)))
 {
-    import lu.uda : Unmeldable;
-    import std.traits : isArray, isAssignable, isSomeString, isType, hasUDA;
+    import lu.traits : isAnnotated;
+    import std.traits : isArray, isAssignable, isSomeString, isType;
 
     static if (is(Thing == struct) && !hasElaborateInit!Thing &&
         (strategy == MeldingStrategy.conservative))
@@ -139,7 +139,7 @@ if ((is(Thing == struct) || is(Thing == class)) && (!is(intoThis == const) &&
         {
             alias T = typeof(targetMember);
 
-            static if (hasUDA!(intoThis.tupleof[i], Unmeldable))
+            static if (isAnnotated!(intoThis.tupleof[i], Unmeldable))
             {
                 // Do nothing
             }
