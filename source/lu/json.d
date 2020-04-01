@@ -37,12 +37,29 @@ struct JSONStorage
 
     alias storage this;
 
-    /// Strategy in which to sort object-type JSON keys.
+    /// Strategy in which to sort object-type JSON keys when we format the storage to string.
     enum KeyOrderStrategy
     {
+        /++
+         +  Order is as `std.json.JSONValue.toPrettyString` formats it.
+         +/
         passthrough,
+
+        /++
+         +  Order is as it is when we iterate its members. The same order as
+         +  `KeyOrderStrategy.passthrough` sees.
+         +/
         adjusted,
-        reverse,
+
+        sorted,         /// Sorted by key.
+        reverse,        /// Reversely sorted by key.
+
+        /++
+         +  Keys are listed in the order given in a passed `string[]` array.
+         +
+         +  Actual keys not present in the array are not included in the output,
+         +  and keys not existing yet present in the array are added as empty.
+         +/
         inGivenOrder,
     }
 
