@@ -73,6 +73,12 @@ enum MeldingStrategy
 }
 
 
+/++
+ +  UDA conveying that this member's value cannot or should not be melded.
+ +/
+struct Unmeldable;
+
+
 // meldInto
 /++
  +  Takes two structs or classes of the same type and melds them together,
@@ -560,8 +566,6 @@ unittest
     b.server = Asdf.init.server;
     b.meldInto!(MeldingStrategy.aggressive)(a);
     assert((a.server == "a"), a.server);
-
-    import lu.uda : Unmeldable;
 
     struct Blah
     {
