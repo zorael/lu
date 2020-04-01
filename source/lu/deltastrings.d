@@ -85,17 +85,21 @@ if (isOutputRange!(Sink, char[]) && is(QualThing == struct))
                 }
                 else static if (is(T == enum))
                 {
-                    import std.algorithm.searching : count;
                     import std.traits : fullyQualifiedName;
 
                     // We could use __traits(identifier, T) but we'd get
                     // State.connected instead of Connection.State.connected
                     enum typename = ()
                     {
-                        import lu.string : nom;
+                        import std.algorithm.searching : count;
+                        import std.string : indexOf;
 
                         string typename = fullyQualifiedName!T;
-                        while (typename.count('.') > 1) typename.nom('.');
+
+                        while (typename.count('.') > 1)
+                        {
+                            typename = typename[typename.indexOf('.')+1..$];
+                        }
 
                         return typename;
                     }().idup;
@@ -135,8 +139,11 @@ if (isOutputRange!(Sink, char[]) && is(QualThing == struct))
                     }
                 }
 
-                import lu.string : tabs;
                 import std.format : formattedWrite;
+                import std.range : repeat;
+                import std.string : join;
+
+                immutable indentation = "    ".repeat(indents).join;
 
                 static if (isSomeString!T)
                 {
@@ -146,18 +153,18 @@ if (isOutputRange!(Sink, char[]) && is(QualThing == struct))
                         .replace('\\', `\\`)
                         .replace('"', `\"`);
 
-                    sink.formattedWrite(pattern, indents.tabs, prefix, memberstring, escaped);
+                    sink.formattedWrite(pattern, indentation, prefix, memberstring, escaped);
                 }
                 else
                 {
-                    sink.formattedWrite(pattern, indents.tabs, prefix, memberstring, member);
+                    sink.formattedWrite(pattern, indentation, prefix, memberstring, member);
                 }
             }
         }
         else
         {
             static assert(0, "Cannot produce deltastrings for type `%s`"
-                .format(Thing.stringof));
+                .format(Unqual!QualThing.stringof));
         }
     }
 }
