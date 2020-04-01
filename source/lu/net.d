@@ -66,8 +66,7 @@ private:
 
 public:
     /++
-     +  Pointer to the socket of the `std.socket.AddressFamily` we want to
-     +  connect with.
+     +  Pointer to the socket of the `std.socket.AddressFamily` we want to connect with.
      +/
     Socket socket;
 
@@ -97,6 +96,7 @@ public:
 
         connected = false;
     }
+
 
     // setOptions
     /++
@@ -200,8 +200,6 @@ public:
     }
 }
 
-
-import core.time : Duration;
 
 // ListenAttempt
 /++

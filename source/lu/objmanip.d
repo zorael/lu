@@ -19,7 +19,6 @@ public:
 
 @safe:
 
-
 // setMemberByName
 /++
  +  Given a struct/class object, sets one of its members by its string name to a
@@ -140,7 +139,8 @@ do
                         }
                         catch (ConvException e)
                         {
-                            immutable message = `Could not convert %s.%s array entry "%s" into %s (%s)`
+                            immutable message = ("Could not convert `%s.%s` array " ~
+                                "entry \"%s\" into `%s` (%s)")
                                 .format(Thing.stringof.stripSuffix("Settings"),
                                 memberToSet, entry, T.stringof, e.msg);
                             throw new ConvException(message);
@@ -179,7 +179,7 @@ do
                         break;
 
                     default:
-                        immutable message = ("Invalid value for setting %s.%s: " ~
+                        immutable message = ("Invalid value for setting `%s.%s`: " ~
                             `could not convert "%s" to a boolean value`)
                             .format(Thing.stringof.stripSuffix("Settings"),
                             memberToSet, valueToSet);
@@ -213,8 +213,8 @@ do
                     }
                     catch (ConvException e)
                     {
-                        immutable message = `Invalid value for setting %s.%s: " ~
-                            "could not convert "%s" to %s (%s)`
+                        immutable message = ("Invalid value for setting `%s.%s`: " ~
+                            "could not convert \"%s\" to `%s` (%s)")
                             .format(Thing.stringof.stripSuffix("Settings"),
                             memberToSet, valueToSet, T.stringof, e.msg);
                         throw new ConvException(message);

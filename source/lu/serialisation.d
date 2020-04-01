@@ -273,7 +273,7 @@ if (isOutputRange!(Sink, char[]))
         alias T = Unqual!(typeof(member));
 
         static if (!isType!member &&
-            isConfigurableVariable!(member) &&
+            isConfigurableVariable!member &&
             !hasUDA!(Thing.tupleof[i], Unconfigurable) &&
             !is(T == struct) && !is(T == class))
         {

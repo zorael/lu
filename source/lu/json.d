@@ -94,7 +94,6 @@ struct JSONStorage
         import lu.common : FileTypeMismatchException;
         import std.file : exists, getAttributes, isFile, readText;
         import std.path : baseName;
-        import std.json : JSONException;
 
         if (!filename.exists)
         {
@@ -605,7 +604,7 @@ void populateFromJSON(Flag!"lowercaseValues" lowercaseValues = No.lowercaseValue
         case object:
         case array:
             import std.format : format;
-            throw new Exception("Type mismatch when populating a %s with a %s"
+            throw new Exception("Type mismatch when populating a `%s` with a `%s`"
                 .format(typeof(target).stringof, json.type));
         }
     }

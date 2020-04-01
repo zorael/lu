@@ -303,7 +303,7 @@ if ((is(Thing == struct) || is(Thing == class)) && (!is(intoThis == const) &&
             }
             else
             {
-                pragma(msg, T.stringof ~ " is not meldable!");
+                pragma(msg, '`' ~ T.stringof ~ "` is not meldable!");
             }
         }
     }
