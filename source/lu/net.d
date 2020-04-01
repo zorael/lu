@@ -5,21 +5,50 @@ module lu.net;
 
 @safe:
 
-/// Buffer sizes in bytes.
-enum BufferSize
+/++
+ +  Buffer sizes in bytes.
+ +/
+enum DefaultBufferSize
 {
+    /++
+     +  The receive buffer size as set as a `std.socket.SocketOption`.
+     +/
     socketOptionReceive = 2048,
+
+    /++
+     +  The send buffer size as set as a `std.socket.SocketOption`.
+     +/
     socketOptionSend = 1024,
+
+    /++
+     +  The actual buffer array size used when reading from the socket.
+     +/
     socketReceive = 2048,
 }
 
-/// Various timeouts in seconds.
-enum Timeout
+
+/++
+ +  Various timeouts in milliseconds.
+ +/
+enum DefaultTimeout
 {
-    send = 5,
-    receive = 1,
-    connectionLost = 600,
+    /++
+     +  The send attempt timeout as set as a `std.socket.SocketOption`.
+     +/
+    send = 5000,
+
+    /++
+     +  The receive attempt timeout as set as a `std.socket.SocketOption`.
+     +/
+    receive = 1000,
+
+    /++
+     +  The actual time after which, if nothing was read during that whole time,
+     +  we decide the connection is dead.
+     +/
+    connectionLost = 600_000,
 }
+
 
 // Connection
 /++
@@ -79,20 +108,21 @@ public:
      +/
     void setOptions(Socket socketToSetup)
     {
-        import core.time : msecs, seconds;
+        import core.time : msecs;
         import std.socket : SocketOption, SocketOptionLevel;
 
         with (socketToSetup)
         with (SocketOption)
         with (SocketOptionLevel)
         {
-            setOption(SOCKET, RCVBUF, BufferSize.socketOptionReceive);
-            setOption(SOCKET, SNDBUF, BufferSize.socketOptionSend);
-            setOption(SOCKET, RCVTIMEO, Timeout.receive.seconds);
-            setOption(SOCKET, SNDTIMEO, Timeout.send.seconds);
+            setOption(SOCKET, RCVBUF, DefaultBufferSize.socketOptionReceive);
+            setOption(SOCKET, SNDBUF, DefaultBufferSize.socketOptionSend);
+            setOption(SOCKET, RCVTIMEO, DefaultTimeout.receive.msecs);
+            setOption(SOCKET, SNDTIMEO, DefaultTimeout.send.msecs);
             blocking = true;
         }
     }
+
 
     // sendline
     /++
