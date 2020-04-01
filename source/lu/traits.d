@@ -362,8 +362,7 @@ static if ((__VERSION__ == 2088L) || (__VERSION__ == 2089L))
      +/
     private template getSymbolsByUDAImpl(alias symbol, alias attribute, names...)
     {
-        import std.meta : Alias, AliasSeq, Filter;
-        import std.traits : hasUDA;
+        import std.meta : AliasSeq;
 
         static if (names.length == 0)
         {
@@ -380,6 +379,8 @@ static if ((__VERSION__ == 2088L) || (__VERSION__ == 2089L))
             }
             else
             {
+                import std.traits : hasUDA, isFunction;
+
                 alias member = __traits(getMember, symbol, names[0]);
 
                 // Filtering not compiled members such as alias of basic types.
@@ -390,6 +391,8 @@ static if ((__VERSION__ == 2088L) || (__VERSION__ == 2089L))
                 // Get overloads for functions, in case different overloads have different sets of UDAs.
                 else static if (isFunction!member)
                 {
+                    import std.meta : AliasSeq, Filter;
+
                     enum hasSpecificUDA(alias member) = hasUDA!(member, attribute);
                     alias overloadsWithUDA = Filter!(hasSpecificUDA, __traits(getOverloads, symbol, names[0]));
                     alias getSymbolsByUDAImpl = AliasSeq!(overloadsWithUDA, tail);
