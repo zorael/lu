@@ -352,11 +352,54 @@ struct JSONStorage
 {
 "flerpeloso" : "o",
 "harrsteff": "v"
+},
+"#zzz":
+{
+"asdf" : "v"
 }
 }`);
 
+        // KeyOrderStrategy.passthrough
+        this_.serialiseInto!(KeyOrderStrategy.passthrough)(sink);
+        assert((sink.data ==
+`{
+    "#abc": {
+        "hirrsteff": "o",
+        "kameloso": "v"
+    },
+    "#def": {
+        "flerpeloso": "o",
+        "harrsteff": "v"
+    },
+    "#zzz": {
+        "asdf": "v"
+    }
+}`), '\n' ~ sink.data);
+        sink.clear();
+
         // KeyOrderStrategy.adjusted
         this_.serialiseInto!(KeyOrderStrategy.adjusted)(sink);
+        assert((sink.data ==
+`{
+    "#def":
+    {
+        "flerpeloso": "o",
+        "harrsteff": "v"
+    },
+    "#zzz":
+    {
+        "asdf": "v"
+    },
+    "#abc":
+    {
+        "hirrsteff": "o",
+        "kameloso": "v"
+    }
+}`), '\n' ~ sink.data);
+        sink.clear();
+
+        // KeyOrderStrategy.sorted
+        this_.serialiseInto!(KeyOrderStrategy.sorted)(sink);
         assert((sink.data ==
 `{
     "#abc":
@@ -368,6 +411,10 @@ struct JSONStorage
     {
         "flerpeloso": "o",
         "harrsteff": "v"
+    },
+    "#zzz":
+    {
+        "asdf": "v"
     }
 }`), '\n' ~ sink.data);
         sink.clear();
@@ -376,6 +423,10 @@ struct JSONStorage
         this_.serialiseInto!(KeyOrderStrategy.reverse)(sink);
         assert((sink.data ==
 `{
+    "#zzz":
+    {
+        "asdf": "v"
+    },
     "#def":
     {
         "flerpeloso": "o",
