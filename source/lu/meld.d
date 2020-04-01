@@ -120,7 +120,7 @@ if ((is(Thing == struct) || is(Thing == class)) && (!is(intoThis == const) &&
     !is(intoThis == immutable)))
 {
     import lu.uda : Unmeldable;
-    import std.traits : isArray, isSomeString, isType, hasUDA;
+    import std.traits : isArray, isAssignable, isSomeString, isType, hasUDA;
 
     static if (is(Thing == struct) && !hasElaborateInit!Thing &&
         (strategy == MeldingStrategy.conservative))
@@ -148,7 +148,7 @@ if ((is(Thing == struct) || is(Thing == class)) && (!is(intoThis == const) &&
                 // Recurse
                 meldThis.tupleof[i].meldInto!strategy(targetMember);
             }
-            else static if (isOfAssignableType!T)
+            else static if (isAssignable!T)
             {
                 // Overwriting strategy overwrites everything except where the
                 // source is clearly `.init`.
