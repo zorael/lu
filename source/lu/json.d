@@ -268,7 +268,7 @@ struct JSONStorage
             import lu.string : indent;
             import std.array : array;
             import std.format : formattedWrite;
-            import std.range : retro;
+            import std.range : enumerate;
 
             static if (strategy == KeyOrderStrategy.adjusted)
             {
@@ -276,32 +276,49 @@ struct JSONStorage
                 // to make it look the same as reverse and inGivenOrder we have to
                 // manually iterate the keys, like they do.
 
-                auto range = storage.object.byKey.array.retro;
-                size_t i;
+                auto range = storage
+                    .objectNoRef
+                    .byKey
+                    .array;
 
                 sink.put("{\n");
 
-                foreach(immutable key; range)
+                foreach(immutable i, immutable key; range.enumerate)
                 {
                     sink.formattedWrite("    \"%s\":\n", key);
                     sink.put(storage[key].toPrettyString.indent);
-                    sink.put((++i < range.length) ? ",\n" : "\n");
+                    sink.put((i+1 < range.length) ? ",\n" : "\n");
                 }
             }
-            else static if (strategy == KeyOrderStrategy.reverse)
+            else static if ((strategy == KeyOrderStrategy.sorted) ||
+                (strategy == KeyOrderStrategy.reverse))
             {
                 import std.algorithm.sorting : sort;
 
-                auto range = storage.object.byKey.array.sort.retro;
-                size_t i;
+                auto rawRange = storage
+                    .objectNoRef
+                    .byKey
+                    .array
+                    .sort;
+
+                static if (strategy == KeyOrderStrategy.reverse)
+                {
+                    import std.range : retro;
+                    auto range = rawRange.retro;
+                }
+                else /*if (strategy == KeyOrderStrategy.sorted)*/
+                {
+                    // Already sorted
+                    alias range = rawRange;
+                }
 
                 sink.put("{\n");
 
-                foreach(immutable key; range)
+                foreach(immutable i, immutable key; range.enumerate)
                 {
                     sink.formattedWrite("    \"%s\":\n", key);
                     sink.put(storage[key].toPrettyString.indent);
-                    sink.put((++i < range.length) ? ",\n" : "\n");
+                    sink.put((i+1 < range.length) ? ",\n" : "\n");
                 }
             }
             else
