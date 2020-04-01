@@ -555,7 +555,7 @@ if (allSatisfy!(isStruct, Things))
 
             static foreach (immutable size_t i; 0..Things.length)
             {
-                stillSomethingToProcess = !processedThings[i];
+                stillSomethingToProcess |= !processedThings[i];
             }
 
             if (!stillSomethingToProcess) break lineloop;  // All done, early break
