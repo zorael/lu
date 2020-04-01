@@ -5,7 +5,6 @@ module lu.traits;
 
 private:
 
-import lu.uda;
 import std.traits : isArray, isAssociativeArray, isSomeFunction;
 import std.typecons : Flag, No, Yes;
 

@@ -57,7 +57,6 @@ do
 {
     import lu.string : stripSuffix, stripped, unquoted;
     import std.conv : ConvException, to;
-    import std.format : format;
 
     bool success;
 
@@ -159,6 +158,8 @@ do
                         }
                         catch (ConvException e)
                         {
+                            import std.format : format;
+
                             immutable message = ("Could not convert `%s.%s` array " ~
                                 "entry \"%s\" into `%s` (%s)")
                                 .format(Thing.stringof.stripSuffix("Settings"),
@@ -199,6 +200,8 @@ do
                         break;
 
                     default:
+                        import std.format : format;
+
                         immutable message = ("Invalid value for setting `%s.%s`: " ~
                             `could not convert "%s" to a boolean value`)
                             .format(Thing.stringof.stripSuffix("Settings"),
@@ -233,6 +236,8 @@ do
                     }
                     catch (ConvException e)
                     {
+                        import std.format : format;
+
                         immutable message = ("Invalid value for setting `%s.%s`: " ~
                             "could not convert \"%s\" to `%s` (%s)")
                             .format(Thing.stringof.stripSuffix("Settings"),
