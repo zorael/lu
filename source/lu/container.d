@@ -53,7 +53,7 @@ pure nothrow @nogc:
      +      more = Item to add.
      +/
     void put(const T more)
-    in ((end < bufferSize), typeof(this).stringof ~ " buffer overflow")
+    in ((end < bufferSize), '`' ~ typeof(this).stringof ~ "` buffer overflow")
     do
     {
         buf[end++] = more;
@@ -78,7 +78,7 @@ pure nothrow @nogc:
      +      An item T.
      +/
     T front() const
-    in ((end > 0), "Empty range")
+    in ((end > 0), "Tried to get `front` of a `" ~ typeof(this).stringof ~ "`, but it was empty")
     do
     {
         return buf[pos];
