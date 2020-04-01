@@ -92,11 +92,21 @@ do
 
                     thing.tupleof[i].length = 0;
 
-                    static assert(hasUDA!(thing.tupleof[i], Separator),
-                        "`%s.%s` is missing a `Separator` annotation"
-                        .format(Thing.stringof, memberstring));
+                    static if (hasUDA!(thing.tupleof[i], Separator))
+                    {
+                        alias separators = getUDAs!(thing.tupleof[i], Separator);
+                    }
+                    else static if (hasUDA!(thing.tupleof[i], string))
+                    {
+                        alias separators = getUDAs!(thing.tupleof[i], string);
+                    }
+                    else
+                    {
+                        import std.format : format;
+                        static assert(0, "`%s.%s` is missing a `Separator` annotation"
+                            .format(Thing.stringof, memberstring));
+                    }
 
-                    alias separators = getUDAs!(thing.tupleof[i], Separator);
                     enum escapedPlaceholder = "\0\0";  // anything really
                     enum ephemeralSeparator = "\1\1";  // ditto
                     enum doubleEphemeral = ephemeralSeparator ~ ephemeralSeparator;
@@ -104,13 +114,23 @@ do
 
                     string values = valueToSet.replace("\\\\", doubleEscapePlaceholder);
 
-                    foreach (immutable separator; separators)
+                    foreach (immutable thisSeparator; separators)
                     {
-                        enum escaped = '\\' ~ separator.token;
+                        static if (is(typeof(thisSeparator) == Separator))
+                        {
+                            enum escaped = '\\' ~ thisSeparator.token;
+                            enum separator = thisSeparator.token;
+                        }
+                        else
+                        {
+                            enum escaped = '\\' ~ thisSeparator;
+                            alias separator = thisSeparator;
+                        }
+
                         values = values
                             .replace(escaped, escapedPlaceholder)
-                            .replace(separator.token, ephemeralSeparator)
-                            .replace(escapedPlaceholder, separator.token);
+                            .replace(separator, ephemeralSeparator)
+                            .replace(escapedPlaceholder, separator);
                     }
 
                     import lu.string : contains;
