@@ -172,6 +172,7 @@ if (isOutputRange!(Sink, char[]) && is(QualThing == struct))
 ///
 unittest
 {
+    import lu.uda : Hidden;
     import std.array : Appender;
 
     Appender!string sink;
@@ -195,8 +196,8 @@ unittest
 
         State state;
         string nickname;
-        string user;
-        string password;
+        @Hidden string user;
+        @("Hidden") string password;
         Server server;
     }
 
@@ -207,6 +208,7 @@ unittest
         state = Connection.State.connected;
         nickname = "NICKNAME";
         user = "USER";
+        password = "hunter2";
         server.address = "address.tld";
         server.port = 1337;
     }
@@ -216,7 +218,6 @@ unittest
     assert(sink.data ==
 `conn.state = Connection.State.connected;
 conn.nickname = "NICKNAME";
-conn.user = "USER";
 conn.server.address = "address.tld";
 conn.server.port = 1337;
 `, '\n' ~ sink.data);
@@ -228,7 +229,6 @@ conn.server.port = 1337;
     assert(sink.data ==
 `assert((conn.state == Connection.State.connected), Enum!(Connection.State).toString(conn.state));
 assert((conn.nickname == "NICKNAME"), conn.nickname);
-assert((conn.user == "USER"), conn.user);
 assert((conn.server.address == "address.tld"), conn.server.address);
 assert((conn.server.port == 1337), conn.server.port.to!string);
 `, '\n' ~ sink.data);
