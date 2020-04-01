@@ -128,7 +128,7 @@ struct JSONStorage
      +          specified keys are omitted.
      +/
     void save(KeyOrderStrategy strategy = KeyOrderStrategy.passthrough)
-        (const string filename, const string[] givenOrder = string[].init)
+        (const string filename, const string[] givenOrder = string[].init) @safe
     in (filename.length, "Tried to save a JSON storage to an empty filename")
     do
     {
@@ -200,7 +200,7 @@ struct JSONStorage
      +          Not specified keys are omitted.
      +/
     private void serialiseInto(KeyOrderStrategy strategy : KeyOrderStrategy.inGivenOrder, Sink)
-        (auto ref Sink sink, const string[] givenOrder)
+        (auto ref Sink sink, const string[] givenOrder) @safe
     if (isOutputRange!(Sink, char[]))
     in (givenOrder.length, "Tried to serialise a JSON storage in order given without a given order")
     do
@@ -249,7 +249,7 @@ struct JSONStorage
      +      sink = Output sink to fill with formatted output.
      +/
     private void serialiseInto(KeyOrderStrategy strategy = KeyOrderStrategy.passthrough, Sink)
-        (auto ref Sink sink)
+        (auto ref Sink sink) @safe
     if ((strategy != KeyOrderStrategy.inGivenOrder) && isOutputRange!(Sink, char[]))
     {
         if (storage.isNull)
