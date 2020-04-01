@@ -403,7 +403,7 @@ if (isOutputRange!(Sink, char[]))
 
 unittest
 {
-    import lu.uda : Quoted;
+    import lu.uda : Separator, Quoted;
     import std.array : Appender;
 
     struct FooSettings
@@ -413,6 +413,8 @@ unittest
         string bazzzzzzz = "foo 1";
         @Quoted flerrp = "hirr steff  ";
         double pi = 3.14159;
+        @Separator(",") arr = [ 1, 2, 3 ];
+        @("|") matey = [ "a", "b", "c" ];
     }
 
     struct BarSettings
@@ -431,6 +433,8 @@ bar foo 1
 bazzzzzzz foo 1
 flerrp "hirr steff  "
 pi 3.14159
+arr 1,2,3
+matey a|b|c
 `;
 
     Appender!string fooSink;
