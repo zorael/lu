@@ -3,10 +3,13 @@
  +/
 module lu.uda;
 
-/// UDA conveying that a field may not be serialised to configuration files.
+/// UDA conveying that a field cannot (or should not) not be serialised.
 struct Unconfigurable;
 
-/// UDA conveying that a string is an array with this token as separator.
+/++
+ +  UDA conveying that the annotated array should have this token as separator
+ +  when formatted to a string.
+ +/
 struct Separator
 {
     /// Separator, can be more than one character.
