@@ -41,7 +41,7 @@
  +  Appender!string sink;
  +
  +  sink.serialise(f);
- +  assert(sink.data.justifiedConfigurationText == fooJustified);
+ +  assert(sink.data.justifiedEntryValueText == fooJustified);
  +
  +  FooSettings mirror;
  +  deserialise(fooSerialised, mirror);
@@ -690,9 +690,10 @@ naN     !"¤%&/`;
 }
 
 
-// justifiedConfigurationText
+// justifiedEntryValueText
 /++
- +  Takes an unformatted string of configuration text and justifies it to neat columns.
+ +  Takes an unformatted string of serialised entry-value text and justifies it
+ +  intto two neat columns.
  +
  +  It does one pass through it all first to determine the maximum width of the
  +  entry names, then another to format it and eventually return a flat string.
@@ -704,16 +705,16 @@ naN     !"¤%&/`;
  +  Appender!string sink;
  +
  +  sink.serialise(client, server);
- +  immutable justified = sink.data.justifiedConfigurationText;
+ +  immutable justified = sink.data.justifiedEntryValueText;
  +  ---
  +
  +  Params:
- +      origLines = Unjustified raw configuration text.
+ +      origLines = Unjustified raw serialised text.
  +
  +  Returns:
- +      .ini file-like configuration text, justified into two columns.
+ +      .ini file-like text, justified into two columns.
  +/
-auto justifiedConfigurationText(const string origLines) pure
+auto justifiedEntryValueText(const string origLines) pure
 {
     import lu.string : stripped;
     import std.algorithm.comparison : max;
@@ -903,7 +904,7 @@ naN                     !"#¤%&/`;
 
     sink.serialise(foo, diff);
     assert((sink.data == unjustified), '\n' ~ sink.data);
-    immutable configText = justifiedConfigurationText(sink.data);
+    immutable configText = justifiedEntryValueText(sink.data);
 
     assert((configText == justified), '\n' ~ configText);
 }
