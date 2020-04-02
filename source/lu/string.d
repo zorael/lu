@@ -625,17 +625,29 @@ unittest
  +  Returns:
  +      `true` if `haystack` begins with `needle`, `false` if not.
  +/
-bool beginsWith(T)(const T haystack, const T needle) pure nothrow @nogc
-if (isSomeString!T)
+pragma(inline)
+bool beginsWith(T, C)(const T haystack, const C needle) pure nothrow @nogc
+if (isSomeString!T && (is(C : T) || is(C : ElementType!T) || is(C : ElementEncodingType!T)))
 {
-    if ((needle.length > haystack.length) || !haystack.length)
+    static if (is(C : ElementEncodingType!T))
     {
-        return false;
+        return (haystack[0] == needle);
     }
+    else
+    {
+        if (!needle.length)
+        {
+            return true;
+        }
+        else if ((needle.length > haystack.length) || !haystack.length)
+        {
+            return false;
+        }
 
-    if (needle.length && (haystack[0] != needle[0])) return false;
+        if (haystack[0] != needle[0]) return false;
 
-    return (haystack[0..needle.length] == needle);
+        return (haystack[0..needle.length] == needle);
+    }
 }
 
 ///
