@@ -137,6 +137,12 @@ if ((is(Thing == struct) || is(Thing == class)) && (!is(intoThis == const) &&
             // any special default values. Nothing would get melded, so exit early.
             return;
         }
+        else if (intoThis == Thing.init)
+        {
+            // Likewise we're merging into an .init, so just fast-path overwrite.
+            intoThis = meldThis;
+            return;
+        }
     }
 
     foreach (immutable i, ref targetMember; intoThis.tupleof)
@@ -616,15 +622,44 @@ if (isArray!Array1 && isArray!Array2 && !is(Array2 == const)
 
     static if (isDynamicArray!Array2)
     {
+        if (!meldThis.length)
+        {
+            // Source empty, just return
+            return;
+        }
+        else if (!intoThis.length)
+        {
+            // Source has content but target empty, just inherit
+            intoThis = meldThis.dup;
+            return;
+        }
+
         // Ensure there's room for all elements
         if (meldThis.length > intoThis.length) intoThis.length = meldThis.length;
     }
     else static if (isStaticArray!Array1 && isStaticArray!Array2)
     {
-        import std.format : format;
-        static assert((Array2.length >= Array1.length),
-            "Cannot meld a larger `%s` static array into a smaller `%s` static one"
-            .format(Array1.stringof, Array2.stringof));
+        static if (Array1.length == Array2.length)
+        {
+            if (meldThis == Array1.init)
+            {
+                // Source empty, just return
+                return;
+            }
+            else if (intoThis == Array2.init)
+            {
+                // Source has content but target empty, just inherit
+                intoThis = meldThis;  // value type, no need for .dup
+                return;
+            }
+        }
+        else
+        {
+            import std.format : format;
+            static assert((Array2.length >= Array1.length),
+                "Cannot meld a larger `%s` static array into a smaller `%s` static one"
+                .format(Array1.stringof, Array2.stringof));
+        }
     }
     else static if (isDynamicArray!Array1 && isStaticArray!Array2)
     {
@@ -728,6 +763,18 @@ void meldInto(MeldingStrategy strategy = MeldingStrategy.conservative, AA)
     (AA meldThis, ref AA intoThis) pure
 if (isAssociativeArray!AA)
 {
+    if (!meldThis.length)
+    {
+        // Empty source
+        return;
+    }
+    else if (!intoThis.length)
+    {
+        // Empty target, just assign
+        intoThis = meldThis.dup;
+        return;
+    }
+
     foreach (immutable key, val; meldThis)
     {
         static if (strategy == MeldingStrategy.conservative)
