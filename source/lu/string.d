@@ -1827,66 +1827,30 @@ string escapeControlCharacters(const string line) pure nothrow
 ///
 unittest
 {
-    import std.array : Appender;
-
-    Appender!(char[]) sink;
-
     {
         immutable line = "abc\ndef";
         immutable expected = "abc\\ndef";
-        escapeControlCharacters(sink, line);
-        assert((sink.data == expected), sink.data);
-        sink.clear();
+        immutable actual = escapeControlCharacters(line);
+        assert((actual == expected), actual);
     }
     {
         immutable line = "\n\t\r\0";
         immutable expected = "\\n\\t\\r\\0";
-        escapeControlCharacters(sink, line);
-        assert((sink.data == expected), sink.data);
-        sink.clear();
+        immutable actual = escapeControlCharacters(line);
+        assert((actual == expected), actual);
     }
     {
         immutable line = "";
         immutable expected = "";
-        escapeControlCharacters(sink, line);
-        assert((sink.data == expected), sink.data);
-        sink.clear();
+        immutable actual = escapeControlCharacters(line);
+        assert((actual == expected), actual);
+        assert(actual is line);  // No string allocated
     }
     {
         immutable line = "nothing to escape";
         immutable expected = "nothing to escape";
-        escapeControlCharacters(sink, line);
-        assert((sink.data == expected), sink.data);
-        sink.clear();
-    }
-
-    {
-        immutable line = "abc\ndef";
-        immutable expected = "abcdef";
-        escapeControlCharacters!(Yes.remove)(sink, line);
-        assert((sink.data == expected), sink.data);
-        sink.clear();
-    }
-    {
-        immutable line = "\n\t\r\0";
-        immutable expected = "";
-        escapeControlCharacters!(Yes.remove)(sink, line);
-        assert((sink.data == expected), sink.data);
-        sink.clear();
-    }
-    {
-        immutable line = "";
-        immutable expected = "";
-        escapeControlCharacters!(Yes.remove)(sink, line);
-        assert((sink.data == expected), sink.data);
-        sink.clear();
-    }
-    {
-        immutable line = "nothing to escape";
-        immutable expected = "nothing to escape";
-        escapeControlCharacters!(Yes.remove)(sink, line);
-        assert((sink.data == expected), sink.data);
-        //sink.clear();
+        immutable actual = escapeControlCharacters(line);
+        assert((actual == expected), actual);
     }
 }
 
