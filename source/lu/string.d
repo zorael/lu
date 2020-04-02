@@ -994,7 +994,7 @@ I don't remember
 any more offhand
 so shrug";
 
-    immutable indentedOne = string_.indent!1;
+    immutable indentedOne = string_.indent;
     assert((indentedOne ==
 "    Lorem ipsum
     sit amet
@@ -1002,7 +1002,7 @@ so shrug";
     any more offhand
     so shrug"), '\n' ~ indentedOne);
 
-    immutable indentedTwo = string_.indent!2;
+    immutable indentedTwo = string_.indent(2);
     assert((indentedTwo ==
 "        Lorem ipsum
         sit amet
@@ -1010,7 +1010,7 @@ so shrug";
         any more offhand
         so shrug"), '\n' ~ indentedTwo);
 
-    immutable indentedZero = string_.indent!0;
+    immutable indentedZero = string_.indent(0);
     assert((indentedZero ==
 "Lorem ipsum
 sit amet
