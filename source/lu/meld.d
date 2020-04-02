@@ -808,18 +808,25 @@ if (isAssociativeArray!AA)
                 intoThis[key] = val;
             }
         }
-        else static if (strategy == MeldingStrategy.aggressive)
+        else static if ((strategy == MeldingStrategy.aggressive) ||
+            (strategy == MeldingStrategy.overwriting))
         {
-            if (val != typeof(val).init)
+            import std.traits : ValueType;
+
+            static if ((strategy == MeldingStrategy.overwriting) &&
+                is(ValueType!AA == bool))
             {
-                // Target value doesn't exist; meld
+                // Always overwrite
                 intoThis[key] = val;
             }
-        }
-        else static if (strategy == MeldingStrategy.overwriting)
-        {
-            // Always overwrite
-            intoThis[key] = val;
+            else
+            {
+                if (val != typeof(val).init)
+                {
+                    // Target value doesn't exist; meld
+                    intoThis[key] = val;
+                }
+            }
         }
         else
         {
