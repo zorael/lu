@@ -494,22 +494,62 @@ unittest
     }
 
     Foo foo1, foo2;
-    zeroMembers(foo1);
+    foo1.replaceMembers("-");
     assert(foo1 == foo2);
 
     foo2.s = "-";
-    zeroMembers(foo2);
+    foo2.replaceMembers("-");
     assert(!foo2.s.length);
     foo2.b.s = "-";
-    zeroMembers(foo2);
-    assert(!foo2.b.s.length);
+    foo2.replaceMembers("-", "herblp");
+    assert((foo2.b.s == "herblp"), foo2.b.s);
 
     Foo foo3;
     foo3.s = "---";
     foo3.b.s = "---";
-    zeroMembers!"---"(foo3);
+    foo3.replaceMembers("---");
     assert(!foo3.s.length);
     assert(!foo3.b.s.length);
+
+    class Baz
+    {
+        string barS = "init";
+        string barT = "*";
+        Foo f;
+    }
+
+    Baz b1 = new Baz;
+    Baz b2 = new Baz;
+
+    b1.replaceMembers("-");
+    assert((b1.barS == b2.barS), b1.barS);
+    assert((b1.barT == b2.barT), b1.barT);
+
+    b1.replaceMembers("*");
+    assert(b1.barS.length, b1.barS);
+    assert(!b1.barT.length, b1.barT);
+    assert(b1.f.s.length, b1.f.s);
+
+    b1.replaceMembers("more content");
+    assert(!b1.f.s.length, b1.f.s);
+
+    import std.conv : to;
+
+    struct Qux
+    {
+        int i = 42;
+    }
+
+    Qux q;
+
+    q.replaceMembers("*");
+    assert(q.i == 42);
+
+    q.replaceMembers(43);
+    assert(q.i == 42);
+
+    q.replaceMembers(42, 99);
+    assert((q.i == 99), q.i.to!string);
 }
 
 
