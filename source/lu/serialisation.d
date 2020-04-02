@@ -632,10 +632,13 @@ because no DifferentSection struct was passed
 nil     5
 naN     !"¤%&/`;
 
+    string[][string] missing;
+    string[][string] invalid;
+
     Foo foo;
     configurationFileContents
         .splitter("\n")
-        .deserialise(foo);
+        .deserialise(missing, invalid, foo);
 
     with (foo)
     {
@@ -675,7 +678,7 @@ naN     !"¤%&/`;
     DifferentSection diff;
     configurationFileContents
         .splitter("\n")
-        .deserialise(diff);
+        .deserialise(missing, invalid, diff);
 
     with (diff)
     {
