@@ -933,7 +933,7 @@ I don't remember
 any more offhand
 so shrug";
 
-    string_.indented!1(sink);
+    string_.indentInto(sink);
     assert((sink.data ==
 "    Lorem ipsum
     sit amet
@@ -942,16 +942,16 @@ so shrug";
     so shrug"), '\n' ~ sink.data);
 
     sink.clear();
-    string_.indented!2(sink);
+    string_.indentInto!3(sink, 2);
     assert((sink.data ==
-"        Lorem ipsum
-        sit amet
-        I don't remember
-        any more offhand
-        so shrug"), '\n' ~ sink.data);
+"      Lorem ipsum
+      sit amet
+      I don't remember
+      any more offhand
+      so shrug"), '\n' ~ sink.data);
 
     sink.clear();
-    string_.indented!0(sink);
+    string_.indentInto(sink, 0);
     assert((sink.data ==
 "Lorem ipsum
 sit amet
