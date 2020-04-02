@@ -59,10 +59,38 @@ enum DefaultTimeout
 struct Connection
 {
 private:
-    import std.socket : Socket, Address;
+    import std.socket : Address, Socket, SocketOption;
 
     /// Real IPv4 and IPv6 sockets to connect through.
     Socket socket4, socket6;
+
+    /// Private cached send timeout setting.
+    uint privateSendTimeout;
+
+    /// Private cached received timeout setting.
+    uint privateReceiveTimeout;
+
+
+    // setTimemout
+    /++
+     +  Sets the `std.socket.SocketOption.RCVTIMEO` of the *current*
+     +  `std.socket.Socket` `socket` to the specified duration.
+     +
+     +  Params:
+     +      option = The `std.socket.SocketOption` to set.
+     +      dur = The duration to assign for the option, in number of milliseconds.
+     +/
+    void setTimeout(const SocketOption option, const uint dur)
+    {
+        import std.socket : SocketOptionLevel;
+        import core.time : msecs;
+
+        with (socket)
+        with (SocketOptionLevel)
+        {
+            setOption(SOCKET, option, dur.msecs);
+        }
+    }
 
 public:
     /++
@@ -70,19 +98,77 @@ public:
      +/
     Socket socket;
 
-    /// IPs already resolved using `.resolveFiber`.
+    /// IPs already resolved using `lu.net.resolveFiber`.
     Address[] ips;
 
     /++
      +  Implicitly proxies calls to the current `socket`. This successfully
-     +  proxies to `Socket.receive`.
+     +  proxies to `std.socket.Socket.receive`.
      +/
     alias socket this;
 
     /// Whether we are connected or not.
     bool connected;
 
-    /// (Re-)initialises the sockets and sets the IPv4 one as the active one.
+
+    // sendTimeout
+    /++
+     +  Accessor; returns the current send timeout.
+     +
+     +  Returns:
+     +      A copy of `privateSendTimeout`.
+     +/
+    pragma(inline)
+    uint sendTimeout() const @property pure @nogc nothrow
+    {
+        return privateSendTimeout;
+    }
+
+
+    // sendTimeout
+    /++
+     +  Mutator; sets the send timeout socket option to the passed duration.
+     +
+     +  Params:
+     +      dur = The duration to assign as send timeout, in number of milliseconds.
+     +/
+    void sendTimeout(const uint dur) @property
+    {
+        setTimeout(SocketOption.SNDTIMEO, dur);
+        privateSendTimeout = dur;
+    }
+
+    // receiveTimeout
+    /++
+     +  Accessor; returns the current receive timeout.
+     +
+     +  Returns:
+     +      A copy of `privateReceiveTimeout`.
+     +/
+    pragma(inline)
+    uint receiveTimeout() const @property pure @nogc nothrow
+    {
+        return privateReceiveTimeout;
+    }
+
+    // sendTimeout
+    /++
+     +  Mutator; sets the receive timeout socket option to the passed duration.
+     +
+     +  Params:
+     +      dur = The duration to assign as receive timeout, in number of milliseconds.
+     +/
+    void receiveTimeout(const uint dur) @property
+    {
+        setTimeout(SocketOption.RCVTIMEO, dur);
+        privateReceiveTimeout = dur;
+    }
+
+
+    // reset
+    /++
+     +  (Re-)initialises the sockets and sets the IPv4 one as the active one.
+     +/
     void reset()
     {
         import std.socket : TcpSocket, AddressFamily, SocketType;
@@ -119,6 +205,9 @@ public:
             setOption(SOCKET, SNDBUF, DefaultBufferSize.socketOptionSend);
             setOption(SOCKET, RCVTIMEO, DefaultTimeout.receive.msecs);
             setOption(SOCKET, SNDTIMEO, DefaultTimeout.send.msecs);
+
+            privateReceiveTimeout = DefaultTimeout.receive;
+            privateSendTimeout = DefaultTimeout.send;
             blocking = true;
         }
     }
