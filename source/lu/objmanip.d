@@ -150,12 +150,12 @@ do
                     {
                         try
                         {
-                            import std.range : ElementType;
+                            import std.range : ElementEncodingType;
 
                             thing.tupleof[i] ~= entry
                                 .stripped
                                 .unquoted
-                                .to!(ElementType!T);
+                                .to!(ElementEncodingType!T);
 
                             success = true;
                         }
