@@ -858,7 +858,7 @@ if (is(QualT == struct))
 
         foreach (immutable i, member; thing.tupleof)
         {
-            import std.traits : isSomeFunction, isType;
+            import std.traits : isEqualityComparable, isSomeFunction, isType;
 
             static if (!__traits(isDeprecated, thing.tupleof[i]) &&
                 !isType!(thing.tupleof[i]) &&
@@ -872,7 +872,8 @@ if (is(QualT == struct))
                     import std.math : isNaN;
                     match = !member.isNaN;
                 }
-                else static if (T.init.tupleof[i] != MemberType.init)
+                else static if (isEqualityComparable!T && (
+                        T.init.tupleof[i] != MemberType.init))
                 {
                     match = true;
                 }
