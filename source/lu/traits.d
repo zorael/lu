@@ -833,3 +833,95 @@ unittest
     static assert(isMutableArrayOfImmutables!(immutable(int)[]));
     static assert(!isMutableArrayOfImmutables!(immutable(int[])));
 }
+
+
+// hasElaborateInit
+/++
+ +  Eponymous template that is true if the passed type has default values to
+ +  any of its fields.
+ +
+ +  Params:
+ +      QualT = Qualified struct type to introspect for elaborate .init.
+ +/
+template hasElaborateInit(QualT)
+if (is(QualT == struct))
+{
+    import std.traits : Unqual, isType;
+
+    alias T = Unqual!QualT;
+
+    enum hasElaborateInit = ()
+    {
+        bool match;
+
+        T thing;  // need a `this`
+
+        foreach (immutable i, member; thing.tupleof)
+        {
+            import std.traits : isSomeFunction, isType;
+
+            static if (!__traits(isDeprecated, thing.tupleof[i]) &&
+                !isType!(thing.tupleof[i]) &&
+                !isSomeFunction!(thing.tupleof[i]) &&
+                !__traits(isTemplate, thing.tupleof[i]))
+            {
+                alias MemberType = typeof(thing.tupleof[i]);
+
+                static if (is(MemberType == float) || is(MemberType == double))
+                {
+                    import std.math : isNaN;
+                    match = !member.isNaN;
+                }
+                else static if (T.init.tupleof[i] != MemberType.init)
+                {
+                    match = true;
+                }
+
+                if (match) break;
+            }
+        }
+
+        return match;
+    }();
+}
+
+///
+unittest
+{
+    struct NoDefaultValues
+    {
+        string s;
+        int i;
+        bool b;
+        float f;
+    }
+
+    struct HasDefaultValues
+    {
+        string s;
+        int i = 42;
+        bool b;
+        float f;
+    }
+
+    struct HasDefaultValuesToo
+    {
+        string s;
+        int i;
+        bool b;
+        float f = 3.14f;
+    }
+
+    struct HasDefaultValuesThree
+    {
+        string s;
+        int i;
+        bool b;
+        double d = 99.9;
+    }
+
+    static assert(!hasElaborateInit!NoDefaultValues);
+    static assert(hasElaborateInit!HasDefaultValues);
+    static assert(hasElaborateInit!HasDefaultValuesToo);
+    static assert(hasElaborateInit!HasDefaultValuesThree);
+}
