@@ -729,43 +729,11 @@ unittest
     assert("".beginsWithOneOf(""));
     assert("abc".beginsWithOneOf(string.init));
     assert(!"".beginsWithOneOf("abc"));
-}
 
+    assert("abc".beginsWithOneOf('a'));
+    assert(!"abc".beginsWithOneOf('b'));
+    assert(!"abc".beginsWithOneOf(char.init));
 
-// beginsWithOneOf
-/++
- +  Checks whether or not the first letter of a string begins with any of the
- +  passed string of characters.
- +
- +  Overload that takes a single `char` or `ubyte` as "string" to identify the
- +  "beginning" of, which in this case translates to the `char`/`ubyte` itself.
- +
- +  Wraps `contains`.
- +
- +  Merely slices; does not decode the string and may thus give weird results on
- +  weird inputs.
- +
- +  Params:
- +      haystraw = Single character to evaluate whether or not it exists in `needles`.
- +      needles = String of characters to test and see whether or not `haystraw`
- +          equals any of them.
- +
- +  Returns:
- +      `true` if the `haystraw` is in `needles`, `false` if not.
- +/
-pragma(inline)
-bool beginsWithOneOf(T)(const ubyte haystraw, const T needles) pure nothrow @nogc
-if (isSomeString!T)
-{
-    // All strings begin with an empty string, even if we're only looking at one character
-    if (!needles.length) return true;
-
-    return needles.contains(haystraw);
-}
-
-///
-unittest
-{
     assert('#'.beginsWithOneOf("#%+"));
     assert(!'#'.beginsWithOneOf("~%+"));
     assert('a'.beginsWithOneOf(string.init));
