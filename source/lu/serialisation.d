@@ -381,7 +381,7 @@ pipyon 3
  +      things = Reference variadic list of one or more objects to apply the
  +          configuration to.
  +
- +  Throws: `ConfigurationFileParsingException` if there were bad lines.
+ +  Throws: `DeserialisationException` if there were bad lines.
  +/
 void deserialise(Range, Things...)(Range range, out string[][string] missingEntries,
     out string[][string] invalidEntries, ref Things things) pure
@@ -455,8 +455,8 @@ if (allSatisfy!(isStruct, Things))
             }
             catch (Exception e)
             {
-                throw new ConfigurationFileParsingException("Malformed configuration " ~
-                    `section header "%s", %s`.format(sectionBackup, e.msg));
+                throw new DeserialisationException("Malformed section header \"%s\", %s"
+                    .format(sectionBackup, e.msg));
             }
             continue;
 
@@ -464,8 +464,8 @@ if (allSatisfy!(isStruct, Things))
             // entry-value line
             if (!section.length)
             {
-                throw new ConfigurationFileParsingException("Malformed configuration " ~
-                    `line, sectionless orphan "%s"`.format(line));
+                throw new DeserialisationException("Sectionless orphan \"%s\""
+                    .format(line));
             }
 
             thingloop:
@@ -566,7 +566,7 @@ if (allSatisfy!(isStruct, Things))
  +      The associative array key is the section the entry was found under, and
  +      the arrays merely lists of such erroneous entries thereunder.
  +
- +  Throws: `ConfigurationFileParsingException` if there were bad lines.
+ +  Throws: `DeserialisationException` if there were bad lines.
  +/
 string[][string] deserialise(Range, Things...)(Range range, ref Things things) pure
 if (allSatisfy!(isStruct, Things))
@@ -906,16 +906,16 @@ naN                     !"#¤%&/`;
 }
 
 
-// ConfigurationFileParsingException
+// DeserialisationException
 /++
  +  Exception, to be thrown when the specified configuration file could not be
  +  parsed, for whatever reason.
  +/
-final class ConfigurationFileParsingException : Exception
+final class DeserialisationException : Exception
 {
 @safe:
     /++
-     +  Create a new `ConfigurationFileParsingException`.
+     +  Create a new `DeserialisationException`.
      +/
     this(const string message, const string file = __FILE__, const size_t line = __LINE__) pure nothrow @nogc
     {
