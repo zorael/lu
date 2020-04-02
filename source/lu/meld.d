@@ -1005,3 +1005,25 @@ if (is(T == struct) || is(T == class))
         }();
     }
 }
+
+///
+unittest
+{
+    struct Foo
+    {
+        int i;
+        bool b;
+        float f;
+        string s;
+    }
+
+    struct Bar
+    {
+        char[] ca;
+        int[] ia;
+        int* ip;
+    }
+
+    static assert(!hasReferenceMembers!Foo);
+    static assert(hasReferenceMembers!Bar);
+}
