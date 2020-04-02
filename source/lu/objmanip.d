@@ -440,19 +440,22 @@ unittest
 
 @safe:
 
-// zeroMembers
+// replaceMembers
 /++
- +  Zeroes out members of a passed struct that only contain the value of the
- +  passed `emptyToken`. If a string then its contents are thus, if an array
- +  with only one element then if that is thus.
+ +  Inspects a passed struct or class for members whose values match that of the
+ +  passed `token`. Matches members are set to a replacement value, which is
+ +  an optional parameter that defaults to the `.init` value of the token's type.
  +
  +  Params:
- +      emptyToken = What string to look for when zeroing out members.
- +      thing = Reference to a struct whose members to iterate over, zeroing.
+ +      thing = Reference to a struct or class whose members to iterate over.
+ +      token = What value to look for in members, be it a string or an integer
+ +          or whatever; anything that can be compared to.
+ +      replacement = What to assign matched values. Defaults to the `.init`
+ +          of the matched type.
  +/
-void zeroMembers(string emptyToken = "-", Thing)(ref Thing thing) pure nothrow @nogc
-if (is(Thing == struct))
-in (emptyToken.length, "Tried to zero members with no empty token given")
+void replaceMembers(Thing, Token)(ref Thing thing, Token token,
+    Token replacement = Token.init) pure nothrow @nogc
+if (is(Thing == struct) || is(Thing == class))
 do
 {
     import std.traits : isArray, isSomeString;
@@ -461,22 +464,16 @@ do
     {
         alias T = typeof(member);
 
-        static if (is(T == struct))
+        static if (is(T == struct) || is(T == class))
         {
-            zeroMembers!emptyToken(member);
+            // Recurse
+            member.replaceMembers(token, replacement);
         }
-        else static if (isSomeString!T)
+        else static if (is(T : Token))
         {
-            if (member == emptyToken)
+            if (member == token)
             {
-                member = string.init;
-            }
-        }
-        else static if (isArray!T)
-        {
-            if ((member.length == 1) && (member[0] == emptyToken))
-            {
-                member = typeof(member).init;
+                member = replacement;
             }
         }
     }
