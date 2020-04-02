@@ -44,11 +44,11 @@
  +  assert(sink.data.justifiedConfigurationText == fooJustified);
  +
  +  FooSettings mirror;
- +  applyConfiguration(fooSerialised, mirror);
+ +  deserialise(fooSerialised, mirror);
  +  assert(mirror == f);
  +
  +  FooSettings mirror2;
- +  applyConfiguration(fooJustified, mirror2);
+ +  deserialise(fooJustified, mirror2);
  +  assert(mirror2 == mirror);
  +  ---
  +/
@@ -354,7 +354,7 @@ pipyon 3
 }
 
 
-// applyConfiguration
+// deserialise
 /++
  +  Takes an input range containing configuration text and applies the contents
  +  therein to one or more passed struct/class objects.
@@ -369,7 +369,7 @@ pipyon 3
  +  "kameloso.conf"
  +      .configurationText
  +      .splitter("\n")
- +      .applyConfiguration(missingEntries, invalidEntries, client, server);
+ +      .deserialise(missingEntries, invalidEntries, client, server);
  +  ---
  +
  +  Params:
@@ -383,7 +383,7 @@ pipyon 3
  +
  +  Throws: `ConfigurationFileParsingException` if there were bad lines.
  +/
-void applyConfiguration(Range, Things...)(Range range, out string[][string] missingEntries,
+void deserialise(Range, Things...)(Range range, out string[][string] missingEntries,
     out string[][string] invalidEntries, ref Things things) pure
 if (allSatisfy!(isStruct, Things))
 {
@@ -540,7 +540,7 @@ if (allSatisfy!(isStruct, Things))
 }
 
 
-// applyConfiguration
+// deserialise
 /++
  +  Takes an input range containing configuration text and applies the contents
  +  therein to one or more passed struct/class objects.
@@ -553,7 +553,7 @@ if (allSatisfy!(isStruct, Things))
  +  "kameloso.conf"
  +      .configurationText
  +      .splitter("\n")
- +      .applyConfiguration(client, server);
+ +      .deserialise(client, server);
  +  ---
  +
  +  Params:
@@ -568,13 +568,13 @@ if (allSatisfy!(isStruct, Things))
  +
  +  Throws: `ConfigurationFileParsingException` if there were bad lines.
  +/
-string[][string] applyConfiguration(Range, Things...)(Range range, ref Things things) pure
+string[][string] deserialise(Range, Things...)(Range range, ref Things things) pure
 if (allSatisfy!(isStruct, Things))
 {
     string[][string] missing;
     string[][string] invalid;
 
-    applyConfiguration(range, missing, invalid, things);
+    deserialise(range, missing, invalid, things);
     return invalid;
 }
 
@@ -635,7 +635,7 @@ naN     !"¤%&/`;
     Foo foo;
     configurationFileContents
         .splitter("\n")
-        .applyConfiguration(foo);
+        .deserialise(foo);
 
     with (foo)
     {
@@ -675,7 +675,7 @@ naN     !"¤%&/`;
     DifferentSection diff;
     configurationFileContents
         .splitter("\n")
-        .applyConfiguration(diff);
+        .deserialise(diff);
 
     with (diff)
     {
