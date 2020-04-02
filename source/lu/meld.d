@@ -126,7 +126,7 @@ void meldInto(MeldingStrategy strategy = MeldingStrategy.conservative, Thing)
 if ((is(Thing == struct) || is(Thing == class)) && (!is(intoThis == const) &&
     !is(intoThis == immutable)))
 {
-    import lu.traits : isAnnotated;
+    import lu.traits : isAnnotated, hasReferenceMembers;
     import std.traits : isArray, isAssignable, isPointer, isSomeString, isType;
 
     static if (is(Thing == struct) && !hasElaborateInit!Thing &&
@@ -994,113 +994,4 @@ unittest
     static assert(hasElaborateInit!HasDefaultValues);
     static assert(hasElaborateInit!HasDefaultValuesToo);
     static assert(hasElaborateInit!HasDefaultValuesThree);
-}
-
-
-// hasReferenceMembers
-/++
- +  Trait to divine whether or not a struct (or a class) has members of
- +  reference types, and can as such not be trivially copied by normal assignment.
- +
- +  Classes immediately evaluate to true, as they are reference types themselves.
- +
- +  Params:
- +      T = Struct or class type to explore.
- +/
-template hasReferenceMembers(T)
-if (is(T == struct) || is(T == class))
-{
-    static if (is(T == class))
-    {
-        enum hasReferenceMembers = true;
-    }
-    else
-    {
-        enum hasReferenceMembers = ()
-        {
-            T thing;  // need a `this`
-
-            bool match;
-
-            foreach (immutable i, member; thing.tupleof)
-            {
-                import std.traits : isAssociativeArray, isDynamicArray, isPointer,
-                    isSomeFunction, isStaticArray, isType;
-
-                static if (
-                    !__traits(isDeprecated, thing.tupleof[i]) &&
-                    !isType!(thing.tupleof[i]) &&
-                    !isSomeFunction!(thing.tupleof[i]) &&
-                    !__traits(isTemplate, thing.tupleof[i]))
-                {
-                    alias MemberType = typeof(thing.tupleof[i]);
-
-                    static if (
-                        isAssociativeArray!MemberType ||
-                        (isDynamicArray!MemberType && !isMutableArrayOfImmutables!MemberType) ||
-                        isPointer!MemberType)
-                    {
-                        match = true;
-                        break;
-                    }
-                    else static if (is(MemberType == struct) || is(MemberType == class))
-                    {
-                        static if (hasReferenceMembers!MemberType)
-                        {
-                            match = true;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            return match;
-        }();
-    }
-}
-
-///
-unittest
-{
-    struct Foo
-    {
-        int i;
-        bool b;
-        float f;
-        string s;
-    }
-
-    struct Bar
-    {
-        char[] ca;
-        int[] ia;
-        int* ip;
-    }
-
-    static assert(!hasReferenceMembers!Foo);
-    static assert(hasReferenceMembers!Bar);
-}
-
-
-// isMutableArrayOfImmutables
-/++
- +  Evaluates whether or not a passed array type is a mutable array of immutable
- +  elements, such as a string.
- +
- +  Params:
- +      Array = Array to inspect.
- +/
-enum isMutableArrayOfImmutables(Array : Element[], Element) =
-    !is(Array == immutable) && is(Element == immutable);
-
-///
-unittest
-{
-    static assert(isMutableArrayOfImmutables!string);
-    static assert(isMutableArrayOfImmutables!wstring);
-    static assert(isMutableArrayOfImmutables!dstring);
-    static assert(!isMutableArrayOfImmutables!(immutable(string)));
-
-    static assert(isMutableArrayOfImmutables!(immutable(int)[]));
-    static assert(!isMutableArrayOfImmutables!(immutable(int[])));
 }
