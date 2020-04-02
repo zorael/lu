@@ -126,7 +126,7 @@ if ((is(Thing == struct) || is(Thing == class)) && (!is(intoThis == const) &&
     !is(intoThis == immutable)))
 {
     import lu.traits : isAnnotated;
-    import std.traits : isArray, isAssignable, isSomeString, isType;
+    import std.traits : isArray, isAssignable, isPointer, isSomeString, isType;
 
     static if (is(Thing == struct) && !hasElaborateInit!Thing &&
         (strategy == MeldingStrategy.conservative))
@@ -168,7 +168,10 @@ if ((is(Thing == struct) || is(Thing == class)) && (!is(intoThis == const) &&
             {
                 // Overwriting strategy overwrites everything except where the
                 // source is clearly `.init`.
-                static if (strategy == MeldingStrategy.overwriting)
+                // Aggressive strategy works like overwriting except it doesn't
+                // blindly overwrite struct bools.
+                static if ((strategy == MeldingStrategy.overwriting) ||
+                    (strategy == MeldingStrategy.aggressive))
                 {
                     static if (is(T == float) || is(T == double))
                     {
@@ -181,65 +184,59 @@ if ((is(Thing == struct) || is(Thing == class)) && (!is(intoThis == const) &&
                     }
                     else static if (is(T == bool))
                     {
+                        static if (strategy == MeldingStrategy.overwriting)
+                        {
+                            // Non-discriminately overwrite bools
+                            targetMember = meldThis.tupleof[i];
+                        }
+                        else static if (strategy == MeldingStrategy.aggressive)
+                        {
+                            static if (is(Thing == class))
+                            {
+                                // We cannot tell whether or not it has the same value as
+                                // `Thing.init` does, as it would need to be instantiated.
+                                // Assume overwrite?
+                                targetMember = meldThis.tupleof[i];
+                            }
+                            else
+                            {
+                                if (targetMember == Thing.init.tupleof[i])
+                                {
+                                    targetMember = meldThis.tupleof[i];
+                                }
+                            }
+                        }
+                        else
+                        {
+                            static assert(0, "Logic error; unexpected `MeldingStrategy` " ~
+                                "passed to struct/class `meldInto`");
+                        }
+                    }
+                    else static if (isArray!T && !isSomeString!T)
+                    {
+                        // Pass on to array melder
+                        meldThis.tupleof[i].meldInto!strategy(targetMember);
+                    }
+                    else static if (isAssociativeArray!T)
+                    {
+                        // Pass on to AA melder
+                        meldThis.tupleof[i].meldInto!strategy(targetMember);
+                    }
+                    else static if (isPointer!T)
+                    {
+                        // Aggressive and/or overwriting, so just overwrite the pointer?
+                        targetMember = meldThis.tupleof[i];
+                    }
+                    else static if (is(Thing == class))
+                    {
+                        // Can't compare with Thing.init.tupleof[i]
                         targetMember = meldThis.tupleof[i];
                     }
                     else
                     {
-                        static if (is(Thing == class))
+                        if (meldThis.tupleof[i] != Thing.init.tupleof[i])
                         {
                             targetMember = meldThis.tupleof[i];
-                        }
-                        else
-                        {
-                            if (meldThis.tupleof[i] != Thing.init.tupleof[i])
-                            {
-                                targetMember = meldThis.tupleof[i];
-                            }
-                        }
-                    }
-                }
-                // Aggressive strategy works like overwriting except it doesn't
-                // blindly overwrite struct bools.
-                else static if (strategy == MeldingStrategy.aggressive)
-                {
-                    static if (is(T == float) || is(T == double))
-                    {
-                        import std.math : isNaN;
-
-                        if (!meldThis.tupleof[i].isNaN)
-                        {
-                            targetMember = meldThis.tupleof[i];
-                        }
-                    }
-                    else static if (is(T == bool))
-                    {
-                        static if (is(Thing == class))
-                        {
-                            // We cannot tell whether or not it has the same value as
-                            // `Thing.init` does, as it would need to be instantiated.
-                            // Assume overwrite?
-                            targetMember = meldThis.tupleof[i];
-                        }
-                        else
-                        {
-                            if (targetMember == Thing.init.tupleof[i])
-                            {
-                                targetMember = meldThis.tupleof[i];
-                            }
-                        }
-                    }
-                    else
-                    {
-                        static if (is(Thing == class))
-                        {
-                            targetMember = meldThis.tupleof[i];
-                        }
-                        else
-                        {
-                            if (meldThis.tupleof[i] != Thing.init.tupleof[i])
-                            {
-                                targetMember = meldThis.tupleof[i];
-                            }
                         }
                     }
                 }
@@ -274,7 +271,18 @@ if ((is(Thing == struct) || is(Thing == class)) && (!is(intoThis == const) &&
                     }
                     else static if (isArray!T && !isSomeString!T)
                     {
-                        targetMember ~= meldThis.tupleof[i];
+                        // Pass on to array melder
+                        meldThis.tupleof[i].meldInto!strategy(targetMember);
+                    }
+                    else static if (isAssociativeArray!T)
+                    {
+                        // Pass on to AA melder
+                        meldThis.tupleof[i].meldInto!strategy(targetMember);
+                    }
+                    else static if (isPointer!T)
+                    {
+                        // Conservative, so check if null and overwrite if so
+                        if (!targetMember) targetMember = meldThis.tupleof[i];
                     }
                     else static if (is(T == bool))
                     {
