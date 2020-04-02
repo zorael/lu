@@ -1166,6 +1166,11 @@ if (isSomeString!T && (is(C : T) || is(C : ElementType!T) || is(C : ElementEncod
 
     if (!line.length) return line;
 
+    static if (isSomeString!C || hasLength!C)
+    {
+        if (!chaff.length) return line;
+    }
+
     size_t pos = line.length;
 
     loop:
@@ -1323,6 +1328,11 @@ if (isSomeString!T && (is(C : T) || is(C : ElementType!T) || is(C : ElementEncod
     import std.range : hasLength;
 
     if (!line.length) return line;
+
+    static if (isSomeString!C || hasLength!C)
+    {
+        if (!chaff.length) return line;
+    }
 
     size_t pos;
 
