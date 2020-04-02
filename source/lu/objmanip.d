@@ -17,8 +17,6 @@ module lu.objmanip;
 
 public:
 
-@safe:
-
 
 // setMemberByName
 /++
@@ -52,7 +50,7 @@ public:
  +      `std.conv.to` failed to convert a string into wanted type T.
  +/
 bool setMemberByName(Thing)(ref Thing thing, const string memberToSet,
-    const string valueToSet) pure
+    const string valueToSet)
 in (memberToSet.length, "Tried to set member by name but no member string was given")
 do
 {
@@ -439,6 +437,8 @@ unittest
 
 }
 
+
+@safe:
 
 // zeroMembers
 /++
