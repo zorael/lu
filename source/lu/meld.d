@@ -137,11 +137,15 @@ if ((is(Thing == struct) || is(Thing == class)) && (!is(intoThis == const) &&
             // any special default values. Nothing would get melded, so exit early.
             return;
         }
-        else if (intoThis == Thing.init)
+
+        static if (!hasReferenceMembers!Thing)
         {
-            // Likewise we're merging into an .init, so just fast-path overwrite.
-            intoThis = meldThis;
-            return;
+            if (intoThis == Thing.init)
+            {
+                // Likewise we're merging into an .init, so just fast-path overwrite.
+                intoThis = meldThis;
+                return;
+            }
         }
     }
 
