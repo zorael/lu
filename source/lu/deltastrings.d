@@ -268,4 +268,43 @@ c = '#';
 assert(!b);
 assert((c == '#'), c.to!string);
 `, '\n' ~ sink.data);
+
+    sink = typeof(sink).init;
+
+    {
+        struct S
+        {
+            int i;
+        }
+
+        class C
+        {
+            string s;
+            bool b;
+            S child;
+        }
+
+        C c1 = new C;
+        C c2 = new C;
+
+        c2.s = "harbl";
+        c2.b = true;
+        c2.child.i = 42;
+
+        sink.formatDeltaInto!(No.asserts)(c1, c2);
+        assert(sink.data ==
+`s = "harbl";
+b = true;
+child.i = 42;
+`, '\n' ~ sink.data);
+
+        sink = typeof(sink).init;
+
+        sink.formatDeltaInto!(Yes.asserts)(c1, c2);
+        assert(sink.data ==
+`assert((s == "harbl"), s);
+assert(b);
+assert((child.i == 42), child.i.to!string);
+`, '\n' ~ sink.data);
+    }
 }
