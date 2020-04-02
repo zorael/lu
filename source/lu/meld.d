@@ -327,7 +327,9 @@ if ((is(Thing == struct) || is(Thing == class)) && (!is(intoThis == const) &&
             }
             else
             {
-                pragma(msg, '`' ~ T.stringof ~ "` is not meldable!");
+                /*import std.traits : fullyQualifiedName;
+                pragma(msg, '`' ~ T.stringof ~ "` `" ~
+                    fullyQualifiedName!(meldThis.tupleof[i]) ~ "` is not meldable!");*/
             }
         }
     }
