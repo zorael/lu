@@ -860,7 +860,8 @@ if (is(QualT == struct))
         {
             import std.traits : isEqualityComparable, isSomeFunction, isType;
 
-            static if (!__traits(isDeprecated, thing.tupleof[i]) &&
+            static if (
+                !__traits(isDeprecated, thing.tupleof[i]) &&
                 !isType!(thing.tupleof[i]) &&
                 !isSomeFunction!(thing.tupleof[i]) &&
                 !__traits(isTemplate, thing.tupleof[i]))

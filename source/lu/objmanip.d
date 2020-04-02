@@ -49,8 +49,7 @@ public:
  +      array, if a passed string could not be converted into a bool, or if
  +      `std.conv.to` failed to convert a string into wanted type T.
  +/
-bool setMemberByName(Thing)(ref Thing thing, const string memberToSet,
-    const string valueToSet)
+bool setMemberByName(Thing)(ref Thing thing, const string memberToSet, const string valueToSet)
 in (memberToSet.length, "Tried to set member by name but no member string was given")
 do
 {

@@ -924,6 +924,7 @@ so shrug"), '\n' ~ sink.data);
  +  Overload that returns a newly allocated string.
  +
  +  Params:
+ +      spaces = How many spaces make up a tab.
  +      wallOfText = String to indent the lines of.
  +      numTabs = Amount of tabs to indent with, default 1.
  +
