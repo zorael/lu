@@ -1757,43 +1757,62 @@ unittest
 
 // escapeControlCharacters
 /++
- +  Replaces the control characters '\n', '\t', '\r' and '\0' with escaped
- +  "\\n", "\\t", "\\r" and "\\0".
- +
- +  Overload that takes an output range sink to save the output into.
- +
- +  If `Yes.remove` is passed, instead exclude the characters from the output.
+ +  Replaces the control characters '\n', '\t', '\r' and '\0' with the escaped
+ +  "\\n", "\\t", "\\r" and "\\0". Does not allocate a new string if there
+ +  was nothing to escape.
  +
  +  Params:
- +      remove = Whether or not to remove said characters and not replace them
- +          with escaped variants.
- +      sink = Output range sink to store the output into.
  +      line = String line to escape characters in.
+ +
+ +  Returns:
+ +      A new string with control characters escaped, or the original one unchanged.
  +/
-void escapeControlCharacters(Flag!"remove" remove = No.remove, Sink)
-    (auto ref Sink sink, const string line) // pure nothrow
-if (isOutputRange!(Sink, char[]))
+string escapeControlCharacters(const string line) pure nothrow
 {
+    import std.array : Appender;
     import std.string : representation;
 
-    foreach (immutable c; line.representation)
+    Appender!string sink;
+    bool dirty;
+
+    foreach (immutable i, immutable c; line.representation)
     {
+        if (!dirty)
+        {
+            switch (c)
+            {
+            case '\n':
+            case '\t':
+            case '\r':
+            case '\0':
+                sink.reserve(line.length);
+                sink.put(line[0..i]);
+                dirty = true;
+
+                // Drop down into lower switch
+                break;
+
+            default:
+                continue;
+            }
+        }
+
         switch (c)
         {
         case '\n':
-            static if (!remove) sink.put("\\n");
+            sink.put("\\n");
             break;
 
         case '\t':
-            static if (!remove) sink.put("\\t");
+            sink.put("\\t");
             break;
 
         case '\r':
-            static if (!remove) sink.put("\\r");
+            sink.put("\\r");
             break;
 
         case '\0':
-            static if (!remove) sink.put("\\0");
+            sink.put("\\0");
             break;
 
         default:
@@ -1801,6 +1820,8 @@ if (isOutputRange!(Sink, char[]))
             break;
         }
     }
+
+    return dirty ? sink.data : line;
 }
 
 ///
