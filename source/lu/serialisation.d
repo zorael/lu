@@ -65,60 +65,6 @@ public:
 
 @safe:
 
-
-// configurationText
-/++
- +  Reads configuration file into a string.
- +
- +  Example:
- +  ---
- +  string configText = "kameloso.conf".configurationText;
- +  ---
- +
- +  Params:
- +      configFile = Filename of file to read from.
- +
- +  Returns:
- +      The contents of the supplied file.
- +
- +  Throws:
- +      `lu.common.FileTypeMismatchException` if the configuration file is a directory, a
- +      character file or any other non-file type we can't write to.
- +      `ConfigurationFileReadFailureException` if the reading and decoding of
- +      the configuration file failed.
- +/
-string configurationText(const string configFile)
-{
-    import lu.common : FileTypeMismatchException;
-    import std.file : exists, getAttributes, isFile, readText;
-    import std.string : chomp;
-
-    if (!configFile.exists)
-    {
-        return string.init;
-    }
-    else if (!configFile.isFile)
-    {
-        throw new FileTypeMismatchException("Configuration file is not a file",
-            configFile, cast(ushort)getAttributes(configFile), __FILE__);
-    }
-
-    try
-    {
-        return configFile
-            .readText
-            .chomp;
-    }
-    catch (Exception e)
-    {
-        // catch Exception instead of UTFException, just in case there are more
-        // kinds of error than the normal "Invalid UTF-8 sequence".
-        throw new ConfigurationFileReadFailureException(e.msg, configFile,
-            __FILE__, __LINE__);
-    }
-}
-
-
 // readConfigInto
 /++
  +  Reads a configuration file and applies the settings therein to passed objects.
