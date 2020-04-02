@@ -1027,3 +1027,27 @@ unittest
     static assert(!hasReferenceMembers!Foo);
     static assert(hasReferenceMembers!Bar);
 }
+
+
+// isMutableArrayOfImmutables
+/++
+ +  Evaluates whether or not a passed array type is a mutable array of immutable
+ +  elements, such as a string.
+ +
+ +  Params:
+ +      Array = Array to inspect.
+ +/
+enum isMutableArrayOfImmutables(Array : Element[], Element) =
+    !is(Array == immutable) && is(Element == immutable);
+
+///
+unittest
+{
+    static assert(isMutableArrayOfImmutables!string);
+    static assert(isMutableArrayOfImmutables!wstring);
+    static assert(isMutableArrayOfImmutables!dstring);
+    static assert(!isMutableArrayOfImmutables!(immutable(string)));
+
+    static assert(isMutableArrayOfImmutables!(immutable(int)[]));
+    static assert(!isMutableArrayOfImmutables!(immutable(int[])));
+}
