@@ -942,3 +942,66 @@ unittest
     static assert(hasElaborateInit!HasDefaultValuesToo);
     static assert(hasElaborateInit!HasDefaultValuesThree);
 }
+
+
+// hasReferenceMembers
+/++
+ +  Trait to divine whether or not a struct (or a class) has members of
+ +  reference types, and can as such not be trivially copied by normal assignment.
+ +
+ +  Classes immediately evaluate to true, as they are reference types themselves.
+ +
+ +  Params:
+ +      T = Struct or class type to explore.
+ +/
+template hasReferenceMembers(T)
+if (is(T == struct) || is(T == class))
+{
+    static if (is(T == class))
+    {
+        enum hasReferenceMembers = true;
+    }
+    else
+    {
+        enum hasReferenceMembers = ()
+        {
+            T thing;  // need a `this`
+
+            bool match;
+
+            foreach (immutable i, member; thing.tupleof)
+            {
+                import std.traits : isAssociativeArray, isDynamicArray, isPointer,
+                    isSomeFunction, isStaticArray, isType;
+
+                static if (
+                    !__traits(isDeprecated, thing.tupleof[i]) &&
+                    !isType!(thing.tupleof[i]) &&
+                    !isSomeFunction!(thing.tupleof[i]) &&
+                    !__traits(isTemplate, thing.tupleof[i]))
+                {
+                    alias MemberType = typeof(thing.tupleof[i]);
+
+                    static if (
+                        isAssociativeArray!MemberType ||
+                        (isDynamicArray!MemberType && !isMutableArrayOfImmutables!MemberType) ||
+                        isPointer!MemberType)
+                    {
+                        match = true;
+                        break;
+                    }
+                    else static if (is(MemberType == struct) || is(MemberType == class))
+                    {
+                        static if (hasReferenceMembers!MemberType)
+                        {
+                            match = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return match;
+        }();
+    }
+}
