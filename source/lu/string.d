@@ -2,10 +2,6 @@
  +  String manipulation functions, used throughout the program complementing the
  +  standard library, as well as providing dumbed-down and optimised versions
  +  of existing functions therein.
- +
- +  Notable functions are `nom`, which allows for advancing a string past a
- +  supplied substring; and `contains`, which uses an educated approach to
- +  finding substrings in a string.
  +/
 module lu.string;
 
@@ -44,7 +40,7 @@ public:
  +
  +  Params:
  +      decode = Whether to use auto-decoding functions, or try to keep to non-
- +          decoding ones (when possible).
+ +          decoding ones (whenever possible).
  +      haystack = String to walk and advance.
  +      needle = Token that deliminates what should be returned and to where to advance.
  +      callingFile = Name of the calling source file, used to pass along when
@@ -56,7 +52,8 @@ public:
  +      The string `haystack` from the start up to the needle token. The original
  +      variable is advanced to after the token.
  +
- +  Throws: `object.Exception` if the needle could not be found in the string.
+ +  Throws:
+ +      `lu.string.NomException` if the needle could not be found in the string.
  +/
 pragma(inline)
 T nom(Flag!"decode" decode = No.decode, T, C)(auto ref T haystack, const C needle,
@@ -753,12 +750,11 @@ unittest
  +  ---
  +
  +  Params:
- +      fullStrip = Whether or not to allow for the stripping to clear the entire string.
  +      line = Original line to strip the suffix from.
  +      suffix = Suffix string to strip.
  +
  +  Returns:
- +      `line` with `suffix` sliced off.
+ +      `line` with `suffix` sliced off the end.
  +/
 string stripSuffix(const string line, const string suffix) pure nothrow @nogc
 {
@@ -798,7 +794,7 @@ unittest
  +      Whitespace equalling (`num` * `spaces`) spaces.
  +/
 auto tabs(uint spaces = 4)(const int num) pure nothrow @nogc
-in ((num >= 0), "Negative number of tabs")
+in ((num >= 0), "Negative number of tabs passed to `tabs`")
 do
 {
     import std.range : repeat, takeExactly;
@@ -985,7 +981,7 @@ so shrug"), '\n' ~ indentedTwo);
 /++
  +  Checks a string to see if it contains a given substring or character.
  +
- +  Merely slices; this is not UTF-8 safe. It is naive in how it thinks a string
+ +  Merely slices; this is not UTF-8 safe. It is naïve in how it thinks a string
  +  always correspond to one set of codepoints and one set only.
  +
  +  Example:
@@ -1217,7 +1213,7 @@ unittest
 // strippedLeft
 /++
  +  Returns a slice of the passed string with any preceding whitespace and/or
- +  linebreaks sliced off.
+ +  linebreaks sliced off. Overload that implicitly strips `" \n\r\t"`.
  +
  +  Duplicates `std.string.stripLeft`, which we can no longer trust not to
  +  assert on unexpected input.
@@ -1380,7 +1376,7 @@ unittest
 // stripped
 /++
  +  Returns a slice of the passed string with any preceding or trailing
- +  whitespace or linebreaks sliced off.
+ +  whitespace or linebreaks sliced off both ends.
  +
  +  It merely calls both `strippedLeft` and `strippedRight`. As such it
  +  duplicates `std.string.strip`, which we can no longer trust not to assert
