@@ -386,6 +386,57 @@ unittest
     success = s.setMemberByName("e", "def");
     assert(success);
     assert((s.e == E.def), Enum!E.toString(s.e));
+
+    struct StructWithOpAssign
+    {
+        string thing = "init";
+
+        void opAssign(const string thing)
+        {
+            this.thing = thing;
+        }
+    }
+
+    StructWithOpAssign assignable;
+    assert((assignable.thing == "init"), assignable.thing);
+    assignable = "new thing";
+    assert((assignable.thing == "new thing"), assignable.thing);
+
+    struct StructWithAssignableMember
+    {
+        StructWithOpAssign child;
+    }
+
+    StructWithAssignableMember parent;
+    success = parent.setMemberByName("child", "flerp");
+    assert(success);
+    assert((parent.child.thing == "flerp"), parent.child.thing);
+
+    class ClassWithOpAssign
+    {
+        string thing = "init";
+
+        void opAssign(const string thing) @safe pure nothrow @nogc
+        {
+            this.thing = thing;
+        }
+    }
+
+    class ClassWithAssignableMember
+    {
+        ClassWithOpAssign child;
+
+        this()
+        {
+            child = new ClassWithOpAssign;
+        }
+    }
+
+    ClassWithAssignableMember parent2 = new ClassWithAssignableMember;
+    success = parent2.setMemberByName("child", "flerp");
+    assert(success);
+    assert((parent2.child.thing == "flerp"), parent2.child.thing);
+
 }
 
 
