@@ -33,7 +33,7 @@ public:
 void formatDeltaInto(Flag!"asserts" asserts = No.asserts, Sink, QualThing)
     (auto ref Sink sink, QualThing before, QualThing after,
     const uint indents = 0, const string submember = string.init)
-if (isOutputRange!(Sink, char[]) && is(QualThing == struct))
+if (isOutputRange!(Sink, char[]) && (is(QualThing == struct) || is(QualThing == class)))
 {
     immutable prefix = submember.length ? submember ~ '.' : string.init;
 
@@ -52,7 +52,7 @@ if (isOutputRange!(Sink, char[]) && is(QualThing == struct))
             // Member is annotated as Hidden; skip
             continue;
         }
-        else static if (is(T == struct))
+        else static if (is(T == struct) || is(T == class))
         {
             sink.formatDeltaInto!asserts(before.tupleof[i], member, indents, prefix ~ memberstring);
         }
