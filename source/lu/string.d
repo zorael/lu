@@ -1855,33 +1855,51 @@ unittest
 }
 
 
-// escapeControlCharacters
+// removeControlCharacters
 /++
- +  Replaces the control characters '\n', '\t', '\r' and '\0' with escaped
- +  "\\n", "\\t", "\\r" and "\\0".
- +
- +  Overload that doesn't take an output range and just constructs its own string.
- +
- +  If `Yes.remove` is passed, instead exclude the characters from the output.
+ +  Removes the control characters '\n', '\t', '\r' and '\0' from a string.
+ +  Does not allocate a new string if there was nothing to remove.
  +
  +  Params:
- +      remove = Whether or not to remove said characters and not replace them
- +          with escaped variants.
- +      line = String line to escape characters in.
+ +      line = String line to "remove" characters from.
  +
  +  Returns:
- +      A new string with no such control characters, either due to replacements
- +      or due to removal.
+ +      A new string with control characters removed, or the original one unchanged.
  +/
-string escapeControlCharacters(Flag!"remove" remove = No.remove)(const string line) pure nothrow
+string removeControlCharacters(const string line) pure nothrow
 {
     import std.array : Appender;
+    import std.string : representation;
 
     Appender!string sink;
-    sink.reserve(line.length + 8);  // Just in case
+    bool dirty;
 
-    escapeControlCharacters!remove(sink, line);
-    return sink.data;
+    foreach (immutable i, immutable c; line.representation)
+    {
+        switch (c)
+        {
+        case '\n':
+        case '\t':
+        case '\r':
+        case '\0':
+            if (!dirty)
+            {
+                sink.reserve(line.length);
+                sink.put(line[0..i]);
+                dirty = true;
+            }
+            break;
+
+        default:
+            if (dirty)
+            {
+                sink.put(c);
+            }
+            break;
+        }
+    }
+
+    return dirty ? sink.data : line;
 }
 
 ///
