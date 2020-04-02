@@ -1907,51 +1907,27 @@ unittest
 {
     {
         immutable line = "abc\ndef";
-        immutable expected = "abc\\ndef";
-        immutable actual = escapeControlCharacters(line);
-        assert((actual == expected), actual);
-    }
-    {
-        immutable line = "\n\t\r\0";
-        immutable expected = "\\n\\t\\r\\0";
-        immutable actual = escapeControlCharacters(line);
-        assert((actual == expected), actual);
-    }
-    {
-        immutable line = "";
-        immutable expected = "";
-        immutable actual = escapeControlCharacters(line);
-        assert((actual == expected), actual);
-    }
-    {
-        immutable line = "nothing to escape";
-        immutable expected = "nothing to escape";
-        immutable actual = escapeControlCharacters(line);
-        assert((actual == expected), actual);
-    }
-
-    {
-        immutable line = "abc\ndef";
         immutable expected = "abcdef";
-        immutable actual = escapeControlCharacters!(Yes.remove)(line);
+        immutable actual = removeControlCharacters(line);
         assert((actual == expected), actual);
     }
     {
         immutable line = "\n\t\r\0";
         immutable expected = "";
-        immutable actual = escapeControlCharacters!(Yes.remove)(line);
+        immutable actual = removeControlCharacters(line);
         assert((actual == expected), actual);
     }
     {
         immutable line = "";
         immutable expected = "";
-        immutable actual = escapeControlCharacters!(Yes.remove)(line);
+        immutable actual = removeControlCharacters(line);
         assert((actual == expected), actual);
     }
     {
         immutable line = "nothing to escape";
         immutable expected = "nothing to escape";
-        immutable actual = escapeControlCharacters!(Yes.remove)(line);
+        immutable actual = removeControlCharacters(line);
         assert((actual == expected), actual);
+        assert(line is actual);  // No new string was allocated
     }
 }
