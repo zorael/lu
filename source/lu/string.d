@@ -1585,10 +1585,10 @@ unittest
 }
 
 
-// splitOnWord
+// splitLineAtPosition
 /++
- +  Splits a string with on word boundary by a supplied separator, into one or
- +  more lines not longer than the passed maximum length.
+ +  Splits a string with on boundary as deliminated by a supplied separator, into
+ +  one or more more lines not longer than the passed maximum length.
  +
  +  If a line cannot be split due to the line being too short or the separator
  +  not occurring in the text, it is added to the returned array as-is and no
@@ -1598,7 +1598,7 @@ unittest
  +  ---
  +  string line = "I am a fish in a sort of long sentence~";
  +  enum maxLineLength = 20;
- +  auto splitLines = line.splitOnWord(' ', maxLineLength);
+ +  auto splitLines = line.splitLineAtPosition(' ', maxLineLength);
  +
  +  assert(splitLines[0] == "I am a fish in a");
  +  assert(splitLines[1] == "sort of a long");
@@ -1611,15 +1611,16 @@ unittest
  +      maxLength = Maximum length of the separated lines.
  +
  +  Returns:
- +      A `string[]` array with lines split out of the passed `line`.
+ +      A `T[]` array with lines split out of the passed `line`.
  +/
-T[] splitOnWord(T, C)(const T line, const C separator, const size_t maxLength) pure nothrow
+T[] splitLineAtPosition(T, C)(const T line, const C separator, const size_t maxLength) pure //nothrow
 if (isSomeString!T && (is(C : ElementType!T) || is(C : ElementEncodingType!T)))
 in
 {
     static if (is(C : T))
     {
-        assert(separator.length, "Tried to split on word but no word was given");
+        assert(separator.length, "Tried to `splitLineAtPosition` but no " ~
+            "`separator` was supplied");
     }
 }
 do
@@ -1628,7 +1629,7 @@ do
 
     if (!line.length) return lines;
 
-    string slice = line;
+    string slice = line;  // mutable
     lines.reserve(cast(int)(line.length / maxLength) + 1);
 
     whileloop:
@@ -1694,7 +1695,7 @@ unittest
             "sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss" ~
             "sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss" ~
             "ssssssssssssssssssssssssssssssssssssssssssssssssssssssss";
-        const splitLines = rawLine.splitOnWord(' ', maxLength);
+        const splitLines = rawLine.splitLineAtPosition(' ', maxLength);
         assert((splitLines.length == 4), splitLines.length.text);
     }
     {
@@ -1709,7 +1710,7 @@ unittest
             "sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss" ~
             "sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss" ~
             "ssssssssssssssssssssssssssssssssssssssssssssssssssssssss";
-        const splitLines = rawLine.splitOnWord(' ', maxLength);
+        const splitLines = rawLine.splitLineAtPosition(' ', maxLength);
         assert((splitLines.length == 1), splitLines.length.text);
         assert(splitLines[0] == rawLine);
     }
