@@ -799,17 +799,9 @@ unittest
  +  Returns:
  +      `line` with `suffix` sliced off.
  +/
-string stripSuffix(Flag!"allowFullStrip" fullStrip = No.allowFullStrip)
-    (const string line, const string suffix) pure nothrow @nogc
+string stripSuffix(const string line, const string suffix) pure nothrow @nogc
 {
-    static if (fullStrip)
-    {
-        if (line.length < suffix.length) return line;
-    }
-    else
-    {
-        if (line.length <= suffix.length) return line;
-    }
+    if (line.length < suffix.length) return line;
 
     return (line[($-suffix.length)..$] == suffix) ? line[0..($-suffix.length)] : line;
 }
@@ -821,8 +813,7 @@ unittest
     assert(line.stripSuffix("snarbl") == "harbl");
     assert(line.stripSuffix("") == "harblsnarbl");
     assert(line.stripSuffix("INVALID") == "harblsnarbl");
-    assert(!line.stripSuffix!(Yes.allowFullStrip)("harblsnarbl").length);
-    assert(line.stripSuffix("harblsnarbl") == "harblsnarbl");
+    assert(!line.stripSuffix("harblsnarbl").length);
 }
 
 
