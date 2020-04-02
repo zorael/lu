@@ -984,41 +984,6 @@ naN                     !"#¤%&/`;
 }
 
 
-// ConfigurationFileReadFailureException
-/++
- +  Exception, to be thrown when the specified configuration file could not be
- +  read, for whatever reason.
- +
- +  It is a normal `object.Exception` but with an attached filename string.
- +/
-final class ConfigurationFileReadFailureException : Exception
-{
-@safe:
-    /// The name of the configuration file the exception refers to.
-    string filename;
-
-    /++
-     +  Create a new `ConfigurationFileReadFailureException`, without attaching
-     +  a filename.
-     +/
-    this(const string message, const string file = __FILE__, const size_t line = __LINE__) pure nothrow @nogc
-    {
-        super(message, file, line);
-    }
-
-    /++
-     +  Create a new `ConfigurationFileReadFailureException`, attaching a
-     +  filename.
-     +/
-    this(const string message, const string filename, const string file = __FILE__,
-        const size_t line = __LINE__) pure nothrow @nogc
-    {
-        this.filename = filename;
-        super(message, file, line);
-    }
-}
-
-
 // ConfigurationFileParsingException
 /++
  +  Exception, to be thrown when the specified configuration file could not be
