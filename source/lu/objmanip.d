@@ -414,7 +414,7 @@ unittest
     {
         string thing = "init";
 
-        void opAssign(const string thing) @safe pure nothrow @nogc
+        void opAssign(const string thing) //@safe pure nothrow @nogc
         {
             this.thing = thing;
         }
