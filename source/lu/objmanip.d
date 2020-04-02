@@ -82,7 +82,13 @@ do
 
                 static if (is(T == struct) || is(T == class))
                 {
-                    // can't assign whole structs or classes
+                    static if (__traits(compiles, { thing.tupleof[i] = string.init; }))
+                    {
+                        thing.tupleof[i] = valueToSet;
+                        success = true;
+                    }
+
+                    // Else do nothing
                 }
                 else static if (!isSomeString!T && isArray!T)
                 {
