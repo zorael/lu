@@ -1,5 +1,6 @@
 /++
- +  Various functions related to serialising structs into .ini file-like files.
+ +  Various functions related to serialising and deserialising structs into/from
+ +  .ini-like files.
  +
  +  Example:
  +  ---
@@ -68,7 +69,7 @@ public:
 
 // serialise
 /++
- +  Convenience method to call `serialise` on several objects.
+ +  Convenience function to call `serialise` on several objects.
  +
  +  Example:
  +  ---
@@ -356,8 +357,8 @@ pipyon 3
 
 // deserialise
 /++
- +  Takes an input range containing configuration text and applies the contents
- +  therein to one or more passed struct/class objects.
+ +  Takes an input range containing serialised entry-value text and applies the
+ +  contents therein to one or more passed struct/class objects.
  +
  +  Example:
  +  ---
@@ -366,20 +367,21 @@ pipyon 3
  +  string[][string] missingEntries;
  +  string[][string] invalidEntries;
  +
- +  "kameloso.conf"
- +      .configurationText
+ +  string fromFile = readText("configuration.conf");
+ +
+ +  fromFile
  +      .splitter("\n")
  +      .deserialise(missingEntries, invalidEntries, client, server);
  +  ---
  +
  +  Params:
- +      range = Input range from which to read the configuration text.
+ +      range = Input range from which to read the serialised text.
  +      missingEntries = Out reference of an associative array of string arrays
  +          of expected entries that were missing.
  +      invalidEntries = Out reference of an associative array of string arrays
  +          of unexpected entries that did not belong.
  +      things = Reference variadic list of one or more objects to apply the
- +          configuration to.
+ +          deserialised values to.
  +
  +  Throws: `DeserialisationException` if there were bad lines.
  +/
@@ -605,7 +607,7 @@ unittest
         }
     }
 
-    enum configurationFileContents = `
+    enum serialisedFileContents = `
 
 [Foo]
 i       42
@@ -636,7 +638,7 @@ naN     !"¤%&/`;
     string[][string] invalid;
 
     Foo foo;
-    configurationFileContents
+    serialisedFileContents
         .splitter("\n")
         .deserialise(missing, invalid, foo);
 
@@ -676,7 +678,7 @@ naN     !"¤%&/`;
     // Can read other structs from the same file
 
     DifferentSection diff;
-    configurationFileContents
+    serialisedFileContents
         .splitter("\n")
         .deserialise(missing, invalid, diff);
 
@@ -912,7 +914,7 @@ naN                     !"#¤%&/`;
 
 // DeserialisationException
 /++
- +  Exception, to be thrown when the specified configuration file could not be
+ +  Exception, to be thrown when the specified serialised text could not be
  +  parsed, for whatever reason.
  +/
 final class DeserialisationException : Exception
