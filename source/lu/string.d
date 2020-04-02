@@ -656,46 +656,8 @@ unittest
     assert("Lorem ipsum sit amet".beginsWith("Lorem ip"));
     assert(!"Lorem ipsum sit amet".beginsWith("ipsum sit amet"));
     assert("Lorem ipsum sit amet".beginsWith(""));
-}
-
-
-// beginsWith
-/++
- +  A cheaper variant of `std.algorithm.searching.startsWith`, since this is
- +  such a hotspot.
- +
- +  Merely slices; does not decode the string and may thus give weird results on
- +  weird inputs.
- +
- +  Overload that takes a `char` or `ubyte` as beginning character, instead of
- +  a full string like the primary overload.
- +
- +  Example:
- +  ---
- +  assert("Lorem ipsum sit amet".beginsWith('L'));
- +  assert(!"Lorem ipsum sit amet".beginsWith('o'));
- +  ---
- +
- +  Params:
- +      haystack = Original line to examine.
- +      needle = The `char` (or technically `ubyte`) to check if `haystack` begins with.
- +
- +  Returns:
- +      `true` if `haystack` begins with `needle`, `false` if not.
- +/
-bool beginsWith(T)(const T haystack, const ubyte needle) pure nothrow @nogc
-if (isSomeString!T)
-{
-    if (!haystack.length) return false;
-
-    return (haystack[0] == needle);
-}
-
-///
-unittest
-{
-    assert(":Lorem ipsum".beginsWith(':'));
-    assert(!":Lorem ipsum".beginsWith(';'));
+    assert("Lorem ipsum sit amet".beginsWith('L'));
+    assert(!"Lorem ipsum sit amet".beginsWith(char.init));
 }
 
 
