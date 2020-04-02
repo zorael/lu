@@ -1812,6 +1812,7 @@ unittest
         immutable expected = "nothing to escape";
         immutable actual = escapeControlCharacters(line);
         assert((actual == expected), actual);
+        assert(actual is line);  // No string allocated
     }
 }
 
