@@ -964,27 +964,23 @@ so shrug"), '\n' ~ sink.data);
 // indent
 /++
  +  Indents a string, line by line, with the supplied number of tabs.
- +  Returns a string.
- +
- +  Merely wraps the output range overload, using an `std.array.Appender` as sink.
- +
- +  Tab length is hardcoded to the defaults in `tabs` for now.
+ +  Overload that returns a newly allocated string.
  +
  +  Params:
+ +      wallOfText = String to indent the lines of.
  +      numTabs = Amount of tabs to indent with, default 1.
- +      string_ = String to indent the lines of.
  +
  +  Returns:
  +      A string with all the lines of the original string indented.
  +/
-string indent(uint numTabs = 1)(const string string_)
+string indent(uint spaces = 4)(const string wallOfText, const uint numTabs = 1)
 {
     import std.array : Appender;
 
     Appender!string sink;
-    sink.reserve(string_.length + 4*numTabs);
+    sink.reserve(wallOfText.length + 10*spaces*numTabs);  // Extra room for 10 indents
 
-    string_.indented!numTabs(sink);
+    wallOfText.indentInto!spaces(sink, numTabs);
     return sink.data;
 }
 
