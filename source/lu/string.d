@@ -1089,15 +1089,6 @@ unittest
     assert([ 'L', 'o', 'r', 'e', 'm' ].contains(cast(char[])[]));
 }
 
-/// Legacy alias to `contains`.
-alias has = contains;
-
-///
-unittest
-{
-    assert("Lorem ipsum sit amet".has("sit"));
-}
-
 
 // strippedRight
 /++
