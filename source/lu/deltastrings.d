@@ -47,7 +47,6 @@ if (isOutputRange!(Sink, char[]) && is(QualThing == struct))
         alias T = Unqual!(typeof(member));
         enum memberstring = __traits(identifier, before.tupleof[i]);
 
-
         static if (isAnnotated!(after.tupleof[i], Hidden))
         {
             // Member is annotated as Hidden; skip

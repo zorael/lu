@@ -19,12 +19,15 @@ public:
  +  Example:
  +  ---
  +  JSONStorage s;
+ +
  +  s.reset();  // not always necessary
+ +
  +  s.storage["foo"] = null;  // JSONValue quirk
  +  s.storage["foo"]["abc"] = JSONValue(42);
  +  s.storage["foo"]["def"] = JSONValue(3.14f);
  +  s.storage["foo"]["ghi"] = JSONValue([ "bar", "baz", "qux" ]);
  +  s.storage["bar"] = JSONValue("asdf");
+ +
  +  assert(s.storage.length == 2);
  +  ---
  +/
@@ -37,7 +40,10 @@ struct JSONStorage
 
     alias storage this;
 
-    /// Strategy in which to sort object-type JSON keys when we format the storage to string.
+    /++
+     +  Strategy in which to sort object-type JSON keys when we format/serialise
+     +  the stored `storage` to string.
+     +/
     enum KeyOrderStrategy
     {
         /++
@@ -47,12 +53,14 @@ struct JSONStorage
 
         /++
          +  Order is as it is when we iterate its members. The same order as
-         +  `KeyOrderStrategy.passthrough` sees.
+         +  `KeyOrderStrategy.passthrough` sees, but formatted to look identical
+         +  to how `KeyOrderStrategy.sorted`, `KeyOrderStrategy.reverse` and
+         +  `KeyOrderStrategy.inGivenOrder`.
          +/
         adjusted,
 
-        sorted,         /// Sorted by key.
-        reverse,        /// Reversely sorted by key.
+        sorted,   /// Sorted by key.
+        reverse,  /// Reversely sorted by key.
 
         /++
          +  Keys are listed in the order given in a passed `string[]` array.
@@ -77,7 +85,7 @@ struct JSONStorage
      +  Loads JSON from disk.
      +
      +  In the case where the file doesn't exist or is otherwise invalid, then
-     +  `std.json.JSONValue` is initialised to null (by way of `reset`).
+     +  `std.json.JSONValue` is initialised to null (by way of `JSONStorage.reset`).
      +
      +  Params:
      +      filename = Filename of file to read from.
@@ -305,10 +313,15 @@ struct JSONStorage
                     import std.range : retro;
                     auto range = rawRange.retro;
                 }
-                else /*if (strategy == KeyOrderStrategy.sorted)*/
+                else static if (strategy == KeyOrderStrategy.sorted)
                 {
                     // Already sorted
                     alias range = rawRange;
+                }
+                else
+                {
+                    static assert(0, "Logic error; unexpected `KeyOrderStrategy` " ~
+                        "passed to `serialiseInto`");
                 }
 
                 sink.put("{\n");
@@ -322,7 +335,8 @@ struct JSONStorage
             }
             else
             {
-                static assert(0, "Invalid `KeyOrderStrategy` passed to `serialiseObjectInto`");
+                static assert(0, "Logic error; invalid `KeyOrderStrategy` " ~
+                    "passed to `serialiseInto`");
             }
 
             sink.put("}");

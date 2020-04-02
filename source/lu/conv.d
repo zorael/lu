@@ -258,15 +258,15 @@ do
  +  Convenience wrapper that takes a hex string and maps the values to three
  +  integers passed by ref.
  +
- +  This is to be used when mapping a #RRGGBB colour to their decimal
+ +  This is to be used when mapping a `#RRGGBB` colour to their decimal
  +  red/green/blue equivalents.
  +
  +  Params:
  +      acceptLowercase = Whether or not to accept the rrggbb string in lowercase letters.
  +      hexString = Hexadecimal number (colour) in string form.
- +      r = Out-reference integer for the red part of the hex string.
- +      g = Out-reference integer for the green part of the hex string.
- +      b = Out-reference integer for the blue part of the hex string.
+ +      r = Out-reference integer for the "red" part of the hex string.
+ +      g = Out-reference integer for the "green" part of the hex string.
+ +      b = Out-reference integer for the "blue" part of the hex string.
  +/
 void numFromHex(Flag!"acceptLowercase" acceptLowercase = No.acceptLowercase)
     (const string hexString, out int r, out int g, out int b) pure
@@ -326,7 +326,6 @@ unittest
 // toAlphaInto
 /++
  +  Translates an integer into an alphanumeric string. Assumes ASCII.
- +
  +  Overload that takes an output range sink.
  +
  +  Example:
@@ -459,8 +458,9 @@ unittest
 // toAlpha
 /++
  +  Translates an integer into an alphanumeric string. Assumes ASCII.
+ +  Overload that returns the string.
  +
- +  Overload that returns the string. Merely leverages `toAlphaInto`.
+ +  Merely leverages `toAlphaInto`.
  +
  +  Example:
  +  ---
