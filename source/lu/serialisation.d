@@ -541,45 +541,7 @@ if (allSatisfy!(isStruct, Things))
     }
 }
 
-
-// deserialise
-/++
- +  Takes an input range containing configuration text and applies the contents
- +  therein to one or more passed struct/class objects.
- +
- +  Example:
- +  ---
- +  IRCClient client;
- +  IRCServer server;
- +
- +  "kameloso.conf"
- +      .configurationText
- +      .splitter("\n")
- +      .deserialise(client, server);
- +  ---
- +
- +  Params:
- +      range = Input range from which to read the configuration text.
- +      things = Reference variadic list of one or more objects to apply the
- +          configuration to.
- +
- +  Returns:
- +      An associative array of string arrays of invalid configuration entries.
- +      The associative array key is the section the entry was found under, and
- +      the arrays merely lists of such erroneous entries thereunder.
- +
- +  Throws: `DeserialisationException` if there were bad lines.
- +/
-string[][string] deserialise(Range, Things...)(Range range, ref Things things) pure
-if (allSatisfy!(isStruct, Things))
-{
-    string[][string] missing;
-    string[][string] invalid;
-
-    deserialise(range, missing, invalid, things);
-    return invalid;
-}
-
+///
 unittest
 {
     import lu.uda : Separator;
