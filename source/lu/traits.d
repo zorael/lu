@@ -11,27 +11,27 @@ import std.typecons : Flag, No, Yes;
 public:
 
 
-// isConfigurableVariable
+// isSerialisable
 /++
  +  Eponymous template bool of whether a variable can be treated as a mutable
- +  variable, like a fundamental integral.
+ +  variable, like a fundamental integral, and thus be serialised.
  +
  +  Currently it does not support static arrays.
  +
  +  Params:
- +      var = Alias of variable to introspect.
+ +      sym = Alias of symbol to introspect.
  +/
-template isConfigurableVariable(alias var)
+template isSerialisable(alias sym)
 {
     import std.traits : isType;
 
-    static if (!isType!var)
+    static if (!isType!sym)
     {
         import std.traits : isSomeFunction;
 
-        alias T = typeof(var);
+        alias T = typeof(sym);
 
-        enum isConfigurableVariable =
+        enum isSerialisable =
             !isSomeFunction!T &&
             !__traits(isTemplate, T) &&
             //!__traits(isAssociativeArray, T) &&
@@ -39,7 +39,7 @@ template isConfigurableVariable(alias var)
     }
     else
     {
-        enum isConfigurableVariable = false;
+        enum isSerialisable = false;
     }
 }
 
@@ -54,13 +54,13 @@ unittest
     enum E { foo }
     E e;
 
-    static assert(isConfigurableVariable!i);
-    static assert(isConfigurableVariable!c);
-    static assert(!isConfigurableVariable!c2); // should static arrays pass?
-    static assert(!isConfigurableVariable!S);
-    static assert(!isConfigurableVariable!C);
-    static assert(!isConfigurableVariable!E);
-    static assert(isConfigurableVariable!e);
+    static assert(isSerialisable!i);
+    static assert(isSerialisable!c);
+    static assert(!isSerialisable!c2); // should static arrays pass?
+    static assert(!isSerialisable!S);
+    static assert(!isSerialisable!C);
+    static assert(!isSerialisable!E);
+    static assert(isSerialisable!e);
 }
 
 
