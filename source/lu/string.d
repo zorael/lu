@@ -628,6 +628,9 @@ if (isSomeString!T && (is(C : T) || is(C : ElementType!T) || is(C : ElementEncod
 {
     static if (is(C : ElementEncodingType!T))
     {
+        // Needle is never empty but haystack may be
+        if (!haystack.length) return false;
+
         return (haystack[0] == needle);
     }
     else
@@ -655,6 +658,9 @@ unittest
     assert("Lorem ipsum sit amet".beginsWith(""));
     assert("Lorem ipsum sit amet".beginsWith('L'));
     assert(!"Lorem ipsum sit amet".beginsWith(char.init));
+    assert(!"".beginsWith("Harbl"));
+    assert(!"".beginsWith('c'));
+    assert("".beginsWith(""));
 }
 
 
