@@ -111,7 +111,7 @@ struct JSONStorage
         {
             reset();
             throw new FileTypeMismatchException("File exists but is not a file.",
-                filename.baseName, cast(ushort)getAttributes(filename), __FILE__, __LINE__);
+                filename.baseName, cast(ushort)getAttributes(filename));
         }
 
         immutable fileContents = readText(filename);
