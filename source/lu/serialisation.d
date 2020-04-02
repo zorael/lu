@@ -136,14 +136,13 @@ if (isOutputRange!(Sink, char[]))
 
     foreach (immutable i, member; thing.tupleof)
     {
-        import lu.traits : isAnnotated, isConfigurableVariable;
+        import lu.traits : isAnnotated, isSerialisable;
         import lu.uda : Separator, Unconfigurable;
-        import std.traits : isType;
 
         alias T = Unqual!(typeof(member));
 
-        static if (!isType!member &&
-            isConfigurableVariable!member &&
+        static if (
+            isSerialisable!member &&
             !isAnnotated!(thing.tupleof[i], Unconfigurable) &&
             !is(T == struct) && !is(T == class))
         {
@@ -390,7 +389,7 @@ void deserialise(Range, Things...)(Range range, out string[][string] missingEntr
 if (allSatisfy!(isStruct, Things))
 {
     import lu.string : stripSuffix, stripped;
-    import lu.traits : isAnnotated;
+    import lu.traits : isAnnotated, isSerialisable;
     import lu.uda : Unconfigurable;
     import std.format : format;
 
@@ -402,13 +401,11 @@ if (allSatisfy!(isStruct, Things))
     // set them to false. Flip to true when we encounter one.
     foreach (immutable i, thing; things)
     {
-        import std.traits : Unqual, isType;
-
         alias Thing = typeof(thing);
 
         static foreach (immutable n; 0..things[i].tupleof.length)
         {{
-            static if (!isType!(Things[i].tupleof[n]) &&
+            static if (isSerialisable!(Things[i].tupleof[n]) &&
                 !isAnnotated!(things[i].tupleof[n], Unconfigurable))
             {
                 enum memberstring = __traits(identifier, Things[i].tupleof[n]);
@@ -473,8 +470,9 @@ if (allSatisfy!(isStruct, Things))
             thingloop:
             foreach (immutable i, thing; things)
             {
+                import lu.traits : isSerialisable;
                 import lu.uda : CannotContainComments;
-                import std.traits : Unqual, isType;
+                import std.traits : Unqual;
 
                 alias T = Unqual!(typeof(thing));
                 enum settingslessT = T.stringof.stripSuffix("Settings").idup;
@@ -492,7 +490,7 @@ if (allSatisfy!(isStruct, Things))
                 {
                 static foreach (immutable n; 0..things[i].tupleof.length)
                 {{
-                    static if (!isType!(Things[i].tupleof[n]) &&
+                    static if (isSerialisable!(Things[i].tupleof[n]) &&
                         !isAnnotated!(things[i].tupleof[n], Unconfigurable))
                     {
                         enum memberstring = __traits(identifier, Things[i].tupleof[n]);

@@ -64,13 +64,12 @@ do
     {
     static foreach (immutable i; 0..thing.tupleof.length)
     {{
-        import lu.traits : isConfigurableVariable;
-        import std.traits : Unqual, isType;
+        import lu.traits : isSerialisable;
+        import std.traits : Unqual;
 
         alias T = Unqual!(typeof(thing.tupleof[i]));
 
-        static if (!isType!(thing.tupleof[i]) &&
-            isConfigurableVariable!(thing.tupleof[i]))
+        static if (isSerialisable!(thing.tupleof[i]))
         {
             enum memberstring = __traits(identifier, thing.tupleof[i]);
 
