@@ -80,7 +80,7 @@ do
                 {
                     static if (__traits(compiles, { thing.tupleof[i] = string.init; }))
                     {
-                        thing.tupleof[i] = valueToSet;
+                        thing.tupleof[i] = valueToSet.stripped.unquoted;
                         success = true;
                     }
 
