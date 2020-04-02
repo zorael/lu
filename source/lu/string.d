@@ -664,42 +664,61 @@ unittest
 // beginsWithOneOf
 /++
  +  Checks whether or not the first letter of a string begins with any of the
- +  passed string of characters.
- +
- +  Wraps `contains`.
+ +  passed string of characters, or single character.
  +
  +  Merely slices; does not decode the string and may thus give weird results on
  +  weird inputs.
  +
  +  Params:
- +      haystack = String line to check the beginning of.
- +      needles = String of characters to test and see whether or not `haystack`
- +          begins with any of them.
+ +      haystack = String to examine the start of, or single character.
+ +      needles = String of characters to look for in the start of `haystack`,
+ +          or a single character.
  +
  +  Returns:
- +      `true` if the first character of `haystack` is also in `characters`,
+ +      `true` if the first character of `haystack` is also in `needles`,
  +      `false` if not.
  +/
 pragma(inline)
-bool beginsWithOneOf(T)(const T haystack, const T needles) pure nothrow @nogc
-if (isSomeString!T)
+bool beginsWithOneOf(T, C)(const T haystack, const C needles) pure nothrow @nogc
+if (is(C : T) || is(C : ElementEncodingType!T) || is(T : ElementEncodingType!C))
 {
-    version(Windows)
+    import std.range.primitives : hasLength;
+
+    static if (is(C : T) && (isSomeString!T || hasLength!T))
     {
-        // Windows workaround for memchr segfault
-        // See https://forum.dlang.org/post/qgzznkhvvozadnagzudu@forum.dlang.org
-        if ((needles.ptr is null) || !needles.length) return true;
+        version(Windows)
+        {
+            // Windows workaround for memchr segfault
+            // See https://forum.dlang.org/post/qgzznkhvvozadnagzudu@forum.dlang.org
+            if ((needles.ptr is null) || !needles.length) return true;
+        }
+        else
+        {
+            // All strings begin with an empty string
+            if (!needles.length) return true;
+        }
+
+        // An empty line begins with nothing
+        if (!haystack.length) return false;
+
+        return needles.contains(haystack[0]);
+    }
+    else static if (is(C : ElementEncodingType!T))
+    {
+        // T is a string, C is a char
+        return haystack[0] == needles;
+    }
+    else static if (is(T : ElementEncodingType!C))
+    {
+        // T is a char, C is a string
+        return needles.length ? needles.contains(haystack) : true;
     }
     else
     {
-        // All strings begin with an empty string
-        if (!needles.length) return true;
+        import std.format : format;
+        static assert(0, "Unexpected types passed to `beginWithOneOf`: `%s` and `%s`"
+            .format(T.stringof, C.stringof));
     }
-
-    // An empty line begins with nothing
-    if (!haystack.length) return false;
-
-    return needles.contains(haystack[0]);
 }
 
 ///
