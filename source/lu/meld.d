@@ -336,29 +336,50 @@ if ((is(Thing == struct) || is(Thing == class)) && (!is(intoThis == const) &&
     }
 }
 
-///
-unittest
+version(unittest)
 {
-    import std.conv : to;
-
-    struct Foo
+    struct TestFoo
     {
         string abc;
         string def;
         int i;
         float f;
         double d;
-    }
+        int[string] aa;
+        int[] arr;
+        int* ip;
 
-    Foo f1; // = new Foo;
+        void blah() {}
+
+        const string kek;
+        immutable bool bur;
+
+        this(bool bur)
+        {
+            kek = "uden lo";
+            this.bur = bur;
+        }
+    }
+}
+
+///
+unittest
+{
+    import std.conv : to;
+
+    TestFoo f1; // = new TestFoo;
     f1.abc = "ABC";
     f1.def = "DEF";
+    f1.aa = [ "abc" : 123, "ghi" : 789 ];
+    f1.arr = [ 1, 0, 3, 0, 5 ];
 
-    Foo f2; // = new Foo;
+    TestFoo f2; // = new TestFoo;
     f2.abc = "this won't get copied";
     f2.def = "neither will this";
     f2.i = 42;
     f2.f = 3.14f;
+    f2.aa = [ "abc" : 999, "def" : 456 ];
+    f2.arr = [ 0, 2, 0, 4 ];
 
     f2.meldInto(f1);
 
@@ -371,20 +392,26 @@ unittest
         assert((i == 42), i.to!string);
         assert((f == 3.14f), f.to!string);
         assert(d.isNaN, d.to!string);
+        assert((aa == [ "abc" : 123, "def" : 456, "ghi" : 789 ]), aa.to!string);
+        assert((arr == [ 1, 2, 3, 4, 5 ]), arr.to!string);
     }
 
-    Foo f3; // new Foo;
+    TestFoo f3; // new TestFoo;
     f3.abc = "abc";
     f3.def = "def";
     f3.i = 100_135;
     f3.f = 99.9f;
+    f3.aa = [ "abc" : 123, "ghi" : 789 ];
+    f3.arr = [ 1, 0, 3, 0, 5 ];
 
-    Foo f4; // new Foo;
+    TestFoo f4; // new TestFoo;
     f4.abc = "OVERWRITTEN";
     f4.def = "OVERWRITTEN TOO";
     f4.i = 0;
     f4.f = 0.1f;
     f4.d = 99.999;
+    f4.aa = [ "abc" : 999, "def" : 456 ];
+    f4.arr = [ 9, 2, 0, 4 ];
 
     f4.meldInto!(MeldingStrategy.aggressive)(f3);
 
@@ -397,7 +424,11 @@ unittest
         assert((i == 100_135), i.to!string); // 0 is int.init
         assert((f == 0.1f), f.to!string);
         assert(d.approxEqual(99.999), d.to!string);
+        assert((aa == [ "abc" : 999, "def" : 456, "ghi" : 789 ]), aa.to!string);
+        assert((arr == [ 9, 2, 3, 4, 5 ]), arr.to!string);
     }
+
+    // Overwriting is just aggressive but always overwrites bools.
 
     struct User
     {
