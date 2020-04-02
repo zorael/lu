@@ -878,37 +878,44 @@ unittest
 }
 
 
-// indented
+// indentInto
 /++
  +  Indents a string, line by line, with the supplied number of tabs.
  +
- +  Tab length is hardcoded to the defaults in `tabs` for now.
- +
  +  Params:
- +      numTabs = Amount of tabs to indent with, default 1.
- +      string_ = String to indent the lines of.
+ +      spaces = How many spaces in an indenting tab.
+ +      wallOfText = String to indent the individual lines of.
  +      sink = Output range to fill with the indented lines.
+ +      numTabs = Optional amount of tabs to indent with, default 1.
  +/
-void indented(uint numTabs = 1, Sink)(const string string_, auto ref Sink sink)
+void indentInto(uint spaces = 4, Sink)(const string wallOfText, auto ref Sink sink, const uint numTabs = 1)
 if (isOutputRange!(Sink, char[]))
 {
     import std.algorithm.iteration : splitter;
+    import std.range : enumerate;
 
-    enum indent = numTabs.tabs;
-    uint n;
-
-    foreach (immutable l; string_.splitter("\n"))
+    if (numTabs == 0)
     {
-        if (n++ > 0) sink.put("\n");
+        sink.put(wallOfText);
+        return;
+    }
 
-        if (!l.length)
+    // Must be mutable to work with formattedWrite. That or .to!string
+    auto indent = numTabs.tabs!spaces;
+
+    foreach (immutable i, immutable line; wallOfText.splitter("\n").enumerate)
+    {
+        if (i > 0) sink.put("\n");
+
+        if (!line.length)
         {
             sink.put("\n");
             continue;
         }
 
+        // Cannot just put(indent), put(line) because indent is a joiner Result
         import std.format : formattedWrite;
-        sink.formattedWrite("%s%s", indent, l);
+        sink.formattedWrite("%s%s", indent, line);
     }
 }
 
