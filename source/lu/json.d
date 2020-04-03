@@ -1,5 +1,52 @@
 /++
- +  Simple JSON wrappers to make keeping JSON storages easier.
+ +  Simple JSON wrappers around Phobos' `std.json` to make keeping JSON storages easier.
+ +  This is not a replacement for `std.json`; it merely extends it.
+ +
+ +  Example:
+ +  ---
+ +  JSONStorage json;
+ +  assert(json.storage.type == JSONType.null_);
+ +
+ +  json.load("somefile.json");
+ +  assert(json.storage.type == JSONType.object);
+ +
+ +  json.serialiseInto!(JSONStorage.KeyOrderStrategy.inGivenOrder)
+ +      (stdout.lockingTextWriter, [ "foo", "bar", "baz "]);
+ +
+ +  // Printed to screen, regardless how `.toPrettyString` would have ordered it:
+ +  /*
+ +      {
+ +          "foo"
+ +          {
+ +              1,
+ +              2,
+ +          },
+ +          "bar"
+ +          {
+ +              3,
+ +              4,
+ +          },
+ +          "baz"
+ +          {
+ +              5,
+ +              6,
+ +          }
+ +      }
+ +  */
+ +
+ +  // Prints keys in sorted order.
+ +  json.serialiseInto!(JSONStorage.KeyOrderStrategy.sorted)(stdout.lockingTextWriter)
+ +  // Use a `std.array.Appender` to serialise into a string.
+ +
+ +  // Adding and removing values still needs the same dance as with std.json.
+ +  // Room for future improvement.
+ +  json.storage["qux"] = null;
+ +  json.storage["qux"].array = null;
+ +  json.storage["qux"].array ~= 7;
+ +  json.storage["qux"].array ~= 8;
+ +
+ +  json.save("somefile.json");
+ +  ---
  +/
 module lu.json;
 
@@ -13,8 +60,6 @@ public:
 // JSONStorage
 /++
  +  A wrapped `std.json.JSONValue` with helper functions.
- +
- +  This deduplicates some code currently present in more than one plugin.
  +
  +  Example:
  +  ---
