@@ -36,6 +36,7 @@
  +
  +  // Prints keys in sorted order.
  +  json.serialiseInto!(JSONStorage.KeyOrderStrategy.sorted)(stdout.lockingTextWriter)
+ +
  +  // Use a `std.array.Appender` to serialise into a string.
  +
  +  // Adding and removing values still needs the same dance as with std.json.

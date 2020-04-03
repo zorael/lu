@@ -456,7 +456,6 @@ in (!abort, "Tried to set up a listening fiber when the abort flag was set")
 in ((connectionLost > 0), "Tried to set up a listening fiber with connection timeout of <= 0")
 do
 {
-    import core.time : seconds;
     import std.concurrency : yield;
     import std.datetime.systime : Clock;
     import std.socket : Socket, lastSocketError;
