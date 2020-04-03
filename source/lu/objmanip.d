@@ -11,6 +11,13 @@
  +
  +  assert(bot.nickname == "kameloso");
  +  assert(bot.address == "blarbh.hlrehg.org");
+ +
+ +  bot.replaceMembers("blarbh.hlrehg.org", "kameloso");
+ +  assert(bot.address == "kameloso");
+ +
+ +  bot.replaceMembers("kameloso", string.init);
+ +  assert(bot.nickname.length == 0);
+ +  assert(bot.address.length == 0);
  +  ---
  +/
 module lu.objmanip;
