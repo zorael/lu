@@ -1,5 +1,36 @@
 /++
  +  Containers and thereto related functionality.
+ +
+ +  Example:
+ +  ---
+ +  {
+ +      Buffer!string buffer;
+ +
+ +      buffer.put("abc");
+ +      buffer.put("def");
+ +      assert(!buffer.empty);
+ +      assert(buffer.front == "abc");
+ +      buffer.popFront();
+ +      assert(buffer.front == "def");
+ +      buffer.popFront();
+ +      assert(buffer.empty);
+ +  }
+ +  {
+ +      Buffer!(char, Yes.dynamic, 3) buffer;
+ +
+ +      assert(!buffer.buf.length);
+ +      buffer ~= 'a';
+ +      assert(buffer.buf.length == 3);
+ +      buffer ~= 'b';
+ +      buffer ~= 'c';
+ +      assert(buffer.length == 3);
+ +      buffer ~= 'd';
+ +      assert(buffer.buf.length > 3);
+ +      assert(buffer[0..5] == "abcd");
+ +      buffer.clear();
+ +      assert(buffer.empty);
+ +  }
+ +  ---
  +/
 module lu.container;
 
