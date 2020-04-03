@@ -46,7 +46,10 @@ do
 
     if (num == n)
     {
-        static if (oneUp) return (n * 2);
+        static if (oneUp)
+        {
+            return (n + 1);
+        }
         else
         {
             return n;
