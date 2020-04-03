@@ -21,12 +21,27 @@ public:
  +  Params:
  +      sym = Alias of symbol to introspect.
  +/
-enum isSerialisable(alias sym) =
-    !isType!(typeof(sym)) &&
-    !isSomeFunction!(typeof(sym)) &&
-    !__traits(isTemplate, (typeof(sym))) &&
-    //!__traits(isAssociativeArray, (typeof(sym))) &&
-    !__traits(isStaticArray, (typeof(sym)));
+template isSerialisable(alias sym)
+{
+    import std.traits : isType;
+
+    static if (!isType!sym)
+    {
+        import std.traits : isSomeFunction;
+
+        alias T = typeof(sym);
+
+        enum isSerialisable =
+            !isSomeFunction!T &&
+            !__traits(isTemplate, T) &&
+            //!__traits(isAssociativeArray, T) &&
+            !__traits(isStaticArray, T);
+    }
+    else
+    {
+        enum isSerialisable = false;
+    }
+}
 
 ///
 unittest
