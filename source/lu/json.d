@@ -206,7 +206,7 @@ struct JSONStorage
      +          the output file. Non-existent keys are represented as empty.
      +          Not specified keys are omitted.
      +/
-    private void serialiseInto(KeyOrderStrategy strategy : KeyOrderStrategy.inGivenOrder, Sink)
+    void serialiseInto(KeyOrderStrategy strategy : KeyOrderStrategy.inGivenOrder, Sink)
         (auto ref Sink sink, const string[] givenOrder) @safe
     if (isOutputRange!(Sink, char[]))
     in (givenOrder.length, "Tried to serialise a JSON storage in order given without a given order")
@@ -255,7 +255,7 @@ struct JSONStorage
      +      strategy = Order strategy in which to sort top-level keys.
      +      sink = Output sink to fill with formatted output.
      +/
-    private void serialiseInto(KeyOrderStrategy strategy = KeyOrderStrategy.passthrough, Sink)
+    void serialiseInto(KeyOrderStrategy strategy = KeyOrderStrategy.passthrough, Sink)
         (auto ref Sink sink) @safe
     if ((strategy != KeyOrderStrategy.inGivenOrder) && isOutputRange!(Sink, char[]))
     {
