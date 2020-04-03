@@ -270,6 +270,7 @@ if (isOutputRange!(Sink, char[]))
     }
 }
 
+///
 unittest
 {
     import lu.uda : Separator, Quoted;
