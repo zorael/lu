@@ -629,9 +629,7 @@ if (isSomeString!T && (is(C : T) || is(C : ElementType!T) || is(C : ElementEncod
     static if (is(C : ElementEncodingType!T))
     {
         // Needle is never empty but haystack may be
-        if (!haystack.length) return false;
-
-        return (haystack[0] == needle);
+        return haystack.length && (haystack[0] == needle);
     }
     else
     {
