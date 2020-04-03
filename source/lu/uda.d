@@ -3,7 +3,7 @@
  +/
 module lu.uda;
 
-/// UDA conveying that a field cannot (or should not) not be serialised.
+/// UDA conveying that a field cannot (or should not) be serialised.
 struct Unserialisable;
 
 /++
