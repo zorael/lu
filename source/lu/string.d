@@ -383,6 +383,18 @@ unittest
         url = url.nom!(Yes.inherit)('#');
         assert((url == "https://google.com/index.html"), url);
     }
+    {
+        string line = "Lorem ipsum sit amet";
+        string[] words;
+
+        while (line.length > 0)
+        {
+            immutable word = line.nom!(Yes.inherit)(" ");
+            words ~= word;
+        }
+
+        assert(words == [ "Lorem", "ipsum", "sit", "amet" ]);
+    }
 }
 
 
