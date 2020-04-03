@@ -248,67 +248,100 @@ else
 unittest
 {
     {
-        Buffer!(bool, 4) buf;
+        Buffer!(bool, No.dynamic, 4) buffer;
 
-        assert(buf.empty);
-        buf.put(true);
-        buf.put(false);
-        buf.put(true);
-        buf.put(false);
+        assert(buffer.empty);
+        buffer.put(true);
+        buffer.put(false);
+        assert(buffer.length == 2);
+        buffer.put(true);
+        buffer.put(false);
 
-        assert(!buf.empty);
-        assert(buf.front == true);
-        buf.popFront();
-        assert(buf.front == false);
-        buf.popFront();
-        assert(buf.front == true);
-        buf.popFront();
-        assert(buf.front == false);
-        buf.popFront();
-        assert(buf.empty);
-        assert(buf.buf == [ true, false, true, false ]);
-        buf.put(false);
-        assert(buf.buf == [ false, false, true, false ]);
-        buf.reset();
-        assert(buf.empty);
-        buf.clear();
-        assert(buf.buf == [ false, false, false, false ]);
+        assert(!buffer.empty);
+        assert(buffer.front == true);
+        buffer.popFront();
+        assert(buffer.front == false);
+        buffer.popFront();
+        assert(buffer.front == true);
+        buffer.popFront();
+        assert(buffer.front == false);
+        buffer.popFront();
+        assert(buffer.empty);
+        assert(buffer.buf == [ true, false, true, false ]);
+        buffer.put(false);
+        assert(buffer.buf == [ false, false, true, false ]);
+        buffer.reset();
+        assert(buffer.empty);
+        buffer.clear();
+        assert(buffer.buf == [ false, false, false, false ]);
     }
     {
-        Buffer!(string, 4) buf;
+        Buffer!(string, No.dynamic, 4) buffer;
 
-        assert(buf.empty);
-        buf.put("abc");
-        buf.put("def");
-        buf.put("ghi");
+        assert(buffer.empty);
+        buffer.put("abc");
+        buffer.put("def");
+        buffer.put("ghi");
 
-        assert(!buf.empty);
-        assert(buf.front == "abc");
-        buf.popFront();
-        assert(buf.front == "def");
-        buf.popFront();
-        buf.put("JKL");
-        assert(buf.front == "ghi");
-        buf.popFront();
-        assert(buf.front == "JKL");
-        buf.popFront();
-        assert(buf.empty);
-        assert(buf.buf == [ "abc", "def", "ghi", "JKL" ]);
-        buf.put("MNO");
-        assert(buf.buf == [ "MNO", "def", "ghi", "JKL" ]);
-        buf.clear();
-        assert(buf.buf == [ string.init, string.init, string.init, string.init ]);
+        assert(!buffer.empty);
+        assert(buffer.front == "abc");
+        buffer.popFront();
+        assert(buffer.front == "def");
+        buffer.popFront();
+        buffer.put("JKL");
+        assert(buffer.front == "ghi");
+        buffer.popFront();
+        assert(buffer.front == "JKL");
+        buffer.popFront();
+        assert(buffer.empty);
+        assert(buffer.buf == [ "abc", "def", "ghi", "JKL" ]);
+        buffer.put("MNO");
+        assert(buffer.buf == [ "MNO", "def", "ghi", "JKL" ]);
+        buffer.clear();
+        assert(buffer.buf == [ string.init, string.init, string.init, string.init ]);
     }
     {
-        Buffer!(char, 64) buf;
-        buf ~= 'a';
-        buf ~= 'b';
-        buf ~= 'c';
-        assert(buf.buf[0..3] == "abc".dup);
+        Buffer!(char, No.dynamic, 64) buffer;
+        buffer ~= 'a';
+        buffer ~= 'b';
+        buffer ~= 'c';
+        assert(buffer.buf[0..3] == "abc");
 
-        foreach (char_; buf)
+        foreach (char_; buffer)
         {
             assert((char_ == 'a') || (char_ == 'b') || (char_ == 'c'));
         }
+    }
+    {
+        Buffer!(int, Yes.dynamic, 3) buffer;
+        assert(!buffer.buf.length);
+        buffer ~= 1;
+        assert(buffer.buf.length == 3);
+        buffer ~= 2;
+        buffer ~= 3;
+        assert(buffer.front == 1);
+        buffer.popFront();
+        assert(buffer.front == 2);
+        buffer.popFront();
+        assert(buffer.front == 3);
+        buffer.popFront();
+        assert(buffer.empty);
+        buffer.reserve(64);
+        assert(buffer.buf.length == 64);
+        buffer.reserve(63);
+        assert(buffer.buf.length == 64);
+    }
+    {
+        Buffer!(char, No.dynamic, 4) buffer;
+        buffer ~= 'a';
+        buffer ~= 'b';
+        buffer ~= 'c';
+        buffer ~= 'd';
+        assert(buffer.buf == "abcd");
+        assert(buffer.length == 4);
+        buffer.reset();
+        assert(buffer.buf == "abcd");
+        buffer.clear();
+        assert(buffer.buf == typeof(buffer.buf).init);
     }
 }
