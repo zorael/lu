@@ -3,6 +3,17 @@
  +  arguments into something else.
  +
  +  Credit for `Enum` goes to Stephan Koch (https://github.com/UplinkCoder).
+ +
+ +  Example:
+ +  ---
+ +  enum SomeEnum { one, two, three };
+ +
+ +  SomeEnum foo = Enum!SomeEnum.fromString("one");
+ +  SomeEnum bar = Enum!SomeEnum.fromString("three");
+ +
+ +  assert(foo == SomeEnum.one);
+ +  assert(bar == SomeEnum.three);
+ +  ---
  +/
 module lu.conv;
 
@@ -22,7 +33,7 @@ public:
  +  member, or the enum member of a name string.
  +
  +  `std.conv.to` is typically the go-to for this job; however it quickly bloats
- +  the binary and is supposedly not performant on larger enums.
+ +  the binary and is not performant on larger enums.
  +
  +  Params:
  +      E = enum to base this template on.
