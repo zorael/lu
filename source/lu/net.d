@@ -313,10 +313,6 @@ struct ListenAttempt
     /// The last read line of text sent by the server.
     string line;
 
-    /// Deprecated compatibility alias to `error`.
-    deprecated("Use `.error` instead")
-    alias lastSocketError_ = error;
-
     /// The `std.socket.lastSocketError` at the last point of error.
     string error;
 
