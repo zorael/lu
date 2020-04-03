@@ -177,14 +177,14 @@ public:
         socket6 = new Socket(AddressFamily.INET6, SocketType.STREAM);
         socket = socket4;
 
-        setOptions(socket4);
-        setOptions(socket6);
+        setDefaultOptions(socket4);
+        setDefaultOptions(socket6);
 
         connected = false;
     }
 
 
-    // setOptions
+    // setDefaultOptions
     /++
      +  Sets up sockets with the `std.socket.SocketOptions` needed. These
      +  include timeouts and buffer sizes.
@@ -192,7 +192,7 @@ public:
      +  Params:
      +      socketToSetup = Reference to the `socket` to modify.
      +/
-    void setOptions(Socket socketToSetup)
+    void setDefaultOptions(Socket socketToSetup)
     {
         import core.time : msecs;
         import std.socket : SocketOption, SocketOptionLevel;
