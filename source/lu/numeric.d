@@ -92,4 +92,7 @@ unittest
 
     immutable n6 = 1.getMultipleOf!(Yes.alwaysOneUp)(1);
     assert((n6 == 2), n6.text);
+
+    immutable n7 = 5.getMultipleOf!(Yes.alwaysOneUp)(5);
+    assert((n7 == 6), n7.text);
 }
