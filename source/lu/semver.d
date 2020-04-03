@@ -17,4 +17,4 @@ enum LuSemVer
 
 
 /// Pre-release SemVer subversion of this build.
-enum luSemVerPrerelease = string.init;
+enum LuSemVerPrerelease = string.init;
