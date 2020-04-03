@@ -1,7 +1,8 @@
 /++
  +  This module contains the `meldInto` functions; functions that take two
- +  structs and combine them, creating a resulting struct with values from both
- +  parent structs. Array and associative array variants exist too.
+ +  structs or classes of the same type and combine them, creating a resulting
+ +  object with the union of the members of both parents. Array and associative
+ +  array variants exist too.
  +
  +  Example:
  +  ---

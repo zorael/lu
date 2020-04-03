@@ -1,5 +1,5 @@
 /++
- +  Various compile-time traits, mostly for internal use.
+ +  Various compile-time traits and cleverness.
  +/
 module lu.traits;
 
@@ -26,7 +26,7 @@ enum MixinScope
 
 // MixinConstraints
 /++
- +  Mixes in static constraints into another mixin template, to provide static
+ +  Mixes in constraints into another mixin template, to provide static
  +  guarantees that it is not mixed into a type of scope other than the one specified.
  +
  +  Using this you can ensure that a mixin template meant to be mixed into a
@@ -181,7 +181,7 @@ version(unittest)
  +  a fundamental primitive variable but a module, a function, a delegate,
  +  a class or a struct.
  +
- +  Acuratem module detection only works on compilers 2.087 and later, due to
+ +  Accurate module detection only works on compilers 2.087 and later, due to
  +  missing support for `__traits(isModule)`.
  +
  +  Example:
@@ -820,7 +820,7 @@ static if ((__VERSION__ == 2088L) || (__VERSION__ == 2089L))
 {
     // getSymbolsByUDA
     /++
-     +  Provide a pre-2.088 `std.traits.getSymbolsByUDA`.
+     +  Provide a non-2.088, non-2.089 `std.traits.getSymbolsByUDA`.
      +
      +  The `std.traits.getSymbolsByUDA` in 2.088/2.089 is completely broken by having
      +  inserted a constraint to force it to only work on aggregates, which a module

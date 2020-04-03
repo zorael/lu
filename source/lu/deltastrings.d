@@ -1,7 +1,7 @@
 /++
  +  Functions used to generate strings of statements describing the differences
- +  (or delta) between two instances of a struct. They can be either assignment
- +  statements or assert statements.
+ +  (or delta) between two instances of a struct or class of the same type.
+ +  They can be either assignment statements or assert statements.
  +
  +  Example:
  +  ---

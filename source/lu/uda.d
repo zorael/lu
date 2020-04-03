@@ -1,5 +1,5 @@
 /++
- +  User-defined attributes (UDAs) used here and there.
+ +  Common user-defined attributes (UDAs).
  +/
 module lu.uda;
 
@@ -23,8 +23,8 @@ struct Separator
 struct Hidden;
 
 /++
- +  UDA conveying that a string contains characters that could otherwise
- +  indicate a comment.
+ +  UDA conveying that this member may contain characters that would otherwise
+ +  indicate a comment, but isn't.
  +/
 struct CannotContainComments;
 

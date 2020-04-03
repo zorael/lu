@@ -1,7 +1,6 @@
 /++
- +  String manipulation functions, used throughout the program complementing the
- +  standard library, as well as providing dumbed-down and optimised versions
- +  of existing functions therein.
+ +  String manipulation functions complementing the standard library, as well as
+ +  providing dumbed-down and optimised versions of existing functions therein.
  +
  +  Example:
  +  ---
