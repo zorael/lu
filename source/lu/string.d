@@ -2,6 +2,34 @@
  +  String manipulation functions, used throughout the program complementing the
  +  standard library, as well as providing dumbed-down and optimised versions
  +  of existing functions therein.
+ +
+ +  Example:
+ +  ---
+ +  {
+ +      string line = "Lorem ipsum :sit amet";
+ +      immutable lorem = line.nom(" :");
+ +      assert(lorem == "Lorem ipsum", lorem);
+ +      assert(line == "sit amet", line);
+ +  }
+ +  {
+ +      string line = "Lorem ipsum :sit amet";
+ +      immutable lorem = line.nom(':');
+ +      assert(lorem == "Lorem ipsum ", lorem);
+ +      assert(line == "sit amet", line);
+ +  }
+ +  {
+ +      string line = "Lorem ipsum sit amet";  // mutable, will be modified by ref
+ +      string[] words;
+ +
+ +      while (line.length > 0)
+ +      {
+ +          immutable word = line.nom!(Yes.inherit)(" ");
+ +          words ~= word;
+ +      }
+ +
+ +      assert(words == [ "Lorem", "ipsum", "sit", "amet" ]);
+ +  }
+ +  ---
  +/
 module lu.string;
 
@@ -489,6 +517,7 @@ unittest
 // unenclosed
 /++
  +  Removes paired preceding and trailing tokens around a string line.
+ +  Assumes ASCII.
  +
  +  You should not need to use this directly; rather see `unquoted` and `unsinglequoted`.
  +
@@ -528,6 +557,7 @@ if (isSomeString!T)
 // unquoted
 /++
  +  Removes paired preceding and trailing double quotes, unquoting a word.
+ +  Assumes ASCII.
  +
  +  Does not decode the string and may thus give weird results on weird inputs.
  +
@@ -566,6 +596,7 @@ unittest
 // unsinglequoted
 /++
  +  Removes paired preceding and trailing single quotes around a line.
+ +  Assumes ASCII.
  +
  +  Does not decode the string and may thus give weird results on weird inputs.
  +
@@ -780,13 +811,15 @@ unittest
 
 // tabs
 /++
- +  Returns *spaces* equal to that of `num` tabs (\t).
+ +  Returns a range of *spaces* equal to that of `num` tabs (\t).
+ +
+ +  Use `std.conv.to` or `std.conv.text` or similar to flatten to a string.
  +
  +  Example:
  +  ---
- +  string indentation = 2.tabs;
+ +  string indentation = 2.tabs.text;
  +  assert((indentation == "        "), `"` ~  indentation ~ `"`);
- +  string smallIndent = 1.tabs!2;
+ +  string smallIndent = 1.tabs!2.text;
  +  assert((smallIndent == "  "), `"` ~  smallIndent ~ `"`);
  +  ---
  +
@@ -841,7 +874,7 @@ unittest
 
 // indentInto
 /++
- +  Indents a string, line by line, with the supplied number of tabs.
+ +  Indents lines in a string into an output range sink with the supplied number of tabs.
  +
  +  Params:
  +      spaces = How many spaces in an indenting tab.
@@ -924,8 +957,8 @@ so shrug"), '\n' ~ sink.data);
 
 // indent
 /++
- +  Indents a string, line by line, with the supplied number of tabs.
- +  Overload that returns a newly allocated string.
+ +  Indents lines in a string with the supplied number of tabs. Returns a newly
+ +  allocated string.
  +
  +  Params:
  +      spaces = How many spaces make up a tab.
@@ -985,6 +1018,7 @@ so shrug"), '\n' ~ indentedTwo);
 // contains
 /++
  +  Checks a string to see if it contains a given substring or character.
+ +  Leverages `std.string.indexOf` and `std.algorithm.searching.countUntil`.
  +
  +  Merely slices; this is not UTF-8 safe. It is naïve in how it thinks a string
  +  always correspond to one set of codepoints and one set only.
@@ -1055,7 +1089,7 @@ unittest
 // strippedRight
 /++
  +  Returns a slice of the passed string with any trailing whitespace and/or
- +  linebreaks sliced off.
+ +  linebreaks sliced off. Overload that implicitly strips `" \n\r\t"`.
  +
  +  Duplicates `std.string.stripRight`, which we can no longer trust not to
  +  assert on unexpected input.
@@ -1107,8 +1141,8 @@ unittest
 // strippedRight
 /++
  +  Returns a slice of the passed string with any trailing passed characters.
- +  Implementation capable of handling both individual characters and string of
- +  tokens to strip.
+ +  Implementation template capable of handling both individual characters and
+ +  string of tokens to strip.
  +
  +  Duplicates `std.string.stripRight`, which we can no longer trust not to
  +  assert on unexpected input.
@@ -1381,7 +1415,8 @@ unittest
 // stripped
 /++
  +  Returns a slice of the passed string with any preceding or trailing
- +  whitespace or linebreaks sliced off both ends.
+ +  whitespace or linebreaks sliced off both ends. Overload that implicitly
+ +  strips `" \n\r\t"`.
  +
  +  It merely calls both `strippedLeft` and `strippedRight`. As such it
  +  duplicates `std.string.strip`, which we can no longer trust not to assert
@@ -1432,7 +1467,7 @@ unittest
 // stripped
 /++
  +  Returns a slice of the passed string with any preceding or trailing
- +  passed characters sliced off. Implementation capable of handling both
+ +  passed characters sliced off. Implementation template capable of handling both
  +  individual characters and strings of tokens to strip.
  +
  +  It merely calls both `strippedLeft` and `strippedRight`. As such it
