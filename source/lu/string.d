@@ -1428,7 +1428,7 @@ unittest
  +  Returns:
  +      The passed line, stripped of surrounding whitespace.
  +/
-T stripped(T)(T line) pure nothrow @nogc
+string stripped(const string line) pure nothrow @nogc
 {
     return line.strippedLeft.strippedRight;
 }
