@@ -5,7 +5,7 @@ module lu.traits;
 
 private:
 
-import std.traits : isArray, isAssociativeArray, isSomeFunction;
+import std.traits : isArray, isAssociativeArray, isSomeFunction, isType;
 import std.typecons : Flag, No, Yes;
 
 public:
@@ -98,14 +98,14 @@ template isAnnotated(alias sym, UDA)
 ///
 unittest
 {
-    import lu.uda : Hidden, Unconfigurable;
+    import lu.uda : Hidden, Unserialisable;
 
     @("Bar")
     struct Foo
     {
         bool configurable;
-        @Unconfigurable bool unconfigurable;
-        @("Unconfigurable") bool alsoUnconfigurable;
+        @Unserialisable bool unserialisable_;
+        @("Unserialisable") bool alsoUnserialisable;
     }
 
     @Foo
@@ -124,10 +124,10 @@ unittest
     static assert (isAnnotated!(b.alsoHidden, Hidden));
     static assert (isAnnotated!(b.alsoHidden, "Hidden"));
 
-    static assert (!isAnnotated!(f.configurable, Unconfigurable));
-    static assert (isAnnotated!(f.unconfigurable, Unconfigurable));
-    static assert (isAnnotated!(f.alsoUnconfigurable, Unconfigurable));
-    static assert (isAnnotated!(f.alsoUnconfigurable, "Unconfigurable"));
+    static assert (!isAnnotated!(f.configurable, Unserialisable));
+    static assert (isAnnotated!(f.unserialisable_, Unserialisable));
+    static assert (isAnnotated!(f.alsoUnserialisable, Unserialisable));
+    static assert (isAnnotated!(f.alsoUnserialisable, "Unserialisable"));
 
     static assert (isAnnotated!(Bar, Foo));
     static assert (isAnnotated!(Foo, Bar));

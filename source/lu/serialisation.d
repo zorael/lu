@@ -99,7 +99,7 @@ if ((Things.length > 1) && isOutputRange!(Sink, char[]))
 /++
  +  Serialises the fields of an object into an .ini file-like format.
  +
- +  It only serialises fields not annotated with `lu.uda.Unconfigurable`,
+ +  It only serialises fields not annotated with `lu.uda.Unserialisable`,
  +  and it doesn't recurse into other structs or classes.
  +
  +  Example:
@@ -137,13 +137,13 @@ if (isOutputRange!(Sink, char[]))
     foreach (immutable i, member; thing.tupleof)
     {
         import lu.traits : isAnnotated, isSerialisable;
-        import lu.uda : Separator, Unconfigurable;
+        import lu.uda : Separator, Unserialisable;
 
         alias T = Unqual!(typeof(member));
 
         static if (
             isSerialisable!member &&
-            !isAnnotated!(thing.tupleof[i], Unconfigurable) &&
+            !isAnnotated!(thing.tupleof[i], Unserialisable) &&
             !is(T == struct) && !is(T == class))
         {
             import std.traits : isArray, isSomeString;
@@ -390,7 +390,7 @@ if (allSatisfy!(isStruct, Things))
 {
     import lu.string : stripSuffix, stripped;
     import lu.traits : isAnnotated, isSerialisable;
-    import lu.uda : Unconfigurable;
+    import lu.uda : Unserialisable;
     import std.format : format;
 
     string section;
@@ -406,7 +406,7 @@ if (allSatisfy!(isStruct, Things))
         static foreach (immutable n; 0..things[i].tupleof.length)
         {{
             static if (isSerialisable!(Things[i].tupleof[n]) &&
-                !isAnnotated!(things[i].tupleof[n], Unconfigurable))
+                !isAnnotated!(things[i].tupleof[n], Unserialisable))
             {
                 enum memberstring = __traits(identifier, Things[i].tupleof[n]);
                 encounteredOptions[Thing.stringof][memberstring] = false;
@@ -491,7 +491,7 @@ if (allSatisfy!(isStruct, Things))
                 static foreach (immutable n; 0..things[i].tupleof.length)
                 {{
                     static if (isSerialisable!(Things[i].tupleof[n]) &&
-                        !isAnnotated!(things[i].tupleof[n], Unconfigurable))
+                        !isAnnotated!(things[i].tupleof[n], Unserialisable))
                     {
                         enum memberstring = __traits(identifier, Things[i].tupleof[n]);
 

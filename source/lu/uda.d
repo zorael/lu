@@ -4,7 +4,7 @@
 module lu.uda;
 
 /// UDA conveying that a field cannot (or should not) not be serialised.
-struct Unconfigurable;
+struct Unserialisable;
 
 /++
  +  UDA conveying that the annotated array should have this token as separator
