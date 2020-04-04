@@ -463,6 +463,7 @@ void replaceMembers(Thing, Token)(ref Thing thing, Token token,
 if (is(Thing == struct) || is(Thing == class))
 do
 {
+    import std.range : ElementEncodingType, ElementType;
     import std.traits : isArray, isSomeString;
 
     foreach (immutable i, ref member; thing.tupleof)
@@ -479,6 +480,21 @@ do
             if (member == token)
             {
                 member = replacement;
+            }
+        }
+        else static if (isArray!T && (is(ElementEncodingType!T : Token) ||
+            is(ElementType!T : Token)))
+        {
+            if ((member.length == 1) && (member[0] == token))
+            {
+                if (replacement == typeof(replacement).init)
+                {
+                    member = typeof(member).init;
+                }
+                else
+                {
+                    member[0] = replacement;
+                }
             }
         }
     }
@@ -555,6 +571,17 @@ unittest
 
     q.replaceMembers(42, 99);
     assert((q.i == 99), q.i.to!string);
+
+    struct Flerp
+    {
+        string[] arr;
+    }
+
+    Flerp flerp;
+    flerp.arr = [ "-" ];
+    assert(flerp.arr.length == 1);
+    flerp.replaceMembers("-");
+    assert(!flerp.arr.length);
 }
 
 
