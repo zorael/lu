@@ -801,4 +801,13 @@ unittest
         populateFromJSON(aa, j);
         assert(aa == aaCopy);
     }
+    {
+        int[3] arr = [ 1, 2, 3 ];
+
+        JSONValue j = JSONValue(arr);
+
+        int[3] arr2;
+        arr2.populateFromJSON(j);
+        assert(arr2 == arr);
+    }
 }
