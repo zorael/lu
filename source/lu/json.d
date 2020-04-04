@@ -565,50 +565,61 @@ import std.typecons : Flag, No, Yes;
  +  associative arrays, not such that mix element/value types.
  +
  +  Params:
- +      lowercaseValues = Whether or not to save final string values in lowercase.
- +      lowercaseKeys = Whether or not to save string keys in lowercase.
  +      target = Reference to target array or associative array to write to.
  +      json = Source `std.json.JSONValue` to sync the contents with.
+ +      lowercaseKeys = Whether or not to save string keys in lowercase.
+ +      lowercaseValues = Whether or not to save final string values in lowercase.
  +
  +  Throws:
  +      `object.Exception` if the passed `std.json.JSONValue` had unexpected types.
  +/
-void populateFromJSON(Flag!"lowercaseValues" lowercaseValues = No.lowercaseValues,
-    Flag!"lowercaseKeys" lowercaseKeys = No.lowercaseKeys, T)
-    (ref T target, const JSONValue json) @safe
+void populateFromJSON(T)(ref T target, const JSONValue json,
+    Flag!"lowercaseKeys" lowercaseKeys = No.lowercaseKeys,
+    Flag!"lowercaseValues" lowercaseValues = No.lowercaseValues) @safe
 {
-    import std.traits : isAssociativeArray, isArray, ValueType;
-    import std.range :  ElementType;
+    import std.traits : ValueType, isAssociativeArray, isArray, isDynamicArray, isSomeString;
+    import std.range : ElementEncodingType;
 
-    static if (isAssociativeArray!T || (isArray!T && !is(T : string)))
+    static if (isAssociativeArray!T || (isArray!T && !isSomeString!T))
     {
         static if (isAssociativeArray!T)
         {
             const aggregate = json.objectNoRef;
-            alias V = ValueType!T;
+            alias Value = ValueType!T;
         }
         else static if (isArray!T)
         {
             const aggregate = json.arrayNoRef;
-            alias V = ElementType!T;
-            target.reserve(aggregate.length);
+            alias Value = ElementEncodingType!T;
+
+            static if (isDynamicArray!T)
+            {
+                target.reserve(aggregate.length);
+            }
+        }
+        else
+        {
+            static assert(0, "`populateFromJSON` was passed an unsupported type `" ~ T.stringof ~ "`");
         }
 
         foreach (ikey, const valJSON; aggregate)
         {
             static if (isAssociativeArray!T)
             {
-                static if (is(V : string) && lowercaseKeys)
+                static if (isSomeString!Value)
                 {
-                    import std.uni : toLower;
-                    ikey = ikey.toLower;
+                    if (lowercaseKeys)
+                    {
+                        import std.uni : toLower;
+                        ikey = ikey.toLower;
+                    }
                 }
 
-                target[ikey] = V.init;
+                target[ikey] = Value.init;
             }
-            else static if (isArray!T)
+            else static if (isDynamicArray!T)
             {
-                if (ikey >= target.length) target ~= V.init;
+                if (ikey >= target.length) target ~= Value.init;
             }
 
             populateFromJSON(target[ikey], valJSON);
@@ -631,10 +642,13 @@ void populateFromJSON(Flag!"lowercaseValues" lowercaseValues = No.lowercaseValue
         case string:
             target = json.str.to!T;
 
-            static if (lowercaseValues && is(typeof(target) : string))
+            static if (isSomeString!T)
             {
-                import std.uni : toLower;
-                target = target.toLower;
+                if (lowercaseValues)
+                {
+                    import std.uni : toLower;
+                    target = target.toLower;
+                }
             }
             break;
 
@@ -665,7 +679,7 @@ void populateFromJSON(Flag!"lowercaseValues" lowercaseValues = No.lowercaseValue
         case array:
             import std.format : format;
             throw new Exception("Type mismatch when populating a `%s` with a `%s`"
-                .format(typeof(target).stringof, json.type));
+                .format(T.stringof, json.type));
         }
     }
 }
