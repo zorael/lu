@@ -11,11 +11,11 @@ libs "phobos2" platform="posix-dmd"
 x:ddoxTool "scod"
 
 configuration "library" {
-    sourcePaths "include" "source"
-    importPaths "include" "source"
+    sourcePaths "source"
+    importPaths "source"
 }
 
 configuration "unittest" {
-    sourcePaths "include" "source"
-    importPaths "include" "source"
+    sourcePaths "source"
+    importPaths "source"
 }
