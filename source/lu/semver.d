@@ -11,8 +11,8 @@ module lu.semver;
 enum LuSemVer
 {
     majorVersion = 0,  /// SemVer major version of the library.
-    minorVersion = 2,  /// SemVer minor version of the library.
-    patchVersion = 3,  /// SemVer patch version of the library.
+    minorVersion = 3,  /// SemVer minor version of the library.
+    patchVersion = 0,  /// SemVer patch version of the library.
 }
 
 
