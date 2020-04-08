@@ -932,6 +932,8 @@ auto splitEntryValue(const string line) pure nothrow @nogc
         }
     }
 
+    if (!result.entry.length) result.entry = line;
+
     return result;
 }
 
@@ -961,5 +963,11 @@ unittest
         immutable result = splitEntryValue(line);
         assert((result.entry == "ha"), result.entry);
         assert((result.value == "ha"), result.value);
+    }
+    {
+        immutable line = "#sendAfterConnect";
+        immutable result = splitEntryValue(line);
+        assert((result.entry == "#sendAfterConnect"), result.entry);
+        assert(!result.value.length, result.value);
     }
 }
