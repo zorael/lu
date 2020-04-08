@@ -421,12 +421,24 @@ if (allSatisfy!(isStruct, Things))
         string line = rawline.stripped;  // mutable
         if (!line.length) continue;
 
+        bool commented;
+
         switch (line[0])
         {
         case '#':
         case ';':
             // Comment
-            continue;
+            if (!section.length) continue;  // e.g. banner
+
+            while (line.length && ((line[0] == '#') || (line[0] == ';') || (line[0] == '/')))
+            {
+                line = line[1..$];
+            }
+
+            if (!line.length) continue;
+
+            commented = true;
+            goto default;
 
         case '/':
             if ((line.length > 1) && (line[1] == '/'))
@@ -499,19 +511,24 @@ if (allSatisfy!(isStruct, Things))
                         case memberstring:
                             import lu.objmanip : setMemberByName;
 
-                            static if (isAnnotated!(things[i].tupleof[n], CannotContainComments))
+                            if (!commented)
                             {
-                                things[i].setMemberByName(entry, value);
-                            }
-                            else
-                            {
-                                import lu.string : contains, nom;
+                                // Entry is uncommented; set
 
-                                // Slice away any comments
-                                value = value.contains('#') ? value.nom('#') : value;
-                                value = value.contains(';') ? value.nom(';') : value;
-                                value = value.contains("//") ? value.nom("//") : value;
-                                things[i].setMemberByName(entry, value);
+                                static if (isAnnotated!(things[i].tupleof[n], CannotContainComments))
+                                {
+                                    things[i].setMemberByName(entry, value);
+                                }
+                                else
+                                {
+                                    import lu.string : contains, nom;
+
+                                    // Slice away any comments
+                                    value = value.contains('#') ? value.nom('#') : value;
+                                    value = value.contains(';') ? value.nom(';') : value;
+                                    value = value.contains("//") ? value.nom("//") : value;
+                                    things[i].setMemberByName(entry, value);
+                                }
                             }
 
                             encounteredOptions[Things[i].stringof][memberstring] = true;
@@ -521,7 +538,7 @@ if (allSatisfy!(isStruct, Things))
 
                 default:
                     // Unknown setting in known section
-                    invalidEntries[section] ~= entry.length ? entry : line;
+                    if (!commented) invalidEntries[section] ~= entry.length ? entry : line;
                     break;
                 }
             }
