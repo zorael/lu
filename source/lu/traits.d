@@ -38,7 +38,7 @@ enum MixinScope
  +
  +  mixin template Foo()
  +  {
- +      mixin MixinConstraints!("Foo", MixinScope.module_);  // Constrained to module-level scope
+ +      mixin MixinConstraints!(MixinScope.module_, "Foo");  // Constrained to module-level scope
  +  }
  +
  +  mixin Foo;  // no problem, scope is MixinScope.module_
