@@ -585,7 +585,7 @@ unittest
 }
 
 
-import std.traits : isAssociativeArray;
+private import std.traits : isAssociativeArray;
 
 // pruneAA
 /++

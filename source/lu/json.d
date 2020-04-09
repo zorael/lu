@@ -550,8 +550,8 @@ unittest
 }
 
 
-import std.json : JSONValue;
-import std.typecons : Flag, No, Yes;
+private import std.json : JSONValue;
+private import std.typecons : Flag, No, Yes;
 
 // populateFromJSON
 /++
