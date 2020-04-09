@@ -79,12 +79,6 @@ struct Buffer(T, Flag!"dynamic" dynamic = No.dynamic, size_t originalSize = 128)
 {
 pure nothrow:
 
-version(dynamic) {}
-else
-{
-    @nogc:
-}
-
     static if (dynamic)
     {
         /++
@@ -159,7 +153,7 @@ else
          +  Params:
          +      more = Item to add.
          +/
-        void put(/*const*/ T more)
+        void put(/*const*/ T more) @nogc
         in ((end < bufferSize), '`' ~ typeof(this).stringof ~ "` buffer overflow")
         do
         {
@@ -187,17 +181,35 @@ else
         }
     }
 
-    // opOpAssign
-    /++
-     +  Implements `buf ~= someT` (appending) by wrapping `put`.
-     +
-     +  Params:
-     +      op = Operation type, here specialised to "`~`".
-     +      more = Item to add.
-     +/
-    void opOpAssign(string op : "~")(const T more)
+    static if (dynamic)
     {
-        return put(more);
+        // opOpAssign
+        /++
+         +  Implements `buf ~= someT` (appending) by wrapping `put`.
+         +
+         +  Params:
+         +      op = Operation type, here specialised to "`~`".
+         +      more = Item to add.
+         +/
+        void opOpAssign(string op : "~")(const T more)
+        {
+            return put(more);
+        }
+    }
+    else
+    {
+        // opOpAssign
+        /++
+         +  Implements `buf ~= someT` (appending) by wrapping `put`.
+         +
+         +  Params:
+         +      op = Operation type, here specialised to "`~`".
+         +      more = Item to add.
+         +/
+        void opOpAssign(string op : "~")(const T more) @nogc
+        {
+            return put(more);
+        }
     }
 
     // front
@@ -207,7 +219,7 @@ else
      +  Returns:
      +      An item T.
      +/
-    T front() const
+    T front() const @nogc
     in ((end > 0), '`' ~ typeof(this).stringof ~ "` buffer underrun")
     do
     {
@@ -218,7 +230,7 @@ else
     /++
      +  Advances the current position to the next item in the buffer.
      +/
-    void popFront()
+    void popFront() @nogc
     {
         if (++pos == end) reset();
     }
@@ -231,7 +243,7 @@ else
      +  Returns:
      +      The buffer's current length.
      +/
-    size_t length() const
+    size_t length() const @nogc
     {
         return (end - pos);
     }
@@ -246,7 +258,7 @@ else
      +  Returns:
      +      `true` if there are items available to get via `front`, `false` if not.
      +/
-    bool empty() const
+    bool empty() const @nogc
     {
         return (end == 0);
     }
@@ -258,7 +270,7 @@ else
      +  The old elements' values are still there, they will just be overwritten
      +  as the buffer is appended to.
      +/
-    void reset()
+    void reset() @nogc
     {
         pos = 0;
         end = 0;
@@ -268,7 +280,7 @@ else
     /++
      +  Zeroes out the buffer's elements, getting rid of old contents.
      +/
-    void clear()
+    void clear() @nogc
     {
         reset();
         buf[] = T.init;
