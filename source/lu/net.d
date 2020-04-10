@@ -88,20 +88,20 @@ enum DefaultBufferSize
 enum DefaultTimeout
 {
     /++
-     +  The send attempt timeout as set as a `std.socket.SocketOption`.
+     +  The send attempt timeout as set as a `std.socket.SocketOption`, in milliseconds.
      +/
     send = 5000,
 
     /++
-     +  The receive attempt timeout as set as a `std.socket.SocketOption`.
+     +  The receive attempt timeout as set as a `std.socket.SocketOption`, in milliseconds.
      +/
     receive = 1000,
 
     /++
      +  The actual time after which, if nothing was read during that whole time,
-     +  we decide the connection is dead.
+     +  we decide the connection is dead. In seconds.
      +/
-    connectionLost = 600_000,
+    connectionLost = 600,
 }
 
 
