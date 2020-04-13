@@ -77,60 +77,60 @@ private:
     alias mixinParent = __traits(parent, mixinSentinel);
     alias mixinParentInfo = CategoryName!mixinParent;
 
-    static if (mixinScope == MixinScope.function_)
+    static if (isSomeFunction!mixinParent)
     {
-        import std.traits : isSomeFunction;
-
-        static if (!isSomeFunction!mixinParent)
+        static if (!(mixinScope & MixinScope.function_))
         {
-            static assert(0, ("%s `%s` mixes in `%s` but it is only supposed to be " ~
+            static assert(0, ("%s `%s` mixes in `%s` but it is not supposed to be " ~
                 "mixed into a function")
                 .format(mixinParentInfo.type, mixinParentInfo.fqn, mixinName));
         }
     }
-    else static if (mixinScope == MixinScope.class_)
+    else static if (is(mixinParent == class))
     {
-        static if(!is(mixinParent == class))
+        static if (!(mixinScope & MixinScope.class_))
         {
-            static assert(0, ("%s `%s` mixes in `%s` but it is only supposed to be " ~
+            static assert(0, ("%s `%s` mixes in `%s` but it is not supposed to be " ~
                 "mixed into a class")
                 .format(mixinParentInfo.type, mixinParentInfo.fqn, mixinName));
         }
     }
-    else static if (mixinScope == MixinScope.struct_)
+    else static if(is(mixinParent == struct))
     {
-        static if(!is(mixinParent == struct))
+        static if (!(mixinScope & MixinScope.struct_))
         {
-            static assert(0, ("%s `%s` mixes in `%s` but it is only supposed to be " ~
+            static assert(0, ("%s `%s` mixes in `%s` but it is not supposed to be " ~
                 "mixed into a struct")
                 .format(mixinParentInfo.type, mixinParentInfo.fqn, mixinName));
         }
     }
-    else static if (mixinScope == MixinScope.module_)
+    else static if (__VERSION__ < 2087L)
     {
-        static if (__VERSION__ < 2087L)
+        static if (isSomeFunction!mixinParent ||
+            is(mixinParent == class) ||
+            is(mixinParent == struct))
         {
-            import std.traits : isSomeFunction;
-
-            static if (isSomeFunction!mixinParent ||
-                is(mixinParent == class) ||
-                is(mixinParent == struct))
+            static if (!(mixinScope & MixinScope.module_))
             {
-                static assert(0, ("%s `%s` mixes in `%s` but it is only supposed to be " ~
+                static assert(0, ("%s `%s` mixes in `%s` but it is not supposed to be " ~
                     "mixed into a module-level scope")
                     .format(mixinParentInfo.type, mixinParentInfo.fqn, mixinName));
             }
         }
-        else static if (!__traits(isModule, mixinParent))
+    }
+    else static if (__traits(isModule, mixinParent))
+    {
+        static if (!(mixinScope & mixinScope.module_))
         {
-            static assert(0, ("%s `%s` mixes in `%s` but it is only supposed to be " ~
+            static assert(0, ("%s `%s` mixes in `%s` but it is not supposed to be " ~
                 "mixed into a module-level scope")
                 .format(mixinParentInfo.type, mixinParentInfo.fqn, mixinName));
         }
     }
     else
     {
-        static assert(0, "Logic error; unexpected member of `MixinScope`");
+        static assert(0, "Logic error; unexpected scope type of parent of mixin `%s`: `%s`"
+            .format(mixinName, fullyQualifiedName!mixinParent));
     }
 }
 
