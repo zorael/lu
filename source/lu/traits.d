@@ -151,16 +151,21 @@ unittest
         mixin TestMixinConstrainedToFunctions;
     }
 
-    class C
+    class TestClassC
     {
         // MixinConstraints!(MixinScope.class_, "TestMixinConstrainedToClass");
         mixin TestMixinConstrainedToClass;
     }
 
-    struct S
+    struct TestStructS
     {
         // mixin MixinConstraints!(MixinScope.struct_, "TestMixinConstrainedToStruct");
         mixin TestMixinConstrainedToStruct;
+    }
+
+    struct TestStructS2
+    {
+        mixin TestMixinConstrainedToClassOrStruct;
     }
 }
 
@@ -179,6 +184,12 @@ version(unittest)
     mixin template TestMixinConstrainedToStruct()
     {
         mixin MixinConstraints!(MixinScope.struct_, "TestMixinConstrainedToStruct");
+    }
+
+    mixin template TestMixinConstrainedToClassOrStruct()
+    {
+        mixin MixinConstraints!((MixinScope.class_ | MixinScope.struct_),
+            "TestMixinConstrainedToClassOrStruct");
     }
 }
 
