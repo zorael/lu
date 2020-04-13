@@ -24,7 +24,13 @@ script:
   - dub build --compiler=${DC} -b release
 
 before_deploy:
-  - dub build --compiler=${DC} -b ddox
+  #- time dub build --compiler=${DC} --nodeps --force -b ddox
+  - cd ..
+  - git clone https://github.com/adamdruppe/adrdox.git
+  - cd adrdox
+  - make
+  - ./doc2 -ip --directory ../lu/docs ../lu
+  - cd ../lu
   - cp -rv .circleci docs/
 
 deploy:
