@@ -378,6 +378,7 @@ unittest
  +  Params:
  +      QualT = Qualified struct type to introspect for elaborate .init.
  +/
+deprecated("Use `__traits(isZeroInit, symbol)` instead")
 template hasElaborateInit(QualT)
 if (is(QualT == struct))
 {
@@ -422,7 +423,7 @@ if (is(QualT == struct))
     }();
 }
 
-///
+version(none)
 unittest
 {
     struct NoDefaultValues
@@ -430,7 +431,7 @@ unittest
         string s;
         int i;
         bool b;
-        float f;
+        //float f;
     }
 
     struct HasDefaultValues
@@ -438,7 +439,7 @@ unittest
         string s;
         int i = 42;
         bool b;
-        float f;
+        //float f;
     }
 
     struct HasDefaultValuesToo
@@ -446,7 +447,7 @@ unittest
         string s;
         int i;
         bool b;
-        float f = 3.14f;
+        //float f = 3.14f;
     }
 
     struct HasDefaultValuesThree
@@ -454,13 +455,17 @@ unittest
         string s;
         int i;
         bool b;
-        double d = 99.9;
+        //double d = 99.9;
     }
 
     static assert(!hasElaborateInit!NoDefaultValues);
     static assert(hasElaborateInit!HasDefaultValues);
-    static assert(hasElaborateInit!HasDefaultValuesToo);
-    static assert(hasElaborateInit!HasDefaultValuesThree);
+    //static assert(hasElaborateInit!HasDefaultValuesToo);
+    //static assert(hasElaborateInit!HasDefaultValuesThree);
+    static assert(__traits(isZeroInit, NoDefaultValues));
+    static assert(!__traits(isZeroInit, HasDefaultValues));
+    //static assert(!__traits(isZeroInit, HasDefaultValuesToo));
+    //static assert(!__traits(isZeroInit, HasDefaultValuesThree));
 }
 
 
