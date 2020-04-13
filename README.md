@@ -13,7 +13,7 @@ In summary:
 ```d
 mixin template MyMixin()
 {
-    mixin MixinConstraints!(MixinScope.struct_);
+    mixin MixinConstraints!(MixinScope.struct_ | MixinScope.class_);
 
     void foo() {}
 
@@ -23,6 +23,11 @@ mixin template MyMixin()
 struct Bar
 {
     mixin MyMixin;  // ok
+}
+
+class Baz
+{
+    mixin MyMixin; // also ok
 }
 
 void baz()
@@ -52,46 +57,26 @@ assert(target.s == "some string");
 assert(target.i == 42);
 ```
 
-* [`string.d`](source/lu/string.d): String manipulation functions and templates.
+* [`objmanip.d`](source/lu/objmanip.d): Struct/class manipulation, such as setting a member field by its string name.
 
 ```d
-enum line = "Word split by spaces";
-string slice = line;  // mutable
+struct Foo
+{
+    string s;
+    int i;
+    bool b;
+}
 
-immutable first = slice.nom(" ");
-assert(first == "Word");
+Foo foo;
 
-immutable second = slice.nom(" ");
-assert(second == "split");
+foo.setMemberByName("s", "some string");
+assert(foo.s == "some string");
 
-immutable third = slice.nom(" ");
-assert(third == "by");
+foo.setMemberByName("i", "42");
+assert(foo.i == 42);
 
-assert(slice == "spaces");
-
-immutable fourth = slice.nom!(Yes.inherit)(" ");
-assert(fourth == "spaces");
-assert(slice.length == 0);
-```
-
-* [`conv.d`](source/lu/conv.d): Conversion functions and templates.
-
-```d
-// Credit for Enum goes to Stephan Koch
-
-enum Foo { abc, def, ghi }
-
-immutable someAbc = Foo.abc;
-immutable someDef = Foo.def;
-immutable someGhi = Foo.ghi;
-
-assert(Enum!Foo.toString(someAbc) == "abc");
-assert(Enum!Foo.toString(someDef) == "def");
-assert(Enum!Foo.toString(someGhi) == "ghi");
-
-immutable otherAbc = Enum!Foo.fromString("abc");
-immutable otherDef = Enum!Foo.fromString("def");
-immutable otherGhi = Enum!Foo.fromString("ghi");
+foo.setMemberByName("b", "true");
+assert(foo.b == true);
 ```
 
 * [`deltastrings.d`](source/lu/deltastrings.d): Expressing the differences between two instances of a struct or class of the same type, as either assignment statements or assert statements.
@@ -183,26 +168,46 @@ assert(newFoo.b == true);
 assert(newFoo.pi == 3.14159);
 ```
 
-* [`objmanip.d`](source/lu/objmanip.d): Struct/class manipulation, such as setting a member field by its string name.
+* [`string.d`](source/lu/string.d): String manipulation functions and templates.
 
 ```d
-struct Foo
-{
-    string s;
-    int i;
-    bool b;
-}
+enum line = "Word split by spaces";
+string slice = line;  // mutable
 
-Foo foo;
+immutable first = slice.nom(" ");
+assert(first == "Word");
 
-foo.setMemberByName("s", "some string");
-assert(foo.s == "some string");
+immutable second = slice.nom(" ");
+assert(second == "split");
 
-foo.setMemberByName("i", "42");
-assert(foo.i == 42);
+immutable third = slice.nom(" ");
+assert(third == "by");
 
-foo.setMemberByName("b", "true");
-assert(foo.b == true);
+assert(slice == "spaces");
+
+immutable fourth = slice.nom!(Yes.inherit)(" ");
+assert(fourth == "spaces");
+assert(slice.length == 0);
+```
+
+* [`conv.d`](source/lu/conv.d): Conversion functions and templates.
+
+```d
+// Credit for Enum goes to Stephan Koch
+
+enum Foo { abc, def, ghi }
+
+immutable someAbc = Foo.abc;
+immutable someDef = Foo.def;
+immutable someGhi = Foo.ghi;
+
+assert(Enum!Foo.toString(someAbc) == "abc");
+assert(Enum!Foo.toString(someDef) == "def");
+assert(Enum!Foo.toString(someGhi) == "ghi");
+
+immutable otherAbc = Enum!Foo.fromString("abc");
+immutable otherDef = Enum!Foo.fromString("def");
+immutable otherGhi = Enum!Foo.fromString("ghi");
 ```
 
 * [`net.d`](source/lu/net.d): Connection helpers, including Generator Fibers that resolve addresses, connect to servers and read full strings from connections.
