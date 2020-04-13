@@ -17,10 +17,10 @@ public:
  +/
 enum MixinScope
 {
-    function_,  /// Mixed in inside a function.
-    class_,     /// Mixed in inside a class.
-    struct_,    /// Mixed in inside a struct.
-    module_,    /// Mixed in inside a module.
+    function_ = 1 << 0,  /// Mixed in inside a function.
+    class_  = 1 << 1,    /// Mixed in inside a class.
+    struct_ = 1 << 2,    /// Mixed in inside a struct.
+    module_ = 1 << 3,    /// Mixed in inside a module.
 }
 
 
