@@ -88,6 +88,10 @@ immutable someGhi = Foo.ghi;
 assert(Enum!Foo.toString(someAbc) == "abc");
 assert(Enum!Foo.toString(someDef) == "def");
 assert(Enum!Foo.toString(someGhi) == "ghi");
+
+immutable otherAbc = Enum!Foo.fromString("abc");
+immutable otherDef = Enum!Foo.fromString("def");
+immutable otherGhi = Enum!Foo.fromString("ghi");
 ```
 
 * [`deltastrings.d`](source/lu/deltastrings.d): Expressing the differences between two instances of a struct or class of the same type, as either assignment statements or assert statements.
