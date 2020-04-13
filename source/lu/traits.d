@@ -32,6 +32,8 @@ enum MixinScope
  +  Using this you can ensure that a mixin template meant to be mixed into a
  +  class isn't mixed into a module-level scope, or into a function, etc.
  +
+ +  More than one scope type can be supplied with bitwise OR.
+ +
  +  Example:
  +  ---
  +  module foo;
@@ -57,6 +59,12 @@ enum MixinScope
  +  {
  +      mixin Foo;  // static assert(0): ditto but MixinScope.struct_
  +  }
+ +
+ +  mixin template FooStructOrClass()
+ +  {
+ +      mixin MixinConstraints(MixinScope.struct_ | MixinScope.class_);
+ +  }
+ +
  +  ---
  +
  +  Params:
