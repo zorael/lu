@@ -127,12 +127,11 @@ void meldInto(MeldingStrategy strategy = MeldingStrategy.conservative, Thing)
 if ((is(Thing == struct) || is(Thing == class)) && (!is(intoThis == const) &&
     !is(intoThis == immutable)))
 {
-    import lu.traits : isAnnotated, hasElaborateInit;
+    import lu.traits : isAnnotated;
     import std.traits : isArray, isAssignable, isPointer, isSomeString, isType,
         hasUnsharedAliasing;
 
-    static if (is(Thing == struct) && !hasElaborateInit!Thing &&
-        (strategy == MeldingStrategy.conservative))
+    static if (is(Thing == struct) && (strategy == MeldingStrategy.conservative))
     {
         if (meldThis == Thing.init)
         {
