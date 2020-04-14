@@ -587,7 +587,8 @@ if (allSatisfy!(isStruct, Things))
     {
         foreach (immutable entry, immutable encountered; entryMatches)
         {
-            if (!encountered) missingEntries[encounteredSection] ~= entry;
+            immutable sectionName = encounteredSection.stripSuffix("Settings");
+            if (!encountered) missingEntries[sectionName] ~= entry;
         }
     }
 }
