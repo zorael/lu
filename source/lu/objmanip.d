@@ -4,20 +4,26 @@
  +
  +  Example:
  +  ---
- +  IRCUser bot;
+ +  struct Foo
+ +  {
+ +      string nickname;
+ +      string address;
+ +  }
  +
- +  bot.setMemberByName("nickname", "kameloso");
- +  bot.setMemberByName("address", "blarbh.hlrehg.org");
+ +  Foo foo;
  +
- +  assert(bot.nickname == "kameloso");
- +  assert(bot.address == "blarbh.hlrehg.org");
+ +  foo.setMemberByName("nickname", "foobar");
+ +  foo.setMemberByName("address", "subdomain.address.tld");
  +
- +  bot.replaceMembers("blarbh.hlrehg.org", "kameloso");
- +  assert(bot.address == "kameloso");
+ +  assert(foo.nickname == "foobar");
+ +  assert(foo.address == "subdomain.address.tld");
  +
- +  bot.replaceMembers("kameloso", string.init);
- +  assert(bot.nickname.length == 0);
- +  assert(bot.address.length == 0);
+ +  foo.replaceMembers("subdomain.address.tld", "foobar");
+ +  assert(foo.address == "foobar");
+ +
+ +  foo.replaceMembers("foobar", string.init);
+ +  assert(foo.nickname.length == 0);
+ +  assert(foo.address.length == 0);
  +  ---
  +/
 module lu.objmanip;

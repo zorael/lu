@@ -280,7 +280,7 @@ public:
      +
      +  Example:
      +  ---
-     +  conn.sendline("NICK kameloso");
+     +  conn.sendline("NICK foobar");
      +  conn.sendline("PRIVMSG #channel :text");
      +  conn.sendline("PRIVMSG " ~ channel ~ " :" ~ content);
      +  conn.sendline("PRIVMSG ", channel, " :", content);  // Identical to above

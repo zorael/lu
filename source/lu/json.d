@@ -397,20 +397,19 @@ struct JSONStorage
 
         JSONStorage this_;
         Appender!(char[]) sink;
-        JSONValue j;
 
         // Original JSON
         this_.storage = parseJSON(
 `{
 "#abc":
 {
-"kameloso" : "v",
-"hirrsteff" : "o"
+"hirrsteff" : "o",
+"foobar" : "v"
 },
 "#def":
 {
+"harrsteff": "v",
 "flerpeloso" : "o",
-"harrsteff": "v"
 },
 "#zzz":
 {
@@ -423,8 +422,8 @@ struct JSONStorage
         assert((sink.data ==
 `{
     "#abc": {
-        "hirrsteff": "o",
-        "kameloso": "v"
+        "foobar": "v",
+        "hirrsteff": "o"
     },
     "#def": {
         "flerpeloso": "o",
@@ -451,8 +450,8 @@ struct JSONStorage
     },
     "#abc":
     {
-        "hirrsteff": "o",
-        "kameloso": "v"
+        "foobar": "v",
+        "hirrsteff": "o"
     }
 }`), '\n' ~ sink.data);
         sink.clear();
@@ -463,8 +462,8 @@ struct JSONStorage
 `{
     "#abc":
     {
-        "hirrsteff": "o",
-        "kameloso": "v"
+        "foobar": "v",
+        "hirrsteff": "o"
     },
     "#def":
     {
@@ -493,8 +492,8 @@ struct JSONStorage
     },
     "#abc":
     {
-        "hirrsteff": "o",
-        "kameloso": "v"
+        "foobar": "v",
+        "hirrsteff": "o"
     }
 }`), '\n' ~ sink.data);
         sink.clear();
@@ -510,8 +509,8 @@ struct JSONStorage
     },
     "#abc":
     {
-        "hirrsteff": "o",
-        "kameloso": "v"
+        "foobar": "v",
+        "hirrsteff": "o"
     },
     "#foo":
     {

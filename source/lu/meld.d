@@ -446,7 +446,7 @@ unittest
     User one;
     with (one)
     {
-        nickname = "kameloso";
+        nickname = "foobar";
         ident = "NaN";
         address = "herpderp.net";
         special = false;
@@ -456,8 +456,8 @@ unittest
     User two;
     with (two)
     {
-        nickname = "kameloso^";
-        alias_ = "Kameloso";
+        nickname = "foobar^";
+        alias_ = "FooBar";
         address = "asdf.org";
         login = "kamelusu";
         special = true;
@@ -471,8 +471,8 @@ unittest
     one.meldInto!(MeldingStrategy.conservative)(two);
     with (two)
     {
-        assert((nickname == "kameloso^"), nickname);
-        assert((alias_ == "Kameloso"), alias_);
+        assert((nickname == "foobar^"), nickname);
+        assert((alias_ == "FooBar"), alias_);
         assert((ident == "NaN"), ident);
         assert((address == "asdf.org"), address);
         assert((login == "kamelusu"), login);
@@ -485,8 +485,8 @@ unittest
     one.meldInto!(MeldingStrategy.overwriting)(twoCopy);
     with (twoCopy)
     {
-        assert((nickname == "kameloso"), nickname);
-        assert((alias_ == "Kameloso"), alias_);
+        assert((nickname == "foobar"), nickname);
+        assert((alias_ == "FooBar"), alias_);
         assert((ident == "NaN"), ident);
         assert((address == "herpderp.net"), address);
         assert((login == "kamelusu"), login);
@@ -536,13 +536,13 @@ unittest
     }
 
     Bot b1, b2;
-    b1.nickname = "kameloso";
+    b1.nickname = "foobar";
     b1.server.address = "freenode.net";
 
     assert(!b2.nickname.length, b2.nickname);
     assert(!b2.server.address.length, b2.nickname);
     b1.meldInto(b2);
-    assert((b2.nickname == "kameloso"), b2.nickname);
+    assert((b2.nickname == "foobar"), b2.nickname);
     assert((b2.server.address == "freenode.net"), b2.server.address);
 
     b2.nickname = "harbl";
