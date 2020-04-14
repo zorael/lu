@@ -27,8 +27,7 @@
  +  bar bar
  +  bazzzzzzz baz
  +  flerrp "hirr steff  "
- +  pi 3.14159
- +  `
+ +  pi 3.14159`;
  +
  +  enum fooJustified =
  +  `[Foo]
@@ -36,8 +35,7 @@
  +  bar                     bar
  +  bazzzzzzz               baz
  +  flerrp                  "hirr steff  "
- +  pi                      3.14159
- +  `;
+ +  pi                      3.14159`;
  +
  +  Appender!string sink;
  +
@@ -71,10 +69,22 @@ public:
  +
  +  Example:
  +  ---
+ +  struct Foo
+ +  {
+ +      // ...
+ +  }
+ +
+ +  struct Bar
+ +  {
+ +      // ...
+ +  }
+ +
+ +  Foo foo;
+ +  Bar bar;
+ +
  +  Appender!string sink;
- +  IRCClient client;
- +  IRCServer server;
- +  sink.serialise(client, server);
+ +
+ +  sink.serialise(foo, bar);
  +  assert(!sink.data.empty);
  +  ---
  +
@@ -103,10 +113,16 @@ if ((Things.length > 1) && isOutputRange!(Sink, char[]))
  +
  +  Example:
  +  ---
- +  Appender!string sink;
- +  IRCClient client;
+ +  struct Foo
+ +  {
+ +      // ...
+ +  }
  +
- +  sink.serialise(client);
+ +  Foo foo;
+ +
+ +  Appender!string sink;
+ +
+ +  sink.serialise(foo);
  +  assert(!sink.data.empty);
  +  ---
  +
@@ -370,8 +386,19 @@ pipyon 3`;
  +
  +  Example:
  +  ---
- +  IRCClient client;
- +  IRCServer server;
+ +  struct Foo
+ +  {
+ +      // ...
+ +  }
+ +
+ +  struct Bar
+ +  {
+ +      // ...
+ +  }
+ +
+ +  Foo foo;
+ +  Bar bar;
+ +
  +  string[][string] missingEntries;
  +  string[][string] invalidEntries;
  +
@@ -379,7 +406,7 @@ pipyon 3`;
  +
  +  fromFile
  +      .splitter("\n")
- +      .deserialise(missingEntries, invalidEntries, client, server);
+ +      .deserialise(missingEntries, invalidEntries, foo, bar);
  +  ---
  +
  +  Params:
@@ -688,11 +715,22 @@ naN     !"¤%&/`;
  +
  +  Example:
  +  ---
- +  IRCClient client;
- +  IRCServer server;
+ +  struct Foo
+ +  {
+ +      // ...
+ +  }
+ +
+ +  struct Bar
+ +  {
+ +      // ...
+ +  }
+ +
+ +  Foo foo;
+ +  Bar bar;
+ +
  +  Appender!string sink;
  +
- +  sink.serialise(client, server);
+ +  sink.serialise(foo, bar);
  +  immutable justified = sink.data.justifiedEntryValueText;
  +  ---
  +
