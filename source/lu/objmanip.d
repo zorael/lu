@@ -28,19 +28,29 @@ public:
 // setMemberByName
 /++
  +  Given a struct/class object, sets one of its members by its string name to a
- +  specified value.
+ +  specified value. Overload that takes the value as a string and tries to
+ +  convert it into the target type.
  +
  +  It does not currently recurse into other struct/class members.
  +
  +  Example:
  +  ---
- +  IRCUser bot;
+ +  struct Foo
+ +  {
+ +      string name;
+ +      int number;
+ +      bool alive;
+ +  }
  +
- +  bot.setMemberByName("nickname", "kameloso");
- +  bot.setMemberByName("address", "blarbh.hlrehg.org");
+ +  Foo foo;
  +
- +  assert(bot.nickname == "kameloso");
- +  assert(bot.address == "blarbh.hlrehg.org");
+ +  foo.setMemberByName("name", "James Bond");
+ +  foo.setMemberByName("number", "007");
+ +  foo.setMemberByName("alive", "false");
+ +
+ +  assert(foo.name == "James Bond");
+ +  assert(foo.number == 7);
+ +  assert(!foo.alive);
  +  ---
  +
  +  Params:
