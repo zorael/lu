@@ -445,6 +445,49 @@ unittest
 
 @safe:
 
+
+// SetMemberException
+/++
+ +  Exception, to be thrown when `setMemberByName` fails for some given reason.
+ +
+ +  It is a normal `object.Exception` but with attached strings of the type name,
+ +  name of member and the value that was attempted to set.
+ +/
+final class SetMemberException : Exception
+{
+    /// Name of type that was attempted to set the member of.
+    string typeName;
+
+    /// Name of the member that was attempted to set.
+    string memberToSet;
+
+    /// String representation of the value that was attempted to assign.
+    string valueToSet;
+
+    /++
+     +  Create a new `SetMemberException`, without attaching anything.
+     +/
+    this(const string message, const string file = __FILE__, const size_t line = __LINE__)
+    {
+        super(message, file, line);
+    }
+
+    /++
+     +  Create a new `SetMemberException`, attaching extra set-member information.
+     +/
+    this(const string message, const string typeName, const string memberToSet,
+        const string valueToSet, const string file = __FILE__,
+        const size_t line = __LINE__) pure @nogc nothrow
+    {
+        super(msg, file, line);
+
+        this.typeName = typeName;
+        this.memberToSet = memberToSet;
+        this.valueToSet = valueToSet;
+    }
+}
+
+
 // replaceMembers
 /++
  +  Inspects a passed struct or class for members whose values match that of the
