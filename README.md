@@ -36,7 +36,7 @@ void baz()
 }
 ```
 
-* [`meld.d`](source/lu/meld.d): Melding two structs/classes of the same type and merging the two into a union of their members' values.
+* [`meld.d`](source/lu/meld.d): Melding two structs/classes of the same type into a union set of their members' values. Non-init values overwrite init ones.
 
 ```d
 struct Foo
@@ -65,18 +65,30 @@ struct Foo
     string s;
     int i;
     bool b;
+    immutable double pi = 3.14;
 }
 
 Foo foo;
+bool success;
 
-foo.setMemberByName("s", "some string");
+success = foo.setMemberByName("s", "some string");
+assert(success);
 assert(foo.s == "some string");
 
-foo.setMemberByName("i", "42");
+success = foo.setMemberByName("i", "42");
+assert(success);
 assert(foo.i == 42);
 
-foo.setMemberByName("b", "true");
+success = foo.setMemberByName("b", "true");
+assert(success);
 assert(foo.b == true);
+
+success = foo.setMemberByName("pi", "3.15");
+assert(!success);
+
+success = foo.setMemberByName("i", 999);  // Now works with non-string values
+assert(success);
+assert(foo.i == 999);
 ```
 
 * [`deltastrings.d`](source/lu/deltastrings.d): Expressing the differences between two instances of a struct or class of the same type, as either assignment statements or assert statements.
