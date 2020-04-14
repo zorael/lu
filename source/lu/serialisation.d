@@ -764,7 +764,7 @@ auto justifiedEntryValueText(const string origLines) pure
     enum minimumWidth = 24;
     immutable width = max(minimumWidth, longestEntryLength.getMultipleOf!(Yes.alwaysOneUp)(4));
 
-    foreach (immutable line; unjustified.data)
+    foreach (immutable i, immutable line; unjustified.data)
     {
         if (!line.length)
         {
@@ -773,13 +773,14 @@ auto justifiedEntryValueText(const string origLines) pure
             continue;
         }
 
+        if (i > 0) justified.put('\n');
+
         switch (line[0])
         {
         case '#':
         case ';':
         case '[':
             justified.put(line);
-            justified.put("\n");
             continue;
 
         case '/':
@@ -794,12 +795,12 @@ auto justifiedEntryValueText(const string origLines) pure
             import std.format : formattedWrite;
 
             immutable result = splitEntryValue(line);
-            justified.formattedWrite("%-*s%s\n", width, result.entry, result.value);
+            justified.formattedWrite("%-*s%s", width, result.entry, result.value);
             break;
         }
     }
 
-    return justified.data.stripped;
+    return justified.data;
 }
 
 unittest
