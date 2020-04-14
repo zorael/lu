@@ -77,6 +77,7 @@ mixin template MixinConstraints(MixinScope mixinScope, string mixinName = "a con
 {
 private:
     import lu.traits : CategoryName, MixinScope;
+    import std.traits : isSomeFunction;
     import std.format : format;
 
     /// Sentinel value as anchor to get the parent scope from.
