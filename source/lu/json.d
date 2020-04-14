@@ -409,7 +409,7 @@ struct JSONStorage
 "#def":
 {
 "harrsteff": "v",
-"flerpeloso" : "o",
+"flerpeloso" : "o"
 },
 "#zzz":
 {
