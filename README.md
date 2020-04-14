@@ -158,8 +158,7 @@ sink.serialise(foo);
 immutable justified = sink[].justifiedEntryValueText;
 
 assert(justified ==
-`
-[Foo]
+`[Foo]
 s               some string
 i               42
 b               true

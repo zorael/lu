@@ -321,8 +321,7 @@ bazzzzzzz foo 1
 flerrp "hirr steff  "
 pi 3.14159
 arr 1,2,3
-matey a|b|c
-`;
+matey a|b|c`;
     }
     else
     {
@@ -333,8 +332,7 @@ bar foo 1
 bazzzzzzz foo 1
 flerrp "hirr steff  "
 pi 3.14159
-arr 1,2,3
-`;
+arr 1,2,3`;
     }
 
     Appender!string fooSink;
@@ -349,8 +347,7 @@ foofdsa foo 2
 bar bar 2
 bazyyyyyyy baz 2
 flarrp "   hirrsteff"
-pipyon 3
-`;
+pipyon 3`;
 
     Appender!string barSink;
     barSink.reserve(64);
@@ -362,7 +359,7 @@ pipyon 3
     Appender!string bothSink;
     bothSink.reserve(128);
     bothSink.serialise(FooSettings.init, BarSettings.init);
-    assert(bothSink.data == fooSink.data ~ '\n' ~ barSink.data);
+    assert(bothSink.data == fooSink.data ~ "\n\n" ~ barSink.data);
 }
 
 
@@ -867,8 +864,7 @@ barArray blaawp,oorgle,blaawp
 ignored completely
 because    no DifferentSection struct was passed
 nil 5
-naN !"#¤%&/
-`;
+naN !"#¤%&/`;
 
     enum justified =
 `[Foo]
