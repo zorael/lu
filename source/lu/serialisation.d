@@ -64,8 +64,6 @@ import std.typecons : Flag, No, Yes;
 
 public:
 
-@safe:
-
 
 // serialise
 /++
@@ -85,7 +83,7 @@ public:
  +          their .ini file-like format).
  +      things = Variadic list of objects to serialise.
  +/
-void serialise(Sink, Things...)(ref Sink sink, Things things)
+void serialise(Sink, Things...)(auto ref Sink sink, Things things)
 if ((Things.length > 1) && isOutputRange!(Sink, char[]))
 {
     foreach (immutable i, const thing; things)
@@ -116,7 +114,7 @@ if ((Things.length > 1) && isOutputRange!(Sink, char[]))
  +      sink = Reference output range to write to, usually an `std.array.Appender!string`.
  +      thing = Object to serialise.
  +/
-void serialise(Sink, QualThing)(ref Sink sink, QualThing thing)
+void serialise(Sink, QualThing)(auto ref Sink sink, QualThing thing)
 if (isOutputRange!(Sink, char[]))
 {
     import lu.string : stripSuffix;
@@ -362,6 +360,8 @@ pipyon 3`;
     assert(bothSink.data == fooSink.data ~ "\n\n" ~ barSink.data);
 }
 
+
+@safe:
 
 // deserialise
 /++
