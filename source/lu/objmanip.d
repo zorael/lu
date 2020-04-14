@@ -534,6 +534,42 @@ do
     return success;
 }
 
+///
+unittest
+{
+    import std.conv : to;
+    import std.exception : assertThrown;
+
+    struct Foo
+    {
+        string s;
+        int i;
+        bool b;
+        const double d;
+    }
+
+    Foo foo;
+
+    bool success;
+
+    success = foo.setMemberByName("s", "harbl");
+    assert(success);
+    assert((foo.s == "harbl"), foo.s);
+
+    success = foo.setMemberByName("i", 42);
+    assert(success);
+    assert((foo.i == 42), foo.i.to!string);
+
+    success = foo.setMemberByName("b", true);
+    assert(success);
+    assert(foo.b);
+
+    success = foo.setMemberByName("d", 3.14);
+    assert(!success);
+
+    assertThrown!SetMemberException(foo.setMemberByName("b", 3.14));
+}
+
 
 @safe:
 
