@@ -88,8 +88,9 @@ public:
 void serialise(Sink, Things...)(ref Sink sink, Things things)
 if ((Things.length > 1) && isOutputRange!(Sink, char[]))
 {
-    foreach (const thing; things)
+    foreach (immutable i, const thing; things)
     {
+        if (i > 0) sink.put('\n');
         sink.serialise(thing);
     }
 }
@@ -248,10 +249,14 @@ if (isOutputRange!(Sink, char[]))
                 immutable comment = (member == T.init);
             }
 
+            if (i > 0) sink.put('\n');
+
             if (comment)
             {
                 // .init or otherwise disabled
-                sink.formattedWrite("#%s\n", memberstring);
+                //sink.formattedWrite("#%s", memberstring);
+                sink.put('#');
+                sink.put(memberstring);
             }
             else
             {
@@ -259,14 +264,20 @@ if (isOutputRange!(Sink, char[]))
 
                 static if (isSomeString!T && isAnnotated!(thing.tupleof[i], Quoted))
                 {
-                    sink.formattedWrite("%s \"%s\"\n", memberstring, value);
+                    sink.formattedWrite("%s \"%s\"", memberstring, value);
                 }
                 else
                 {
-                    sink.formattedWrite("%s %s\n", memberstring, value);
+                    sink.formattedWrite("%s %s", memberstring, value);
                 }
             }
         }
+    }
+
+    static if (!__traits(hasMember, Sink, "data"))
+    {
+        // Not an Appender, may be stdout.lockingTextWriter
+        sink.put('\n');
     }
 }
 
