@@ -70,99 +70,185 @@ do
     {
     static foreach (immutable i; 0..thing.tupleof.length)
     {{
-        import lu.traits : isSerialisable;
-        import std.traits : Unqual;
+        alias QualT = typeof(thing.tupleof[i]);
 
-        alias T = Unqual!(typeof(thing.tupleof[i]));
-
-        static if (isSerialisable!(thing.tupleof[i]))
+        static if (is(QualT == const) || is(QualT == immutable))
         {
-            enum memberstring = __traits(identifier, thing.tupleof[i]);
+            // Can't set const or immutable, so just ignore and continue
+        }
+        else
+        {
+            import lu.traits : isSerialisable;
+            import std.traits : Unqual;
 
-            case memberstring:
+            alias T = Unqual!(typeof(thing.tupleof[i]));
+
+            static if (isSerialisable!(thing.tupleof[i]))
             {
-                import std.traits : isArray, isAssociativeArray, isSomeString;
+                enum memberstring = __traits(identifier, thing.tupleof[i]);
 
-                static if (is(T == struct) || is(T == class))
+                case memberstring:
                 {
-                    static if (__traits(compiles, { thing.tupleof[i] = string.init; }))
+                    import std.traits : isArray, isAssociativeArray, isSomeString;
+
+                    static if (is(T == struct) || is(T == class))
+                    {
+                        static if (__traits(compiles, { thing.tupleof[i] = string.init; }))
+                        {
+                            thing.tupleof[i] = valueToSet.stripped.unquoted;
+                            success = true;
+                        }
+
+                        // Else do nothing
+                    }
+                    else static if (!isSomeString!T && isArray!T)
+                    {
+                        import lu.uda : Separator;
+                        import std.array : replace;
+                        import std.traits : getUDAs, hasUDA;
+
+                        thing.tupleof[i].length = 0;
+
+                        static if (hasUDA!(thing.tupleof[i], Separator))
+                        {
+                            alias separators = getUDAs!(thing.tupleof[i], Separator);
+                        }
+                        else static if ((__VERSION__ >= 2087L) && hasUDA!(thing.tupleof[i], string))
+                        {
+                            alias separators = getUDAs!(thing.tupleof[i], string);
+                        }
+                        else
+                        {
+                            import std.format : format;
+                            static assert(0, "`%s.%s` is missing a `Separator` annotation"
+                                .format(Thing.stringof, memberstring));
+                        }
+
+                        enum escapedPlaceholder = "\0\0";  // anything really
+                        enum ephemeralSeparator = "\1\1";  // ditto
+                        enum doubleEphemeral = ephemeralSeparator ~ ephemeralSeparator;
+                        enum doubleEscapePlaceholder = "\2\2";
+
+                        string values = valueToSet.replace("\\\\", doubleEscapePlaceholder);
+
+                        foreach (immutable thisSeparator; separators)
+                        {
+                            static if (is(typeof(thisSeparator) == Separator))
+                            {
+                                enum escaped = '\\' ~ thisSeparator.token;
+                                enum separator = thisSeparator.token;
+                            }
+                            else
+                            {
+                                enum escaped = '\\' ~ thisSeparator;
+                                alias separator = thisSeparator;
+                            }
+
+                            values = values
+                                .replace(escaped, escapedPlaceholder)
+                                .replace(separator, ephemeralSeparator)
+                                .replace(escapedPlaceholder, separator);
+                        }
+
+                        import lu.string : contains;
+                        while (values.contains(doubleEphemeral))
+                        {
+                            values = values.replace(doubleEphemeral, ephemeralSeparator);
+                        }
+
+                        values = values.replace(doubleEscapePlaceholder, "\\");
+
+                        import std.algorithm.iteration : splitter;
+                        auto range = values.splitter(ephemeralSeparator);
+
+                        foreach (immutable entry; range)
+                        {
+                            try
+                            {
+                                import std.range : ElementEncodingType;
+
+                                thing.tupleof[i] ~= entry
+                                    .stripped
+                                    .unquoted
+                                    .to!(ElementEncodingType!T);
+
+                                success = true;
+                            }
+                            catch (ConvException e)
+                            {
+                                import std.format : format;
+
+                                immutable message = ("Could not convert `%s.%s` array " ~
+                                    "entry \"%s\" into `%s` (%s)")
+                                    .format(Thing.stringof.stripSuffix("Settings"),
+                                    memberToSet, entry, T.stringof, e.msg);
+                                throw new ConvException(message);
+                            }
+                        }
+                    }
+                    else static if (is(T : string))
                     {
                         thing.tupleof[i] = valueToSet.stripped.unquoted;
                         success = true;
                     }
-
-                    // Else do nothing
-                }
-                else static if (!isSomeString!T && isArray!T)
-                {
-                    import lu.uda : Separator;
-                    import std.array : replace;
-                    import std.traits : getUDAs, hasUDA;
-
-                    thing.tupleof[i].length = 0;
-
-                    static if (hasUDA!(thing.tupleof[i], Separator))
+                    else static if (isAssociativeArray!T)
                     {
-                        alias separators = getUDAs!(thing.tupleof[i], Separator);
+                        // Silently ignore AAs for now
                     }
-                    else static if ((__VERSION__ >= 2087L) && hasUDA!(thing.tupleof[i], string))
+                    else static if (is(T == bool))
                     {
-                        alias separators = getUDAs!(thing.tupleof[i], string);
+                        import std.uni : toLower;
+
+                        switch (valueToSet.stripped.unquoted.toLower)
+                        {
+                        case "true":
+                        case "yes":
+                        case "on":
+                        case "1":
+                            thing.tupleof[i] = true;
+                            success = true;
+                            break;
+
+                        case "false":
+                        case "no":
+                        case "off":
+                        case "0":
+                            thing.tupleof[i] = false;
+                            success = true;
+                            break;
+
+                        default:
+                            import std.format : format;
+
+                            immutable message = ("Invalid value for setting `%s.%s`: " ~
+                                `could not convert "%s" to a boolean value`)
+                                .format(Thing.stringof.stripSuffix("Settings"),
+                                memberToSet, valueToSet);
+                            throw new ConvException(message);
+                        }
                     }
                     else
                     {
-                        import std.format : format;
-                        static assert(0, "`%s.%s` is missing a `Separator` annotation"
-                            .format(Thing.stringof, memberstring));
-                    }
-
-                    enum escapedPlaceholder = "\0\0";  // anything really
-                    enum ephemeralSeparator = "\1\1";  // ditto
-                    enum doubleEphemeral = ephemeralSeparator ~ ephemeralSeparator;
-                    enum doubleEscapePlaceholder = "\2\2";
-
-                    string values = valueToSet.replace("\\\\", doubleEscapePlaceholder);
-
-                    foreach (immutable thisSeparator; separators)
-                    {
-                        static if (is(typeof(thisSeparator) == Separator))
-                        {
-                            enum escaped = '\\' ~ thisSeparator.token;
-                            enum separator = thisSeparator.token;
-                        }
-                        else
-                        {
-                            enum escaped = '\\' ~ thisSeparator;
-                            alias separator = thisSeparator;
-                        }
-
-                        values = values
-                            .replace(escaped, escapedPlaceholder)
-                            .replace(separator, ephemeralSeparator)
-                            .replace(escapedPlaceholder, separator);
-                    }
-
-                    import lu.string : contains;
-                    while (values.contains(doubleEphemeral))
-                    {
-                        values = values.replace(doubleEphemeral, ephemeralSeparator);
-                    }
-
-                    values = values.replace(doubleEscapePlaceholder, "\\");
-
-                    import std.algorithm.iteration : splitter;
-                    auto range = values.splitter(ephemeralSeparator);
-
-                    foreach (immutable entry; range)
-                    {
                         try
                         {
-                            import std.range : ElementEncodingType;
+                            static if (is(T == enum))
+                            {
+                                import lu.conv : Enum;
 
-                            thing.tupleof[i] ~= entry
-                                .stripped
-                                .unquoted
-                                .to!(ElementEncodingType!T);
+                                immutable asString = valueToSet
+                                    .stripped
+                                    .unquoted;
+                                thing.tupleof[i] = Enum!T.fromString(asString);
+                            }
+                            else
+                            {
+                                /*writefln("%s.%s = %s.to!%s", Thing.stringof,
+                                    memberstring, valueToSet, T.stringof);*/
+                                thing.tupleof[i] = valueToSet
+                                    .stripped
+                                    .unquoted
+                                    .to!T;
+                            }
 
                             success = true;
                         }
@@ -170,92 +256,15 @@ do
                         {
                             import std.format : format;
 
-                            immutable message = ("Could not convert `%s.%s` array " ~
-                                "entry \"%s\" into `%s` (%s)")
+                            immutable message = ("Invalid value for setting `%s.%s`: " ~
+                                "could not convert \"%s\" to `%s` (%s)")
                                 .format(Thing.stringof.stripSuffix("Settings"),
-                                memberToSet, entry, T.stringof, e.msg);
+                                memberToSet, valueToSet, T.stringof, e.msg);
                             throw new ConvException(message);
                         }
                     }
+                    break top;
                 }
-                else static if (is(T : string))
-                {
-                    thing.tupleof[i] = valueToSet.stripped.unquoted;
-                    success = true;
-                }
-                else static if (isAssociativeArray!T)
-                {
-                    // Silently ignore AAs for now
-                }
-                else static if (is(T == bool))
-                {
-                    import std.uni : toLower;
-
-                    switch (valueToSet.stripped.unquoted.toLower)
-                    {
-                    case "true":
-                    case "yes":
-                    case "on":
-                    case "1":
-                        thing.tupleof[i] = true;
-                        success = true;
-                        break;
-
-                    case "false":
-                    case "no":
-                    case "off":
-                    case "0":
-                        thing.tupleof[i] = false;
-                        success = true;
-                        break;
-
-                    default:
-                        import std.format : format;
-
-                        immutable message = ("Invalid value for setting `%s.%s`: " ~
-                            `could not convert "%s" to a boolean value`)
-                            .format(Thing.stringof.stripSuffix("Settings"),
-                            memberToSet, valueToSet);
-                        throw new ConvException(message);
-                    }
-                }
-                else
-                {
-                    try
-                    {
-                        static if (is(T == enum))
-                        {
-                            import lu.conv : Enum;
-
-                            immutable asString = valueToSet
-                                .stripped
-                                .unquoted;
-                            thing.tupleof[i] = Enum!T.fromString(asString);
-                        }
-                        else
-                        {
-                            /*writefln("%s.%s = %s.to!%s", Thing.stringof,
-                                memberstring, valueToSet, T.stringof);*/
-                            thing.tupleof[i] = valueToSet
-                                .stripped
-                                .unquoted
-                                .to!T;
-                        }
-
-                        success = true;
-                    }
-                    catch (ConvException e)
-                    {
-                        import std.format : format;
-
-                        immutable message = ("Invalid value for setting `%s.%s`: " ~
-                            "could not convert \"%s\" to `%s` (%s)")
-                            .format(Thing.stringof.stripSuffix("Settings"),
-                            memberToSet, valueToSet, T.stringof, e.msg);
-                        throw new ConvException(message);
-                    }
-                }
-                break top;
             }
         }
     }}
