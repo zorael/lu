@@ -600,7 +600,7 @@ unittest
     import std.algorithm.iteration : splitter;
     import std.conv : text;
 
-    struct Foo
+    struct FooSettings
     {
         enum Bar { blaawp = 5, oorgle = -1 }
         int i;
@@ -609,6 +609,7 @@ unittest
         float f;
         double d;
         Bar bar;
+        string omitted;
 
         @Separator(",")
         {
@@ -630,6 +631,7 @@ s       hello world!
 sa      hello,world,!
 b       true
 ba      true,false,true
+wrong   name
 
 # comment
 ; other type of comment
@@ -651,7 +653,7 @@ naN     !"¤%&/`;
     string[][string] missing;
     string[][string] invalid;
 
-    Foo foo;
+    FooSettings foo;
     serialisedFileContents
         .splitter("\n")
         .deserialise(missing, invalid, foo);
@@ -674,12 +676,19 @@ naN     !"¤%&/`;
         assert(da[1].approxEqual(0.0001), da[1].text);
         assert(da[2].approxEqual(-1.0), da[2].text);
 
-        with (Foo.Bar)
+        with (FooSettings.Bar)
         {
             assert((bar == oorgle), b.text);
             assert((bara == [ blaawp, oorgle, blaawp ]), bara.text);
         }
     }
+
+    import std.algorithm.searching : canFind;
+
+    assert("Foo" in missing);
+    assert(missing["Foo"].canFind("omitted"));
+    assert("Foo" in invalid);
+    assert(invalid["Foo"].canFind("wrong"));
 
     struct DifferentSection
     {
