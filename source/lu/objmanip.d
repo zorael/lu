@@ -84,7 +84,11 @@ do
 
         static if (is(QualT == const) || is(QualT == immutable))
         {
-            // Can't set const or immutable, so just ignore and continue
+            // Can't set const or immutable, so just ignore and break
+            enum memberstring = __traits(identifier, thing.tupleof[i]);
+
+            case memberstring:
+                break top;
         }
         else
         {
@@ -513,7 +517,11 @@ do
 
         static if (is(QualT == const) || is(QualT == immutable))
         {
-            // Can't set const or immutable, so just ignore and continue
+            // Can't set const or immutable, so just ignore and break
+            enum memberstring = __traits(identifier, thing.tupleof[i]);
+
+            case memberstring:
+                break top;
         }
         else
         {
