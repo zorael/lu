@@ -14,10 +14,15 @@
  +  import std.concurrency : Generator;
  +
  +  Connection conn;
+ +  bool abort;  // Set to true if something goes wrong
+ +
  +  conn.reset();
  +
+ +  bool useIPv6 = false;
+ +  enum resolveAttempts = 10;
+ +
  +  auto resolver = new Generator!ResolveAttempt(() =>
- +      resolveFiber(conn, "irc.freenode.net", 6667, false, 10, abort));
+ +      resolveFiber(conn, "irc.freenode.net", 6667, useIPv6, resolveAttempts, abort));
  +
  +  resolver.call();
  +
@@ -30,8 +35,10 @@
  +
  +  // Resolution done
  +
+ +  enum conectionRetries = 10;
+ +
  +  auto connector = new Generator!ConnectionAttempt(() =>
- +      connectFiber(conn, false, 10, abort));
+ +      connectFiber(conn, false, connectionRetries, abort));
  +
  +  connector.call();
  +
@@ -42,9 +49,11 @@
  +      // switch on `attempt.state`, deal with it accordingly
  +  }
  +
- +  // Connection done
+ +  // Connection established
  +
- +  auto listener = new Generator!ConnectionAttempt(() => connectFiber(conn, abort));
+ +  enum timeoutSeconds = 600;
+ +
+ +  auto listener = new Generator!ListenAttempt(() => listeFiber(conn, abort, timeoutSecond));
  +
  +  listener.call();
  +
@@ -396,12 +405,11 @@ struct ListenAttempt
  +
  +  Example:
  +  ---
- +  import std.concurrency : Generator;
+ +  //Connection conn;  // Address previously connected established with
  +
- +  Connection conn;
- +  conn.reset();
+ +  enum timeoutSeconds = 600;
  +
- +  auto listener = new Generator!ConnectionAttempt(() => connectFiber(conn, abort));
+ +  auto listener = new Generator!ListenAttempt(() => listenFiber(conn, abort, timeoutSeconds));
  +
  +  listener.call();
  +
@@ -627,10 +635,7 @@ struct ConnectionAttempt
  +
  +  Example:
  +  ---
- +  import std.concurrency : Generator;
- +
- +  Connection conn;
- +  conn.reset();
+ +  //Connection conn;  // Address previously resolved with `resolveFiber`
  +
  +  auto connector = new Generator!ConnectionAttempt(() =>
  +      connectFiber(conn, false, 10, abort));
@@ -650,7 +655,7 @@ struct ConnectionAttempt
  +
  +      case connected:
  +          // Socket is connected, continue with normal routine
- +          break conectorloop;
+ +          break connectorloop;
  +
  +      case delayThenReconnect:
  +      case delayThenNextIP:
@@ -669,7 +674,7 @@ struct ConnectionAttempt
  +      }
  +  }
  +
- +  // Connected
+ +  // Connection established
  +  ---
  +
  +  Params:
