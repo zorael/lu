@@ -460,7 +460,6 @@ struct ListenAttempt
 void listenFiber(Connection conn, ref bool abort,
     const int connectionLost = DefaultTimeout.connectionLost) @system
 in ((conn.connected), "Tried to set up a listening fiber on a dead connection")
-in (!abort, "Tried to set up a listening fiber when the abort flag was set")
 in ((connectionLost > 0), "Tried to set up a listening fiber with connection timeout of <= 0")
 do
 {
@@ -468,6 +467,8 @@ do
     import std.datetime.systime : Clock;
     import std.socket : Socket, lastSocketError;
     import std.string : indexOf;
+
+    if (abort) return;
 
     ubyte[DefaultBufferSize.socketReceive*2] buffer;
     long timeLastReceived = Clock.currTime.toUnixTime;
@@ -688,13 +689,14 @@ struct ConnectionAttempt
 void connectFiber(ref Connection conn, const bool endlesslyConnect,
     const uint connectionRetries, ref bool abort) @system
 in (!conn.connected, "Tried to set up a connecting fiber on an already live connection")
-in (!abort, "Tried to set up a connecting fiber when the abort flag was set")
 in ((conn.ips.length > 0), "Tried to connect to an unresolved connection")
 in (!conn.connected, "Tried to connect to a connected connection!")
 do
 {
     import std.concurrency : yield;
     import std.socket : AddressFamily, Socket, SocketException;
+
+    if (abort) return;
 
     alias State = ConnectionAttempt.State;
     ConnectionAttempt attempt;
@@ -893,11 +895,12 @@ void resolveFiber(ref Connection conn, const string address, const ushort port,
     const bool useIPv6, const uint resolveAttempts, ref bool abort) @system
 in (!conn.connected, "Tried to set up a resolving fiber on an already live connection")
 in (address.length, "Tried to set up a resolving fiber on an empty address")
-in (!abort, "Tried to set up a resolving fiber when the abort flag was set")
 do
 {
     import std.concurrency : yield;
     import std.socket : AddressFamily, SocketException, getAddress;
+
+    if (abort) return;
 
     alias State = ResolveAttempt.State;
     ResolveAttempt attempt;
