@@ -439,7 +439,99 @@ unittest
     success = parent2.setMemberByName("child", "flerp");
     assert(success);
     assert((parent2.child.thing == "flerp"), parent2.child.thing);
+}
 
+
+// setMemberByName
+/++
+ +  Given a struct/class object, sets one of its members by its string name to a
+ +  specified value. Overload that takes a value of the same type as the target
+ +  member, rather than a string to convert. Integer promotion applies.
+ +
+ +  It does not currently recurse into other struct/class members.
+ +
+ +  Example:
+ +  ---
+ +  struct Foo
+ +  {
+ +      int i;
+ +      double d;
+ +  }
+ +
+ +  Foo foo;
+ +
+ +  foo.setMemberByName("i", 42);
+ +  foo.setMemberByName("d", 3.14);
+ +
+ +  assert(foo.i == 42);
+ +  assert(foo.d = 3.14);
+ +  ---
+ +
+ +  Params:
+ +      thing = Reference object whose members to set.
+ +      memberToSet = String name of the thing's member to set.
+ +      valueToSet = Value, of the same type as the target member.
+ +
+ +  Returns:
+ +      `true` if a member was found and set, `false` if not.
+ +
+ +  Throws: `MeldException` if the passed `valueToSet` was not the same type
+ +      (or implicitly convertible to) the member to set.
+ +/
+bool setMemberByName(Thing, Val)(ref Thing thing, const string memberToSet, /*const*/ Val valueToSet)
+if (!is(Val : string))
+in (memberToSet.length, "Tried to set member by name but no member string was given")
+do
+{
+    bool success;
+
+    top:
+    switch (memberToSet)
+    {
+    static foreach (immutable i; 0..thing.tupleof.length)
+    {{
+        alias QualT = typeof(thing.tupleof[i]);
+
+        static if (is(QualT == const) || is(QualT == immutable))
+        {
+            // Can't set const or immutable, so just ignore and continue
+        }
+        else
+        {
+            import lu.traits : isSerialisable;
+            import std.traits : Unqual;
+
+            alias T = Unqual!(typeof(thing.tupleof[i]));
+
+            static if (isSerialisable!(thing.tupleof[i]))
+            {
+                enum memberstring = __traits(identifier, thing.tupleof[i]);
+
+                case memberstring:
+                {
+                    static if (is(Val : T))
+                    {
+                        thing.tupleof[i] = valueToSet;
+                        success = true;
+                        break top;
+                    }
+                    else
+                    {
+                        import std.conv : to;
+                        throw new SetMemberException("A set-member action failed " ~
+                            "due to type mismatch", Thing.stringof, memberToSet,
+                            valueToSet.to!string);
+                    }
+                }
+            }
+        }
+    }}
+
+    default:
+        break;
+    }
+
+    return success;
 }
 
 
