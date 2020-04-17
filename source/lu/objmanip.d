@@ -649,6 +649,8 @@ final class SetMemberException : Exception
 }
 
 
+private import std.traits : isEqualityComparable;
+
 // replaceMembers
 /++
  +  Inspects a passed struct or class for members whose values match that of the
@@ -664,7 +666,7 @@ final class SetMemberException : Exception
  +/
 void replaceMembers(Thing, Token)(ref Thing thing, Token token,
     Token replacement = Token.init) pure nothrow @nogc
-if (is(Thing == struct) || is(Thing == class))
+if ((is(Thing == struct) || is(Thing == class)) && isEqualityComparable!Token)
 do
 {
     import std.range : ElementEncodingType, ElementType;
