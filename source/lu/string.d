@@ -1941,3 +1941,74 @@ unittest
         assert(line is actual);  // No new string was allocated
     }
 }
+
+
+// SplitResults
+/++
+ +  The result of a call to `splitInto`.
+ +/
+enum SplitResults
+{
+    /++
+     +  The number of arguments passed the number of separated words in the input string.
+     +/
+    match,
+
+    /++
+     +  The input string did not have enough words to match the passed arguments.
+     +/
+    underrun,
+
+    /++
+     +  The input string had too many words and could not fit into the passed arguments.
+     +/
+    overrun,
+}
+
+
+// splitInto
+/++
+ +  Splits a string by a passed separator and assign the delimited words to the
+ +  passed strings by ref.
+ +
+ +  Params:
+ +      separator = What token to separate the input string into words with.
+ +      slice = Input string of words separated by `separator`.
+ +      strings = Variadic list of strings to assign the split words in `slice`.
+ +
+ +  Returns:
+ +      A `SplitResults` with the results of the split attempt.
+ +/
+SplitResults splitInto(string separator = " ", Strings...)
+    (auto ref string slice, ref Strings strings)
+{
+    import std.string : indexOf;
+
+    foreach (immutable i, ref thisString; strings)
+    {
+        ptrdiff_t pos = slice.indexOf(separator);  // mutable
+
+        if ((pos == 0) && (separator.length < slice.length))
+        {
+            while (slice[0..separator.length] == separator)
+            {
+                slice = slice[separator.length..$];
+                //slice = slice[1..$];
+            }
+
+            pos = slice.indexOf(separator);
+        }
+
+        if (pos == -1)
+        {
+            thisString = slice.strippedLeft(separator);
+            slice = string.init;
+            return (i+1 == Strings.length) ? SplitResults.match : SplitResults.underrun;
+        }
+
+        thisString = slice[0..pos].strippedLeft(separator);
+        slice = slice[pos+separator.length..$];
+    }
+
+    return SplitResults.overrun;
+}
