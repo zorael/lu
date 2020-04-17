@@ -2012,3 +2012,74 @@ SplitResults splitInto(string separator = " ", Strings...)
 
     return SplitResults.overrun;
 }
+
+///
+unittest
+{
+    import lu.conv : Enum;
+
+    {
+        string line = "abc def ghi";
+        string abc, def, ghi;
+        immutable results = line.splitInto(abc, def, ghi);
+
+        assert((abc == "abc"), abc);
+        assert((def == "def"), def);
+        assert((ghi == "ghi"), ghi);
+        assert(!line.length, line);
+        assert((results == SplitResults.match), Enum!SplitResults.toString(results));
+    }
+    {
+        string line = "abc            def                                 ghi";
+        string abc, def, ghi;
+        immutable results = line.splitInto(abc, def, ghi);
+
+        assert((abc == "abc"), abc);
+        assert((def == "def"), def);
+        assert((ghi == "ghi"), ghi);
+        assert(!line.length, line);
+        assert((results == SplitResults.match), Enum!SplitResults.toString(results));
+    }
+    {
+        string line = "abc_def ghi";
+        string abc, def, ghi;
+        immutable results = line.splitInto!"_"(abc, def, ghi);
+
+        assert((abc == "abc"), abc);
+        assert((def == "def ghi"), def);
+        assert(!ghi.length, ghi);
+        assert(!line.length, line);
+        assert((results == SplitResults.underrun), Enum!SplitResults.toString(results));
+    }
+    {
+        string line = "abc def ghi";
+        string abc, def;
+        immutable results = line.splitInto(abc, def);
+
+        assert((abc == "abc"), abc);
+        assert((def == "def"), def);
+        assert((line == "ghi"), line);
+        assert((results == SplitResults.overrun), Enum!SplitResults.toString(results));
+    }
+    {
+        string line = "abc///def";
+        string abc, def;
+        immutable results = line.splitInto!"//"(abc, def);
+
+        assert((abc == "abc"), abc);
+        assert((def == "def"), def);
+        assert(!line.length, line);
+        assert((results == SplitResults.match), Enum!SplitResults.toString(results));
+    }
+    {
+        string line = "abc 123 def I am a fish";
+        string abc, a123, def;
+        immutable results = line.splitInto(abc, a123, def);
+
+        assert((abc == "abc"), abc);
+        assert((a123 == "123"), a123);
+        assert((def == "def"), def);
+        assert((line == "I am a fish"), line);
+        assert((results == SplitResults.overrun), Enum!SplitResults.toString(results));
+    }
+}
