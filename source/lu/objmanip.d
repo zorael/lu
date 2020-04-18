@@ -153,7 +153,7 @@ do
 
                         foreach (immutable thisSeparator; separators)
                         {
-                            static if (is(typeof(thisSeparator) == Separator))
+                            static if (is(Unqual!(typeof(thisSeparator)) == Separator))
                             {
                                 enum escaped = '\\' ~ thisSeparator.token;
                                 enum separator = thisSeparator.token;

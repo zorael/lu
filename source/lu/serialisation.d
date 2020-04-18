@@ -552,7 +552,7 @@ if (allSatisfy!(isStruct, Things))
 
                                 static if (isAnnotated!(things[i].tupleof[n], CannotContainComments))
                                 {
-                                    things[i].setMemberByName(entry, value);
+                                    cast(void)things[i].setMemberByName(entry, value);
                                 }
                                 else
                                 {
@@ -562,7 +562,7 @@ if (allSatisfy!(isStruct, Things))
                                     value = value.contains('#') ? value.nom('#') : value;
                                     value = value.contains(';') ? value.nom(';') : value;
                                     value = value.contains("//") ? value.nom("//") : value;
-                                    things[i].setMemberByName(entry, value);
+                                    cast(void)things[i].setMemberByName(entry, value);
                                 }
                             }
 
