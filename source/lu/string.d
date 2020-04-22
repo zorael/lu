@@ -1982,10 +1982,15 @@ enum SplitResults
 SplitResults splitInto(string separator = " ", Strings...)
     (auto ref string slice, ref Strings strings)
 {
-    import std.string : indexOf;
+    if (!slice.length)
+    {
+        return Strings.length ? SplitResults.underrun : SplitResults.match;
+    }
 
     foreach (immutable i, ref thisString; strings)
     {
+        import std.string : indexOf;
+
         ptrdiff_t pos = slice.indexOf(separator);  // mutable
 
         if ((pos == 0) && (separator.length < slice.length))
@@ -1993,7 +1998,6 @@ SplitResults splitInto(string separator = " ", Strings...)
             while (slice[0..separator.length] == separator)
             {
                 slice = slice[separator.length..$];
-                //slice = slice[1..$];
             }
 
             pos = slice.indexOf(separator);
@@ -2081,5 +2085,16 @@ unittest
         assert((def == "def"), def);
         assert((line == "I am a fish"), line);
         assert((results == SplitResults.overrun), Enum!SplitResults.toString(results));
+    }
+    {
+        string line;
+        string abc, def;
+        immutable results = line.splitInto(abc, def);
+        assert((results == SplitResults.underrun), Enum!SplitResults.toString(results));
+    }
+    {
+        string line;
+        immutable results = line.splitInto();
+        assert((results == SplitResults.match), Enum!SplitResults.toString(results));
     }
 }
