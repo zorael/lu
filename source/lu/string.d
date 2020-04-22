@@ -2005,12 +2005,12 @@ SplitResults splitInto(string separator = " ", Strings...)
 
         if (pos == -1)
         {
-            thisString = slice.strippedLeft(separator);
+            thisString = slice;
             slice = string.init;
             return (i+1 == Strings.length) ? SplitResults.match : SplitResults.underrun;
         }
 
-        thisString = slice[0..pos].strippedLeft(separator);
+        thisString = slice[0..pos];
         slice = slice[pos+separator.length..$];
     }
 
@@ -2071,7 +2071,7 @@ unittest
         immutable results = line.splitInto!"//"(abc, def);
 
         assert((abc == "abc"), abc);
-        assert((def == "def"), def);
+        assert((def == "/def"), def);
         assert(!line.length, line);
         assert((results == SplitResults.match), Enum!SplitResults.toString(results));
     }
