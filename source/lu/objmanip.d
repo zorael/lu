@@ -640,7 +640,7 @@ final class SetMemberException : Exception
         const string valueToSet, const string file = __FILE__,
         const size_t line = __LINE__) pure @nogc nothrow
     {
-        super(msg, file, line);
+        super(message, file, line);
 
         this.typeName = typeName;
         this.memberToSet = memberToSet;
