@@ -475,16 +475,17 @@ do
     size_t start;
 
     alias State = ListenAttempt.State;
-    ListenAttempt attempt;
 
     // The Generator we use this function with popFronts the first thing it does
     // after being instantiated. To work around our main loop popping too we
     // yield an initial empty value; else the first thing to happen will be a
     // double pop, and the first line is missed.
-    yield(attempt);
+    yield(ListenAttempt.init);
 
     while (!abort)
     {
+        ListenAttempt attempt;
+
         immutable ptrdiff_t bytesReceived = conn.receive(buffer[start..$]);
         attempt.bytesReceived = bytesReceived;
 
@@ -498,7 +499,6 @@ do
                 // Unlucky callgrind_control -d timing
                 attempt.state = State.isEmpty;
                 attempt.error = lastSocketError;
-                attempt.line = string.init;
                 yield(attempt);
                 continue;
             }
@@ -508,7 +508,6 @@ do
         {
             attempt.state = State.error;
             attempt.error = lastSocketError;
-            attempt.line = string.init;
             yield(attempt);
             // Should never get here
             assert(0, "Dead `listenFiber` resumed after yield (no bytes received)");
@@ -516,7 +515,6 @@ do
         else if (bytesReceived == Socket.ERROR)
         {
             attempt.error = lastSocketError;
-            attempt.line = string.init;
 
             if ((Clock.currTime.toUnixTime - timeLastReceived) > connectionLost)
             {
@@ -557,7 +555,6 @@ do
             }
         }
 
-        attempt.error = string.init;
         timeLastReceived = Clock.currTime.toUnixTime;
 
         immutable ptrdiff_t end = (start + bytesReceived);
@@ -699,20 +696,21 @@ do
     if (abort) return;
 
     alias State = ConnectionAttempt.State;
-    ConnectionAttempt attempt;
 
     bool ipv6IsFailing;
 
-    yield(attempt);
+    yield(ConnectionAttempt.init);
 
     do
     {
         iploop:
         foreach (immutable i, ip; conn.ips)
         {
-            attempt.ip = ip;
             immutable isIPv6 = (ip.addressFamily == AddressFamily.INET6);
             if (isIPv6 && ipv6IsFailing) continue;  // Continue until IPv4 IP
+
+            ConnectionAttempt attempt;
+            attempt.ip = ip;
 
             conn.socket = isIPv6 ? conn.socket6 : conn.socket4;
 
@@ -794,8 +792,9 @@ do
     while (!abort && endlesslyConnect);
 
     // All IPs exhausted
-    attempt.state = State.noMoreIPs;
-    yield(attempt);
+    ConnectionAttempt endAttempt;
+    endAttempt.state = State.noMoreIPs;
+    yield(endAttempt);
     // Should never get here
     assert(0, "Dead `connectFiber` resumed after yield");
 }
@@ -903,14 +902,14 @@ do
     if (abort) return;
 
     alias State = ResolveAttempt.State;
-    ResolveAttempt attempt;
 
-    yield(attempt);
+    yield(ResolveAttempt.init);
 
     foreach (immutable i; 0..resolveAttempts)
     {
         if (abort) return;
 
+        ResolveAttempt attempt;
         attempt.retryNum = i;
 
         with (AddressFamily)
@@ -952,6 +951,7 @@ do
         }
     }
 
-    attempt.state = State.failure;
-    yield(attempt);
+    ResolveAttempt endAttempt;
+    endAttempt.state = State.failure;
+    yield(endAttempt);
 }
