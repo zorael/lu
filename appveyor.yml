@@ -51,17 +51,17 @@ environment:
       arch: x86
       dubArgs:
     - DC: ldc
+      DVersion: 1.21.0
+      DSubversion:
+      arch: x64
+      dubArgs:
+    - DC: ldc
       DVersion: 1.20.0
       DSubversion:
       arch: x64
       dubArgs:
     - DC: ldc
       DVersion: 1.19.0
-      DSubversion:
-      arch: x64
-      dubArgs:
-    - DC: ldc
-      DVersion: 1.18.0
       DSubversion:
       arch: x64
       dubArgs:
