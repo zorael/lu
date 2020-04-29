@@ -756,7 +756,7 @@ do
                         else
                         {
                             // Just treat it as a normal error
-                            goto case "Unable to connect socket: Connection refused";
+                            goto case;// "Unable to connect socket: Connection refused";
                         }
 
                     // Add more as necessary
