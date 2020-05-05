@@ -84,12 +84,12 @@ private:
     enum mixinSentinel = true;
 
     alias mixinParent = __traits(parent, mixinSentinel);
-    alias mixinParentInfo = CategoryName!mixinParent;
 
     static if (isSomeFunction!mixinParent)
     {
         static if (!(mixinScope & MixinScope.function_))
         {
+            alias mixinParentInfo = CategoryName!mixinParent;
             static assert(0, ("%s `%s` mixes in `%s` but it is not supposed to be " ~
                 "mixed into a function")
                 .format(mixinParentInfo.type, mixinParentInfo.fqn, mixinName));
@@ -99,6 +99,7 @@ private:
     {
         static if (!(mixinScope & MixinScope.class_))
         {
+            alias mixinParentInfo = CategoryName!mixinParent;
             static assert(0, ("%s `%s` mixes in `%s` but it is not supposed to be " ~
                 "mixed into a class")
                 .format(mixinParentInfo.type, mixinParentInfo.fqn, mixinName));
@@ -108,6 +109,7 @@ private:
     {
         static if (!(mixinScope & MixinScope.struct_))
         {
+            alias mixinParentInfo = CategoryName!mixinParent;
             static assert(0, ("%s `%s` mixes in `%s` but it is not supposed to be " ~
                 "mixed into a struct")
                 .format(mixinParentInfo.type, mixinParentInfo.fqn, mixinName));
@@ -121,6 +123,7 @@ private:
         {
             static if (!(mixinScope & MixinScope.module_))
             {
+                alias mixinParentInfo = CategoryName!mixinParent;
                 static assert(0, ("%s `%s` mixes in `%s` but it is not supposed to be " ~
                     "mixed into a module-level scope")
                     .format(mixinParentInfo.type, mixinParentInfo.fqn, mixinName));
@@ -131,6 +134,7 @@ private:
     {
         static if (!(mixinScope & mixinScope.module_))
         {
+            alias mixinParentInfo = CategoryName!mixinParent;
             static assert(0, ("%s `%s` mixes in `%s` but it is not supposed to be " ~
                 "mixed into a module-level scope")
                 .format(mixinParentInfo.type, mixinParentInfo.fqn, mixinName));
