@@ -428,6 +428,7 @@ if (allSatisfy!(isStruct, Things))
     import lu.traits : isAnnotated, isSerialisable;
     import lu.uda : Unserialisable;
     import std.format : format;
+    import std.traits : Unqual;
 
     string section;
     bool[Things.length] processedThings;
@@ -437,7 +438,7 @@ if (allSatisfy!(isStruct, Things))
     // set them to false. Flip to true when we encounter one.
     foreach (immutable i, thing; things)
     {
-        alias Thing = typeof(thing);
+        alias Thing = Unqual!(typeof(thing));
 
         static foreach (immutable n; 0..things[i].tupleof.length)
         {{
@@ -566,7 +567,7 @@ if (allSatisfy!(isStruct, Things))
                                 }
                             }
 
-                            encounteredOptions[Things[i].stringof][memberstring] = true;
+                            encounteredOptions[Unqual!(Things[i]).stringof][memberstring] = true;
                             continue lineloop;
                     }
                 }}
