@@ -143,6 +143,11 @@ private:
     /// Private SSL context.
     SSL_CTX* ctx;
 
+    /++
+     +  OpenSSL `SSL` instance, for use with SSL connections.
+     +/
+    SSL* sslInstance;
+
 
     // setTimemout
     /++
@@ -175,11 +180,6 @@ public:
      +  Whether or not this `Connection` should use SSL when sending and receiving.
      +/
     bool ssl;
-
-    /++
-     +  OpeSSL `SSL` handle, if this is an SSL connection.
-     +/
-    SSL* sslInstance;
 
     /// IPs already resolved using `lu.net.resolveFiber`.
     Address[] ips;
