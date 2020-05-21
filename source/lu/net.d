@@ -172,9 +172,9 @@ public:
     Socket socket;
 
     /++
-     +  Whether or not this is (or is to be) an SSL connection.
+     +  Whether or not this `Connection` should use SSL when sending and receiving.
      +/
-    bool isSSL;
+    bool ssl;
 
     /++
      +  OpeSSL `SSL` handle, if this is an SSL connection.
@@ -269,7 +269,7 @@ public:
 
         connected = false;
 
-        if (isSSL)
+        if (ssl)
         {
             teardownSSL();
             setupSSL();
@@ -314,7 +314,7 @@ public:
      +      An OpenSSL error integer.
      +/
     int setupSSL() @system
-    in (isSSL, "Tried to set up SSL context on a non-SSL `Connection`")
+    in (ssl, "Tried to set up SSL context on a non-SSL `Connection`")
     {
         int code;
 
@@ -383,7 +383,7 @@ public:
 
                         immutable end = min(line.length, remainingMaxLength);
 
-                        if (isSSL)
+                        if (ssl)
                         {
                             openssl.SSL_write(sslInstance, cast(void*)&line[0], cast(int)end);
                             openssl.SSL_write(sslInstance, cast(void*)&"\n"[0], 1);
@@ -405,7 +405,7 @@ public:
 
                     immutable end = min(piece.length, remainingMaxLength);
 
-                    if (isSSL)
+                    if (ssl)
                     {
 
                         openssl.SSL_write(sslInstance, cast(void*)&piece[0], cast(int)end);
@@ -422,7 +422,7 @@ public:
             }
             else
             {
-                if (isSSL)
+                if (ssl)
                 {
                     openssl.SSL_write(sslInstance, cast(void*)&piece[0], cast(int)piece.length);
                 }
@@ -440,7 +440,7 @@ public:
 
         if (!justSentNewline)
         {
-            if (isSSL)
+            if (ssl)
             {
                 openssl.SSL_write(sslInstance, cast(void*)&"\n"[0], 1);
             }
@@ -581,7 +581,7 @@ do
     {
         ListenAttempt attempt;
 
-        if (conn.isSSL)
+        if (conn.ssl)
         {
             attempt.bytesReceived = openssl.SSL_read(conn.sslInstance,
                 cast(void*)buffer.ptr+start, cast(int)(buffer.length-start));
@@ -829,7 +829,7 @@ do
                     conn.socket.close();
                     conn.reset();
 
-                    if (conn.isSSL)
+                    if (conn.ssl)
                     {
                         conn.teardownSSL();
                         immutable code = conn.setupSSL();
@@ -855,7 +855,7 @@ do
 
                     conn.socket.connect(ip);
 
-                    if (conn.isSSL)
+                    if (conn.ssl)
                     {
                         immutable code = openssl.SSL_connect(conn.sslInstance);
 
