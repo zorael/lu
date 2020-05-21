@@ -269,7 +269,7 @@ public:
 
         connected = false;
 
-        if (ssl)
+        if (ssl && sslInstance && ctx)
         {
             teardownSSL();
             setupSSL();
