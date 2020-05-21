@@ -67,6 +67,12 @@
  +/
 module lu.net;
 
+private:
+
+import requests.ssl_adapter;
+
+public:
+
 @safe:
 
 /++
@@ -134,6 +140,9 @@ private:
     /// Private cached received timeout setting.
     uint privateReceiveTimeout;
 
+    /// Private SSL context.
+    SSL_CTX* ctx;
+
 
     // setTimemout
     /++
@@ -161,6 +170,16 @@ public:
      +  Pointer to the socket of the `std.socket.AddressFamily` we want to connect with.
      +/
     Socket socket;
+
+    /++
+     +  Whether or not this is (or is to be) an SSL connection.
+     +/
+    bool isSSL;
+
+    /++
+     +  OpeSSL `SSL` handle, if this is an SSL connection.
+     +/
+    SSL* ssl;
 
     /// IPs already resolved using `lu.net.resolveFiber`.
     Address[] ips;
@@ -237,7 +256,7 @@ public:
      +
      +  If we ever change this to a class, this should be the default constructor.
      +/
-    void reset()
+    void reset() @system
     {
         import std.socket : TcpSocket, AddressFamily, SocketType;
 
@@ -249,6 +268,12 @@ public:
         setDefaultOptions(socket6);
 
         connected = false;
+
+        if (isSSL)
+        {
+            teardownSSL();
+            setupSSL();
+        }
     }
 
 
@@ -281,6 +306,34 @@ public:
     }
 
 
+    // setupSSL
+    /++
+     +  Sets up the SSL context for this connection.
+     +/
+    int setupSSL() @system
+    in (isSSL, "Tried to set up SSL context on a non-SSL `Connection`")
+    {
+        int code;
+
+        ctx = openssl.SSL_CTX_new(openssl.TLSv1_client_method);
+        openssl.SSL_CTX_set_verify(ctx, 0, null);
+        ssl = openssl.SSL_new(ctx);
+        code = openssl.SSL_set_fd(ssl, socket.handle);
+        return code;
+    }
+
+
+    // teardownSSL
+    /++
+     +  Resets and frees SSL context and resources.
+     +/
+    void teardownSSL()
+    {
+        openssl.SSL_free(ssl);
+        openssl.SSL_CTX_free(ctx);
+    }
+
+
     // sendline
     /++
      +  Sends a line to the server.
@@ -301,7 +354,7 @@ public:
      +      data = Variadic list of strings or characters to send. May contain
      +          complete substrings separated by newline characters.
      +/
-    void sendline(uint maxLineLength = 512, Data...)(const Data data)
+    void sendline(uint maxLineLength = 512, Data...)(const Data data) @system
     {
         int remainingMaxLength = (maxLineLength - 1);
         bool justSentNewline;
@@ -326,8 +379,18 @@ public:
                         import std.algorithm.comparison : min;
 
                         immutable end = min(line.length, remainingMaxLength);
-                        socket.send(line[0..end]);
-                        socket.send("\n");
+
+                        if (isSSL)
+                        {
+                            openssl.SSL_write(ssl, cast(void*)&line[0], cast(int)end);
+                            openssl.SSL_write(ssl, cast(void*)&"\n"[0], 1);
+                        }
+                        else
+                        {
+                            socket.send(line[0..end]);
+                            socket.send("\n");
+                        }
+
                         justSentNewline = true;
                         remainingMaxLength = (maxLineLength - 1);  // sent newline; reset
                     }
@@ -338,22 +401,52 @@ public:
                     import std.algorithm.comparison : min;
 
                     immutable end = min(piece.length, remainingMaxLength);
-                    socket.send(piece[0..end]);
+
+                    if (isSSL)
+                    {
+
+                        openssl.SSL_write(ssl, cast(void*)&piece[0], cast(int)end);
+                        openssl.SSL_write(ssl, cast(void*)&"\n"[0], 1);
+                    }
+                    else
+                    {
+                        socket.send(piece[0..end]);
+                    }
+
                     justSentNewline = false;
                     remainingMaxLength -= end;
                 }
             }
             else
             {
-                socket.send(piece);
+                if (isSSL)
+                {
+                    openssl.SSL_write(ssl, cast(void*)&piece[0], cast(int)piece.length);
+                }
+                else
+                {
+                    socket.send(piece);
+                }
+
                 justSentNewline = false;
                 --remainingMaxLength;
+                assert(0);
             }
 
             if (remainingMaxLength <= 0) break;
         }
 
-        if (!justSentNewline) socket.send("\n");
+        if (!justSentNewline)
+        {
+            if (isSSL)
+            {
+                openssl.SSL_write(ssl, cast(void*)&"\n"[0], 1);
+            }
+            else
+            {
+                socket.send("\n");
+            }
+        }
     }
 }
 
@@ -486,8 +579,15 @@ do
     {
         ListenAttempt attempt;
 
-        immutable ptrdiff_t bytesReceived = conn.receive(buffer[start..$]);
-        attempt.bytesReceived = bytesReceived;
+        if (conn.ssl)
+        {
+            attempt.bytesReceived = openssl.SSL_read(conn.ssl,
+                cast(void*)buffer.ptr+start, cast(int)(buffer.length-start));
+        }
+        else
+        {
+            attempt.bytesReceived = conn.receive(buffer[start..$]);
+        }
 
         version(Posix)
         {
@@ -504,7 +604,7 @@ do
             }
         }
 
-        if (!bytesReceived)
+        if (!attempt.bytesReceived)
         {
             attempt.state = State.error;
             attempt.error = lastSocketError;
@@ -512,7 +612,7 @@ do
             // Should never get here
             assert(0, "Dead `listenFiber` resumed after yield (no bytes received)");
         }
-        else if (bytesReceived == Socket.ERROR)
+        else if (attempt.bytesReceived == Socket.ERROR)
         {
             attempt.error = lastSocketError;
 
@@ -557,7 +657,7 @@ do
 
         timeLastReceived = Clock.currTime.toUnixTime;
 
-        immutable ptrdiff_t end = (start + bytesReceived);
+        immutable ptrdiff_t end = (start + attempt.bytesReceived);
         ptrdiff_t newline = (cast(char[])buffer[0..end]).indexOf('\n');
         size_t pos;
 
@@ -608,6 +708,7 @@ struct ConnectionAttempt
         delayThenNextIP,    /// Failed to reconnect several times; next IP.
         noMoreIPs,          /// Exhausted all IPs and could not connect.
         ipv6Failure,        /// IPv6 connection failed.
+        sslFailure,         /// Failure establishing an SSL connection.
         error,              /// Error connecting; should abort.
     }
 
@@ -666,6 +767,7 @@ struct ConnectionAttempt
  +          dealWithIPv6(attempt.error);
  +          break;
  +
+ +      case sslFailure:
  +      case error:
  +          // Failed to connect
  +          return;
@@ -724,6 +826,23 @@ do
                     conn.socket.shutdown(SocketShutdown.BOTH);
                     conn.socket.close();
                     conn.reset();
+
+                    if (conn.isSSL)
+                    {
+                        conn.teardownSSL();
+                        immutable code = conn.setupSSL();
+                        import std.stdio;
+                        writeln("bc", code);
+
+                        /*if (code != 1)
+                        {
+                            import std.conv : text;
+                            attempt.state = State.sslFailure;
+                            attempt.error = openssl.SSL_get_error(conn.ssl, code).text;
+                            yield(attempt);
+                            assert(0, "Dead `connectFiber` resumed after yield");
+                        }*/
+                    }
                 }
 
                 try
@@ -734,8 +853,21 @@ do
 
                     conn.socket.connect(ip);
 
+                    if (conn.isSSL)
+                    {
+                        immutable connectSuccess = openssl.SSL_connect(conn.ssl);
+                        if (connectSuccess != 1)
+                        {
+                            attempt.state = State.sslFailure;
+                            yield(attempt);
+                            // Should never get here
+                            assert(0, "Dead `connectFiber` resumed after yield");
+                        }
+                    }
+
                     // If we're here no exception was thrown, so we're connected
                     attempt.state = State.connected;
+                    conn.connected = true;
                     yield(attempt);
                     // Should never get here
                     assert(0, "Finished `connectFiber` resumed after yield");
