@@ -318,7 +318,7 @@ public:
         ctx = openssl.SSL_CTX_new(openssl.TLSv1_client_method);
         openssl.SSL_CTX_set_verify(ctx, 0, null);
         ssl = openssl.SSL_new(ctx);
-        code = openssl.SSL_set_fd(ssl, socket.handle);
+        code = openssl.SSL_set_fd(ssl, cast(int)socket.handle);
         return code;
     }
 
