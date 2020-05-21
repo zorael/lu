@@ -831,17 +831,17 @@ do
                     {
                         conn.teardownSSL();
                         immutable code = conn.setupSSL();
-                        import std.stdio;
-                        writeln("bc", code);
 
-                        /*if (code != 1)
+                        if (code != 1)
                         {
                             import std.conv : text;
+
                             attempt.state = State.sslFailure;
                             attempt.error = openssl.SSL_get_error(conn.ssl, code).text;
                             yield(attempt);
+                            // Should never get here
                             assert(0, "Dead `connectFiber` resumed after yield");
-                        }*/
+                        }
                     }
                 }
 
@@ -855,10 +855,14 @@ do
 
                     if (conn.isSSL)
                     {
-                        immutable connectSuccess = openssl.SSL_connect(conn.ssl);
-                        if (connectSuccess != 1)
+                        immutable code = openssl.SSL_connect(conn.ssl);
+
+                        if (code != 1)
                         {
+                            import std.conv : text;
+
                             attempt.state = State.sslFailure;
+                            attempt.error = openssl.SSL_get_error(conn.ssl, code).text;
                             yield(attempt);
                             // Should never get here
                             assert(0, "Dead `connectFiber` resumed after yield");
