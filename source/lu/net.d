@@ -179,7 +179,7 @@ public:
     /++
      +  OpeSSL `SSL` handle, if this is an SSL connection.
      +/
-    SSL* ssl;
+    SSL* sslInstance;
 
     /// IPs already resolved using `lu.net.resolveFiber`.
     Address[] ips;
@@ -320,8 +320,8 @@ public:
 
         ctx = openssl.SSL_CTX_new(openssl.TLSv1_client_method);
         openssl.SSL_CTX_set_verify(ctx, 0, null);
-        ssl = openssl.SSL_new(ctx);
-        code = openssl.SSL_set_fd(ssl, cast(int)socket.handle);
+        sslInstance = openssl.SSL_new(ctx);
+        code = openssl.SSL_set_fd(sslInstance, cast(int)socket.handle);
         return code;
     }
 
@@ -332,7 +332,7 @@ public:
      +/
     void teardownSSL()
     {
-        openssl.SSL_free(ssl);
+        openssl.SSL_free(sslInstance);
         openssl.SSL_CTX_free(ctx);
     }
 
@@ -385,8 +385,8 @@ public:
 
                         if (isSSL)
                         {
-                            openssl.SSL_write(ssl, cast(void*)&line[0], cast(int)end);
-                            openssl.SSL_write(ssl, cast(void*)&"\n"[0], 1);
+                            openssl.SSL_write(sslInstance, cast(void*)&line[0], cast(int)end);
+                            openssl.SSL_write(sslInstance, cast(void*)&"\n"[0], 1);
                         }
                         else
                         {
@@ -408,8 +408,8 @@ public:
                     if (isSSL)
                     {
 
-                        openssl.SSL_write(ssl, cast(void*)&piece[0], cast(int)end);
-                        openssl.SSL_write(ssl, cast(void*)&"\n"[0], 1);
+                        openssl.SSL_write(sslInstance, cast(void*)&piece[0], cast(int)end);
+                        openssl.SSL_write(sslInstance, cast(void*)&"\n"[0], 1);
                     }
                     else
                     {
@@ -424,7 +424,7 @@ public:
             {
                 if (isSSL)
                 {
-                    openssl.SSL_write(ssl, cast(void*)&piece[0], cast(int)piece.length);
+                    openssl.SSL_write(sslInstance, cast(void*)&piece[0], cast(int)piece.length);
                 }
                 else
                 {
@@ -442,7 +442,7 @@ public:
         {
             if (isSSL)
             {
-                openssl.SSL_write(ssl, cast(void*)&"\n"[0], 1);
+                openssl.SSL_write(sslInstance, cast(void*)&"\n"[0], 1);
             }
             else
             {
@@ -581,9 +581,9 @@ do
     {
         ListenAttempt attempt;
 
-        if (conn.ssl)
+        if (conn.isSSL)
         {
-            attempt.bytesReceived = openssl.SSL_read(conn.ssl,
+            attempt.bytesReceived = openssl.SSL_read(conn.sslInstance,
                 cast(void*)buffer.ptr+start, cast(int)(buffer.length-start));
         }
         else
@@ -839,7 +839,7 @@ do
                             import std.conv : text;
 
                             attempt.state = State.sslFailure;
-                            attempt.error = openssl.SSL_get_error(conn.ssl, code).text;
+                            attempt.error = openssl.SSL_get_error(conn.sslInstance, code).text;
                             yield(attempt);
                             // Should never get here
                             assert(0, "Dead `connectFiber` resumed after yield");
@@ -857,14 +857,14 @@ do
 
                     if (conn.isSSL)
                     {
-                        immutable code = openssl.SSL_connect(conn.ssl);
+                        immutable code = openssl.SSL_connect(conn.sslInstance);
 
                         if (code != 1)
                         {
                             import std.conv : text;
 
                             attempt.state = State.sslFailure;
-                            attempt.error = openssl.SSL_get_error(conn.ssl, code).text;
+                            attempt.error = openssl.SSL_get_error(conn.sslInstance, code).text;
                             yield(attempt);
                             // Should never get here
                             assert(0, "Dead `connectFiber` resumed after yield");
