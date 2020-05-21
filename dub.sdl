@@ -10,6 +10,8 @@ dflags "-dip25" "-dip1008"
 libs "phobos2" platform="posix-dmd"
 x:ddoxTool "scod"
 
+dependency "requests" version="~>1.1.4"
+
 configuration "library" {
     sourcePaths "source"
     importPaths "source"
