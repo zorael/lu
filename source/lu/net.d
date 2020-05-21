@@ -433,7 +433,6 @@ public:
 
                 justSentNewline = false;
                 --remainingMaxLength;
-                assert(0);
             }
 
             if (remainingMaxLength <= 0) break;
