@@ -309,6 +309,9 @@ public:
     // setupSSL
     /++
      +  Sets up the SSL context for this connection.
+     +
+     +  Returns:
+     +      An OpenSSL error integer.
      +/
     int setupSSL() @system
     in (isSSL, "Tried to set up SSL context on a non-SSL `Connection`")
