@@ -657,7 +657,7 @@ do
 
         timeLastReceived = Clock.currTime.toUnixTime;
 
-        immutable ptrdiff_t end = (start + attempt.bytesReceived);
+        immutable ptrdiff_t end = cast(ptrdiff_t)(start + attempt.bytesReceived);
         ptrdiff_t newline = (cast(char[])buffer[0..end]).indexOf('\n');
         size_t pos;
 
