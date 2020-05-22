@@ -225,6 +225,7 @@ immutable otherGhi = Enum!Foo.fromString("ghi");
 
 ```d
 Connection conn;
+conn.ssl = true;
 bool abort;  // Set to true if something goes wrong
 
 conn.reset();
@@ -233,7 +234,7 @@ bool useIPv6 = false;
 enum resolveAttempts = 10;
 
 auto resolver = new Generator!ResolveAttempt(() =>
-    resolveFiber(conn, "subdomain.address.tld", 6667, useIPv6, resolveAttempts, abort));
+    resolveFiber(conn, "subdomain.address.tld", 6697, useIPv6, resolveAttempts, abort));
 
 resolver.call();
 
