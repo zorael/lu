@@ -297,6 +297,28 @@ public:
     }
 
 
+    // getSSLErrorMessage
+    /++
+     +  Returns the SSL error message for the passed SSL error code.
+     +
+     +  Params:
+     +      code = SSL error code to translate to string.
+     +
+     +  Returns:
+     +      A string with the last SSL error code translated into humanly-readable text.
+     +/
+    string getSSLErrorMessage(const int code) @system
+    {
+        import std.string : fromStringz;
+
+        immutable errorCode = openssl.SSL_get_error(sslInstance, code);
+
+        return openssl.ERR_reason_error_string(errorCode)
+            .fromStringz
+            .idup;
+    }
+
+
     // setDefaultOptions
     /++
      +  Sets up sockets with the `std.socket.SocketOptions` needed. These
