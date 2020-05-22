@@ -308,6 +308,7 @@ public:
      +      A string with the last SSL error code translated into humanly-readable text.
      +/
     string getSSLErrorMessage(const int code) @system
+    in (ssl, "Tried to get SSL error message on a non-SSL `Connection`")
     {
         import std.string : fromStringz;
 
@@ -373,6 +374,7 @@ public:
      +  Resets and frees SSL context and resources.
      +/
     void teardownSSL()
+    in (ssl, "Tried to teardown SSL on a non-SSL `Connection`")
     {
         openssl.SSL_free(sslInstance);
         openssl.SSL_CTX_free(sslContext);
@@ -400,6 +402,7 @@ public:
      +          complete substrings separated by newline characters.
      +/
     void sendline(uint maxLineLength = 512, Data...)(const Data data) @system
+    in (connected, "Tried to send a line on an unconnected `Connection`")
     {
         int remainingMaxLength = (maxLineLength - 1);
         bool justSentNewline;
@@ -833,7 +836,6 @@ void connectFiber(ref Connection conn, const bool endlesslyConnect,
     const uint connectionRetries, ref bool abort) @system
 in (!conn.connected, "Tried to set up a connecting fiber on an already live connection")
 in ((conn.ips.length > 0), "Tried to connect to an unresolved connection")
-in (!conn.connected, "Tried to connect to a connected connection!")
 do
 {
     import std.concurrency : yield;
