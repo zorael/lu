@@ -269,9 +269,9 @@ public:
 
         connected = false;
 
-        if (ssl && sslInstance && ctx)
+        if (ssl)
         {
-            teardownSSL();
+            if (sslInstance && ctx) teardownSSL();
             setupSSL();
         }
     }
