@@ -277,12 +277,23 @@ public:
         setDefaultOptions(socket6);
 
         connected = false;
+    }
 
-        if (ssl)
-        {
-            if (sslInstance && sslContext) teardownSSL();
-            setupSSL();
-        }
+
+    // resetSSL
+    /++
+     +  Resets the SSL context and resources of this `Connection`.
+     +
+     +  Returns:
+     +      The error code received when setting up SSL anew.
+     +/
+    int resetSSL() @system
+    in (ssl, "Tried to reset SSL on a non-SSL `Connetion`")
+    {
+        if (sslInstance && sslContext) teardownSSL();
+
+        immutable code = setupSSL();
+        return code;
     }
 
 
