@@ -258,7 +258,16 @@ public:
      +/
     void reset() @system
     {
-        import std.socket : TcpSocket, AddressFamily, SocketType;
+        import std.socket : TcpSocket, AddressFamily, SocketShutdown, SocketType;
+        import std.range : only;
+
+        foreach (thisSocket; only(socket4, socket6))
+        {
+            if (!thisSocket) continue;
+
+            thisSocket.shutdown(SocketShutdown.BOTH);
+            thisSocket.close();
+        }
 
         socket4 = new TcpSocket;
         socket6 = new Socket(AddressFamily.INET6, SocketType.STREAM);
