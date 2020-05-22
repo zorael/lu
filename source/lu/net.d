@@ -858,35 +858,29 @@ do
             ConnectionAttempt attempt;
             attempt.ip = ip;
 
-            conn.socket = isIPv6 ? conn.socket6 : conn.socket4;
+            void yieldIfSSLError(const int code)
+            {
+                if (code == 1) return;
+
+                attempt.state = State.sslFailure;
+                attempt.error = conn.getSSLErrorMessage(code);
+                yield(attempt);
+                // Should never get here
+                assert(0, "Dead `connectFiber` resumed after yield");
+            }
 
             foreach (immutable retry; 0..connectionRetries)
             {
                 if (abort) return;
 
-                if ((i > 0) || (retry > 0))
+                conn.reset();
+                conn.socket = isIPv6 ? conn.socket6 : conn.socket4;
+
+                if (conn.ssl)
                 {
-                    import std.socket : SocketShutdown;
-                    conn.socket.shutdown(SocketShutdown.BOTH);
-                    conn.socket.close();
-                    conn.reset();
-
-                    if (conn.ssl)
-                    {
-                        conn.teardownSSL();
-                        immutable code = conn.setupSSL();
-
-                        if (code != 1)
-                        {
-                            import std.conv : text;
-
-                            attempt.state = State.sslFailure;
-                            attempt.error = openssl.SSL_get_error(conn.sslInstance, code).text;
-                            yield(attempt);
-                            // Should never get here
-                            assert(0, "Dead `connectFiber` resumed after yield");
-                        }
-                    }
+                    // *After* conn.socket has been changed.
+                    immutable code = conn.resetSSL();
+                    yieldIfSSLError(code);
                 }
 
                 try
@@ -900,20 +894,12 @@ do
                     if (conn.ssl)
                     {
                         immutable code = openssl.SSL_connect(conn.sslInstance);
-
-                        if (code != 1)
-                        {
-                            import std.conv : text;
-
-                            attempt.state = State.sslFailure;
-                            attempt.error = openssl.SSL_get_error(conn.sslInstance, code).text;
-                            yield(attempt);
-                            // Should never get here
-                            assert(0, "Dead `connectFiber` resumed after yield");
-                        }
+                        yieldIfSSLError(code);
                     }
 
-                    // If we're here no exception was thrown, so we're connected
+                    // If we're here no exception was thrown and we didn't yield
+                    // out of SSL errors, so we're connected
+
                     attempt.state = State.connected;
                     conn.connected = true;
                     yield(attempt);
