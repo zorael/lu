@@ -141,7 +141,7 @@ private:
     uint privateReceiveTimeout;
 
     /// Private SSL context.
-    SSL_CTX* ctx;
+    SSL_CTX* sslContext;
 
     /++
      +  OpenSSL `SSL` instance, for use with SSL connections.
@@ -271,7 +271,7 @@ public:
 
         if (ssl)
         {
-            if (sslInstance && ctx) teardownSSL();
+            if (sslInstance && sslContext) teardownSSL();
             setupSSL();
         }
     }
@@ -318,9 +318,9 @@ public:
     {
         int code;
 
-        ctx = openssl.SSL_CTX_new(openssl.TLSv1_client_method);
-        openssl.SSL_CTX_set_verify(ctx, 0, null);
-        sslInstance = openssl.SSL_new(ctx);
+        sslContext = openssl.SSL_CTX_new(openssl.TLSv1_client_method);
+        openssl.SSL_CTX_set_verify(sslContext, 0, null);
+        sslInstance = openssl.SSL_new(sslContext);
         code = openssl.SSL_set_fd(sslInstance, cast(int)socket.handle);
         return code;
     }
@@ -333,7 +333,7 @@ public:
     void teardownSSL()
     {
         openssl.SSL_free(sslInstance);
-        openssl.SSL_CTX_free(ctx);
+        openssl.SSL_CTX_free(sslContext);
     }
 
 
