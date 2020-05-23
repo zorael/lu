@@ -369,6 +369,10 @@ public:
     int setupSSL() @system
     in (ssl, "Tried to set up SSL context on a non-SSL `Connection`")
     {
+        import std.algorithm.searching : endsWith;
+        import std.string : toStringz;
+        import std.uni : toLower;
+
         int code;
 
         sslContext = openssl.SSL_CTX_new(openssl.TLSv1_client_method);
@@ -376,10 +380,19 @@ public:
 
         if (cacertFile.length)
         {
-            import std.string : toStringz;
-
             // Before SSL_new
-            code = openssl.SSL_CTX_use_certificate_file(sslContext, toStringz(cacertFile), 0);
+            immutable filetype = cacertFile.toLower.endsWith(".pem") ? 0 : 1;
+            code = openssl.SSL_CTX_use_certificate_file(sslContext,
+                toStringz(cacertFile), filetype);
+            if (code != 1) return code;
+        }
+
+        if (privateKeyFile.length)
+        {
+            // Ditto
+            immutable filetype = privateKeyFile.toLower.endsWith(".pem") ? 0 : 1;
+            code = openssl.SSL_CTX_use_PrivateKey_file(sslContext,
+                toStringz(privateKeyFile), filetype);
             if (code != 1) return code;
         }
 
