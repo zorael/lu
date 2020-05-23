@@ -195,6 +195,11 @@ public:
      +/
     bool connected;
 
+    /++
+     +  Path to a `cacert.pem` SSL certificate file.
+     +/
+    string cacertFile;
+
 
     // sendTimeout
     /++
