@@ -200,6 +200,11 @@ public:
      +/
     string cacertFile;
 
+    /++
+     +  Path to a private SSL key file.
+     +/
+    string privateKeyFile;
+
 
     // sendTimeout
     /++
