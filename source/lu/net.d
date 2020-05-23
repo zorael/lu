@@ -368,6 +368,16 @@ public:
 
         sslContext = openssl.SSL_CTX_new(openssl.TLSv1_client_method);
         openssl.SSL_CTX_set_verify(sslContext, 0, null);
+
+        if (cacertFile.length)
+        {
+            import std.string : toStringz;
+
+            // Before SSL_new
+            code = openssl.SSL_CTX_use_certificate_file(sslContext, toStringz(cacertFile), 0);
+            if (code != 1) return code;
+        }
+
         sslInstance = openssl.SSL_new(sslContext);
         code = openssl.SSL_set_fd(sslInstance, cast(int)socket.handle);
         return code;
