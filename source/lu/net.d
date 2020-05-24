@@ -375,13 +375,13 @@ public:
 
         int code;
 
-        sslContext = openssl.SSL_CTX_new(openssl.TLSv1_client_method);
+        sslContext = openssl.SSL_CTX_new(openssl.TLS_method);
         openssl.SSL_CTX_set_verify(sslContext, 0, null);
 
         if (cacertFile.length)
         {
             // Before SSL_new
-            immutable filetype = cacertFile.toLower.endsWith(".pem") ? 0 : 1;
+            immutable filetype = cacertFile.toLower.endsWith(".pem") ? 1 : 0;
             code = openssl.SSL_CTX_use_certificate_file(sslContext,
                 toStringz(cacertFile), filetype);
             if (code != 1) return code;
@@ -390,7 +390,7 @@ public:
         if (privateKeyFile.length)
         {
             // Ditto
-            immutable filetype = privateKeyFile.toLower.endsWith(".pem") ? 0 : 1;
+            immutable filetype = privateKeyFile.toLower.endsWith(".pem") ? 1 : 0;
             code = openssl.SSL_CTX_use_PrivateKey_file(sslContext,
                 toStringz(privateKeyFile), filetype);
             if (code != 1) return code;
