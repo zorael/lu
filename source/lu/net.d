@@ -293,17 +293,12 @@ public:
     // resetSSL
     /++
      +  Resets the SSL context and resources of this `Connection`.
-     +
-     +  Returns:
-     +      The error code received when setting up SSL anew.
      +/
-    int resetSSL() @system
-    in (ssl, "Tried to reset SSL on a non-SSL `Connetion`")
+    void resetSSL() @system
+    in (ssl, "Tried to reset SSL on a non-SSL `Connection`")
     {
         if (sslInstance && sslContext) teardownSSL();
-
-        immutable code = setupSSL();
-        return code;
+        setupSSL();
     }
 
 
@@ -363,17 +358,15 @@ public:
     /++
      +  Sets up the SSL context for this connection.
      +
-     +  Returns:
-     +      An OpenSSL error integer.
+     +  Throws:
+     +      `SSLException` if the SSL context could not be set up.
      +/
-    int setupSSL() @system
+    void setupSSL() @system
     in (ssl, "Tried to set up SSL context on a non-SSL `Connection`")
     {
         import std.algorithm.searching : endsWith;
         import std.string : toStringz;
         import std.uni : toLower;
-
-        int code;
 
         sslContext = openssl.SSL_CTX_new(openssl.TLS_method);
         openssl.SSL_CTX_set_verify(sslContext, 0, null);
@@ -382,23 +375,23 @@ public:
         {
             // Before SSL_new
             immutable filetype = cacertFile.toLower.endsWith(".pem") ? 1 : 0;
-            code = openssl.SSL_CTX_use_certificate_file(sslContext,
+            immutable code = openssl.SSL_CTX_use_certificate_file(sslContext,
                 toStringz(cacertFile), filetype);
-            if (code != 1) return code;
+            if (code != 1) throw new SSLException("Failed to set certificate", code);
         }
 
         if (privateKeyFile.length)
         {
             // Ditto
             immutable filetype = privateKeyFile.toLower.endsWith(".pem") ? 1 : 0;
-            code = openssl.SSL_CTX_use_PrivateKey_file(sslContext,
+            immutable code = openssl.SSL_CTX_use_PrivateKey_file(sslContext,
                 toStringz(privateKeyFile), filetype);
-            if (code != 1) return code;
+            if (code != 1) throw new SSLException("Failed to set private key", code);
         }
 
         sslInstance = openssl.SSL_new(sslContext);
-        code = openssl.SSL_set_fd(sslInstance, cast(int)socket.handle);
-        return code;
+        immutable code = openssl.SSL_set_fd(sslInstance, cast(int)socket.handle);
+        if (code != 1) throw new SSLException("Failed to attach socket handle", code);
     }
 
 
@@ -893,17 +886,6 @@ do
             ConnectionAttempt attempt;
             attempt.ip = ip;
 
-            void yieldIfSSLError(const int code)
-            {
-                if (code == 1) return;
-
-                attempt.state = State.sslFailure;
-                attempt.error = conn.getSSLErrorMessage(code);
-                yield(attempt);
-                // Should never get here
-                assert(0, "Dead `connectFiber` resumed after yield");
-            }
-
             foreach (immutable retry; 0..connectionRetries)
             {
                 if (abort) return;
@@ -911,15 +893,14 @@ do
                 conn.reset();
                 conn.socket = isIPv6 ? conn.socket6 : conn.socket4;
 
-                if (conn.ssl)
-                {
-                    // *After* conn.socket has been changed.
-                    immutable code = conn.resetSSL();
-                    yieldIfSSLError(code);
-                }
-
                 try
                 {
+                    if (conn.ssl)
+                    {
+                        // *After* conn.socket has been changed.
+                        conn.resetSSL();
+                    }
+
                     attempt.retryNum = retry;
                     attempt.state = State.preconnect;
                     yield(attempt);
@@ -929,7 +910,12 @@ do
                     if (conn.ssl)
                     {
                         immutable code = openssl.SSL_connect(conn.sslInstance);
-                        yieldIfSSLError(code);
+
+                        if (code != 1)
+                        {
+                            throw new SSLException("Failed to establish SSL connection " ~
+                                "after successful connect", code);
+                        }
                     }
 
                     // If we're here no exception was thrown and we didn't yield
