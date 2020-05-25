@@ -42,26 +42,28 @@ final class ReturnValueException : Exception
     int retval;
 
     /// Create a new `ReturnValueException`, without attaching anything.
-    this(const string message, const string file = __FILE__, const size_t line = __LINE__) pure @nogc
+    this(const string message, const string file = __FILE__, const size_t line = __LINE__,
+        Throwable nextInChain = null) pure nothrow @nogc @safe
     {
-        super(message, file, line);
+        super(message, file, line, nextInChain);
     }
 
     /// Create a new `ReturnValueException`, attaching a command.
     this(const string message, const string command, const string file = __FILE__,
-        const size_t line = __LINE__) pure @nogc
+        const size_t line = __LINE__, Throwable nextInChain = null) pure nothrow @nogc @safe
     {
         this.command = command;
-        super(message, file, line);
+        super(message, file, line, nextInChain);
     }
 
     /// Create a new `ReturnValueException`, attaching a command and a returned value.
     this(const string message, const string command, const int retval,
-        const string file = __FILE__, const size_t line = __LINE__) pure @nogc
+        const string file = __FILE__, const size_t line = __LINE__,
+        Throwable nextInChain = null) pure nothrow @nogc @safe
     {
         this.command = command;
         this.retval = retval;
-        super(message, file, line);
+        super(message, file, line, nextInChain);
     }
 }
 
@@ -80,17 +82,18 @@ final class FileExistsException : Exception
     string filename;
 
     /// Create a new `FileExistsException`, without attaching a filename.
-    this(const string message, const string file = __FILE__, const size_t line = __LINE__) pure @nogc
+    this(const string message, const string file = __FILE__, const size_t line = __LINE__,
+        Throwable nextInChain = null) pure nothrow @nogc @safe
     {
-        super(message, file, line);
+        super(message, file, line, nextInChain);
     }
 
     /// Create a new `FileExistsException`, attaching a filename.
     this(const string message, const string filename, const string file = __FILE__,
-        const size_t line = __LINE__) pure @nogc
+        const size_t line = __LINE__, Throwable nextInChain = null) pure nothrow @nogc @safe
     {
         this.filename = filename;
-        super(message, file, line);
+        super(message, file, line, nextInChain);
     }
 }
 
@@ -113,18 +116,20 @@ final class FileTypeMismatchException : Exception
     ushort attrs;
 
     /// Create a new `FileTypeMismatchException`, without embedding a filename.
-    this(const string message, const string file = __FILE__, const size_t line = __LINE__) pure @nogc
+    this(const string message, const string file = __FILE__, const size_t line = __LINE__,
+        Throwable nextInChain = null) pure nothrow @nogc @safe
     {
-        super(message, file, line);
+        super(message, file, line, nextInChain);
     }
 
     /// Create a new `FileTypeMismatchException`, embedding a filename.
     this(const string message, const string filename, const ushort attrs,
-        const string file = __FILE__, const size_t line = __LINE__) pure @nogc
+        const string file = __FILE__, const size_t line = __LINE__,
+        Throwable nextInChain = null) pure nothrow @nogc @safe
     {
         this.filename = filename;
         this.attrs = attrs;
-        super(message, file, line);
+        super(message, file, line, nextInChain);
     }
 }
 

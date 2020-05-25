@@ -958,9 +958,10 @@ final class DeserialisationException : Exception
     /++
      +  Create a new `DeserialisationException`.
      +/
-    this(const string message, const string file = __FILE__, const size_t line = __LINE__) pure nothrow @nogc
+    this(const string message, const string file = __FILE__, const size_t line = __LINE__,
+        Throwable nextInChain = null) pure nothrow @nogc @safe
     {
-        super(message, file, line);
+        super(message, file, line, nextInChain);
     }
 }
 

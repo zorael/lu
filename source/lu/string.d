@@ -412,9 +412,10 @@ abstract class NomException : Exception
     string needle();
 
     /// Create a new `NomExceptionImpl`, without attaching anything.
-    this(const string message, const string file = __FILE__, const size_t line = __LINE__) pure @nogc
+    this(const string message, const string file = __FILE__, const size_t line = __LINE__,
+        Throwable nextInChain = null) pure nothrow @nogc @safe
     {
-        super(message, file, line);
+        super(message, file, line, nextInChain);
     }
 }
 
@@ -466,18 +467,20 @@ final class NomExceptionImpl(T, C) : NomException
     }
 
     /// Create a new `NomExceptionImpl`, without attaching anything.
-    this(const string message, const string file = __FILE__, const size_t line = __LINE__) pure @nogc
+    this(const string message, const string file = __FILE__, const size_t line = __LINE__,
+        Throwable nextInChain = null) pure nothrow @nogc @safe
     {
-        super(message, file, line);
+        super(message, file, line, nextInChain);
     }
 
     /// Create a new `NomExceptionImpl`, attaching a command.
     this(const string message, const T rawHaystack, const C rawNeedle,
-        const string file = __FILE__, const size_t line = __LINE__) pure @nogc
+        const string file = __FILE__, const size_t line = __LINE__,
+        Throwable nextInChain = null) pure nothrow @nogc @safe
     {
         this.rawHaystack = rawHaystack;
         this.rawNeedle = rawNeedle;
-        super(message, file, line);
+        super(message, file, line, nextInChain);
     }
 }
 
