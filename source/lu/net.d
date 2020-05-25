@@ -196,9 +196,9 @@ public:
     bool connected;
 
     /++
-     +  Path to a `cacert.pem` SSL certificate file.
+     +  Path to a (`.pem`) SSL certificate file.
      +/
-    string cacertFile;
+    string certFile;
 
     /++
      +  Path to a private SSL key file.
@@ -371,12 +371,12 @@ public:
         sslContext = openssl.SSL_CTX_new(openssl.TLS_method);
         openssl.SSL_CTX_set_verify(sslContext, 0, null);
 
-        if (cacertFile.length)
+        if (certFile.length)
         {
             // Before SSL_new
-            immutable filetype = cacertFile.toLower.endsWith(".pem") ? 1 : 0;
+            immutable filetype = certFile.toLower.endsWith(".pem") ? 1 : 0;
             immutable code = openssl.SSL_CTX_use_certificate_file(sslContext,
-                toStringz(cacertFile), filetype);
+                toStringz(certFile), filetype);
             if (code != 1) throw new SSLException("Failed to set certificate", code);
         }
 
