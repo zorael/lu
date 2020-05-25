@@ -266,7 +266,7 @@ public:
      +
      +  If we ever change this to a class, this should be the default constructor.
      +/
-    void reset() @system
+    void reset()
     {
         import std.socket : TcpSocket, AddressFamily, SocketShutdown, SocketType;
         import std.range : only;
@@ -427,7 +427,7 @@ public:
      +      data = Variadic list of strings or characters to send. May contain
      +          complete substrings separated by newline characters.
      +/
-    void sendline(uint maxLineLength = 512, Data...)(const Data data) @system
+    void sendline(uint maxLineLength = 512, Data...)(const Data data)
     in (connected, "Tried to send a line on an unconnected `Connection`")
     {
         int remainingMaxLength = (maxLineLength - 1);
