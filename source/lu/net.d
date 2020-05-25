@@ -1156,3 +1156,33 @@ do
     endAttempt.state = State.failure;
     yield(endAttempt);
 }
+
+
+// SSLException
+/++
+ +  Exception thrown when OpenSSL functions return a non-`1` error code, such as
+ +  when the OpenSSL context could not be setup, or when it could not establish
+ +  an SSL connection from an otherwise live connection.
+ +
+ +  The attached `code` should be the error integer yielded from the failing SSL call.
+ +/
+final class SSLException : Exception
+{
+    /// SSL error code.
+    int code;
+
+    /// Constructor attaching an error code.
+    this(const string msg, const int code, const string file = __FILE__,
+        const size_t line = __LINE__, Throwable nextInChain = null) pure nothrow @nogc @safe
+    {
+        this.code = code;
+        super(msg, file, line, nextInChain);
+    }
+
+    /// Passthrough constructor.
+    this(const string msg, const string file = __FILE__, const size_t line = __LINE__,
+        Throwable nextInChain = null) pure nothrow @nogc @safe
+    {
+        super(msg, file, line, nextInChain);
+    }
+}
