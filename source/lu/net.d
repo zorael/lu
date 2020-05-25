@@ -978,7 +978,17 @@ do
                         }
                         break;
                     }
+                }
+                catch (SSLException e)
+                {
+                    import std.format : format;
 
+                    attempt.state = State.sslFailure;
+                    attempt.error = "%s (%s)"
+                        .format(e.msg, conn.getSSLErrorMessage(e.code));
+                    yield(attempt);
+                    // Should never get here
+                    assert(0, "Dead `connectFiber` resumed after yield");
                 }
             }
 
