@@ -427,7 +427,7 @@ public:
      +      data = Variadic list of strings or characters to send. May contain
      +          complete substrings separated by newline characters.
      +/
-    void sendline(uint maxLineLength = 512, Data...)(const Data data)
+    void sendline(uint maxLineLength = 512, Data...)(const Data data) @system
     in (connected, "Tried to send a line on an unconnected `Connection`")
     {
         int remainingMaxLength = (maxLineLength - 1);
