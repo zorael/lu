@@ -490,11 +490,11 @@ unittest
  +  Returns:
  +      The passed integer `num` in string form.
  +/
-string toAlpha(size_t maxDigits = 12, uint leadingZeroes = 0, Num)(const Num num)
+string toAlpha(size_t maxDigits = 12, uint leadingZeroes = 0, Num)(const Num num) pure
 {
     import std.array : Appender;
 
-    Appender!string sink;
+    Appender!(char[]) sink;
     sink.reserve((num >= 0) ? maxDigits : maxDigits+1);
     num.toAlphaInto!(maxDigits, leadingZeroes, Num)(sink);
     return sink.data;

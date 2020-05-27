@@ -349,7 +349,7 @@ pi 3.14159
 arr 1,2,3`;
     }
 
-    Appender!string fooSink;
+    Appender!(char[]) fooSink;
     fooSink.reserve(64);
 
     fooSink.serialise(FooSettings.init);
@@ -363,14 +363,14 @@ bazyyyyyyy baz 2
 flarrp "   hirrsteff"
 pipyon 3`;
 
-    Appender!string barSink;
+    Appender!(char[]) barSink;
     barSink.reserve(64);
 
     barSink.serialise(BarSettings.init);
     assert((barSink.data == barSerialised), '\n' ~ barSink.data);
 
     // try two at once
-    Appender!string bothSink;
+    Appender!(char[]) bothSink;
     bothSink.reserve(128);
     bothSink.serialise(FooSettings.init, BarSettings.init);
     assert(bothSink.data == fooSink.data ~ "\n\n" ~ barSink.data);
@@ -804,7 +804,7 @@ auto justifiedEntryValueText(const string origLines) pure
     import lu.numeric : getMultipleOf;
     import std.algorithm.iteration : joiner;
 
-    Appender!string justified;
+    Appender!(char[]) justified;
     justified.reserve(decentReserve);
 
     assert((longestEntryLength > 0), "No longest entry; is the struct empty?");

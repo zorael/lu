@@ -880,7 +880,7 @@ unittest
 
     assertThrown!AssertError((-1).tabs);
 
-    Appender!string sink;
+    Appender!(char[]) sink;
     sink.formattedWrite("%sHello world", 2.tabs!2);
     assert((sink.data == "    Hello world"), sink.data);
 }
@@ -982,11 +982,11 @@ so shrug"), '\n' ~ sink.data);
  +  Returns:
  +      A string with all the lines of the original string indented.
  +/
-string indent(uint spaces = 4)(const string wallOfText, const uint numTabs = 1)
+string indent(uint spaces = 4)(const string wallOfText, const uint numTabs = 1) pure
 {
     import std.array : Appender;
 
-    Appender!string sink;
+    Appender!(char[]) sink;
     sink.reserve(wallOfText.length + 10*spaces*numTabs);  // Extra room for 10 indents
 
     wallOfText.indentInto!spaces(sink, numTabs);

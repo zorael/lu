@@ -238,7 +238,7 @@ unittest
     import lu.uda : Hidden;
     import std.array : Appender;
 
-    Appender!string sink;
+    Appender!(char[]) sink;
     sink.reserve(1024);
 
     struct Server

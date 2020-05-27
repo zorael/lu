@@ -189,7 +189,7 @@ struct JSONStorage
         import std.json : JSONType;
         import std.stdio : File, writeln;
 
-        Appender!string sink;
+        Appender!(char[]) sink;
 
         if (storage.type == JSONType.object)
         {
@@ -217,7 +217,7 @@ struct JSONStorage
         import std.json;
 
         JSONStorage this_;
-        Appender!string sink;
+        Appender!(char[]) sink;
         JSONValue j;
         this_.storage = parseJSON(
 `[
