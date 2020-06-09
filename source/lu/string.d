@@ -82,7 +82,6 @@ public:
  +  Throws:
  +      `lu.string.NomException` if the needle could not be found in the string.
  +/
-pragma(inline)
 T nom(Flag!"decode" decode = No.decode, T, C)(auto ref T haystack, const C needle,
     const string callingFile = __FILE__, const size_t callingLine = __LINE__) pure @nogc
 if (isMutable!T && isSomeString!T && (is(C : T) || is(C : ElementType!T) || is(C : ElementEncodingType!T)))
@@ -299,7 +298,6 @@ unittest
  +      If it doesn't exist, the string in `haystack` is inherited into the return
  +      value and returned, while the `haystack` symbol itself is cleared.
  +/
-pragma(inline)
 T nom(Flag!"inherit" inherit, Flag!"decode" decode = No.decode, T, C)
     (auto ref T haystack, const C needle, const string callingFile = __FILE__,
     const size_t callingLine = __LINE__) pure @nogc
@@ -511,7 +509,7 @@ final class NomExceptionImpl(T, C) : NomException
  +  Returns:
  +      The singular string if num is `1` or `-1`, otherwise the plural string.
  +/
-pragma(inline)
+pragma(inline, true)
 T plurality(Num, T)(const Num num, const T singular, const T plural) pure nothrow @nogc
 if (isIntegral!Num && isSomeString!T)
 {
@@ -588,7 +586,7 @@ if (isSomeString!T)
  +  Returns:
  +      A slice of the `line` argument that excludes the quotes.
  +/
-pragma(inline)
+pragma(inline, true)
 T unquoted(T)(const T line) pure nothrow @nogc
 {
     return unenclosed!'"'(line);
@@ -627,7 +625,7 @@ unittest
  +  Returns:
  +      A slice of the `line` argument that excludes the single-quotes.
  +/
-pragma(inline)
+pragma(inline, true)
 T unsinglequoted(T)(const T line) pure nothrow @nogc
 {
     return unenclosed!'\''(line);
@@ -667,7 +665,6 @@ unittest
  +  Returns:
  +      `true` if `haystack` begins with `needle`, `false` if not.
  +/
-pragma(inline)
 bool beginsWith(T, C)(const T haystack, const C needle) pure nothrow @nogc
 if (isSomeString!T && (is(C : T) || is(C : ElementType!T) || is(C : ElementEncodingType!T)))
 {
@@ -724,7 +721,6 @@ unittest
  +      `true` if the first character of `haystack` is also in `needles`,
  +      `false` if not.
  +/
-pragma(inline)
 bool beginsWithOneOf(T, C)(const T haystack, const C needles) pure nothrow @nogc
 if (is(C : T) || is(C : ElementEncodingType!T) || is(T : ElementEncodingType!C))
 {

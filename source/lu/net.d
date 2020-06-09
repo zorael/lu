@@ -213,7 +213,7 @@ public:
      +  Returns:
      +      A copy of `privateSendTimeout`.
      +/
-    pragma(inline)
+    pragma(inline, true)
     uint sendTimeout() const @property pure @nogc nothrow
     {
         return privateSendTimeout;
@@ -227,6 +227,7 @@ public:
      +  Params:
      +      dur = The duration to assign as send timeout, in number of milliseconds.
      +/
+    pragma(inline, true)
     void sendTimeout(const uint dur) @property
     {
         setTimeout(SocketOption.SNDTIMEO, dur);
@@ -240,7 +241,7 @@ public:
      +  Returns:
      +      A copy of `privateReceiveTimeout`.
      +/
-    pragma(inline)
+    pragma(inline, true)
     uint receiveTimeout() const @property pure @nogc nothrow
     {
         return privateReceiveTimeout;
