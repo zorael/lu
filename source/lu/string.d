@@ -301,7 +301,7 @@ unittest
  +/
 pragma(inline)
 T nom(Flag!"inherit" inherit, Flag!"decode" decode = No.decode, T, C)
-    (ref T haystack, const C needle, const string callingFile = __FILE__,
+    (auto ref T haystack, const C needle, const string callingFile = __FILE__,
     const size_t callingLine = __LINE__) pure @nogc
 if (isMutable!T && isSomeString!T && (is(C : T) || is(C : ElementType!T) || is(C : ElementEncodingType!T)))
 in
