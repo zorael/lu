@@ -373,6 +373,26 @@ pipyon 3`;
     bothSink.reserve(128);
     bothSink.serialise(FooSettings.init, BarSettings.init);
     assert(bothSink.data == fooSink.data ~ "\n\n" ~ barSink.data);
+
+    class C
+    {
+        int i;
+        bool b;
+    }
+
+    C c = new C;
+    c.i = 42;
+    c.b = true;
+
+    enum cSerialised =
+`[C]
+i 42
+b true`;
+
+    Appender!(char[]) cSink;
+    cSink.reserve(128);
+    cSink.serialise(c);
+    assert((cSink.data == cSerialised), '\n' ~ cSink.data);
 }
 
 
