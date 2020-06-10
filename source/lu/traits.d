@@ -669,6 +669,30 @@ unittest
 }
 
 
+// isMerelyArray
+/++
+ +  True if a type is a non-string array; otherwise false.
+ +
+ +  For now also evaluates to true for static arrays.
+ +
+ +  Params:
+ +      S = Array type to introspect.
+ +/
+enum isMerelyArray(S) = isArray!S && !isTrulyString!S;
+
+///
+unittest
+{
+    static assert(!isMerelyArray!string);
+    static assert(!isMerelyArray!dstring);
+    static assert(!isMerelyArray!wstring);
+    static assert(isMerelyArray!(char[]));
+    static assert(isMerelyArray!(dchar[]));
+    static assert(isMerelyArray!(wchar[]));
+    static assert(isMerelyArray!(int[5]));
+}
+
+
 // UnqualArray
 /++
  +  Given an array of qualified elements, aliases itself to one such of
