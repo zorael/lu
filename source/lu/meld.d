@@ -44,7 +44,7 @@ module lu.meld;
 private:
 
 import lu.traits : isMerelyArray;
-import std.traits : isAggregateType, isArray, isAssociativeArray;
+import std.traits : isAggregateType, isArray, isAssociativeArray, isMutable;
 
 public:
 
@@ -122,9 +122,9 @@ struct Unmeldable;
  +      meldThis = Object to meld (source).
  +      intoThis = Reference to object to meld (target).
  +/
-void meldInto(MeldingStrategy strategy = MeldingStrategy.conservative, Thing)
-    (Thing meldThis, ref Thing intoThis)
-if (isAggregateType!Thing && (!is(intoThis == const) && !is(intoThis == immutable)))
+void meldInto(MeldingStrategy strategy = MeldingStrategy.conservative, QualThing, Thing)
+    (QualThing meldThis, ref Thing intoThis)
+if (isAggregateType!Thing && is(QualThing : Thing) && isMutable!Thing)
 {
     import lu.traits : isAnnotated;
     import std.traits : isArray, isAssignable, isPointer, isSomeString, isType,
@@ -661,8 +661,7 @@ unittest
  +/
 void meldInto(MeldingStrategy strategy = MeldingStrategy.conservative, Array1, Array2)
     (Array1 meldThis, ref Array2 intoThis) pure nothrow
-if (isMerelyArray!Array1 && isMerelyArray!Array2 &&
-    !is(Array2 == const) && !is(Array2 == immutable))
+if (isMerelyArray!Array1 && isMerelyArray!Array2 && isMutable!Array2)
 {
     import std.traits : isDynamicArray, isStaticArray;
 
@@ -805,9 +804,9 @@ unittest
  +      meldThis = Associative array to meld (source).
  +      intoThis = Reference to the associative array to meld (target).
  +/
-void meldInto(MeldingStrategy strategy = MeldingStrategy.conservative, AA)
-    (AA meldThis, ref AA intoThis) pure
-if (isAssociativeArray!AA)
+void meldInto(MeldingStrategy strategy = MeldingStrategy.conservative, QualAA, AA)
+    (QualAA meldThis, ref AA intoThis) pure
+if (isAssociativeArray!AA && is(QualAA : AA) && isMutable!AA)
 {
     if (!meldThis.length)
     {

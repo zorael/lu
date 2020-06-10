@@ -54,6 +54,7 @@ module lu.json;
 private:
 
 import std.range.primitives : isOutputRange;
+import std.traits : isMutable;
 
 public:
 
@@ -572,6 +573,7 @@ private import std.typecons : Flag, No, Yes;
 void populateFromJSON(T)(ref T target, const JSONValue json,
     Flag!"lowercaseKeys" lowercaseKeys = No.lowercaseKeys,
     Flag!"lowercaseValues" lowercaseValues = No.lowercaseValues) @safe
+if (isMutable!T)
 {
     import std.traits : ValueType, isAssociativeArray, isArray, isDynamicArray, isSomeString;
     import std.range : ElementEncodingType;

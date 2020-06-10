@@ -58,7 +58,7 @@ private:
 import lu.traits : isStruct;
 import std.meta : allSatisfy;
 import std.range.primitives : isOutputRange;
-import std.traits : isAggregateType;
+import std.traits : isAggregateType, isMutable;
 import std.typecons : Flag, No, Yes;
 
 public:
@@ -95,7 +95,8 @@ public:
  +      things = Variadic list of objects to serialise.
  +/
 void serialise(Sink, Things...)(auto ref Sink sink, Things things)
-if ((Things.length > 1) && isOutputRange!(Sink, char[]))
+if ((Things.length > 1) && isOutputRange!(Sink, char[]) &&
+    allSatisfy!(isAggregateType, Things))
 {
     foreach (immutable i, const thing; things)
     {
@@ -441,7 +442,7 @@ b true`;
  +/
 void deserialise(Range, Things...)(Range range, out string[][string] missingEntries,
     out string[][string] invalidEntries, ref Things things) pure
-if (allSatisfy!(isStruct, Things))
+if (allSatisfy!(isAggregateType, Things) && allSatisfy!(isMutable, Things))
 {
     import lu.string : stripSuffix, stripped;
     import lu.traits : isAnnotated, isSerialisable;

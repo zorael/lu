@@ -30,7 +30,7 @@ module lu.objmanip;
 
 private:
 
-import std.traits : isAggregateType;
+import std.traits : isAggregateType, isMutable;
 
 public:
 
@@ -77,7 +77,7 @@ public:
  +      `std.conv.to` failed to convert a string into wanted type T.
  +/
 bool setMemberByName(Thing)(ref Thing thing, const string memberToSet, const string valueToSet)
-if (isAggregateType!Thing)
+if (isAggregateType!Thing && isMutable!Thing)
 in (memberToSet.length, "Tried to set member by name but no member string was given")
 {
     import lu.string : stripSuffix, stripped, unquoted;
@@ -92,7 +92,7 @@ in (memberToSet.length, "Tried to set member by name but no member string was gi
     {{
         alias QualT = typeof(thing.tupleof[i]);
 
-        static if (is(QualT == const) || is(QualT == immutable))
+        static if (!isMutable!QualT)
         {
             // Can't set const or immutable, so just ignore and break
             enum memberstring = __traits(identifier, thing.tupleof[i]);
@@ -512,7 +512,7 @@ unittest
  +      (or implicitly convertible to) the member to set.
  +/
 bool setMemberByName(Thing, Val)(ref Thing thing, const string memberToSet, /*const*/ Val valueToSet)
-if (isAggregateType!Thing && !is(Val : string))
+if (isAggregateType!Thing && isMutable!Thing && !is(Val : string))
 in (memberToSet.length, "Tried to set member by name but no member string was given")
 {
     bool success;
@@ -524,7 +524,7 @@ in (memberToSet.length, "Tried to set member by name but no member string was gi
     {{
         alias QualT = typeof(thing.tupleof[i]);
 
-        static if (is(QualT == const) || is(QualT == immutable))
+        static if (!isMutable!QualT)
         {
             // Can't set const or immutable, so just ignore and break
             enum memberstring = __traits(identifier, thing.tupleof[i]);
@@ -671,7 +671,7 @@ private import std.traits : isEqualityComparable;
  +/
 void replaceMembers(Thing, Token)(ref Thing thing, Token token,
     Token replacement = Token.init) pure nothrow @nogc
-if ((is(Thing == struct) || is(Thing == class)) && isEqualityComparable!Token)
+if (isAggregateType!Thing && isMutable!Thing && isEqualityComparable!Token)
 {
     import std.range : ElementEncodingType, ElementType;
     import std.traits : isArray, isSomeString;
@@ -833,8 +833,8 @@ private import std.traits : isAssociativeArray;
  +          an entry is to be removed or not.
  +      aa = The associative array to modify.
  +/
-void pruneAA(alias pred = null, T)(ref T aa)
-if (isAssociativeArray!T)
+void pruneAA(alias pred = null, AA)(ref AA aa)
+if (isAssociativeArray!AA && isMutable!AA)
 {
     if (!aa.length) return;
 
