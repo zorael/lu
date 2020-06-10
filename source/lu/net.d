@@ -35,7 +35,7 @@
  +
  +  // Resolution done
  +
- +  enum conectionRetries = 10;
+ +  enum connectionRetries = 10;
  +
  +  auto connector = new Generator!ConnectionAttempt(() =>
  +      connectFiber(conn, false, connectionRetries, abort));
