@@ -79,7 +79,6 @@ public:
 bool setMemberByName(Thing)(ref Thing thing, const string memberToSet, const string valueToSet)
 if (isAggregateType!Thing)
 in (memberToSet.length, "Tried to set member by name but no member string was given")
-do
 {
     import lu.string : stripSuffix, stripped, unquoted;
     import std.conv : ConvException, to;
@@ -515,7 +514,6 @@ unittest
 bool setMemberByName(Thing, Val)(ref Thing thing, const string memberToSet, /*const*/ Val valueToSet)
 if (isAggregateType!Thing && !is(Val : string))
 in (memberToSet.length, "Tried to set member by name but no member string was given")
-do
 {
     bool success;
 
@@ -674,7 +672,6 @@ private import std.traits : isEqualityComparable;
 void replaceMembers(Thing, Token)(ref Thing thing, Token token,
     Token replacement = Token.init) pure nothrow @nogc
 if ((is(Thing == struct) || is(Thing == class)) && isEqualityComparable!Token)
-do
 {
     import std.range : ElementEncodingType, ElementType;
     import std.traits : isArray, isSomeString;

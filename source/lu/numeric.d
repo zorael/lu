@@ -40,7 +40,6 @@ Number getMultipleOf(Flag!"alwaysOneUp" oneUp = No.alwaysOneUp, Number)
     (const Number num, const int n) pure nothrow @nogc
 in ((n > 0), "Cannot get multiple of 0 or negatives")
 in ((num >= 0), "Cannot get multiples for a negative number")
-do
 {
     if (num == 0) return 0;
 

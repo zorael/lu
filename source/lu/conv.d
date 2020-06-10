@@ -219,7 +219,6 @@ unittest
  +/
 uint numFromHex(Flag!"acceptLowercase" acceptLowercase = No.acceptLowercase)(const string hex) pure
 out (total; (total < 16^^hex.length), "`numFromHex` output is too large")
-do
 {
     import std.string : representation;
 
@@ -284,7 +283,6 @@ void numFromHex(Flag!"acceptLowercase" acceptLowercase = No.acceptLowercase)
 out (; ((r >= 0) && (r <= 255)), "Red out of hex range")
 out (; ((g >= 0) && (g <= 255)), "Green out of hex range")
 out (; ((b >= 0) && (b <= 255)), "Blue out of hex range")
-do
 {
     if (!hexString.length) return;
 

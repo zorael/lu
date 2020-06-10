@@ -628,7 +628,6 @@ void listenFiber(Connection conn, ref bool abort,
     const int connectionLost = DefaultTimeout.connectionLost) @system
 in ((conn.connected), "Tried to set up a listening fiber on a dead connection")
 in ((connectionLost > 0), "Tried to set up a listening fiber with connection timeout of <= 0")
-do
 {
     import std.concurrency : yield;
     import std.datetime.systime : Clock;
@@ -863,7 +862,6 @@ void connectFiber(ref Connection conn, const bool endlesslyConnect,
     const uint connectionRetries, ref bool abort) @system
 in (!conn.connected, "Tried to set up a connecting fiber on an already live connection")
 in ((conn.ips.length > 0), "Tried to connect to an unresolved connection")
-do
 {
     import std.concurrency : yield;
     import std.socket : AddressFamily, Socket, SocketException;
@@ -1092,7 +1090,6 @@ void resolveFiber(ref Connection conn, const string address, const ushort port,
     const bool useIPv6, const uint resolveAttempts, ref bool abort) @system
 in (!conn.connected, "Tried to set up a resolving fiber on an already live connection")
 in (address.length, "Tried to set up a resolving fiber on an empty address")
-do
 {
     import std.concurrency : yield;
     import std.socket : AddressFamily, SocketException, getAddress;

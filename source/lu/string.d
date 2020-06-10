@@ -842,7 +842,6 @@ unittest
  +/
 auto tabs(uint spaces = 4)(const int num) pure nothrow @nogc
 in ((num >= 0), "Negative number of tabs passed to `tabs`")
-do
 {
     import std.range : repeat, takeExactly;
     import std.algorithm.iteration : joiner;
