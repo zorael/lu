@@ -56,6 +56,7 @@ private:
 
 import std.typecons : Flag, No, Yes;
 import std.range.primitives : isOutputRange;
+import std.traits : isAggregateType;
 
 public:
 
@@ -97,7 +98,7 @@ public:
 void formatDeltaInto(Flag!"asserts" asserts = No.asserts, Sink, QualThing)
     (auto ref Sink sink, QualThing before, QualThing after,
     const uint indents = 0, const string submember = string.init)
-if (isOutputRange!(Sink, char[]) && (is(QualThing == struct) || is(QualThing == class)))
+if (isOutputRange!(Sink, char[]) && isAggregateType!QualThing)
 {
     immutable prefix = submember.length ? submember ~ '.' : string.init;
 

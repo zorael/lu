@@ -43,8 +43,8 @@ module lu.meld;
 
 private:
 
-import lu.traits : isTrulyString;
-import std.traits : isArray, isAssociativeArray;
+import lu.traits : isMerelyArray;
+import std.traits : isAggregateType, isArray, isAssociativeArray;
 
 public:
 
@@ -124,8 +124,7 @@ struct Unmeldable;
  +/
 void meldInto(MeldingStrategy strategy = MeldingStrategy.conservative, Thing)
     (Thing meldThis, ref Thing intoThis)
-if ((is(Thing == struct) || is(Thing == class)) && (!is(intoThis == const) &&
-    !is(intoThis == immutable)))
+if (isAggregateType!Thing && (!is(intoThis == const) && !is(intoThis == immutable)))
 {
     import lu.traits : isAnnotated;
     import std.traits : isArray, isAssignable, isPointer, isSomeString, isType,
@@ -662,7 +661,7 @@ unittest
  +/
 void meldInto(MeldingStrategy strategy = MeldingStrategy.conservative, Array1, Array2)
     (Array1 meldThis, ref Array2 intoThis) pure nothrow
-if (isArray!Array1 && isArray!Array2 && !isTrulyString!Array1 && !isTrulyString!Array2 &&
+if (isMerelyArray!Array1 && isMerelyArray!Array2 &&
     !is(Array2 == const) && !is(Array2 == immutable))
 {
     import std.traits : isDynamicArray, isStaticArray;

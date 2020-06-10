@@ -28,6 +28,10 @@
  +/
 module lu.objmanip;
 
+private:
+
+import std.traits : isAggregateType;
+
 public:
 
 
@@ -73,6 +77,7 @@ public:
  +      `std.conv.to` failed to convert a string into wanted type T.
  +/
 bool setMemberByName(Thing)(ref Thing thing, const string memberToSet, const string valueToSet)
+if (isAggregateType!Thing)
 in (memberToSet.length, "Tried to set member by name but no member string was given")
 do
 {
@@ -508,7 +513,7 @@ unittest
  +      (or implicitly convertible to) the member to set.
  +/
 bool setMemberByName(Thing, Val)(ref Thing thing, const string memberToSet, /*const*/ Val valueToSet)
-if (!is(Val : string))
+if (isAggregateType!Thing && !is(Val : string))
 in (memberToSet.length, "Tried to set member by name but no member string was given")
 do
 {

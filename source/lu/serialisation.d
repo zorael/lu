@@ -58,6 +58,7 @@ private:
 import lu.traits : isStruct;
 import std.meta : allSatisfy;
 import std.range.primitives : isOutputRange;
+import std.traits : isAggregateType;
 import std.typecons : Flag, No, Yes;
 
 public:
@@ -131,7 +132,7 @@ if ((Things.length > 1) && isOutputRange!(Sink, char[]))
  +      thing = Object to serialise.
  +/
 void serialise(Sink, QualThing)(auto ref Sink sink, QualThing thing)
-if (isOutputRange!(Sink, char[]))
+if (isOutputRange!(Sink, char[]) && isAggregateType!QualThing)
 {
     import lu.string : stripSuffix;
     import std.format : format, formattedWrite;
