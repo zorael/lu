@@ -155,7 +155,6 @@ pure nothrow:
          +/
         void put(/*const*/ T more) @nogc
         in ((end < bufferSize), '`' ~ typeof(this).stringof ~ "` buffer overflow")
-        do
         {
             buf[end++] = more;
         }
@@ -221,7 +220,6 @@ pure nothrow:
      +/
     T front() const @nogc
     in ((end > 0), '`' ~ typeof(this).stringof ~ "` buffer underrun")
-    do
     {
         return buf[pos];
     }

@@ -143,7 +143,6 @@ struct JSONStorage
      +/
     void load(const string filename) @safe
     in (filename.length, "Tried to load an empty filename into a JSON storage")
-    do
     {
         import lu.common : FileTypeMismatchException;
         import std.file : exists, getAttributes, isFile, readText;
@@ -183,7 +182,6 @@ struct JSONStorage
     void save(KeyOrderStrategy strategy = KeyOrderStrategy.passthrough)
         (const string filename, const string[] givenOrder = string[].init) @safe
     in (filename.length, "Tried to save a JSON storage to an empty filename")
-    do
     {
         import std.array : Appender;
         import std.json : JSONType;
@@ -256,7 +254,6 @@ struct JSONStorage
         (auto ref Sink sink, const string[] givenOrder) @safe
     if (isOutputRange!(Sink, char[]))
     in (givenOrder.length, "Tried to serialise a JSON storage in order given without a given order")
-    do
     {
         import lu.string : indent;
         import std.format : formattedWrite;
