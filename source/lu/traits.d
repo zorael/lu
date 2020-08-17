@@ -78,17 +78,16 @@ mixin template MixinConstraints(MixinScope mixinScope, string mixinName = "a con
 private:
     import lu.traits : CategoryName, MixinScope;
     import std.traits : isSomeFunction;
-    import std.format : format;
 
     /// Sentinel value as anchor to get the parent scope from.
     enum mixinSentinel = true;
 
     alias mixinParent = __traits(parent, mixinSentinel);
-
     static if (isSomeFunction!mixinParent)
     {
         static if (!(mixinScope & MixinScope.function_))
         {
+            import std.format : format;
             alias mixinParentInfo = CategoryName!mixinParent;
             static assert(0, ("%s `%s` mixes in `%s` but it is not supposed to be " ~
                 "mixed into a function")
@@ -99,6 +98,7 @@ private:
     {
         static if (!(mixinScope & MixinScope.class_))
         {
+            import std.format : format;
             alias mixinParentInfo = CategoryName!mixinParent;
             static assert(0, ("%s `%s` mixes in `%s` but it is not supposed to be " ~
                 "mixed into a class")
@@ -109,6 +109,7 @@ private:
     {
         static if (!(mixinScope & MixinScope.struct_))
         {
+            import std.format : format;
             alias mixinParentInfo = CategoryName!mixinParent;
             static assert(0, ("%s `%s` mixes in `%s` but it is not supposed to be " ~
                 "mixed into a struct")
@@ -123,6 +124,7 @@ private:
         {
             static if (!(mixinScope & MixinScope.module_))
             {
+                import std.format : format;
                 alias mixinParentInfo = CategoryName!mixinParent;
                 static assert(0, ("%s `%s` mixes in `%s` but it is not supposed to be " ~
                     "mixed into a module-level scope")
@@ -134,6 +136,7 @@ private:
     {
         static if (!(mixinScope & mixinScope.module_))
         {
+            import std.format : format;
             alias mixinParentInfo = CategoryName!mixinParent;
             static assert(0, ("%s `%s` mixes in `%s` but it is not supposed to be " ~
                 "mixed into a module-level scope")
@@ -142,6 +145,7 @@ private:
     }
     else
     {
+        import std.format : format;
         static assert(0, "Logic error; unexpected scope type of parent of mixin `%s`: `%s`"
             .format(mixinName, fullyQualifiedName!mixinParent));
     }
