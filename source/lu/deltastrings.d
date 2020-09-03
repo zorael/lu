@@ -1,54 +1,54 @@
 /++
- +  Functions used to generate strings of statements describing the differences
- +  (or delta) between two instances of a struct or class of the same type.
- +  They can be either assignment statements or assert statements.
- +
- +  Example:
- +  ---
- +  struct Foo
- +  {
- +      string s;
- +      int i;
- +      bool b;
- +  }
- +
- +  Foo altered;
- +
- +  altered.s = "some string";
- +  altered.i = 42;
- +  altered.b = true;
- +
- +  Appender!(char[]) sink;
- +
- +  // Fill with delta between `Foo.init` and modified `altered`
- +  sink.formatDeltaInto!(No.asserts)(Foo.init, altered);
- +
- +  assert(sink.data ==
- +  `s = "some string";
- +  i = 42;
- +  b = true;
- +  `);
- +  sink.clear();
- +
- +  // Do the same but prepend the name "altered" to the member names
- +  sink.formatDeltaInto!(No.asserts)(Foo.init, altered, 0, "altered");
- +
- +  assert(sink.data ==
- +  `altered.s = "some string";
- +  altered.i = 42;
- +  altered.b = true;
- +  `);
- +  sink.clear();
- +
- +  // Generate assert statements instead, for easy copy/pasting into unittest blocks
- +  sink.formatDeltaInto!(Yes.asserts)(Foo.init, altered, 0, "altered");
- +
- +  assert(sink.data ==
- +  `assert((altered.s == "some string"), altered.s);
- +  assert((altered.i == 42), altered.i.to!string);
- +  assert(altered.b, altered.b.to!string);
- +  `);
- +  ---
+    Functions used to generate strings of statements describing the differences
+    (or delta) between two instances of a struct or class of the same type.
+    They can be either assignment statements or assert statements.
+
+    Example:
+    ---
+    struct Foo
+    {
+        string s;
+        int i;
+        bool b;
+    }
+
+    Foo altered;
+
+    altered.s = "some string";
+    altered.i = 42;
+    altered.b = true;
+
+    Appender!(char[]) sink;
+
+    // Fill with delta between `Foo.init` and modified `altered`
+    sink.formatDeltaInto!(No.asserts)(Foo.init, altered);
+
+    assert(sink.data ==
+    `s = "some string";
+    i = 42;
+    b = true;
+    `);
+    sink.clear();
+
+    // Do the same but prepend the name "altered" to the member names
+    sink.formatDeltaInto!(No.asserts)(Foo.init, altered, 0, "altered");
+
+    assert(sink.data ==
+    `altered.s = "some string";
+    altered.i = 42;
+    altered.b = true;
+    `);
+    sink.clear();
+
+    // Generate assert statements instead, for easy copy/pasting into unittest blocks
+    sink.formatDeltaInto!(Yes.asserts)(Foo.init, altered, 0, "altered");
+
+    assert(sink.data ==
+    `assert((altered.s == "some string"), altered.s);
+    assert((altered.i == 42), altered.i.to!string);
+    assert(altered.b, altered.b.to!string);
+    `);
+    ---
  +/
 module lu.deltastrings;
 
@@ -65,35 +65,35 @@ public:
 
 // formatDeltaInto
 /++
- +  Constructs statement lines for each changed field (or the delta) between two
- +  instances of a struct and stores them into a passed output sink.
- +
- +  Example:
- +  ---
- +  struct Foo
- +  {
- +      string s;
- +      int i;
- +      bool b;
- +  }
- +
- +  Foo altered;
- +
- +  altered.s = "some string";
- +  altered.i = 42;
- +  altered.b = true;
- +
- +  Appender!(char[]) sink;
- +  sink.formatDeltaInto!(No.asserts)(Foo.init, altered);
- +  ---
- +
- +  Params:
- +      asserts = Whether or not to build assert statements or assignment statements.
- +      sink = Output buffer to write to.
- +      before = Original struct object.
- +      after = Changed struct object.
- +      indents = The number of tabs to indent the lines with.
- +      submember = The string name of a recursing symbol, if applicable.
+    Constructs statement lines for each changed field (or the delta) between two
+    instances of a struct and stores them into a passed output sink.
+
+    Example:
+    ---
+    struct Foo
+    {
+        string s;
+        int i;
+        bool b;
+    }
+
+    Foo altered;
+
+    altered.s = "some string";
+    altered.i = 42;
+    altered.b = true;
+
+    Appender!(char[]) sink;
+    sink.formatDeltaInto!(No.asserts)(Foo.init, altered);
+    ---
+
+    Params:
+        asserts = Whether or not to build assert statements or assignment statements.
+        sink = Output buffer to write to.
+        before = Original struct object.
+        after = Changed struct object.
+        indents = The number of tabs to indent the lines with.
+        submember = The string name of a recursing symbol, if applicable.
  +/
 void formatDeltaInto(Flag!"asserts" asserts = No.asserts, Sink, QualThing)
     (auto ref Sink sink, QualThing before, QualThing after,

@@ -1,36 +1,36 @@
 /++
- +  Containers and thereto related functionality.
- +
- +  Example:
- +  ---
- +  {
- +      Buffer!string buffer;
- +
- +      buffer.put("abc");
- +      buffer.put("def");
- +      assert(!buffer.empty);
- +      assert(buffer.front == "abc");
- +      buffer.popFront();
- +      assert(buffer.front == "def");
- +      buffer.popFront();
- +      assert(buffer.empty);
- +  }
- +  {
- +      Buffer!(char, Yes.dynamic, 3) buffer;
- +
- +      assert(!buffer.buf.length);
- +      buffer ~= 'a';
- +      assert(buffer.buf.length == 3);
- +      buffer ~= 'b';
- +      buffer ~= 'c';
- +      assert(buffer.length == 3);
- +      buffer ~= 'd';
- +      assert(buffer.buf.length > 3);
- +      assert(buffer[0..5] == "abcd");
- +      buffer.clear();
- +      assert(buffer.empty);
- +  }
- +  ---
+    Containers and thereto related functionality.
+
+    Example:
+    ---
+    {
+        Buffer!string buffer;
+
+        buffer.put("abc");
+        buffer.put("def");
+        assert(!buffer.empty);
+        assert(buffer.front == "abc");
+        buffer.popFront();
+        assert(buffer.front == "def");
+        buffer.popFront();
+        assert(buffer.empty);
+    }
+    {
+        Buffer!(char, Yes.dynamic, 3) buffer;
+
+        assert(!buffer.buf.length);
+        buffer ~= 'a';
+        assert(buffer.buf.length == 3);
+        buffer ~= 'b';
+        buffer ~= 'c';
+        assert(buffer.length == 3);
+        buffer ~= 'd';
+        assert(buffer.buf.length > 3);
+        assert(buffer[0..5] == "abcd");
+        buffer.clear();
+        assert(buffer.empty);
+    }
+    ---
  +/
 module lu.container;
 
@@ -45,35 +45,35 @@ public:
 
 // Buffer
 /++
- +  Simple buffer for storing and fetching items of any type `T`. Does not use
- +  manual memory allcation.
- +
- +  It can use a static array internally to store elements on the stack, which
- +  imposes a hard limit on how many items can be added, or a dynamic heap one
- +  with a resizable buffer.
- +
- +  Example:
- +  ---
- +  Buffer!(string, No.dynamic, 16) buffer;
- +
- +  buffer.put("abc");
- +  buffer ~= "def";
- +  assert(!buffer.empty);
- +  assert(buffer.front == "abc");
- +  buffer.popFront();
- +  assert(buffer.front == "def");
- +  buffer.popFront();
- +  assert(buffer.empty);
- +  ---
- +
- +  Params:
- +      T = Buffer item type.
- +      dynamic = Whether to use a dynamic array whose size can be grown at
- +          runtime, or to use a static array with a fixed size. Trying to add
- +          more elements than there is room for will cause an assert.
- +          Defaults to `No.dynamic`; a static bufferCurrent position in the array..
- +      originalSize = How many items to allocate space for. If `No.dynamic` was
- +          passed it will assert if you attempt to store anything past this amount.
+    Simple buffer for storing and fetching items of any type `T`. Does not use
+    manual memory allcation.
+
+    It can use a static array internally to store elements on the stack, which
+    imposes a hard limit on how many items can be added, or a dynamic heap one
+    with a resizable buffer.
+
+    Example:
+    ---
+    Buffer!(string, No.dynamic, 16) buffer;
+
+    buffer.put("abc");
+    buffer ~= "def";
+    assert(!buffer.empty);
+    assert(buffer.front == "abc");
+    buffer.popFront();
+    assert(buffer.front == "def");
+    buffer.popFront();
+    assert(buffer.empty);
+    ---
+
+    Params:
+        T = Buffer item type.
+        dynamic = Whether to use a dynamic array whose size can be grown at
+            runtime, or to use a static array with a fixed size. Trying to add
+            more elements than there is room for will cause an assert.
+            Defaults to `No.dynamic`; a static bufferCurrent position in the array..
+        originalSize = How many items to allocate space for. If `No.dynamic` was
+            passed it will assert if you attempt to store anything past this amount.
  +/
 struct Buffer(T, Flag!"dynamic" dynamic = No.dynamic, size_t originalSize = 128)
 {
@@ -82,40 +82,40 @@ pure nothrow:
     static if (dynamic)
     {
         /++
-         +  By how much to grow the buffer when we reach the end of it.
+            By how much to grow the buffer when we reach the end of it.
          +/
         private enum growthFactor = 1.5;
 
         /++
-         +  Internal buffer dynamic array.
+            Internal buffer dynamic array.
          +/
         T[] buf;
 
         /++
-         +  Variable buffer size.
+            Variable buffer size.
          +/
         size_t bufferSize;
     }
     else
     {
         /++
-         +  Internal buffer static array.
+            Internal buffer static array.
          +/
         T[bufferSize] buf;
 
         /++
-         +  Static buffer size.
+            Static buffer size.
          +/
         alias bufferSize = originalSize;
     }
 
     /++
-     +  Current position in the array.
+        Current position in the array.
      +/
     ptrdiff_t pos;
 
     /++
-     +  Position of last entry in the array.
+        Position of last entry in the array.
      +/
     ptrdiff_t end;
 
@@ -124,12 +124,12 @@ pure nothrow:
     {
         // put
         /++
-         +  Append an item to the end of the buffer.
-         +
-         +  If it would be put beyond the end of the buffer, it will be resized to fit.
-         +
-         +  Params:
-         +      more = Item to add.
+            Append an item to the end of the buffer.
+
+            If it would be put beyond the end of the buffer, it will be resized to fit.
+
+            Params:
+                more = Item to add.
          +/
         void put(/*const*/ T more)
         {
@@ -146,12 +146,12 @@ pure nothrow:
     {
         // put
         /++
-         +  Append an item to the end of the buffer.
-         +
-         +  If it would be put beyond the end of the buffer, it will assert.
-         +
-         +  Params:
-         +      more = Item to add.
+            Append an item to the end of the buffer.
+
+            If it would be put beyond the end of the buffer, it will assert.
+
+            Params:
+                more = Item to add.
          +/
         void put(/*const*/ T more) @nogc
         in ((end < bufferSize), '`' ~ typeof(this).stringof ~ "` buffer overflow")
@@ -164,11 +164,11 @@ pure nothrow:
     {
         // reserve
         /++
-         +  Reserves enough room for the specified number of elements. If there
-         +  is already enough room, nothing is done. Otherwise the buffer is grown.
-         +
-         +  Params:
-         +      reserveSize = Number of elements to reserve size for.
+            Reserves enough room for the specified number of elements. If there
+            is already enough room, nothing is done. Otherwise the buffer is grown.
+
+            Params:
+                reserveSize = Number of elements to reserve size for.
          +/
         void reserve(const size_t reserveSize)
         {
@@ -184,11 +184,11 @@ pure nothrow:
     {
         // opOpAssign
         /++
-         +  Implements `buf ~= someT` (appending) by wrapping `put`.
-         +
-         +  Params:
-         +      op = Operation type, here specialised to "`~`".
-         +      more = Item to add.
+            Implements `buf ~= someT` (appending) by wrapping `put`.
+
+            Params:
+                op = Operation type, here specialised to "`~`".
+                more = Item to add.
          +/
         void opOpAssign(string op : "~")(const T more)
         {
@@ -199,11 +199,11 @@ pure nothrow:
     {
         // opOpAssign
         /++
-         +  Implements `buf ~= someT` (appending) by wrapping `put`.
-         +
-         +  Params:
-         +      op = Operation type, here specialised to "`~`".
-         +      more = Item to add.
+            Implements `buf ~= someT` (appending) by wrapping `put`.
+
+            Params:
+                op = Operation type, here specialised to "`~`".
+                more = Item to add.
          +/
         void opOpAssign(string op : "~")(const T more) @nogc
         {
@@ -213,10 +213,10 @@ pure nothrow:
 
     // front
     /++
-     +  Fetches the item at the current position of the buffer.
-     +
-     +  Returns:
-     +      An item T.
+        Fetches the item at the current position of the buffer.
+
+        Returns:
+            An item T.
      +/
     T front() const @nogc
     in ((end > 0), '`' ~ typeof(this).stringof ~ "` buffer underrun")
@@ -226,7 +226,7 @@ pure nothrow:
 
     // popFront
     /++
-     +  Advances the current position to the next item in the buffer.
+        Advances the current position to the next item in the buffer.
      +/
     void popFront() @nogc
     {
@@ -235,11 +235,11 @@ pure nothrow:
 
     // length
     /++
-     +  Returns what amounts to the current length of the buffer; the distance
-     +  between the current position `pos` and the last element `end`.
-     +
-     +  Returns:
-     +      The buffer's current length.
+        Returns what amounts to the current length of the buffer; the distance
+        between the current position `pos` and the last element `end`.
+
+        Returns:
+            The buffer's current length.
      +/
     size_t length() const @nogc
     {
@@ -248,13 +248,13 @@ pure nothrow:
 
     // empty
     /++
-     +  Returns whether or not the array is considered empty.
-     +
-     +  Mind that the buffer may well still contain old contents. Use `clear`
-     +  to zero it out.
-     +
-     +  Returns:
-     +      `true` if there are items available to get via `front`, `false` if not.
+        Returns whether or not the array is considered empty.
+
+        Mind that the buffer may well still contain old contents. Use `clear`
+        to zero it out.
+
+        Returns:
+            `true` if there are items available to get via `front`, `false` if not.
      +/
     bool empty() const @nogc
     {
@@ -263,10 +263,10 @@ pure nothrow:
 
     // reset
     /++
-     +  Resets the array positions, effectively soft-emptying the buffer.
-     +
-     +  The old elements' values are still there, they will just be overwritten
-     +  as the buffer is appended to.
+        Resets the array positions, effectively soft-emptying the buffer.
+
+        The old elements' values are still there, they will just be overwritten
+        as the buffer is appended to.
      +/
     void reset() @nogc
     {
@@ -276,7 +276,7 @@ pure nothrow:
 
     // clear
     /++
-     +  Zeroes out the buffer's elements, getting rid of old contents.
+        Zeroes out the buffer's elements, getting rid of old contents.
      +/
     void clear() @nogc
     {

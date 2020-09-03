@@ -1,19 +1,19 @@
 /++
- +  This module contains functions that in one way or another converts its
- +  arguments into something else.
- +
- +  Credit for `Enum` goes to Stephan Koch (https://github.com/UplinkCoder).
- +
- +  Example:
- +  ---
- +  enum SomeEnum { one, two, three };
- +
- +  SomeEnum foo = Enum!SomeEnum.fromString("one");
- +  SomeEnum bar = Enum!SomeEnum.fromString("three");
- +
- +  assert(foo == SomeEnum.one);
- +  assert(bar == SomeEnum.three);
- +  ---
+    This module contains functions that in one way or another converts its
+    arguments into something else.
+
+    Credit for `Enum` goes to Stephan Koch (https://github.com/UplinkCoder).
+
+    Example:
+    ---
+    enum SomeEnum { one, two, three };
+
+    SomeEnum foo = Enum!SomeEnum.fromString("one");
+    SomeEnum bar = Enum!SomeEnum.fromString("three");
+
+    assert(foo == SomeEnum.one);
+    assert(bar == SomeEnum.three);
+    ---
  +/
 module lu.conv;
 
@@ -29,53 +29,53 @@ public:
 
 // Enum
 /++
- +  Template housing optimised functions to get the string name of an enum
- +  member, or the enum member of a name string.
- +
- +  `std.conv.to` is typically the go-to for this job; however it quickly bloats
- +  the binary and is not performant on larger enums.
- +
- +  Params:
- +      E = enum to base this template on.
+    Template housing optimised functions to get the string name of an enum
+    member, or the enum member of a name string.
+
+    `std.conv.to` is typically the go-to for this job; however it quickly bloats
+    the binary and is not performant on larger enums.
+
+    Params:
+        E = enum to base this template on.
  +/
 template Enum(E)
 if (is(E == enum))
 {
     // fromString
     /++
-     +  Takes the member of an enum by string and returns that enum member.
-     +
-     +  It lowers to a big switch of the enum member strings. It is faster than
-     +  `std.conv.to` and generates less template bloat. However, it does not work
-     +  with enums where multiple members share the same values, as the big switch
-     +  ends up getting duplicate cases.
-     +
-     +  Taken from: https://forum.dlang.org/post/bfnwstkafhfgihavtzsz@forum.dlang.org
-     +  written by Stephan Koch (https://github.com/UplinkCoder).
-     +
-     +  Example:
-     +  ---
-     +  enum SomeEnum { one, two, three };
-     +
-     +  SomeEnum foo = Enum!SomeEnum.fromString("one");
-     +  SomeEnum bar = Enum!SomeEnum.fromString("three");
-     +
-     +  assert(foo == SomeEnum.one);
-     +  assert(bar == SomeEnum.three);
-     +  ---
-     +
-     +  Params:
-     +      enumstring = the string name of an enum member.
-     +
-     +  Returns:
-     +      The enum member whose name matches the enumstring string (not whose
-     +      *value* matches the string).
-     +
-     +  Throws: `std.conv.ConvException` if no matching enum member with the
-     +      passed name could be found.
-     +
-     +  Bugs:
-     +      Does not work with enums that have members with duplicate values.
+        Takes the member of an enum by string and returns that enum member.
+
+        It lowers to a big switch of the enum member strings. It is faster than
+        `std.conv.to` and generates less template bloat. However, it does not work
+        with enums where multiple members share the same values, as the big switch
+        ends up getting duplicate cases.
+
+        Taken from: https://forum.dlang.org/post/bfnwstkafhfgihavtzsz@forum.dlang.org
+        written by Stephan Koch (https://github.com/UplinkCoder).
+
+        Example:
+        ---
+        enum SomeEnum { one, two, three };
+
+        SomeEnum foo = Enum!SomeEnum.fromString("one");
+        SomeEnum bar = Enum!SomeEnum.fromString("three");
+
+        assert(foo == SomeEnum.one);
+        assert(bar == SomeEnum.three);
+        ---
+
+        Params:
+            enumstring = the string name of an enum member.
+
+        Returns:
+            The enum member whose name matches the enumstring string (not whose
+            *value* matches the string).
+
+        Throws: `std.conv.ConvException` if no matching enum member with the
+            passed name could be found.
+
+        Bugs:
+            Does not work with enums that have members with duplicate values.
      +/
     E fromString(const string enumstring) pure
     {
@@ -103,28 +103,28 @@ if (is(E == enum))
 
     // toString
     /++
-     +  The inverse of `fromString`, this function takes an enum member value
-     +  and returns its string identifier.
-     +
-     +  It lowers to a big switch of the enum members. It is faster than
-     +  `std.conv.to` and generates less template bloat.
-     +
-     +  Taken from: https://forum.dlang.org/post/bfnwstkafhfgihavtzsz@forum.dlang.org
-     +  written by Stephan Koch (https://github.com/UplinkCoder).
-     +
-     +  Example:
-     +  ---
-     +  enum SomeEnum { one, two, three };
-     +
-     +  string foo = Enum!SomeEnum.toString(one);
-     +  assert(foo == "one");
-     +  ---
-     +
-     +  Params:
-     +      value = Enum member whose string name we want.
-     +
-     +  Returns:
-     +      The string name of the passed enum member.
+        The inverse of `fromString`, this function takes an enum member value
+        and returns its string identifier.
+
+        It lowers to a big switch of the enum members. It is faster than
+        `std.conv.to` and generates less template bloat.
+
+        Taken from: https://forum.dlang.org/post/bfnwstkafhfgihavtzsz@forum.dlang.org
+        written by Stephan Koch (https://github.com/UplinkCoder).
+
+        Example:
+        ---
+        enum SomeEnum { one, two, three };
+
+        string foo = Enum!SomeEnum.toString(one);
+        assert(foo == "one");
+        ---
+
+        Params:
+            value = Enum member whose string name we want.
+
+        Returns:
+            The string name of the passed enum member.
      +/
     string toString(E value) pure nothrow
     {
@@ -200,22 +200,22 @@ unittest
 
 // numFromHex
 /++
- +  Returns the decimal value of a hex number in string form.
- +
- +  Example:
- +  ---
- +  int fifteen = numFromHex("F");
- +  int twofiftyfive = numFromHex("FF");
- +  ---
- +
- +  Params:
- +      acceptLowercase = Flag of whether or not to accept rrggbb in lowercase form.
- +      hex = Hexadecimal number in string form.
- +
- +  Returns:
- +      An integer equalling the value of the passed hexadecimal string.
- +
- +  Throws: `std.conv.ConvException` if the hex string was malformed.
+    Returns the decimal value of a hex number in string form.
+
+    Example:
+    ---
+    int fifteen = numFromHex("F");
+    int twofiftyfive = numFromHex("FF");
+    ---
+
+    Params:
+        acceptLowercase = Flag of whether or not to accept rrggbb in lowercase form.
+        hex = Hexadecimal number in string form.
+
+    Returns:
+        An integer equalling the value of the passed hexadecimal string.
+
+    Throws: `std.conv.ConvException` if the hex string was malformed.
  +/
 uint numFromHex(Flag!"acceptLowercase" acceptLowercase = No.acceptLowercase)(const string hex) pure
 out (total; (total < 16^^hex.length), "`numFromHex` output is too large")
@@ -265,18 +265,18 @@ out (total; (total < 16^^hex.length), "`numFromHex` output is too large")
 
 // numFromHex
 /++
- +  Convenience wrapper that takes a hex string and maps the values to three
- +  integers passed by ref.
- +
- +  This is to be used when mapping a `#RRGGBB` colour to their decimal
- +  red/green/blue equivalents.
- +
- +  Params:
- +      acceptLowercase = Whether or not to accept the rrggbb string in lowercase letters.
- +      hexString = Hexadecimal number (colour) in string form.
- +      r = Out-reference integer for the "red" part of the hex string.
- +      g = Out-reference integer for the "green" part of the hex string.
- +      b = Out-reference integer for the "blue" part of the hex string.
+    Convenience wrapper that takes a hex string and maps the values to three
+    integers passed by ref.
+
+    This is to be used when mapping a `#RRGGBB` colour to their decimal
+    red/green/blue equivalents.
+
+    Params:
+        acceptLowercase = Whether or not to accept the rrggbb string in lowercase letters.
+        hexString = Hexadecimal number (colour) in string form.
+        r = Out-reference integer for the "red" part of the hex string.
+        g = Out-reference integer for the "green" part of the hex string.
+        b = Out-reference integer for the "blue" part of the hex string.
  +/
 void numFromHex(Flag!"acceptLowercase" acceptLowercase = No.acceptLowercase)
     (const string hexString, out int r, out int g, out int b) pure
@@ -334,24 +334,24 @@ unittest
 
 // toAlphaInto
 /++
- +  Translates an integer into an alphanumeric string. Assumes ASCII.
- +  Overload that takes an output range sink.
- +
- +  Example:
- +  ---
- +  Appender!string sink;
- +  int num = 12345;
- +  num.toAlphaInto(sink);
- +  assert(sink.data == "12345");
- +  assert(sink.data == num.to!string);
- +  ---
- +
- +  Params:
- +      maxDigits = The maximum number of digits to expect input of.
- +      leadingZeroes = The minimum amount of leading zeroes to include in the
- +          output, mirroring the format specifier "`%0nd`".
- +      num = Integer to translate into string.
- +      sink = Output range sink.
+    Translates an integer into an alphanumeric string. Assumes ASCII.
+    Overload that takes an output range sink.
+
+    Example:
+    ---
+    Appender!string sink;
+    int num = 12345;
+    num.toAlphaInto(sink);
+    assert(sink.data == "12345");
+    assert(sink.data == num.to!string);
+    ---
+
+    Params:
+        maxDigits = The maximum number of digits to expect input of.
+        leadingZeroes = The minimum amount of leading zeroes to include in the
+            output, mirroring the format specifier "`%0nd`".
+        num = Integer to translate into string.
+        sink = Output range sink.
  +/
 void toAlphaInto(size_t maxDigits = 12, uint leadingZeroes = 0, Num, Sink)
     (const Num num, auto ref Sink sink)
@@ -466,27 +466,27 @@ unittest
 
 // toAlpha
 /++
- +  Translates an integer into an alphanumeric string. Assumes ASCII.
- +  Overload that returns the string.
- +
- +  Merely leverages `toAlphaInto`.
- +
- +  Example:
- +  ---
- +  int num = 12345;
- +  string asString = num.toAlpha;
- +  assert(asString == "12345");
- +  assert(asString == num.to!string);
- +  ---
- +
- +  Params:
- +      maxDigits = The maximum number of digits to expect input of.
- +      leadingZeroes = The minimum amount of leading zeroes to include in the
- +          output, mirroring the format specifier "`%0nd`".
- +      num = Integer to translate into string.
- +
- +  Returns:
- +      The passed integer `num` in string form.
+    Translates an integer into an alphanumeric string. Assumes ASCII.
+    Overload that returns the string.
+
+    Merely leverages `toAlphaInto`.
+
+    Example:
+    ---
+    int num = 12345;
+    string asString = num.toAlpha;
+    assert(asString == "12345");
+    assert(asString == num.to!string);
+    ---
+
+    Params:
+        maxDigits = The maximum number of digits to expect input of.
+        leadingZeroes = The minimum amount of leading zeroes to include in the
+            output, mirroring the format specifier "`%0nd`".
+        num = Integer to translate into string.
+
+    Returns:
+        The passed integer `num` in string form.
  +/
 string toAlpha(size_t maxDigits = 12, uint leadingZeroes = 0, Num)(const Num num) pure
 {

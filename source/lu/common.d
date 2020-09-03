@@ -1,5 +1,5 @@
 /++
- +  Functionality generic enough to be used in several places.
+    Functionality generic enough to be used in several places.
  +/
 module lu.common;
 
@@ -14,7 +14,7 @@ public:
 
 // Next
 /++
- +  Enum of flags carrying the meaning of "what to do next".
+    Enum of flags carrying the meaning of "what to do next".
  +/
 enum Next
 {
@@ -28,9 +28,9 @@ enum Next
 
 // ReturnValueException
 /++
- +  Exception, to be thrown when an executed command returns an error value.
- +
- +  It is a normal `object.Exception` but with an attached command and return value.
+    Exception, to be thrown when an executed command returns an error value.
+
+    It is a normal `object.Exception` but with an attached command and return value.
  +/
 final class ReturnValueException : Exception
 {
@@ -70,10 +70,10 @@ final class ReturnValueException : Exception
 
 // FileExistsException
 /++
- +  Exception, to be thrown when attempting to create a file or directory and
- +  finding that one already exists with the same name.
- +
- +  It is a normal `object.Exception` but with an attached filename string.
+    Exception, to be thrown when attempting to create a file or directory and
+    finding that one already exists with the same name.
+
+    It is a normal `object.Exception` but with an attached filename string.
  +/
 final class FileExistsException : Exception
 {
@@ -100,11 +100,11 @@ final class FileExistsException : Exception
 
 // FileTypeMismatchException
 /++
- +  Exception, to be thrown when attempting to access a file or directory and
- +  finding that something with the that name exists, but is of an unexpected type.
- +
- +  It is a normal `object.Exception` but with an embedded filename string, and an uint
- +  representing the existing file's type (file, directory, symlink, ...).
+    Exception, to be thrown when attempting to access a file or directory and
+    finding that something with the that name exists, but is of an unexpected type.
+
+    It is a normal `object.Exception` but with an embedded filename string, and an uint
+    representing the existing file's type (file, directory, symlink, ...).
  +/
 final class FileTypeMismatchException : Exception
 {
@@ -136,29 +136,29 @@ final class FileTypeMismatchException : Exception
 
 // sharedDomains
 /++
- +  Calculates how many dot-separated suffixes two strings share.
- +
- +  This is useful to see to what extent two addresses are similar.
- +
- +  Example:
- +  ---
- +  int numDomains = sharedDomains("irc.freenode.net", "leguin.freenode.net");
- +  assert(numDomains == 2);  // freenode.net
- +
- +  int numDomains2 = sharedDomains!(No.caseSensitive)("Portlane2.EU.GameSurge.net", "services.gamesurge.net");
- +  assert(numDomains2 == 2);  // gamesurge.net
- +  ---
- +
- +  Params:
- +      caseSensitive = Whether or not comparison should be done on a case-sensitive basis.
- +      one = First domain string.
- +      other = Second domain string.
- +
- +  Returns:
- +      The number of domains the two strings share.
- +
- +  TODO:
- +      Support partial globs.
+    Calculates how many dot-separated suffixes two strings share.
+
+    This is useful to see to what extent two addresses are similar.
+
+    Example:
+    ---
+    int numDomains = sharedDomains("irc.freenode.net", "leguin.freenode.net");
+    assert(numDomains == 2);  // freenode.net
+
+    int numDomains2 = sharedDomains!(No.caseSensitive)("Portlane2.EU.GameSurge.net", "services.gamesurge.net");
+    assert(numDomains2 == 2);  // gamesurge.net
+    ---
+
+    Params:
+        caseSensitive = Whether or not comparison should be done on a case-sensitive basis.
+        one = First domain string.
+        other = Second domain string.
+
+    Returns:
+        The number of domains the two strings share.
+
+    TODO:
+        Support partial globs.
  +/
 auto sharedDomains(Flag!"caseSensitive" caseSensitive = Yes.caseSensitive)
     (const string one, const string other) pure @nogc nothrow

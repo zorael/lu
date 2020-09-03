@@ -1,53 +1,53 @@
 /++
- +  Simple JSON wrappers around Phobos' `std.json` to make keeping JSON storages easier.
- +  This is not a replacement for `std.json`; it merely extends it.
- +
- +  Example:
- +  ---
- +  JSONStorage json;
- +  assert(json.storage.type == JSONType.null_);
- +
- +  json.load("somefile.json");
- +  assert(json.storage.type == JSONType.object);
- +
- +  json.serialiseInto!(JSONStorage.KeyOrderStrategy.inGivenOrder)
- +      (stdout.lockingTextWriter, [ "foo", "bar", "baz "]);
- +
- +  // Printed to screen, regardless how `.toPrettyString` would have ordered it:
- +  /*
- +      {
- +          "foo"
- +          {
- +              1,
- +              2,
- +          },
- +          "bar"
- +          {
- +              3,
- +              4,
- +          },
- +          "baz"
- +          {
- +              5,
- +              6,
- +          }
- +      }
- +  */
- +
- +  // Prints keys in sorted order.
- +  json.serialiseInto!(JSONStorage.KeyOrderStrategy.sorted)(stdout.lockingTextWriter)
- +
- +  // Use a `std.array.Appender` to serialise into a string.
- +
- +  // Adding and removing values still needs the same dance as with std.json.
- +  // Room for future improvement.
- +  json.storage["qux"] = null;
- +  json.storage["qux"].array = null;
- +  json.storage["qux"].array ~= 7;
- +  json.storage["qux"].array ~= 8;
- +
- +  json.save("somefile.json");
- +  ---
+    Simple JSON wrappers around Phobos' `std.json` to make keeping JSON storages easier.
+    This is not a replacement for `std.json`; it merely extends it.
+
+    Example:
+    ---
+    JSONStorage json;
+    assert(json.storage.type == JSONType.null_);
+
+    json.load("somefile.json");
+    assert(json.storage.type == JSONType.object);
+
+    json.serialiseInto!(JSONStorage.KeyOrderStrategy.inGivenOrder)
+        (stdout.lockingTextWriter, [ "foo", "bar", "baz "]);
+
+    // Printed to screen, regardless how `.toPrettyString` would have ordered it:
+    /*
+        {
+            "foo"
+            {
+                1,
+                2,
+            },
+            "bar"
+            {
+                3,
+                4,
+            },
+            "baz"
+            {
+                5,
+                6,
+            }
+        }
+    */
+
+    // Prints keys in sorted order.
+    json.serialiseInto!(JSONStorage.KeyOrderStrategy.sorted)(stdout.lockingTextWriter)
+
+    // Use a `std.array.Appender` to serialise into a string.
+
+    // Adding and removing values still needs the same dance as with std.json.
+    // Room for future improvement.
+    json.storage["qux"] = null;
+    json.storage["qux"].array = null;
+    json.storage["qux"].array ~= 7;
+    json.storage["qux"].array ~= 8;
+
+    json.save("somefile.json");
+    ---
  +/
 module lu.json;
 
@@ -61,22 +61,22 @@ public:
 
 // JSONStorage
 /++
- +  A wrapped `std.json.JSONValue` with helper functions.
- +
- +  Example:
- +  ---
- +  JSONStorage s;
- +
- +  s.reset();  // not always necessary
- +
- +  s.storage["foo"] = null;  // JSONValue quirk
- +  s.storage["foo"]["abc"] = JSONValue(42);
- +  s.storage["foo"]["def"] = JSONValue(3.14f);
- +  s.storage["foo"]["ghi"] = JSONValue([ "bar", "baz", "qux" ]);
- +  s.storage["bar"] = JSONValue("asdf");
- +
- +  assert(s.storage.length == 2);
- +  ---
+    A wrapped `std.json.JSONValue` with helper functions.
+
+    Example:
+    ---
+    JSONStorage s;
+
+    s.reset();  // not always necessary
+
+    s.storage["foo"] = null;  // JSONValue quirk
+    s.storage["foo"]["abc"] = JSONValue(42);
+    s.storage["foo"]["def"] = JSONValue(3.14f);
+    s.storage["foo"]["ghi"] = JSONValue([ "bar", "baz", "qux" ]);
+    s.storage["bar"] = JSONValue("asdf");
+
+    assert(s.storage.length == 2);
+    ---
  +/
 struct JSONStorage
 {
@@ -88,21 +88,21 @@ struct JSONStorage
     alias storage this;
 
     /++
-     +  Strategy in which to sort object-type JSON keys when we format/serialise
-     +  the stored `storage` to string.
+        Strategy in which to sort object-type JSON keys when we format/serialise
+        the stored `storage` to string.
      +/
     enum KeyOrderStrategy
     {
         /++
-         +  Order is as `std.json.JSONValue.toPrettyString` formats it.
+            Order is as `std.json.JSONValue.toPrettyString` formats it.
          +/
         passthrough,
 
         /++
-         +  Order is as it is when we iterate its members. The same order as
-         +  `KeyOrderStrategy.passthrough` sees, but formatted to look identical
-         +  to how `KeyOrderStrategy.sorted`, `KeyOrderStrategy.reverse` and
-         +  `KeyOrderStrategy.inGivenOrder`.
+            Order is as it is when we iterate its members. The same order as
+            `KeyOrderStrategy.passthrough` sees, but formatted to look identical
+            to how `KeyOrderStrategy.sorted`, `KeyOrderStrategy.reverse` and
+            `KeyOrderStrategy.inGivenOrder`.
          +/
         adjusted,
 
@@ -110,17 +110,17 @@ struct JSONStorage
         reverse,  /// Reversely sorted by key.
 
         /++
-         +  Keys are listed in the order given in a passed `string[]` array.
-         +
-         +  Actual keys not present in the array are not included in the output,
-         +  and keys not existing yet present in the array are added as empty.
+            Keys are listed in the order given in a passed `string[]` array.
+
+            Actual keys not present in the array are not included in the output,
+            and keys not existing yet present in the array are added as empty.
          +/
         inGivenOrder,
     }
 
     // reset
     /++
-     +  Initialises and clears the `std.json.JSONValue`, preparing it for object storage.
+        Initialises and clears the `std.json.JSONValue`, preparing it for object storage.
      +/
     void reset() @safe pure nothrow @nogc
     {
@@ -129,18 +129,18 @@ struct JSONStorage
 
     // load
     /++
-     +  Loads JSON from disk.
-     +
-     +  In the case where the file doesn't exist or is otherwise invalid, then
-     +  `std.json.JSONValue` is initialised to null (by way of `JSONStorage.reset`).
-     +
-     +  Params:
-     +      filename = Filename of file to read from.
-     +
-     +  Throws:
-     +      Whatever `std.file.readText` and/or `std.json.parseJSON` throws.
-     +      `lu.common.FileTypeMismatchException` if the filename exists
-     +      but is not a file.
+        Loads JSON from disk.
+
+        In the case where the file doesn't exist or is otherwise invalid, then
+        `std.json.JSONValue` is initialised to null (by way of `JSONStorage.reset`).
+
+        Params:
+            filename = Filename of file to read from.
+
+        Throws:
+            Whatever `std.file.readText` and/or `std.json.parseJSON` throws.
+            `lu.common.FileTypeMismatchException` if the filename exists
+            but is not a file.
      +/
     void load(const string filename) @safe
     in (filename.length, "Tried to load an empty filename into a JSON storage")
@@ -167,18 +167,18 @@ struct JSONStorage
 
     // save
     /++
-     +  Saves the JSON storage to disk.
-     +
-     +  Non-object types are saved as their `std.json.JSONValue.toPrettyString` strings
-     +  whereas object-types are formatted as specified by the passed
-     +  `KeyOrderStrategy` argument.
-     +
-     +  Params:
-     +      filename = Filename of the file to save to.
-     +      strategy = Key order strategy in which to sort object-type JSON keys.
-     +      givenOrder = The order in which object-type keys should be listed in
-     +          the output file. Non-existent keys are represented as empty. Not
-     +          specified keys are omitted.
+        Saves the JSON storage to disk.
+
+        Non-object types are saved as their `std.json.JSONValue.toPrettyString` strings
+        whereas object-types are formatted as specified by the passed
+        `KeyOrderStrategy` argument.
+
+        Params:
+            filename = Filename of the file to save to.
+            strategy = Key order strategy in which to sort object-type JSON keys.
+            givenOrder = The order in which object-type keys should be listed in
+                the output file. Non-existent keys are represented as empty. Not
+                specified keys are omitted.
      +/
     void save(KeyOrderStrategy strategy = KeyOrderStrategy.passthrough)
         (const string filename, const string[] givenOrder = string[].init) @safe
@@ -239,17 +239,17 @@ struct JSONStorage
 
     // serialiseInto
     /++
-     +  Formats an object-type JSON storage into an output range sink.
-     +
-     +  Top-level keys are sorted as per the passed `KeyOrderStrategy`. This
-     +  overload is specialised for `KeyOrderStrategy.inGivenOrder`.
-     +
-     +  Params:
-     +      strategy = Order strategy in which to sort top-level keys.
-     +      sink = Output sink to fill with formatted output.
-     +      givenOrder = The order in which object-type keys should be listed in
-     +          the output file. Non-existent keys are represented as empty.
-     +          Not specified keys are omitted.
+        Formats an object-type JSON storage into an output range sink.
+
+        Top-level keys are sorted as per the passed `KeyOrderStrategy`. This
+        overload is specialised for `KeyOrderStrategy.inGivenOrder`.
+
+        Params:
+            strategy = Order strategy in which to sort top-level keys.
+            sink = Output sink to fill with formatted output.
+            givenOrder = The order in which object-type keys should be listed in
+                the output file. Non-existent keys are represented as empty.
+                Not specified keys are omitted.
      +/
     void serialiseInto(KeyOrderStrategy strategy : KeyOrderStrategy.inGivenOrder, Sink)
         (auto ref Sink sink, const string[] givenOrder) @safe
@@ -289,15 +289,15 @@ struct JSONStorage
 
     // serialiseInto
     /++
-     +  Formats an object-type JSON storage into an output range sink.
-     +
-     +  Top-level keys are sorted as per the passed `KeyOrderStrategy`. This
-     +  overload is specialised for strategies other than `KeyOrderStrategy.inGivenOrder`,
-     +  and as such takes one parameter less.
-     +
-     +  Params:
-     +      strategy = Order strategy in which to sort top-level keys.
-     +      sink = Output sink to fill with formatted output.
+        Formats an object-type JSON storage into an output range sink.
+
+        Top-level keys are sorted as per the passed `KeyOrderStrategy`. This
+        overload is specialised for strategies other than `KeyOrderStrategy.inGivenOrder`,
+        and as such takes one parameter less.
+
+        Params:
+            strategy = Order strategy in which to sort top-level keys.
+            sink = Output sink to fill with formatted output.
      +/
     void serialiseInto(KeyOrderStrategy strategy = KeyOrderStrategy.passthrough, Sink)
         (auto ref Sink sink) @safe
@@ -552,23 +552,23 @@ private import std.typecons : Flag, No, Yes;
 
 // populateFromJSON
 /++
- +  Recursively populates a passed associative or dynamic array with the
- +  contents of a `std.json.JSONValue`.
- +
- +  This is used where we want to store information on disk but keep it in
- +  memory without the overhead of dealing with `std.json.JSONValue`s.
- +
- +  Note: This only works with `std.json.JSONValue`s that conform to arrays and
- +  associative arrays, not such that mix element/value types.
- +
- +  Params:
- +      target = Reference to target array or associative array to write to.
- +      json = Source `std.json.JSONValue` to sync the contents with.
- +      lowercaseKeys = Whether or not to save string keys in lowercase.
- +      lowercaseValues = Whether or not to save final string values in lowercase.
- +
- +  Throws:
- +      `object.Exception` if the passed `std.json.JSONValue` had unexpected types.
+    Recursively populates a passed associative or dynamic array with the
+    contents of a `std.json.JSONValue`.
+
+    This is used where we want to store information on disk but keep it in
+    memory without the overhead of dealing with `std.json.JSONValue`s.
+
+    Note: This only works with `std.json.JSONValue`s that conform to arrays and
+    associative arrays, not such that mix element/value types.
+
+    Params:
+        target = Reference to target array or associative array to write to.
+        json = Source `std.json.JSONValue` to sync the contents with.
+        lowercaseKeys = Whether or not to save string keys in lowercase.
+        lowercaseValues = Whether or not to save final string values in lowercase.
+
+    Throws:
+        `object.Exception` if the passed `std.json.JSONValue` had unexpected types.
  +/
 void populateFromJSON(T)(ref T target, const JSONValue json,
     Flag!"lowercaseKeys" lowercaseKeys = No.lowercaseKeys,

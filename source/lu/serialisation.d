@@ -1,55 +1,55 @@
 /++
- +  Various functions related to serialising and deserialising structs into/from
- +  .ini-like files.
- +
- +  Example:
- +  ---
- +  struct FooSettings
- +  {
- +      string fooasdf;
- +      string bar;
- +      string bazzzzzzz;
- +      @Quoted flerrp;
- +      double pi;
- +  }
- +
- +  FooSettings f;
- +
- +  f.fooasdf = "foo";
- +  f.bar = "bar";
- +  f.bazzzzzzz = "baz";
- +  f.flerrp = "hirr steff  ";
- +  f.pi = 3.14159;
- +
- +  enum fooSerialised =
- + `[Foo]
- +  fooasdf foo
- +  bar bar
- +  bazzzzzzz baz
- +  flerrp "hirr steff  "
- +  pi 3.14159`;
- +
- +  enum fooJustified =
- +  `[Foo]
- +  fooasdf                 foo
- +  bar                     bar
- +  bazzzzzzz               baz
- +  flerrp                  "hirr steff  "
- +  pi                      3.14159`;
- +
- +  Appender!string sink;
- +
- +  sink.serialise(f);
- +  assert(sink.data.justifiedEntryValueText == fooJustified);
- +
- +  FooSettings mirror;
- +  deserialise(fooSerialised, mirror);
- +  assert(mirror == f);
- +
- +  FooSettings mirror2;
- +  deserialise(fooJustified, mirror2);
- +  assert(mirror2 == mirror);
- +  ---
+    Various functions related to serialising and deserialising structs into/from
+    .ini-like files.
+
+    Example:
+    ---
+    struct FooSettings
+    {
+        string fooasdf;
+        string bar;
+        string bazzzzzzz;
+        @Quoted flerrp;
+        double pi;
+    }
+
+    FooSettings f;
+
+    f.fooasdf = "foo";
+    f.bar = "bar";
+    f.bazzzzzzz = "baz";
+    f.flerrp = "hirr steff  ";
+    f.pi = 3.14159;
+
+    enum fooSerialised =
+   `[Foo]
+    fooasdf foo
+    bar bar
+    bazzzzzzz baz
+    flerrp "hirr steff  "
+    pi 3.14159`;
+
+    enum fooJustified =
+    `[Foo]
+    fooasdf                 foo
+    bar                     bar
+    bazzzzzzz               baz
+    flerrp                  "hirr steff  "
+    pi                      3.14159`;
+
+    Appender!string sink;
+
+    sink.serialise(f);
+    assert(sink.data.justifiedEntryValueText == fooJustified);
+
+    FooSettings mirror;
+    deserialise(fooSerialised, mirror);
+    assert(mirror == f);
+
+    FooSettings mirror2;
+    deserialise(fooJustified, mirror2);
+    assert(mirror2 == mirror);
+    ---
  +/
 module lu.serialisation;
 
@@ -66,33 +66,33 @@ public:
 
 // serialise
 /++
- +  Convenience function to call `serialise` on several objects.
- +
- +  Example:
- +  ---
- +  struct Foo
- +  {
- +      // ...
- +  }
- +
- +  struct Bar
- +  {
- +      // ...
- +  }
- +
- +  Foo foo;
- +  Bar bar;
- +
- +  Appender!string sink;
- +
- +  sink.serialise(foo, bar);
- +  assert(!sink.data.empty);
- +  ---
- +
- +  Params:
- +      sink = Reference output range to write the serialised objects to (in
- +          their .ini file-like format).
- +      things = Variadic list of objects to serialise.
+    Convenience function to call `serialise` on several objects.
+
+    Example:
+    ---
+    struct Foo
+    {
+        // ...
+    }
+
+    struct Bar
+    {
+        // ...
+    }
+
+    Foo foo;
+    Bar bar;
+
+    Appender!string sink;
+
+    sink.serialise(foo, bar);
+    assert(!sink.data.empty);
+    ---
+
+    Params:
+        sink = Reference output range to write the serialised objects to (in
+            their .ini file-like format).
+        things = Variadic list of objects to serialise.
  +/
 void serialise(Sink, Things...)(auto ref Sink sink, Things things)
 if ((Things.length > 1) && isOutputRange!(Sink, char[]) &&
@@ -108,29 +108,29 @@ if ((Things.length > 1) && isOutputRange!(Sink, char[]) &&
 
 // serialise
 /++
- +  Serialises the fields of an object into an .ini file-like format.
- +
- +  It only serialises fields not annotated with `lu.uda.Unserialisable`,
- +  and it doesn't recurse into other structs or classes.
- +
- +  Example:
- +  ---
- +  struct Foo
- +  {
- +      // ...
- +  }
- +
- +  Foo foo;
- +
- +  Appender!string sink;
- +
- +  sink.serialise(foo);
- +  assert(!sink.data.empty);
- +  ---
- +
- +  Params:
- +      sink = Reference output range to write to, usually an `std.array.Appender!string`.
- +      thing = Object to serialise.
+    Serialises the fields of an object into an .ini file-like format.
+
+    It only serialises fields not annotated with `lu.uda.Unserialisable`,
+    and it doesn't recurse into other structs or classes.
+
+    Example:
+    ---
+    struct Foo
+    {
+        // ...
+    }
+
+    Foo foo;
+
+    Appender!string sink;
+
+    sink.serialise(foo);
+    assert(!sink.data.empty);
+    ---
+
+    Params:
+        sink = Reference output range to write to, usually an `std.array.Appender!string`.
+        thing = Object to serialise.
  +/
 void serialise(Sink, QualThing)(auto ref Sink sink, QualThing thing)
 if (isOutputRange!(Sink, char[]) && isAggregateType!QualThing)
@@ -401,44 +401,44 @@ b true`;
 
 // deserialise
 /++
- +  Takes an input range containing serialised entry-value text and applies the
- +  contents therein to one or more passed struct/class objects.
- +
- +  Example:
- +  ---
- +  struct Foo
- +  {
- +      // ...
- +  }
- +
- +  struct Bar
- +  {
- +      // ...
- +  }
- +
- +  Foo foo;
- +  Bar bar;
- +
- +  string[][string] missingEntries;
- +  string[][string] invalidEntries;
- +
- +  string fromFile = readText("configuration.conf");
- +
- +  fromFile
- +      .splitter("\n")
- +      .deserialise(missingEntries, invalidEntries, foo, bar);
- +  ---
- +
- +  Params:
- +      range = Input range from which to read the serialised text.
- +      missingEntries = Out reference of an associative array of string arrays
- +          of expected entries that were missing.
- +      invalidEntries = Out reference of an associative array of string arrays
- +          of unexpected entries that did not belong.
- +      things = Reference variadic list of one or more objects to apply the
- +          deserialised values to.
- +
- +  Throws: `DeserialisationException` if there were bad lines.
+    Takes an input range containing serialised entry-value text and applies the
+    contents therein to one or more passed struct/class objects.
+
+    Example:
+    ---
+    struct Foo
+    {
+        // ...
+    }
+
+    struct Bar
+    {
+        // ...
+    }
+
+    Foo foo;
+    Bar bar;
+
+    string[][string] missingEntries;
+    string[][string] invalidEntries;
+
+    string fromFile = readText("configuration.conf");
+
+    fromFile
+        .splitter("\n")
+        .deserialise(missingEntries, invalidEntries, foo, bar);
+    ---
+
+    Params:
+        range = Input range from which to read the serialised text.
+        missingEntries = Out reference of an associative array of string arrays
+            of expected entries that were missing.
+        invalidEntries = Out reference of an associative array of string arrays
+            of unexpected entries that did not belong.
+        things = Reference variadic list of one or more objects to apply the
+            deserialised values to.
+
+    Throws: `DeserialisationException` if there were bad lines.
  +/
 void deserialise(Range, Things...)(Range range, out string[][string] missingEntries,
     out string[][string] invalidEntries, ref Things things) pure
@@ -738,38 +738,38 @@ naN     !"¤%&/`;
 
 // justifiedEntryValueText
 /++
- +  Takes an unformatted string of serialised entry-value text and justifies it
- +  intto two neat columns.
- +
- +  It does one pass through it all first to determine the maximum width of the
- +  entry names, then another to format it and eventually return a flat string.
- +
- +  Example:
- +  ---
- +  struct Foo
- +  {
- +      // ...
- +  }
- +
- +  struct Bar
- +  {
- +      // ...
- +  }
- +
- +  Foo foo;
- +  Bar bar;
- +
- +  Appender!string sink;
- +
- +  sink.serialise(foo, bar);
- +  immutable justified = sink.data.justifiedEntryValueText;
- +  ---
- +
- +  Params:
- +      origLines = Unjustified raw serialised text.
- +
- +  Returns:
- +      .ini file-like text, justified into two columns.
+    Takes an unformatted string of serialised entry-value text and justifies it
+    intto two neat columns.
+
+    It does one pass through it all first to determine the maximum width of the
+    entry names, then another to format it and eventually return a flat string.
+
+    Example:
+    ---
+    struct Foo
+    {
+        // ...
+    }
+
+    struct Bar
+    {
+        // ...
+    }
+
+    Foo foo;
+    Bar bar;
+
+    Appender!string sink;
+
+    sink.serialise(foo, bar);
+    immutable justified = sink.data.justifiedEntryValueText;
+    ---
+
+    Params:
+        origLines = Unjustified raw serialised text.
+
+    Returns:
+        .ini file-like text, justified into two columns.
  +/
 auto justifiedEntryValueText(const string origLines) pure
 {
@@ -969,14 +969,14 @@ naN                     !"#¤%&/`;
 
 // DeserialisationException
 /++
- +  Exception, to be thrown when the specified serialised text could not be
- +  parsed, for whatever reason.
+    Exception, to be thrown when the specified serialised text could not be
+    parsed, for whatever reason.
  +/
 final class DeserialisationException : Exception
 {
 @safe:
     /++
-     +  Create a new `DeserialisationException`.
+        Create a new `DeserialisationException`.
      +/
     this(const string message, const string file = __FILE__, const size_t line = __LINE__,
         Throwable nextInChain = null) pure nothrow @nogc @safe
@@ -988,15 +988,15 @@ final class DeserialisationException : Exception
 
 // splitEntryValue
 /++
- +  Splits a line into an entry and a value component.
- +
- +  This drop-in-replaces the regex: `"^(?P<entry>[^ \t]+)[ \t]+(?P<value>.+)"`.
- +
- +  Params:
- +      line = String to split up.
- +
- +  Returns:
- +      A Voldemort struct with an `entry` and a `value` member.
+    Splits a line into an entry and a value component.
+
+    This drop-in-replaces the regex: `"^(?P<entry>[^ \t]+)[ \t]+(?P<value>.+)"`.
+
+    Params:
+        line = String to split up.
+
+    Returns:
+        A Voldemort struct with an `entry` and a `value` member.
  +/
 auto splitEntryValue(const string line) pure nothrow @nogc
 {

@@ -1,34 +1,34 @@
 /++
- +  String manipulation functions complementing the standard library, as well as
- +  providing dumbed-down and optimised versions of existing functions therein.
- +
- +  Example:
- +  ---
- +  {
- +      string line = "Lorem ipsum :sit amet";
- +      immutable lorem = line.nom(" :");
- +      assert(lorem == "Lorem ipsum", lorem);
- +      assert(line == "sit amet", line);
- +  }
- +  {
- +      string line = "Lorem ipsum :sit amet";
- +      immutable lorem = line.nom(':');
- +      assert(lorem == "Lorem ipsum ", lorem);
- +      assert(line == "sit amet", line);
- +  }
- +  {
- +      string line = "Lorem ipsum sit amet";  // mutable, will be modified by ref
- +      string[] words;
- +
- +      while (line.length > 0)
- +      {
- +          immutable word = line.nom!(Yes.inherit)(" ");
- +          words ~= word;
- +      }
- +
- +      assert(words == [ "Lorem", "ipsum", "sit", "amet" ]);
- +  }
- +  ---
+    String manipulation functions complementing the standard library, as well as
+    providing dumbed-down and optimised versions of existing functions therein.
+
+    Example:
+    ---
+    {
+        string line = "Lorem ipsum :sit amet";
+        immutable lorem = line.nom(" :");
+        assert(lorem == "Lorem ipsum", lorem);
+        assert(line == "sit amet", line);
+    }
+    {
+        string line = "Lorem ipsum :sit amet";
+        immutable lorem = line.nom(':');
+        assert(lorem == "Lorem ipsum ", lorem);
+        assert(line == "sit amet", line);
+    }
+    {
+        string line = "Lorem ipsum sit amet";  // mutable, will be modified by ref
+        string[] words;
+
+        while (line.length > 0)
+        {
+            immutable word = line.nom!(Yes.inherit)(" ");
+            words ~= word;
+        }
+
+        assert(words == [ "Lorem", "ipsum", "sit", "amet" ]);
+    }
+    ---
  +/
 module lu.string;
 
@@ -45,42 +45,42 @@ public:
 
 // nom
 /++
- +  Given some string, finds the supplied needle token in it, returns the
- +  string up to that point, and advances the passed string by ref to after the token.
- +
- +  The naming is in line with standard library functions such as
- +  `std.string.munch`, `std.file.slurp` and others.
- +
- +  Example:
- +  ---
- +  string foobar = "foo bar!";
- +  string foo = foobar.nom(" ");
- +  string bar = foobar.nom("!");
- +
- +  assert((foo == "foo"), foo);
- +  assert((bar == "bar"), bar);
- +  assert(!foobar.length);
- +
- +  enum line = "abc def ghi";
- +  string def = line[4..$].nom(" ");  // now with auto ref
- +  ---
- +
- +  Params:
- +      decode = Whether to use auto-decoding functions, or try to keep to non-
- +          decoding ones (whenever possible).
- +      haystack = String to walk and advance.
- +      needle = Token that deliminates what should be returned and to where to advance.
- +      callingFile = Name of the calling source file, used to pass along when
- +          throwing an exception.
- +      callingLine = Line number where in the source file this is called, used
- +          to pass along when throwing an exception.
- +
- +  Returns:
- +      The string `haystack` from the start up to the needle token. The original
- +      variable is advanced to after the token.
- +
- +  Throws:
- +      `lu.string.NomException` if the needle could not be found in the string.
+    Given some string, finds the supplied needle token in it, returns the
+    string up to that point, and advances the passed string by ref to after the token.
+
+    The naming is in line with standard library functions such as
+    `std.string.munch`, `std.file.slurp` and others.
+
+    Example:
+    ---
+    string foobar = "foo bar!";
+    string foo = foobar.nom(" ");
+    string bar = foobar.nom("!");
+
+    assert((foo == "foo"), foo);
+    assert((bar == "bar"), bar);
+    assert(!foobar.length);
+
+    enum line = "abc def ghi";
+    string def = line[4..$].nom(" ");  // now with auto ref
+    ---
+
+    Params:
+        decode = Whether to use auto-decoding functions, or try to keep to non-
+            decoding ones (whenever possible).
+        haystack = String to walk and advance.
+        needle = Token that deliminates what should be returned and to where to advance.
+        callingFile = Name of the calling source file, used to pass along when
+            throwing an exception.
+        callingLine = Line number where in the source file this is called, used
+            to pass along when throwing an exception.
+
+    Returns:
+        The string `haystack` from the start up to the needle token. The original
+        variable is advanced to after the token.
+
+    Throws:
+        `lu.string.NomException` if the needle could not be found in the string.
  +/
 T nom(Flag!"decode" decode = No.decode, T, C)(auto ref T haystack, const C needle,
     const string callingFile = __FILE__, const size_t callingLine = __LINE__) pure @nogc
@@ -253,50 +253,50 @@ unittest
 
 // nom
 /++
- +  Given some string, finds the supplied needle token in it, returns the
- +  string up to that point, and advances the passed string by ref to after the token.
- +
- +  The naming is in line with standard library functions such as
- +  `std.string.munch`, `std.file.slurp` and others.
- +
- +  Overload that takes an extra `Flag!"inherit"` template parameter, to toggle
- +  whether the return value inherits the passed line (and clearing it) upon no
- +  needle match.
- +
- +  Example:
- +  ---
- +  string foobar = "foo bar!";
- +  string foo = foobar.nom(" ");
- +  string bar = foobar.nom!(Yes.inherit)("?");
- +
- +  assert((foo == "foo"), foo);
- +  assert((bar == "bar!"), bar);
- +  assert(!foobar.length);
- +
- +  string slice = "snarfl";
- +  string verb = slice.nom!(Yes.inherit)(" ");
- +
- +  assert((verb == "snarfl"), verb);
- +  assert(!slice.length, slice);
- +  ---
- +
- +  Params:
- +      inherit = Whether or not to have the returned string inherit (and clear)
- +          the passed haystack by ref.
- +      decode = Whether to use auto-decoding functions, or try to keep to non-
- +          decoding ones (when possible).
- +      haystack = String to walk and advance.
- +      needle = Token that deliminates what should be returned and to where to advance.
- +      callingFile = Name of the calling source file, used to pass along when
- +          throwing an exception.
- +      callingLine = Line number where in the source file this is called, used
- +          to pass along when throwing an exception.
- +
- +  Returns:
- +      The string `haystack` from the start up to the needle token, if it exists.
- +      If so, the original variable is advanced to after the token.
- +      If it doesn't exist, the string in `haystack` is inherited into the return
- +      value and returned, while the `haystack` symbol itself is cleared.
+    Given some string, finds the supplied needle token in it, returns the
+    string up to that point, and advances the passed string by ref to after the token.
+
+    The naming is in line with standard library functions such as
+    `std.string.munch`, `std.file.slurp` and others.
+
+    Overload that takes an extra `Flag!"inherit"` template parameter, to toggle
+    whether the return value inherits the passed line (and clearing it) upon no
+    needle match.
+
+    Example:
+    ---
+    string foobar = "foo bar!";
+    string foo = foobar.nom(" ");
+    string bar = foobar.nom!(Yes.inherit)("?");
+
+    assert((foo == "foo"), foo);
+    assert((bar == "bar!"), bar);
+    assert(!foobar.length);
+
+    string slice = "snarfl";
+    string verb = slice.nom!(Yes.inherit)(" ");
+
+    assert((verb == "snarfl"), verb);
+    assert(!slice.length, slice);
+    ---
+
+    Params:
+        inherit = Whether or not to have the returned string inherit (and clear)
+            the passed haystack by ref.
+        decode = Whether to use auto-decoding functions, or try to keep to non-
+            decoding ones (when possible).
+        haystack = String to walk and advance.
+        needle = Token that deliminates what should be returned and to where to advance.
+        callingFile = Name of the calling source file, used to pass along when
+            throwing an exception.
+        callingLine = Line number where in the source file this is called, used
+            to pass along when throwing an exception.
+
+    Returns:
+        The string `haystack` from the start up to the needle token, if it exists.
+        If so, the original variable is advanced to after the token.
+        If it doesn't exist, the string in `haystack` is inherited into the return
+        value and returned, while the `haystack` symbol itself is cleared.
  +/
 T nom(Flag!"inherit" inherit, Flag!"decode" decode = No.decode, T, C)
     (auto ref T haystack, const C needle, const string callingFile = __FILE__,
@@ -397,9 +397,9 @@ unittest
 
 // NomException
 /++
- +  Exception, to be thrown when a call to `nom` went wrong.
- +
- +  It is a normal `object.Exception` but with an attached needle and haystack.
+    Exception, to be thrown when a call to `nom` went wrong.
+
+    It is a normal `object.Exception` but with an attached needle and haystack.
  +/
 abstract class NomException : Exception
 {
@@ -420,16 +420,16 @@ abstract class NomException : Exception
 
 // NomExceptionImpl
 /++
- +  Exception, to be thrown when a call to `nom` went wrong.
- +
- +  This is the templated implementation, so that we can support more than one
- +  kind of needle and haystack combination.
- +
- +  It is a normal `object.Exception` but with an attached needle and haystack.
- +
- +  Params:
- +      T = Haystack type (`string`, `wstring` or `dstring`).
- +      C = Needle type (any type of character or any string).
+    Exception, to be thrown when a call to `nom` went wrong.
+
+    This is the templated implementation, so that we can support more than one
+    kind of needle and haystack combination.
+
+    It is a normal `object.Exception` but with an attached needle and haystack.
+
+    Params:
+        T = Haystack type (`string`, `wstring` or `dstring`).
+        C = Needle type (any type of character or any string).
  +/
 final class NomExceptionImpl(T, C) : NomException
 {
@@ -441,10 +441,10 @@ final class NomExceptionImpl(T, C) : NomException
     C rawNeedle;
 
     /++
-     +  Returns a string of the original needle the call to `nom` was operating on.
-     +
-     +  Returns:
-     +      The raw haystack (be it any kind of string), converted to a `string`.
+        Returns a string of the original needle the call to `nom` was operating on.
+
+        Returns:
+            The raw haystack (be it any kind of string), converted to a `string`.
      +/
     override string haystack()
     {
@@ -453,10 +453,10 @@ final class NomExceptionImpl(T, C) : NomException
     }
 
     /++
-     +  Returns a string of the original needle the call to `nom` was operating on.
-     +
-     +  Returns:
-     +      The raw needle (be it any kind of string or character), converted to a `string`.
+        Returns a string of the original needle the call to `nom` was operating on.
+
+        Returns:
+            The raw needle (be it any kind of string or character), converted to a `string`.
      +/
     override string needle()
     {
@@ -485,29 +485,29 @@ final class NomExceptionImpl(T, C) : NomException
 
 // plurality
 /++
- +  Selects the correct singular or plural form of a word depending on the
- +  numerical count of it.
- +
- +  Example:
- +  ---
- +  string one = 1.plurality("one", "two");
- +  string two = 2.plurality("one", "two");
- +  string many = (-2).plurality("one", "many");
- +  string many0 = 0.plurality("one", "many");
- +
- +  assert((one == "one"), one);
- +  assert((two == "two"), two);
- +  assert((many == "many"), many);
- +  assert((many0 == "many"), many0);
- +  ---
- +
- +  Params:
- +      num = Numerical count of the noun.
- +      singular = The noun in singular form.
- +      plural = The noun in plural form.
- +
- +  Returns:
- +      The singular string if num is `1` or `-1`, otherwise the plural string.
+    Selects the correct singular or plural form of a word depending on the
+    numerical count of it.
+
+    Example:
+    ---
+    string one = 1.plurality("one", "two");
+    string two = 2.plurality("one", "two");
+    string many = (-2).plurality("one", "many");
+    string many0 = 0.plurality("one", "many");
+
+    assert((one == "one"), one);
+    assert((two == "two"), two);
+    assert((many == "many"), many);
+    assert((many0 == "many"), many0);
+    ---
+
+    Params:
+        num = Numerical count of the noun.
+        singular = The noun in singular form.
+        plural = The noun in plural form.
+
+    Returns:
+        The singular string if num is `1` or `-1`, otherwise the plural string.
  +/
 pragma(inline, true)
 T plurality(Num, T)(const Num num, const T singular, const T plural) pure nothrow @nogc
@@ -528,17 +528,17 @@ unittest
 
 // unenclosed
 /++
- +  Removes paired preceding and trailing tokens around a string line.
- +  Assumes ASCII.
- +
- +  You should not need to use this directly; rather see `unquoted` and `unsinglequoted`.
- +
- +  Params:
- +      token = Token character to strip away.
- +      line = String line to remove any enclosing tokens from.
- +
- +  Returns:
- +      A slice of the passed string line without enclosing tokens.
+    Removes paired preceding and trailing tokens around a string line.
+    Assumes ASCII.
+
+    You should not need to use this directly; rather see `unquoted` and `unsinglequoted`.
+
+    Params:
+        token = Token character to strip away.
+        line = String line to remove any enclosing tokens from.
+
+    Returns:
+        A slice of the passed string line without enclosing tokens.
  +/
 private T unenclosed(char token = '"', T)(const T line) pure nothrow @nogc
 if (isSomeString!T)
@@ -568,23 +568,23 @@ if (isSomeString!T)
 
 // unquoted
 /++
- +  Removes paired preceding and trailing double quotes, unquoting a word.
- +  Assumes ASCII.
- +
- +  Does not decode the string and may thus give weird results on weird inputs.
- +
- +  Example:
- +  ---
- +  string quoted = `"This is a quote"`;
- +  string unquotedLine = quoted.unquoted;
- +  assert((unquotedLine == "This is a quote"), unquotedLine);
- +  ---
- +
- +  Params:
- +      line = The (potentially) quoted string.
- +
- +  Returns:
- +      A slice of the `line` argument that excludes the quotes.
+    Removes paired preceding and trailing double quotes, unquoting a word.
+    Assumes ASCII.
+
+    Does not decode the string and may thus give weird results on weird inputs.
+
+    Example:
+    ---
+    string quoted = `"This is a quote"`;
+    string unquotedLine = quoted.unquoted;
+    assert((unquotedLine == "This is a quote"), unquotedLine);
+    ---
+
+    Params:
+        line = The (potentially) quoted string.
+
+    Returns:
+        A slice of the `line` argument that excludes the quotes.
  +/
 pragma(inline, true)
 T unquoted(T)(const T line) pure nothrow @nogc
@@ -607,23 +607,23 @@ unittest
 
 // unsinglequoted
 /++
- +  Removes paired preceding and trailing single quotes around a line.
- +  Assumes ASCII.
- +
- +  Does not decode the string and may thus give weird results on weird inputs.
- +
- +  Example:
- +  ---
- +  string quoted = `'This is single-quoted'`;
- +  string unquotedLine = quoted.unsinglequoted;
- +  assert((unquotedLine == "This is single-quoted"), unquotedLine);
- +  ---
- +
- +  Params:
- +      line = The (potentially) single-quoted string.
- +
- +  Returns:
- +      A slice of the `line` argument that excludes the single-quotes.
+    Removes paired preceding and trailing single quotes around a line.
+    Assumes ASCII.
+
+    Does not decode the string and may thus give weird results on weird inputs.
+
+    Example:
+    ---
+    string quoted = `'This is single-quoted'`;
+    string unquotedLine = quoted.unsinglequoted;
+    assert((unquotedLine == "This is single-quoted"), unquotedLine);
+    ---
+
+    Params:
+        line = The (potentially) single-quoted string.
+
+    Returns:
+        A slice of the `line` argument that excludes the single-quotes.
  +/
 pragma(inline, true)
 T unsinglequoted(T)(const T line) pure nothrow @nogc
@@ -646,24 +646,24 @@ unittest
 
 // beginsWith
 /++
- +  A cheaper variant of `std.algorithm.searching.startsWith`, since this is
- +  such a hotspot.
- +
- +  Merely slices; does not decode the string and may thus give weird results on
- +  weird inputs.
- +
- +  Example:
- +  ---
- +  assert("Lorem ipsum sit amet".beginsWith("Lorem ip"));
- +  assert(!"Lorem ipsum sit amet".beginsWith("ipsum sit amet"));
- +  ---
- +
- +  Params:
- +      haystack = Original line to examine.
- +      needle = Snippet of text to check if `haystack` begins with.
- +
- +  Returns:
- +      `true` if `haystack` begins with `needle`, `false` if not.
+    A cheaper variant of `std.algorithm.searching.startsWith`, since this is
+    such a hotspot.
+
+    Merely slices; does not decode the string and may thus give weird results on
+    weird inputs.
+
+    Example:
+    ---
+    assert("Lorem ipsum sit amet".beginsWith("Lorem ip"));
+    assert(!"Lorem ipsum sit amet".beginsWith("ipsum sit amet"));
+    ---
+
+    Params:
+        haystack = Original line to examine.
+        needle = Snippet of text to check if `haystack` begins with.
+
+    Returns:
+        `true` if `haystack` begins with `needle`, `false` if not.
  +/
 bool beginsWith(T, C)(const T haystack, const C needle) pure nothrow @nogc
 if (isSomeString!T && (is(C : T) || is(C : ElementType!T) || is(C : ElementEncodingType!T)))
@@ -706,20 +706,20 @@ unittest
 
 // beginsWithOneOf
 /++
- +  Checks whether or not the first letter of a string begins with any of the
- +  passed string of characters, or single character.
- +
- +  Merely slices; does not decode the string and may thus give weird results on
- +  weird inputs.
- +
- +  Params:
- +      haystack = String to examine the start of, or single character.
- +      needles = String of characters to look for in the start of `haystack`,
- +          or a single character.
- +
- +  Returns:
- +      `true` if the first character of `haystack` is also in `needles`,
- +      `false` if not.
+    Checks whether or not the first letter of a string begins with any of the
+    passed string of characters, or single character.
+
+    Merely slices; does not decode the string and may thus give weird results on
+    weird inputs.
+
+    Params:
+        haystack = String to examine the start of, or single character.
+        needles = String of characters to look for in the start of `haystack`,
+            or a single character.
+
+    Returns:
+        `true` if the first character of `haystack` is also in `needles`,
+        `false` if not.
  +/
 bool beginsWithOneOf(T, C)(const T haystack, const C needles) pure nothrow @nogc
 if (is(C : T) || is(C : ElementEncodingType!T) || is(T : ElementEncodingType!C))
@@ -785,21 +785,21 @@ unittest
 
 // stripSuffix
 /++
- +  Strips the supplied string from the end of a string.
- +
- +  Example:
- +  ---
- +  string suffixed = "Kameloso";
- +  string stripped = suffixed.stripSuffix("oso");
- +  assert((stripped == "Kamel"), stripped);
- +  ---
- +
- +  Params:
- +      line = Original line to strip the suffix from.
- +      suffix = Suffix string to strip.
- +
- +  Returns:
- +      `line` with `suffix` sliced off the end.
+    Strips the supplied string from the end of a string.
+
+    Example:
+    ---
+    string suffixed = "Kameloso";
+    string stripped = suffixed.stripSuffix("oso");
+    assert((stripped == "Kamel"), stripped);
+    ---
+
+    Params:
+        line = Original line to strip the suffix from.
+        suffix = Suffix string to strip.
+
+    Returns:
+        `line` with `suffix` sliced off the end.
  +/
 string stripSuffix(const string line, const string suffix) pure nothrow @nogc
 {
@@ -821,24 +821,24 @@ unittest
 
 // tabs
 /++
- +  Returns a range of *spaces* equal to that of `num` tabs (\t).
- +
- +  Use `std.conv.to` or `std.conv.text` or similar to flatten to a string.
- +
- +  Example:
- +  ---
- +  string indentation = 2.tabs.text;
- +  assert((indentation == "        "), `"` ~  indentation ~ `"`);
- +  string smallIndent = 1.tabs!2.text;
- +  assert((smallIndent == "  "), `"` ~  smallIndent ~ `"`);
- +  ---
- +
- +  Params:
- +      spaces = How many spaces make up a tab.
- +      num = How many tabs we want.
- +
- +  Returns:
- +      Whitespace equalling (`num` * `spaces`) spaces.
+    Returns a range of *spaces* equal to that of `num` tabs (\t).
+
+    Use `std.conv.to` or `std.conv.text` or similar to flatten to a string.
+
+    Example:
+    ---
+    string indentation = 2.tabs.text;
+    assert((indentation == "        "), `"` ~  indentation ~ `"`);
+    string smallIndent = 1.tabs!2.text;
+    assert((smallIndent == "  "), `"` ~  smallIndent ~ `"`);
+    ---
+
+    Params:
+        spaces = How many spaces make up a tab.
+        num = How many tabs we want.
+
+    Returns:
+        Whitespace equalling (`num` * `spaces`) spaces.
  +/
 auto tabs(uint spaces = 4)(const int num) pure nothrow @nogc
 in ((num >= 0), "Negative number of tabs passed to `tabs`")
@@ -883,13 +883,13 @@ unittest
 
 // indentInto
 /++
- +  Indents lines in a string into an output range sink with the supplied number of tabs.
- +
- +  Params:
- +      spaces = How many spaces in an indenting tab.
- +      wallOfText = String to indent the individual lines of.
- +      sink = Output range to fill with the indented lines.
- +      numTabs = Optional amount of tabs to indent with, default 1.
+    Indents lines in a string into an output range sink with the supplied number of tabs.
+
+    Params:
+        spaces = How many spaces in an indenting tab.
+        wallOfText = String to indent the individual lines of.
+        sink = Output range to fill with the indented lines.
+        numTabs = Optional amount of tabs to indent with, default 1.
  +/
 void indentInto(uint spaces = 4, Sink)(const string wallOfText, auto ref Sink sink, const uint numTabs = 1)
 if (isOutputRange!(Sink, char[]))
@@ -966,16 +966,16 @@ so shrug"), '\n' ~ sink.data);
 
 // indent
 /++
- +  Indents lines in a string with the supplied number of tabs. Returns a newly
- +  allocated string.
- +
- +  Params:
- +      spaces = How many spaces make up a tab.
- +      wallOfText = String to indent the lines of.
- +      numTabs = Amount of tabs to indent with, default 1.
- +
- +  Returns:
- +      A string with all the lines of the original string indented.
+    Indents lines in a string with the supplied number of tabs. Returns a newly
+    allocated string.
+
+    Params:
+        spaces = How many spaces make up a tab.
+        wallOfText = String to indent the lines of.
+        numTabs = Amount of tabs to indent with, default 1.
+
+    Returns:
+        A string with all the lines of the original string indented.
  +/
 string indent(uint spaces = 4)(const string wallOfText, const uint numTabs = 1) pure
 {
@@ -1026,28 +1026,28 @@ so shrug"), '\n' ~ indentedTwo);
 
 // contains
 /++
- +  Checks a string to see if it contains a given substring or character.
- +  Leverages `std.string.indexOf` and `std.algorithm.searching.countUntil`.
- +
- +  Merely slices; this is not UTF-8 safe. It is naïve in how it thinks a string
- +  always correspond to one set of codepoints and one set only.
- +
- +  Example:
- +  ---
- +  assert("Lorem ipsum".contains("Lorem"));
- +  assert(!"Lorem ipsum".contains('l'));
- +  assert("Lorem ipsum".contains!(Yes.decode)(" "));
- +  ---
- +
- +  Params:
- +      decode = Whether to use auto-decoding functions, or try to keep to non-
- +          decoding ones (when possible).
- +      haystack = String to search for `needle`.
- +      needle = Substring to search `haystack` for.
- +
- +  Returns:
- +      Whether or not the passed `haystack` string contained the passed `needle`
- +      substring or token.
+    Checks a string to see if it contains a given substring or character.
+    Leverages `std.string.indexOf` and `std.algorithm.searching.countUntil`.
+
+    Merely slices; this is not UTF-8 safe. It is naïve in how it thinks a string
+    always correspond to one set of codepoints and one set only.
+
+    Example:
+    ---
+    assert("Lorem ipsum".contains("Lorem"));
+    assert(!"Lorem ipsum".contains('l'));
+    assert("Lorem ipsum".contains!(Yes.decode)(" "));
+    ---
+
+    Params:
+        decode = Whether to use auto-decoding functions, or try to keep to non-
+            decoding ones (when possible).
+        haystack = String to search for `needle`.
+        needle = Substring to search `haystack` for.
+
+    Returns:
+        Whether or not the passed `haystack` string contained the passed `needle`
+        substring or token.
  +/
 bool contains(Flag!"decode" decode = No.decode, T, C)(const T haystack, const C needle) pure nothrow @nogc
 if (isSomeString!T && (isSomeString!C || (is(C : T) || is(C : ElementType!T) ||
@@ -1097,17 +1097,17 @@ unittest
 
 // strippedRight
 /++
- +  Returns a slice of the passed string with any trailing whitespace and/or
- +  linebreaks sliced off. Overload that implicitly strips `" \n\r\t"`.
- +
- +  Duplicates `std.string.stripRight`, which we can no longer trust not to
- +  assert on unexpected input.
- +
- +  Params:
- +      line = Line to strip the right side of.
- +
- +  Returns:
- +      The passed line without any trailing whitespace or linebreaks.
+    Returns a slice of the passed string with any trailing whitespace and/or
+    linebreaks sliced off. Overload that implicitly strips `" \n\r\t"`.
+
+    Duplicates `std.string.stripRight`, which we can no longer trust not to
+    assert on unexpected input.
+
+    Params:
+        line = Line to strip the right side of.
+
+    Returns:
+        The passed line without any trailing whitespace or linebreaks.
  +/
 string strippedRight(const string line) pure nothrow @nogc
 {
@@ -1149,19 +1149,19 @@ unittest
 
 // strippedRight
 /++
- +  Returns a slice of the passed string with any trailing passed characters.
- +  Implementation template capable of handling both individual characters and
- +  string of tokens to strip.
- +
- +  Duplicates `std.string.stripRight`, which we can no longer trust not to
- +  assert on unexpected input.
- +
- +  Params:
- +      line = Line to strip the right side of.
- +      chaff = Character or string of characters to strip away.
- +
- +  Returns:
- +      The passed line without any trailing passed characters.
+    Returns a slice of the passed string with any trailing passed characters.
+    Implementation template capable of handling both individual characters and
+    string of tokens to strip.
+
+    Duplicates `std.string.stripRight`, which we can no longer trust not to
+    assert on unexpected input.
+
+    Params:
+        line = Line to strip the right side of.
+        chaff = Character or string of characters to strip away.
+
+    Returns:
+        The passed line without any trailing passed characters.
  +/
 T strippedRight(T, C)(T line, C chaff) pure nothrow @nogc
 if (isSomeString!T && (is(C : T) || is(C : ElementType!T) || is(C : ElementEncodingType!T)))
@@ -1260,17 +1260,17 @@ unittest
 
 // strippedLeft
 /++
- +  Returns a slice of the passed string with any preceding whitespace and/or
- +  linebreaks sliced off. Overload that implicitly strips `" \n\r\t"`.
- +
- +  Duplicates `std.string.stripLeft`, which we can no longer trust not to
- +  assert on unexpected input.
- +
- +  Params:
- +      line = Line to strip the left side of.
- +
- +  Returns:
- +      The passed line without any preceding whitespace or linebreaks.
+    Returns a slice of the passed string with any preceding whitespace and/or
+    linebreaks sliced off. Overload that implicitly strips `" \n\r\t"`.
+
+    Duplicates `std.string.stripLeft`, which we can no longer trust not to
+    assert on unexpected input.
+
+    Params:
+        line = Line to strip the left side of.
+
+    Returns:
+        The passed line without any preceding whitespace or linebreaks.
  +/
 string strippedLeft(const string line) pure nothrow @nogc
 {
@@ -1312,19 +1312,19 @@ unittest
 
 // strippedLeft
 /++
- +  Returns a slice of the passed string with any preceding passed characters
- +  sliced off. Implementation capable of handling both individual characters
- +  and strings of tokens to strip.
- +
- +  Duplicates `std.string.stripLeft`, which we can no longer trust not to
- +  assert on unexpected input.
- +
- +  Params:
- +      line = Line to strip the left side of.
- +      chaff = Character or string of characters to strip away.
- +
- +  Returns:
- +      The passed line without any preceding passed characters.
+    Returns a slice of the passed string with any preceding passed characters
+    sliced off. Implementation capable of handling both individual characters
+    and strings of tokens to strip.
+
+    Duplicates `std.string.stripLeft`, which we can no longer trust not to
+    assert on unexpected input.
+
+    Params:
+        line = Line to strip the left side of.
+        chaff = Character or string of characters to strip away.
+
+    Returns:
+        The passed line without any preceding passed characters.
  +/
 T strippedLeft(T, C)(T line, C chaff) pure nothrow @nogc
 if (isSomeString!T && (is(C : T) || is(C : ElementType!T) || is(C : ElementEncodingType!T)))
@@ -1423,19 +1423,19 @@ unittest
 
 // stripped
 /++
- +  Returns a slice of the passed string with any preceding or trailing
- +  whitespace or linebreaks sliced off both ends. Overload that implicitly
- +  strips `" \n\r\t"`.
- +
- +  It merely calls both `strippedLeft` and `strippedRight`. As such it
- +  duplicates `std.string.strip`, which we can no longer trust not to assert
- +  on unexpected input.
- +
- +  Params:
- +      line = Line to strip both the right and left side of.
- +
- +  Returns:
- +      The passed line, stripped of surrounding whitespace.
+    Returns a slice of the passed string with any preceding or trailing
+    whitespace or linebreaks sliced off both ends. Overload that implicitly
+    strips `" \n\r\t"`.
+
+    It merely calls both `strippedLeft` and `strippedRight`. As such it
+    duplicates `std.string.strip`, which we can no longer trust not to assert
+    on unexpected input.
+
+    Params:
+        line = Line to strip both the right and left side of.
+
+    Returns:
+        The passed line, stripped of surrounding whitespace.
  +/
 string stripped(const string line) pure nothrow @nogc
 {
@@ -1475,20 +1475,20 @@ unittest
 
 // stripped
 /++
- +  Returns a slice of the passed string with any preceding or trailing
- +  passed characters sliced off. Implementation template capable of handling both
- +  individual characters and strings of tokens to strip.
- +
- +  It merely calls both `strippedLeft` and `strippedRight`. As such it
- +  duplicates `std.string.strip`, which we can no longer trust not to assert
- +  on unexpected input.
- +
- +  Params:
- +      line = Line to strip both the right and left side of.
- +      chaff = Character or string of characters to strip away.
- +
- +  Returns:
- +      The passed line, stripped of surrounding passed characters.
+    Returns a slice of the passed string with any preceding or trailing
+    passed characters sliced off. Implementation template capable of handling both
+    individual characters and strings of tokens to strip.
+
+    It merely calls both `strippedLeft` and `strippedRight`. As such it
+    duplicates `std.string.strip`, which we can no longer trust not to assert
+    on unexpected input.
+
+    Params:
+        line = Line to strip both the right and left side of.
+        chaff = Character or string of characters to strip away.
+
+    Returns:
+        The passed line, stripped of surrounding passed characters.
  +/
 T stripped(T, C)(T line, C chaff) pure nothrow @nogc
 if (isSomeString!T && (is(C : T) || is(C : ElementType!T) || is(C : ElementEncodingType!T)))
@@ -1554,19 +1554,19 @@ unittest
 
 // encode64
 /++
- +  Base64-encodes a string.
- +
- +  Merely wraps `std.base64.Base64.encode` and `std.string.representation`
- +  into one function that will work with strings.
- +
- +  Params:
- +      line = String line to encode.
- +
- +  Returns:
- +      An encoded Base64 string.
- +
- +  See_Also:
- +      - https://en.wikipedia.org/wiki/Base64
+    Base64-encodes a string.
+
+    Merely wraps `std.base64.Base64.encode` and `std.string.representation`
+    into one function that will work with strings.
+
+    Params:
+        line = String line to encode.
+
+    Returns:
+        An encoded Base64 string.
+
+    See_Also:
+        - https://en.wikipedia.org/wiki/Base64
  +/
 string encode64(const string line) pure nothrow
 {
@@ -1594,19 +1594,19 @@ unittest
 
 // decode64
 /++
- +  Base64-decodes a string.
- +
- +  Merely wraps `std.base64.Base64.decode` and `std.string.representation`
- +  into one function that will work with strings.
- +
- +  Params:
- +      encoded = Encoded string to decode.
- +
- +  Returns:
- +      A decoded normal string.
- +
- +  See_Also:
- +      - https://en.wikipedia.org/wiki/Base64
+    Base64-decodes a string.
+
+    Merely wraps `std.base64.Base64.decode` and `std.string.representation`
+    into one function that will work with strings.
+
+    Params:
+        encoded = Encoded string to decode.
+
+    Returns:
+        A decoded normal string.
+
+    See_Also:
+        - https://en.wikipedia.org/wiki/Base64
  +/
 string decode64(const string encoded) pure
 {
@@ -1632,31 +1632,31 @@ unittest
 
 // splitLineAtPosition
 /++
- +  Splits a string with on boundary as deliminated by a supplied separator, into
- +  one or more more lines not longer than the passed maximum length.
- +
- +  If a line cannot be split due to the line being too short or the separator
- +  not occurring in the text, it is added to the returned array as-is and no
- +  more splitting is done.
- +
- +  Example:
- +  ---
- +  string line = "I am a fish in a sort of long sentence~";
- +  enum maxLineLength = 20;
- +  auto splitLines = line.splitLineAtPosition(' ', maxLineLength);
- +
- +  assert(splitLines[0] == "I am a fish in a");
- +  assert(splitLines[1] == "sort of a long");
- +  assert(splitLines[2] == "sentence~");
- +  ---
- +
- +  Params:
- +      line = String line to split.
- +      separator = Separator character with which to split the `line`.
- +      maxLength = Maximum length of the separated lines.
- +
- +  Returns:
- +      A `T[]` array with lines split out of the passed `line`.
+    Splits a string with on boundary as deliminated by a supplied separator, into
+    one or more more lines not longer than the passed maximum length.
+
+    If a line cannot be split due to the line being too short or the separator
+    not occurring in the text, it is added to the returned array as-is and no
+    more splitting is done.
+
+    Example:
+    ---
+    string line = "I am a fish in a sort of long sentence~";
+    enum maxLineLength = 20;
+    auto splitLines = line.splitLineAtPosition(' ', maxLineLength);
+
+    assert(splitLines[0] == "I am a fish in a");
+    assert(splitLines[1] == "sort of a long");
+    assert(splitLines[2] == "sentence~");
+    ---
+
+    Params:
+        line = String line to split.
+        separator = Separator character with which to split the `line`.
+        maxLength = Maximum length of the separated lines.
+
+    Returns:
+        A `T[]` array with lines split out of the passed `line`.
  +/
 T[] splitLineAtPosition(T, C)(const T line, const C separator, const size_t maxLength) pure //nothrow
 if (isSomeString!T && (is(C : ElementType!T) || is(C : ElementEncodingType!T)))
@@ -1764,15 +1764,15 @@ unittest
 
 // escapeControlCharacters
 /++
- +  Replaces the control characters '\n', '\t', '\r' and '\0' with the escaped
- +  "\\n", "\\t", "\\r" and "\\0". Does not allocate a new string if there
- +  was nothing to escape.
- +
- +  Params:
- +      line = String line to escape characters in.
- +
- +  Returns:
- +      A new string with control characters escaped, or the original one unchanged.
+    Replaces the control characters '\n', '\t', '\r' and '\0' with the escaped
+    "\\n", "\\t", "\\r" and "\\0". Does not allocate a new string if there
+    was nothing to escape.
+
+    Params:
+        line = String line to escape characters in.
+
+    Returns:
+        A new string with control characters escaped, or the original one unchanged.
  +/
 string escapeControlCharacters(const string line) pure nothrow
 {
@@ -1865,14 +1865,14 @@ unittest
 
 // removeControlCharacters
 /++
- +  Removes the control characters '\n', '\t', '\r' and '\0' from a string.
- +  Does not allocate a new string if there was nothing to remove.
- +
- +  Params:
- +      line = String line to "remove" characters from.
- +
- +  Returns:
- +      A new string with control characters removed, or the original one unchanged.
+    Removes the control characters '\n', '\t', '\r' and '\0' from a string.
+    Does not allocate a new string if there was nothing to remove.
+
+    Params:
+        line = String line to "remove" characters from.
+
+    Returns:
+        A new string with control characters removed, or the original one unchanged.
  +/
 string removeControlCharacters(const string line) pure nothrow
 {
@@ -1943,22 +1943,22 @@ unittest
 
 // SplitResults
 /++
- +  The result of a call to `splitInto`.
+    The result of a call to `splitInto`.
  +/
 enum SplitResults
 {
     /++
-     +  The number of arguments passed the number of separated words in the input string.
+        The number of arguments passed the number of separated words in the input string.
      +/
     match,
 
     /++
-     +  The input string did not have enough words to match the passed arguments.
+        The input string did not have enough words to match the passed arguments.
      +/
     underrun,
 
     /++
-     +  The input string had too many words and could not fit into the passed arguments.
+        The input string had too many words and could not fit into the passed arguments.
      +/
     overrun,
 }
@@ -1966,16 +1966,16 @@ enum SplitResults
 
 // splitInto
 /++
- +  Splits a string by a passed separator and assign the delimited words to the
- +  passed strings by ref.
- +
- +  Params:
- +      separator = What token to separate the input string into words with.
- +      slice = Input string of words separated by `separator`.
- +      strings = Variadic list of strings to assign the split words in `slice`.
- +
- +  Returns:
- +      A `SplitResults` with the results of the split attempt.
+    Splits a string by a passed separator and assign the delimited words to the
+    passed strings by ref.
+
+    Params:
+        separator = What token to separate the input string into words with.
+        slice = Input string of words separated by `separator`.
+        strings = Variadic list of strings to assign the split words in `slice`.
+
+    Returns:
+        A `SplitResults` with the results of the split attempt.
  +/
 SplitResults splitInto(string separator = " ", Strings...)
     (auto ref string slice, ref Strings strings)

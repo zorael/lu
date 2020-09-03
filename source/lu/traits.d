@@ -1,5 +1,5 @@
 /++
- +  Various compile-time traits and cleverness.
+    Various compile-time traits and cleverness.
  +/
 module lu.traits;
 
@@ -13,7 +13,7 @@ public:
 
 // MixinScope
 /++
- +  The types of scope into which a mixin template may be mixed in.
+    The types of scope into which a mixin template may be mixed in.
  +/
 enum MixinScope
 {
@@ -26,52 +26,52 @@ enum MixinScope
 
 // MixinConstraints
 /++
- +  Mixes in constraints into another mixin template, to provide static
- +  guarantees that it is not mixed into a type of scope other than the one specified.
- +
- +  Using this you can ensure that a mixin template meant to be mixed into a
- +  class isn't mixed into a module-level scope, or into a function, etc.
- +
- +  More than one scope type can be supplied with bitwise OR.
- +
- +  Example:
- +  ---
- +  module foo;
- +
- +  mixin template Foo()
- +  {
- +      mixin MixinConstraints!(MixinScope.module_, "Foo");  // Constrained to module-level scope
- +  }
- +
- +  mixin Foo;  // no problem, scope is MixinScope.module_
- +
- +  void bar()
- +  {
- +      mixin Foo;  // static assert(0): scope is MixinScope.function_, not MixinScope.module_
- +  }
- +
- +  class C
- +  {
- +      mixin Foo;  // static assert(0): ditto but MixinScope.class_
- +  }
- +
- +  struct C
- +  {
- +      mixin Foo;  // static assert(0): ditto but MixinScope.struct_
- +  }
- +
- +  mixin template FooStructOrClass()
- +  {
- +      mixin MixinConstraints(MixinScope.struct_ | MixinScope.class_);
- +  }
- +
- +  ---
- +
- +  Params:
- +      mixinScope = The scope into which to only allow the mixin to be mixed in.
- +          All other kinds of scopes will be statically rejected.
- +      mixinName = Optional string name of the mixing-in mixin.
- +          Can be anything; it's just used for the error messages.
+    Mixes in constraints into another mixin template, to provide static
+    guarantees that it is not mixed into a type of scope other than the one specified.
+
+    Using this you can ensure that a mixin template meant to be mixed into a
+    class isn't mixed into a module-level scope, or into a function, etc.
+
+    More than one scope type can be supplied with bitwise OR.
+
+    Example:
+    ---
+    module foo;
+
+    mixin template Foo()
+    {
+        mixin MixinConstraints!(MixinScope.module_, "Foo");  // Constrained to module-level scope
+    }
+
+    mixin Foo;  // no problem, scope is MixinScope.module_
+
+    void bar()
+    {
+        mixin Foo;  // static assert(0): scope is MixinScope.function_, not MixinScope.module_
+    }
+
+    class C
+    {
+        mixin Foo;  // static assert(0): ditto but MixinScope.class_
+    }
+
+    struct C
+    {
+        mixin Foo;  // static assert(0): ditto but MixinScope.struct_
+    }
+
+    mixin template FooStructOrClass()
+    {
+        mixin MixinConstraints(MixinScope.struct_ | MixinScope.class_);
+    }
+
+    ---
+
+    Params:
+        mixinScope = The scope into which to only allow the mixin to be mixed in.
+            All other kinds of scopes will be statically rejected.
+        mixinName = Optional string name of the mixing-in mixin.
+            Can be anything; it's just used for the error messages.
  +/
 mixin template MixinConstraints(MixinScope mixinScope, string mixinName = "a constrained mixin")
 {
@@ -205,28 +205,28 @@ version(unittest)
 
 // CategoryName
 /++
- +  Provides string representations of the category of a symbol, where such is not
- +  a fundamental primitive variable but a module, a function, a delegate,
- +  a class or a struct.
- +
- +  Accurate module detection only works on compilers 2.087 and later, due to
- +  missing support for `__traits(isModule)`.
- +
- +  Example:
- +  ---
- +  module foo;
- +
- +  void bar() {}
- +
- +  alias categoryName = CategoryName!bar;
- +
- +  assert(categoryName.type == "function");
- +  assert(categoryName.name == "bar");
- +  assert(categoryName.fqn == "foo.bar");
- +  ---
- +
- +  Params:
- +      sym = Symbol to provide the strings for.
+    Provides string representations of the category of a symbol, where such is not
+    a fundamental primitive variable but a module, a function, a delegate,
+    a class or a struct.
+
+    Accurate module detection only works on compilers 2.087 and later, due to
+    missing support for `__traits(isModule)`.
+
+    Example:
+    ---
+    module foo;
+
+    void bar() {}
+
+    alias categoryName = CategoryName!bar;
+
+    assert(categoryName.type == "function");
+    assert(categoryName.name == "bar");
+    assert(categoryName.fqn == "foo.bar");
+    ---
+
+    Params:
+        sym = Symbol to provide the strings for.
  +/
 template CategoryName(alias sym)
 {
@@ -234,7 +234,7 @@ template CategoryName(alias sym)
 
     // type
     /++
-     +  String representation of the category type of `sym`.
+        String representation of the category type of `sym`.
      +/
     enum type = ()
     {
@@ -273,14 +273,14 @@ template CategoryName(alias sym)
 
     // name
     /++
-     +  A short name for the symbol `sym` is an alias of.
+        A short name for the symbol `sym` is an alias of.
      +/
     enum name = __traits(identifier, sym);
 
 
     // fqn
     /++
-     +  The fully qualified name for the symbol `sym` is an alias of.
+        The fully qualified name for the symbol `sym` is an alias of.
      +/
     enum fqn = fullyQualifiedName!sym;
 }
@@ -337,29 +337,29 @@ unittest
 
 // TakesParams
 /++
- +  Given a function and a tuple of types, evaluates whether that function could
- +  be called with that tuple as parameters. Qualifiers like `const` and
- +  `immutable` are skipped, which may make it a poor choice if dealing with
- +  functions that require such arguments.
- +
- +  It is merely syntactic sugar, using `std.meta` and `std.traits` behind the scenes.
- +
- +  Example:
- +  ---
- +  void noParams();
- +  bool boolParam(bool);
- +  string stringParam(string);
- +  float floatParam(float);
- +
- +  static assert(TakesParams!(noParams));
- +  static assert(TakesParams!(boolParam, bool));
- +  static assert(TakesParams!(stringParam, string));
- +  static assert(TakesParams!(floatParam, float));
- +  ---
- +
- +  Params:
- +      fun = Function to evaluate the parameters of.
- +      P = Variadic list of types to compare `fun`'s function parameters with.
+    Given a function and a tuple of types, evaluates whether that function could
+    be called with that tuple as parameters. Qualifiers like `const` and
+    `immutable` are skipped, which may make it a poor choice if dealing with
+    functions that require such arguments.
+
+    It is merely syntactic sugar, using `std.meta` and `std.traits` behind the scenes.
+
+    Example:
+    ---
+    void noParams();
+    bool boolParam(bool);
+    string stringParam(string);
+    float floatParam(float);
+
+    static assert(TakesParams!(noParams));
+    static assert(TakesParams!(boolParam, bool));
+    static assert(TakesParams!(stringParam, string));
+    static assert(TakesParams!(floatParam, float));
+    ---
+
+    Params:
+        fun = Function to evaluate the parameters of.
+        P = Variadic list of types to compare `fun`'s function parameters with.
  +/
 template TakesParams(alias fun, P...)
 if (isSomeFunction!fun)
@@ -400,11 +400,11 @@ unittest
 
 // hasElaborateInit
 /++
- +  Eponymous template that is true if the passed type has default values to
- +  any of its fields.
- +
- +  Params:
- +      QualT = Qualified struct type to introspect for elaborate .init.
+    Eponymous template that is true if the passed type has default values to
+    any of its fields.
+
+    Params:
+        QualT = Qualified struct type to introspect for elaborate .init.
  +/
 deprecated("Use `__traits(isZeroInit, symbol)` instead")
 template hasElaborateInit(QualT)
@@ -499,24 +499,24 @@ unittest
 
 // isAnnotated
 /++
- +  True if the passed symbol is annotated with the passed User-defined Attribute,
- +  or by its string identifier. False otherwise.
- +
- +  Example:
- +  ---
- +  struct Fun;
- +
- +  bool unfun;
- +  @Fun bool fun;
- +  @("Fun") bool alsoFun;
- +
- +  static assert(isAnnotated!(fun, Fun));
- +  static assert(isAnnotated!(alsoFun, Fun));
- +  ---
- +
- +  Params:
- +      sym = Symbol to inspect.
- +      UDA = Annotation to look for.
+    True if the passed symbol is annotated with the passed User-defined Attribute,
+    or by its string identifier. False otherwise.
+
+    Example:
+    ---
+    struct Fun;
+
+    bool unfun;
+    @Fun bool fun;
+    @("Fun") bool alsoFun;
+
+    static assert(isAnnotated!(fun, Fun));
+    static assert(isAnnotated!(alsoFun, Fun));
+    ---
+
+    Params:
+        sym = Symbol to inspect.
+        UDA = Annotation to look for.
  +/
 template isAnnotated(alias sym, UDA)
 {
@@ -570,25 +570,25 @@ unittest
 
 // isAnnotated
 /++
- +  True if the passed symbol is annotated with the passed User-defined Attribute
- +  fundamental literal. False otherwise.
- +
- +  Overload that takes the UDA as an alias and merely wraps `std.traits.hasUDA`.
- +
- +  Example:
- +  ---
- +  struct Fun;
- +
- +  bool unfun;
- +  @("Fun") bool fun;
- +
- +  static assert(!isAnnotated!(unfun, "Fun"));
- +  static assert(isAnnotated!(fun, "Fun"));
- +  ---
- +
- +  Params:
- +      sym = Symbol to inspect.
- +      UDA = Annotation to look for.
+    True if the passed symbol is annotated with the passed User-defined Attribute
+    fundamental literal. False otherwise.
+
+    Overload that takes the UDA as an alias and merely wraps `std.traits.hasUDA`.
+
+    Example:
+    ---
+    struct Fun;
+
+    bool unfun;
+    @("Fun") bool fun;
+
+    static assert(!isAnnotated!(unfun, "Fun"));
+    static assert(isAnnotated!(fun, "Fun"));
+    ---
+
+    Params:
+        sym = Symbol to inspect.
+        UDA = Annotation to look for.
  +/
 template isAnnotated(alias sym, alias UDA)
 {
@@ -599,13 +599,13 @@ template isAnnotated(alias sym, alias UDA)
 
 // isSerialisable
 /++
- +  Eponymous template bool of whether a variable can be treated as a mutable
- +  variable, like a fundamental integral, and thus be serialised.
- +
- +  Currently it does not support static arrays.
- +
- +  Params:
- +      sym = Alias of symbol to introspect.
+    Eponymous template bool of whether a variable can be treated as a mutable
+    variable, like a fundamental integral, and thus be serialised.
+
+    Currently it does not support static arrays.
+
+    Params:
+        sym = Alias of symbol to introspect.
  +/
 template isSerialisable(alias sym)
 {
@@ -652,12 +652,12 @@ unittest
 
 // isTrulyString
 /++
- +  True if a type is `string`, `dstring` or `wstring`; otherwise false.
- +
- +  Does not consider e.g. `char[]` a string, as `std.traits.isSomeString` does.
- +
- +  Params:
- +      S = String type to introspect.
+    True if a type is `string`, `dstring` or `wstring`; otherwise false.
+
+    Does not consider e.g. `char[]` a string, as `std.traits.isSomeString` does.
+
+    Params:
+        S = String type to introspect.
  +/
 enum isTrulyString(S) = is(S == string) || is(S == dstring) || is(S == wstring);
 
@@ -675,12 +675,12 @@ unittest
 
 // isMerelyArray
 /++
- +  True if a type is a non-string array; otherwise false.
- +
- +  For now also evaluates to true for static arrays.
- +
- +  Params:
- +      S = Array type to introspect.
+    True if a type is a non-string array; otherwise false.
+
+    For now also evaluates to true for static arrays.
+
+    Params:
+        S = Array type to introspect.
  +/
 enum isMerelyArray(S) = isArray!S && !isTrulyString!S;
 
@@ -699,12 +699,12 @@ unittest
 
 // UnqualArray
 /++
- +  Given an array of qualified elements, aliases itself to one such of
- +  unqualified elements.
- +
- +  Params:
- +      QualArray = Qualified array type.
- +      QualType = Qualified type, element of `QualArray`.
+    Given an array of qualified elements, aliases itself to one such of
+    unqualified elements.
+
+    Params:
+        QualArray = Qualified array type.
+        QualType = Qualified type, element of `QualArray`.
  +/
 template UnqualArray(QualArray : QualType[], QualType)
 if (!isAssociativeArray!QualType)
@@ -737,13 +737,13 @@ unittest
 
 // UnqualArray
 /++
- +  Given an associative array with elements that have a storage class, aliases
- +  itself to an associative array with elements without the storage classes.
- +
- +  Params:
- +      QualArray = Qualified associative array type.
- +      QualElem = Qualified type, element of `QualArray`.
- +      QualKey = Qualified type, key of `QualArray`.
+    Given an associative array with elements that have a storage class, aliases
+    itself to an associative array with elements without the storage classes.
+
+    Params:
+        QualArray = Qualified associative array type.
+        QualElem = Qualified type, element of `QualArray`.
+        QualKey = Qualified type, key of `QualArray`.
  +/
 template UnqualArray(QualArray : QualElem[QualKey], QualElem, QualKey)
 if (!isArray!QualElem)
@@ -776,13 +776,13 @@ unittest
 
 // UnqualArray
 /++
- +  Given an associative array of arrays with a storage class, aliases itself to
- +  an associative array with array elements without the storage classes.
- +
- +  Params:
- +      QualArray = Qualified associative array type.
- +      QualElem = Qualified type, element of `QualArray`.
- +      QualKey = Qualified type, key of `QualArray`.
+    Given an associative array of arrays with a storage class, aliases itself to
+    an associative array with array elements without the storage classes.
+
+    Params:
+        QualArray = Qualified associative array type.
+        QualElem = Qualified type, element of `QualArray`.
+        QualKey = Qualified type, key of `QualArray`.
  +/
 template UnqualArray(QualArray : QualElem[QualKey], QualElem, QualKey)
 if (isArray!QualElem)
@@ -822,28 +822,28 @@ unittest
 
 // isStruct
 /++
- +  Eponymous template that is true if the passed type is a struct.
- +
- +  Used with `std.meta.Filter`, which cannot take `is()` expressions.
- +
- +  Params:
- +      T = Type to introspect.
+    Eponymous template that is true if the passed type is a struct.
+
+    Used with `std.meta.Filter`, which cannot take `is()` expressions.
+
+    Params:
+        T = Type to introspect.
  +/
 enum isStruct(T) = is(T == struct);
 
 
 // stringofParams
 /++
- +  Produces a string of the unqualified parameters of the passed function alias.
- +
- +  Example:
- +  ---
- +  void foo(bool b, int i, string s) {}
- +  static assert(stringofParams!foo == "bool, int, string");
- +  ---
- +
- +  Params:
- +      fun = A function alias to get the parameter string of.
+    Produces a string of the unqualified parameters of the passed function alias.
+
+    Example:
+    ---
+    void foo(bool b, int i, string s) {}
+    static assert(stringofParams!foo == "bool, int, string");
+    ---
+
+    Params:
+        fun = A function alias to get the parameter string of.
  +/
 template stringofParams(alias fun)
 {
@@ -877,11 +877,11 @@ static if ((__VERSION__ == 2088L) || (__VERSION__ == 2089L))
 {
     // getSymbolsByUDA
     /++
-     +  Provide a non-2.088, non-2.089 `std.traits.getSymbolsByUDA`.
-     +
-     +  The `std.traits.getSymbolsByUDA` in 2.088/2.089 is completely broken by having
-     +  inserted a constraint to force it to only work on aggregates, which a module
-     +  apparently isn't.
+        Provide a non-2.088, non-2.089 `std.traits.getSymbolsByUDA`.
+
+        The `std.traits.getSymbolsByUDA` in 2.088/2.089 is completely broken by having
+        inserted a constraint to force it to only work on aggregates, which a module
+        apparently isn't.
      +/
     template getSymbolsByUDA(alias symbol, alias attribute)
     //if (isAggregateType!symbol)  // <--
@@ -904,7 +904,7 @@ static if ((__VERSION__ == 2088L) || (__VERSION__ == 2089L))
 
     // getSymbolsByUDAImpl
     /++
-     +  Implementation of `std.traits.getSymbolsByUDA`, copy/pasted.
+        Implementation of `std.traits.getSymbolsByUDA`, copy/pasted.
      +/
     private template getSymbolsByUDAImpl(alias symbol, alias attribute, names...)
     {
@@ -964,11 +964,11 @@ else
 
 // isMutableArrayOfImmutables
 /++
- +  Evaluates whether or not a passed array type is a mutable array of immutable
- +  elements, such as a string.
- +
- +  Params:
- +      Array = Array to inspect.
+    Evaluates whether or not a passed array type is a mutable array of immutable
+    elements, such as a string.
+
+    Params:
+        Array = Array to inspect.
  +/
 enum isMutableArrayOfImmutables(Array : Element[], Element) =
     !is(Array == immutable) && is(Element == immutable);

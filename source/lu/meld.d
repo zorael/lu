@@ -1,43 +1,43 @@
 /++
- +  This module contains the `meldInto` functions; functions that take two
- +  structs or classes of the same type and combine them, creating a resulting
- +  object with the union of the members of both parents. Array and associative
- +  array variants exist too.
- +
- +  Example:
- +  ---
- +  struct Foo
- +  {
- +      string abc;
- +      string def;
- +      int i;
- +      float f;
- +      double d;
- +  }
- +
- +  Foo f1; // = new Foo;
- +  f1.abc = "ABC";
- +  f1.def = "DEF";
- +
- +  Foo f2; // = new Foo;
- +  f2.abc = "this won't get copied";
- +  f2.def = "neither will this";
- +  f2.i = 42;
- +  f2.f = 3.14f;
- +
- +  f2.meldInto(f1);
- +
- +  with (f1)
- +  {
- +      import std.math : isNaN;
- +
- +      assert(abc == "ABC");
- +      assert(def == "DEF");
- +      assert(i == 42);
- +      assert(f == 3.14f);
- +      assert(d.isNaN);
- +  }
- +  ---
+    This module contains the `meldInto` functions; functions that take two
+    structs or classes of the same type and combine them, creating a resulting
+    object with the union of the members of both parents. Array and associative
+    array variants exist too.
+
+    Example:
+    ---
+    struct Foo
+    {
+        string abc;
+        string def;
+        int i;
+        float f;
+        double d;
+    }
+
+    Foo f1; // = new Foo;
+    f1.abc = "ABC";
+    f1.def = "DEF";
+
+    Foo f2; // = new Foo;
+    f2.abc = "this won't get copied";
+    f2.def = "neither will this";
+    f2.i = 42;
+    f2.f = 3.14f;
+
+    f2.meldInto(f1);
+
+    with (f1)
+    {
+        import std.math : isNaN;
+
+        assert(abc == "ABC");
+        assert(def == "DEF");
+        assert(i == 42);
+        assert(f == 3.14f);
+        assert(d.isNaN);
+    }
+    ---
  +/
 module lu.meld;
 
@@ -50,77 +50,77 @@ public:
 
 
 /++
- +  To what extent a source should overwrite a target when melding.
+    To what extent a source should overwrite a target when melding.
  +/
 enum MeldingStrategy
 {
     /++
-     +  Takes care not to overwrite settings when either the source or the
-     +  target is `.init`.
+        Takes care not to overwrite settings when either the source or the
+        target is `.init`.
      +/
     conservative,
 
     /++
-     +  Only considers the `init`-ness of the source, so as not to overwrite
-     +  things with empty strings, but otherwise always considers the source to
-     +  trump the target.
+        Only considers the `init`-ness of the source, so as not to overwrite
+        things with empty strings, but otherwise always considers the source to
+        trump the target.
      +/
     aggressive,
 
     /++
-     +  Works like aggressive but also always overwrites bools, regardless of
-     +  falseness.
+        Works like aggressive but also always overwrites bools, regardless of
+        falseness.
      +/
     overwriting,
 }
 
 
 /++
- +  UDA conveying that this member's value cannot or should not be melded.
+    UDA conveying that this member's value cannot or should not be melded.
  +/
 struct Unmeldable;
 
 
 // meldInto
 /++
- +  Takes two structs or classes of the same type and melds them together,
- +  making the members a union of the two.
- +
- +  In the case of classes it only overwrites members in `intoThis` that are
- +  `typeof(member).init`, so only unset members get their values overwritten by
- +  the melding class. It also does not work with static members.
- +
- +  In the case of structs it also overwrites members that still have their
- +  default values, in cases where such is applicable.
- +
- +  Supply a template parameter `MeldingStrategy` to decide to which extent
- +  values are overwritten.
- +
- +  Example:
- +  ---
- +  struct Foo
- +  {
- +      string abc;
- +      int def;
- +      bool b = true;
- +  }
- +
- +  Foo foo, bar;
- +  foo.abc = "from foo"
- +  foo.b = false;
- +  bar.def = 42;
- +  foo.meldInto(bar);
- +
- +  assert(bar.abc == "from foo");
- +  assert(bar.def == 42);
- +  assert(!bar.b);  // false overwrote default value true
- +  ---
- +
- +  Params:
- +      strategy = To what extent the source object should overwrite set
- +          (non-`init`) values in the receiving object.
- +      meldThis = Object to meld (source).
- +      intoThis = Reference to object to meld (target).
+    Takes two structs or classes of the same type and melds them together,
+    making the members a union of the two.
+
+    In the case of classes it only overwrites members in `intoThis` that are
+    `typeof(member).init`, so only unset members get their values overwritten by
+    the melding class. It also does not work with static members.
+
+    In the case of structs it also overwrites members that still have their
+    default values, in cases where such is applicable.
+
+    Supply a template parameter `MeldingStrategy` to decide to which extent
+    values are overwritten.
+
+    Example:
+    ---
+    struct Foo
+    {
+        string abc;
+        int def;
+        bool b = true;
+    }
+
+    Foo foo, bar;
+    foo.abc = "from foo"
+    foo.b = false;
+    bar.def = 42;
+    foo.meldInto(bar);
+
+    assert(bar.abc == "from foo");
+    assert(bar.def == 42);
+    assert(!bar.b);  // false overwrote default value true
+    ---
+
+    Params:
+        strategy = To what extent the source object should overwrite set
+            (non-`init`) values in the receiving object.
+        meldThis = Object to meld (source).
+        intoThis = Reference to object to meld (target).
  +/
 void meldInto(MeldingStrategy strategy = MeldingStrategy.conservative, QualThing, Thing)
     (QualThing meldThis, ref Thing intoThis)
@@ -636,28 +636,28 @@ unittest
 
 // meldInto (array)
 /++
- +  Takes two arrays and melds them together, making a union of the two.
- +
- +  It only overwrites members that are `T.init`, so only unset
- +  fields get their values overwritten by the melding array. Supply a
- +  template parameter `MeldingStrategy.aggressive` to make it overwrite if the
- +  melding array's field is not `T.init`. Furthermore use
- +  `MeldingStrategy.overwriting` if working with bool members.
- +
- +  Example:
- +  ---
- +  int[] arr1 = [ 1, 2, 3, 0, 0, 0 ];
- +  int[] arr2 = [ 0, 0, 0, 4, 5, 6 ];
- +  arr1.meldInto!(MeldingStrategy.conservative)(arr2);
- +
- +  assert(arr2 == [ 1, 2, 3, 4, 5, 6 ]);
- +  ---
- +
- +  Params:
- +      strategy = To what extent the source object should overwrite set
- +          (non-`init`) values in the receiving object.
- +      meldThis = Array to meld (source).
- +      intoThis = Reference to the array to meld (target).
+    Takes two arrays and melds them together, making a union of the two.
+
+    It only overwrites members that are `T.init`, so only unset
+    fields get their values overwritten by the melding array. Supply a
+    template parameter `MeldingStrategy.aggressive` to make it overwrite if the
+    melding array's field is not `T.init`. Furthermore use
+    `MeldingStrategy.overwriting` if working with bool members.
+
+    Example:
+    ---
+    int[] arr1 = [ 1, 2, 3, 0, 0, 0 ];
+    int[] arr2 = [ 0, 0, 0, 4, 5, 6 ];
+    arr1.meldInto!(MeldingStrategy.conservative)(arr2);
+
+    assert(arr2 == [ 1, 2, 3, 4, 5, 6 ]);
+    ---
+
+    Params:
+        strategy = To what extent the source object should overwrite set
+            (non-`init`) values in the receiving object.
+        meldThis = Array to meld (source).
+        intoThis = Reference to the array to meld (target).
  +/
 void meldInto(MeldingStrategy strategy = MeldingStrategy.conservative, Array1, Array2)
     (Array1 meldThis, ref Array2 intoThis) pure nothrow
@@ -781,28 +781,28 @@ unittest
 
 // meldInto
 /++
- +  Takes two associative arrays and melds them together, making a union of the two.
- +
- +  This is largely the same as the array-version `meldInto` but doesn't need
- +  the extensive template constraints it employs, so it might as well be kept separate.
- +
- +  Example:
- +  ---
- +  int[string] aa1 = [ "abc" : 42, "def" : -1 ];
- +  int[string] aa2 = [ "ghi" : 10, "jkl" : 7 ];
- +  arr1.meldInto(arr2);
- +
- +  assert("abc" in aa2);
- +  assert("def" in aa2);
- +  assert("ghi" in aa2);
- +  assert("jkl" in aa2);
- +  ---
- +
- +  Params:
- +      strategy = To what extent the source object should overwrite set
- +          (non-`init`) values in the receiving object.
- +      meldThis = Associative array to meld (source).
- +      intoThis = Reference to the associative array to meld (target).
+    Takes two associative arrays and melds them together, making a union of the two.
+
+    This is largely the same as the array-version `meldInto` but doesn't need
+    the extensive template constraints it employs, so it might as well be kept separate.
+
+    Example:
+    ---
+    int[string] aa1 = [ "abc" : 42, "def" : -1 ];
+    int[string] aa2 = [ "ghi" : 10, "jkl" : 7 ];
+    arr1.meldInto(arr2);
+
+    assert("abc" in aa2);
+    assert("def" in aa2);
+    assert("ghi" in aa2);
+    assert("jkl" in aa2);
+    ---
+
+    Params:
+        strategy = To what extent the source object should overwrite set
+            (non-`init`) values in the receiving object.
+        meldThis = Associative array to meld (source).
+        intoThis = Reference to the associative array to meld (target).
  +/
 void meldInto(MeldingStrategy strategy = MeldingStrategy.conservative, QualAA, AA)
     (QualAA meldThis, ref AA intoThis) pure

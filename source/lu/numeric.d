@@ -1,6 +1,6 @@
 /++
- +  Functions and templates that do numeric calculations or other manipulation,
- +  in some way or another.
+    Functions and templates that do numeric calculations or other manipulation,
+    in some way or another.
  +/
 module lu.numeric;
 
@@ -15,26 +15,26 @@ public:
 
 // getMultipleOf
 /++
- +  Given a number, calculate the largest multiple of `n` needed to reach that number.
- +
- +  It rounds up, and if supplied `Yes.alwaysOneUp` it will always overshoot.
- +  This is good for when calculating format pattern widths.
- +
- +  Example:
- +  ---
- +  immutable width = 15.getMultipleOf(4);
- +  assert(width == 16);
- +  immutable width2 = 16.getMultipleOf!(Yes.alwaysOneUp)(4);
- +  assert(width2 == 20);
- +  ---
- +
- +  Params:
- +      oneUp = Whether or not to always overshoot.
- +      num = Number to reach.
- +      n = Base value to find a multiplier for.
- +
- +  Returns:
- +      The multiple of `n` that reaches and possibly overshoots `num`.
+    Given a number, calculate the largest multiple of `n` needed to reach that number.
+
+    It rounds up, and if supplied `Yes.alwaysOneUp` it will always overshoot.
+    This is good for when calculating format pattern widths.
+
+    Example:
+    ---
+    immutable width = 15.getMultipleOf(4);
+    assert(width == 16);
+    immutable width2 = 16.getMultipleOf!(Yes.alwaysOneUp)(4);
+    assert(width2 == 20);
+    ---
+
+    Params:
+        oneUp = Whether or not to always overshoot.
+        num = Number to reach.
+        n = Base value to find a multiplier for.
+
+    Returns:
+        The multiple of `n` that reaches and possibly overshoots `num`.
  +/
 Number getMultipleOf(Flag!"alwaysOneUp" oneUp = No.alwaysOneUp, Number)
     (const Number num, const int n) pure nothrow @nogc

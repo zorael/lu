@@ -1,30 +1,30 @@
 /++
- +  This module contains functions that in some way or another manipulates
- +  struct and class instances, as well as (associative) arrays.
- +
- +  Example:
- +  ---
- +  struct Foo
- +  {
- +      string nickname;
- +      string address;
- +  }
- +
- +  Foo foo;
- +
- +  foo.setMemberByName("nickname", "foobar");
- +  foo.setMemberByName("address", "subdomain.address.tld");
- +
- +  assert(foo.nickname == "foobar");
- +  assert(foo.address == "subdomain.address.tld");
- +
- +  foo.replaceMembers("subdomain.address.tld", "foobar");
- +  assert(foo.address == "foobar");
- +
- +  foo.replaceMembers("foobar", string.init);
- +  assert(foo.nickname.length == 0);
- +  assert(foo.address.length == 0);
- +  ---
+    This module contains functions that in some way or another manipulates
+    struct and class instances, as well as (associative) arrays.
+
+    Example:
+    ---
+    struct Foo
+    {
+        string nickname;
+        string address;
+    }
+
+    Foo foo;
+
+    foo.setMemberByName("nickname", "foobar");
+    foo.setMemberByName("address", "subdomain.address.tld");
+
+    assert(foo.nickname == "foobar");
+    assert(foo.address == "subdomain.address.tld");
+
+    foo.replaceMembers("subdomain.address.tld", "foobar");
+    assert(foo.address == "foobar");
+
+    foo.replaceMembers("foobar", string.init);
+    assert(foo.nickname.length == 0);
+    assert(foo.address.length == 0);
+    ---
  +/
 module lu.objmanip;
 
@@ -37,44 +37,44 @@ public:
 
 // setMemberByName
 /++
- +  Given a struct/class object, sets one of its members by its string name to a
- +  specified value. Overload that takes the value as a string and tries to
- +  convert it into the target type.
- +
- +  It does not currently recurse into other struct/class members.
- +
- +  Example:
- +  ---
- +  struct Foo
- +  {
- +      string name;
- +      int number;
- +      bool alive;
- +  }
- +
- +  Foo foo;
- +
- +  foo.setMemberByName("name", "James Bond");
- +  foo.setMemberByName("number", "007");
- +  foo.setMemberByName("alive", "false");
- +
- +  assert(foo.name == "James Bond");
- +  assert(foo.number == 7);
- +  assert(!foo.alive);
- +  ---
- +
- +  Params:
- +      thing = Reference object whose members to set.
- +      memberToSet = String name of the thing's member to set.
- +      valueToSet = String contents of the value to set the member to; string
- +          even if the member is of a different type.
- +
- +  Returns:
- +      `true` if a member was found and set, `false` if not.
- +
- +  Throws: `std.conv.ConvException` if a string could not be converted into an
- +      array, if a passed string could not be converted into a bool, or if
- +      `std.conv.to` failed to convert a string into wanted type T.
+    Given a struct/class object, sets one of its members by its string name to a
+    specified value. Overload that takes the value as a string and tries to
+    convert it into the target type.
+
+    It does not currently recurse into other struct/class members.
+
+    Example:
+    ---
+    struct Foo
+    {
+        string name;
+        int number;
+        bool alive;
+    }
+
+    Foo foo;
+
+    foo.setMemberByName("name", "James Bond");
+    foo.setMemberByName("number", "007");
+    foo.setMemberByName("alive", "false");
+
+    assert(foo.name == "James Bond");
+    assert(foo.number == 7);
+    assert(!foo.alive);
+    ---
+
+    Params:
+        thing = Reference object whose members to set.
+        memberToSet = String name of the thing's member to set.
+        valueToSet = String contents of the value to set the member to; string
+            even if the member is of a different type.
+
+    Returns:
+        `true` if a member was found and set, `false` if not.
+
+    Throws: `std.conv.ConvException` if a string could not be converted into an
+        array, if a passed string could not be converted into a bool, or if
+        `std.conv.to` failed to convert a string into wanted type T.
  +/
 bool setMemberByName(Thing)(ref Thing thing, const string memberToSet, const string valueToSet)
 if (isAggregateType!Thing && isMutable!Thing)
@@ -477,39 +477,39 @@ unittest
 
 // setMemberByName
 /++
- +  Given a struct/class object, sets one of its members by its string name to a
- +  specified value. Overload that takes a value of the same type as the target
- +  member, rather than a string to convert. Integer promotion applies.
- +
- +  It does not currently recurse into other struct/class members.
- +
- +  Example:
- +  ---
- +  struct Foo
- +  {
- +      int i;
- +      double d;
- +  }
- +
- +  Foo foo;
- +
- +  foo.setMemberByName("i", 42);
- +  foo.setMemberByName("d", 3.14);
- +
- +  assert(foo.i == 42);
- +  assert(foo.d = 3.14);
- +  ---
- +
- +  Params:
- +      thing = Reference object whose members to set.
- +      memberToSet = String name of the thing's member to set.
- +      valueToSet = Value, of the same type as the target member.
- +
- +  Returns:
- +      `true` if a member was found and set, `false` if not.
- +
- +  Throws: `MeldException` if the passed `valueToSet` was not the same type
- +      (or implicitly convertible to) the member to set.
+    Given a struct/class object, sets one of its members by its string name to a
+    specified value. Overload that takes a value of the same type as the target
+    member, rather than a string to convert. Integer promotion applies.
+
+    It does not currently recurse into other struct/class members.
+
+    Example:
+    ---
+    struct Foo
+    {
+        int i;
+        double d;
+    }
+
+    Foo foo;
+
+    foo.setMemberByName("i", 42);
+    foo.setMemberByName("d", 3.14);
+
+    assert(foo.i == 42);
+    assert(foo.d = 3.14);
+    ---
+
+    Params:
+        thing = Reference object whose members to set.
+        memberToSet = String name of the thing's member to set.
+        valueToSet = Value, of the same type as the target member.
+
+    Returns:
+        `true` if a member was found and set, `false` if not.
+
+    Throws: `MeldException` if the passed `valueToSet` was not the same type
+        (or implicitly convertible to) the member to set.
  +/
 bool setMemberByName(Thing, Val)(ref Thing thing, const string memberToSet, /*const*/ Val valueToSet)
 if (isAggregateType!Thing && isMutable!Thing && !is(Val : string))
@@ -612,10 +612,10 @@ unittest
 
 // SetMemberException
 /++
- +  Exception, to be thrown when `setMemberByName` fails for some given reason.
- +
- +  It is a normal `object.Exception` but with attached strings of the type name,
- +  name of member and the value that was attempted to set.
+    Exception, to be thrown when `setMemberByName` fails for some given reason.
+
+    It is a normal `object.Exception` but with attached strings of the type name,
+    name of member and the value that was attempted to set.
  +/
 final class SetMemberException : Exception
 {
@@ -629,7 +629,7 @@ final class SetMemberException : Exception
     string valueToSet;
 
     /++
-     +  Create a new `SetMemberException`, without attaching anything.
+        Create a new `SetMemberException`, without attaching anything.
      +/
     this(const string message, const string file = __FILE__, const size_t line = __LINE__,
         Throwable nextInChain = null) pure nothrow @nogc @safe
@@ -638,7 +638,7 @@ final class SetMemberException : Exception
     }
 
     /++
-     +  Create a new `SetMemberException`, attaching extra set-member information.
+        Create a new `SetMemberException`, attaching extra set-member information.
      +/
     this(const string message, const string typeName, const string memberToSet,
         const string valueToSet, const string file = __FILE__,
@@ -658,16 +658,16 @@ private import std.traits : isEqualityComparable;
 
 // replaceMembers
 /++
- +  Inspects a passed struct or class for members whose values match that of the
- +  passed `token`. Matches members are set to a replacement value, which is
- +  an optional parameter that defaults to the `.init` value of the token's type.
- +
- +  Params:
- +      thing = Reference to a struct or class whose members to iterate over.
- +      token = What value to look for in members, be it a string or an integer
- +          or whatever; anything that can be compared to.
- +      replacement = What to assign matched values. Defaults to the `.init`
- +          of the matched type.
+    Inspects a passed struct or class for members whose values match that of the
+    passed `token`. Matches members are set to a replacement value, which is
+    an optional parameter that defaults to the `.init` value of the token's type.
+
+    Params:
+        thing = Reference to a struct or class whose members to iterate over.
+        token = What value to look for in members, be it a string or an integer
+            or whatever; anything that can be compared to.
+        replacement = What to assign matched values. Defaults to the `.init`
+            of the matched type.
  +/
 void replaceMembers(Thing, Token)(ref Thing thing, Token token,
     Token replacement = Token.init) pure nothrow @nogc
@@ -799,39 +799,39 @@ private import std.traits : isAssociativeArray;
 
 // pruneAA
 /++
- +  Iterates an associative array and deletes invalid entries, either if the value
- +  is in a default `.init` state or as per the optionally passed predicate.
- +
- +  It is supposedly undefined behaviour to remove an associative array's fields
- +  when foreaching through it. So far we have been doing a simple mark-sweep
- +  garbage collection whenever we encounter this use-case in the code, so why
- +  not just make a generic solution instead and deduplicate code?
- +
- +  Example:
- +  ---
- +  auto aa =
- +  [
- +      "abc" : "def",
- +      "ghi" : string.init;
- +      "mno" : "123",
- +      "pqr" : string.init,
- +  ];
- +
- +  pruneAA(aa);
- +
- +  assert("ghi" !in aa);
- +  assert("pqr" !in aa);
- +
- +  pruneAA!((entry) => entry.length > 0)(aa);
- +
- +  assert("abc" !in aa);
- +  assert("mno" !in aa);
- +  ---
- +
- +  Params:
- +      pred = Optional predicate if special logic is needed to determine whether
- +          an entry is to be removed or not.
- +      aa = The associative array to modify.
+    Iterates an associative array and deletes invalid entries, either if the value
+    is in a default `.init` state or as per the optionally passed predicate.
+
+    It is supposedly undefined behaviour to remove an associative array's fields
+    when foreaching through it. So far we have been doing a simple mark-sweep
+    garbage collection whenever we encounter this use-case in the code, so why
+    not just make a generic solution instead and deduplicate code?
+
+    Example:
+    ---
+    auto aa =
+    [
+        "abc" : "def",
+        "ghi" : string.init;
+        "mno" : "123",
+        "pqr" : string.init,
+    ];
+
+    pruneAA(aa);
+
+    assert("ghi" !in aa);
+    assert("pqr" !in aa);
+
+    pruneAA!((entry) => entry.length > 0)(aa);
+
+    assert("abc" !in aa);
+    assert("mno" !in aa);
+    ---
+
+    Params:
+        pred = Optional predicate if special logic is needed to determine whether
+            an entry is to be removed or not.
+        aa = The associative array to modify.
  +/
 void pruneAA(alias pred = null, AA)(ref AA aa)
 if (isAssociativeArray!AA && isMutable!AA)

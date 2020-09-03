@@ -1,69 +1,69 @@
 /++
- +  Functionality related to connecting to a server over the Internet.
- +
- +  Includes `core.thread.Fiber`s that help with resolving the address of,
- +  connecting to, and reading full string lines from a server.
- +
- +  Having them as `core.thread.Fiber`s means a program can do address resolution,
- +  connecting and reading while retaining the ability to do other stuff
- +  concurrently. This means you can conveniently run code inbetween each
- +  connection attempt, for instance, without breaking the program's flow.
- +
- +  Example:
- +  ---
- +  import std.concurrency : Generator;
- +
- +  Connection conn;
- +  bool abort;  // Set to true if something goes wrong
- +
- +  conn.reset();
- +
- +  bool useIPv6 = false;
- +  enum resolveAttempts = 10;
- +
- +  auto resolver = new Generator!ResolveAttempt(() =>
- +      resolveFiber(conn, "irc.freenode.net", 6667, useIPv6, resolveAttempts, abort));
- +
- +  resolver.call();
- +
- +  resolveloop:
- +  foreach (const attempt; resolver)
- +  {
- +      // attempt is a yielded `ResolveAttempt`
- +      // switch on `attempt.state`, deal with it accordingly
- +  }
- +
- +  // Resolution done
- +
- +  enum connectionRetries = 10;
- +
- +  auto connector = new Generator!ConnectionAttempt(() =>
- +      connectFiber(conn, false, connectionRetries, abort));
- +
- +  connector.call();
- +
- +  connectorloop:
- +  foreach (const attempt; connector)
- +  {
- +      // attempt is a yielded `ConnectionAttempt`
- +      // switch on `attempt.state`, deal with it accordingly
- +  }
- +
- +  // Connection established
- +
- +  enum timeoutSeconds = 600;
- +
- +  auto listener = new Generator!ListenAttempt(() => listeFiber(conn, abort, timeoutSecond));
- +
- +  listener.call();
- +
- +  foreach (const attempt; listener)
- +  {
- +      // attempt is a yielded `ListenAttempt`
- +      doThingsWithLineFromServer(attempt.line);
- +      // program logic goes here
- +  }
- +  ---
+    Functionality related to connecting to a server over the Internet.
+
+    Includes `core.thread.Fiber`s that help with resolving the address of,
+    connecting to, and reading full string lines from a server.
+
+    Having them as `core.thread.Fiber`s means a program can do address resolution,
+    connecting and reading while retaining the ability to do other stuff
+    concurrently. This means you can conveniently run code inbetween each
+    connection attempt, for instance, without breaking the program's flow.
+
+    Example:
+    ---
+    import std.concurrency : Generator;
+
+    Connection conn;
+    bool abort;  // Set to true if something goes wrong
+
+    conn.reset();
+
+    bool useIPv6 = false;
+    enum resolveAttempts = 10;
+
+    auto resolver = new Generator!ResolveAttempt(() =>
+        resolveFiber(conn, "irc.freenode.net", 6667, useIPv6, resolveAttempts, abort));
+
+    resolver.call();
+
+    resolveloop:
+    foreach (const attempt; resolver)
+    {
+        // attempt is a yielded `ResolveAttempt`
+        // switch on `attempt.state`, deal with it accordingly
+    }
+
+    // Resolution done
+
+    enum connectionRetries = 10;
+
+    auto connector = new Generator!ConnectionAttempt(() =>
+        connectFiber(conn, false, connectionRetries, abort));
+
+    connector.call();
+
+    connectorloop:
+    foreach (const attempt; connector)
+    {
+        // attempt is a yielded `ConnectionAttempt`
+        // switch on `attempt.state`, deal with it accordingly
+    }
+
+    // Connection established
+
+    enum timeoutSeconds = 600;
+
+    auto listener = new Generator!ListenAttempt(() => listeFiber(conn, abort, timeoutSecond));
+
+    listener.call();
+
+    foreach (const attempt; listener)
+    {
+        // attempt is a yielded `ListenAttempt`
+        doThingsWithLineFromServer(attempt.line);
+        // program logic goes here
+    }
+    ---
  +/
 module lu.net;
 
@@ -76,45 +76,45 @@ public:
 @safe:
 
 /++
- +  Default buffer sizes in bytes.
+    Default buffer sizes in bytes.
  +/
 enum DefaultBufferSize
 {
     /++
-     +  The receive buffer size as set as a `std.socket.SocketOption`.
+        The receive buffer size as set as a `std.socket.SocketOption`.
      +/
     socketOptionReceive = 2048,
 
     /++
-     +  The send buffer size as set as a `std.socket.SocketOption`.
+        The send buffer size as set as a `std.socket.SocketOption`.
      +/
     socketOptionSend = 1024,
 
     /++
-     +  The actual buffer array size used when reading from the socket.
+        The actual buffer array size used when reading from the socket.
      +/
     socketReceive = 2048,
 }
 
 
 /++
- +  Various timeouts in milliseconds.
+    Various timeouts in milliseconds.
  +/
 enum DefaultTimeout
 {
     /++
-     +  The send attempt timeout as set as a `std.socket.SocketOption`, in milliseconds.
+        The send attempt timeout as set as a `std.socket.SocketOption`, in milliseconds.
      +/
     send = 5000,
 
     /++
-     +  The receive attempt timeout as set as a `std.socket.SocketOption`, in milliseconds.
+        The receive attempt timeout as set as a `std.socket.SocketOption`, in milliseconds.
      +/
     receive = 1000,
 
     /++
-     +  The actual time after which, if nothing was read during that whole time,
-     +  we decide the connection is dead. In seconds.
+        The actual time after which, if nothing was read during that whole time,
+        we decide the connection is dead. In seconds.
      +/
     connectionLost = 600,
 }
@@ -122,9 +122,9 @@ enum DefaultTimeout
 
 // Connection
 /++
- +  Functions and state needed to maintain a connection.
- +
- +  This is simply to decrease the amount of globals and to create some convenience functions.
+    Functions and state needed to maintain a connection.
+
+    This is simply to decrease the amount of globals and to create some convenience functions.
  +/
 struct Connection
 {
@@ -144,19 +144,19 @@ private:
     SSL_CTX* sslContext;
 
     /++
-     +  OpenSSL `SSL` instance, for use with SSL connections.
+        OpenSSL `SSL` instance, for use with SSL connections.
      +/
     SSL* sslInstance;
 
 
     // setTimemout
     /++
-     +  Sets the `std.socket.SocketOption.RCVTIMEO` of the *current*
-     +  `std.socket.Socket` `socket` to the specified duration.
-     +
-     +  Params:
-     +      option = The `std.socket.SocketOption` to set.
-     +      dur = The duration to assign for the option, in number of milliseconds.
+        Sets the `std.socket.SocketOption.RCVTIMEO` of the *current*
+        `std.socket.Socket` `socket` to the specified duration.
+
+        Params:
+            option = The `std.socket.SocketOption` to set.
+            dur = The duration to assign for the option, in number of milliseconds.
      +/
     void setTimeout(const SocketOption option, const uint dur)
     {
@@ -172,12 +172,12 @@ private:
 
 public:
     /++
-     +  Pointer to the socket of the `std.socket.AddressFamily` we want to connect with.
+        Pointer to the socket of the `std.socket.AddressFamily` we want to connect with.
      +/
     Socket socket;
 
     /++
-     +  Whether or not this `Connection` should use SSL when sending and receiving.
+        Whether or not this `Connection` should use SSL when sending and receiving.
      +/
     bool ssl;
 
@@ -185,33 +185,33 @@ public:
     Address[] ips;
 
     /++
-     +  Implicitly proxies calls to the current `socket`. This successfully
-     +  proxies to `std.socket.Socket.receive`.
+        Implicitly proxies calls to the current `socket`. This successfully
+        proxies to `std.socket.Socket.receive`.
      +/
     alias socket this;
 
     /++
-     +  Whether we are connected or not.
+        Whether we are connected or not.
      +/
     bool connected;
 
     /++
-     +  Path to a (`.pem`) SSL certificate file.
+        Path to a (`.pem`) SSL certificate file.
      +/
     string certFile;
 
     /++
-     +  Path to a private SSL key file.
+        Path to a private SSL key file.
      +/
     string privateKeyFile;
 
 
     // sendTimeout
     /++
-     +  Accessor; returns the current send timeout.
-     +
-     +  Returns:
-     +      A copy of `privateSendTimeout`.
+        Accessor; returns the current send timeout.
+
+        Returns:
+            A copy of `privateSendTimeout`.
      +/
     pragma(inline, true)
     uint sendTimeout() const @property pure @nogc nothrow
@@ -222,10 +222,10 @@ public:
 
     // sendTimeout
     /++
-     +  Mutator; sets the send timeout socket option to the passed duration.
-     +
-     +  Params:
-     +      dur = The duration to assign as send timeout, in number of milliseconds.
+        Mutator; sets the send timeout socket option to the passed duration.
+
+        Params:
+            dur = The duration to assign as send timeout, in number of milliseconds.
      +/
     pragma(inline, true)
     void sendTimeout(const uint dur) @property
@@ -236,10 +236,10 @@ public:
 
     // receiveTimeout
     /++
-     +  Accessor; returns the current receive timeout.
-     +
-     +  Returns:
-     +      A copy of `privateReceiveTimeout`.
+        Accessor; returns the current receive timeout.
+
+        Returns:
+            A copy of `privateReceiveTimeout`.
      +/
     pragma(inline, true)
     uint receiveTimeout() const @property pure @nogc nothrow
@@ -249,10 +249,10 @@ public:
 
     // sendTimeout
     /++
-     +  Mutator; sets the receive timeout socket option to the passed duration.
-     +
-     +  Params:
-     +      dur = The duration to assign as receive timeout, in number of milliseconds.
+        Mutator; sets the receive timeout socket option to the passed duration.
+
+        Params:
+            dur = The duration to assign as receive timeout, in number of milliseconds.
      +/
     void receiveTimeout(const uint dur) @property
     {
@@ -263,9 +263,9 @@ public:
 
     // reset
     /++
-     +  (Re-)initialises the sockets and sets the IPv4 one as the active one.
-     +
-     +  If we ever change this to a class, this should be the default constructor.
+        (Re-)initialises the sockets and sets the IPv4 one as the active one.
+
+        If we ever change this to a class, this should be the default constructor.
      +/
     void reset()
     {
@@ -293,7 +293,7 @@ public:
 
     // resetSSL
     /++
-     +  Resets the SSL context and resources of this `Connection`.
+        Resets the SSL context and resources of this `Connection`.
      +/
     void resetSSL() @system
     in (ssl, "Tried to reset SSL on a non-SSL `Connection`")
@@ -305,13 +305,13 @@ public:
 
     // getSSLErrorMessage
     /++
-     +  Returns the SSL error message for the passed SSL error code.
-     +
-     +  Params:
-     +      code = SSL error code to translate to string.
-     +
-     +  Returns:
-     +      A string with the last SSL error code translated into humanly-readable text.
+        Returns the SSL error message for the passed SSL error code.
+
+        Params:
+            code = SSL error code to translate to string.
+
+        Returns:
+            A string with the last SSL error code translated into humanly-readable text.
      +/
     string getSSLErrorMessage(const int code) @system
     in (ssl, "Tried to get SSL error message on a non-SSL `Connection`")
@@ -328,11 +328,11 @@ public:
 
     // setDefaultOptions
     /++
-     +  Sets up sockets with the `std.socket.SocketOptions` needed. These
-     +  include timeouts and buffer sizes.
-     +
-     +  Params:
-     +      socketToSetup = Reference to the `socket` to modify.
+        Sets up sockets with the `std.socket.SocketOptions` needed. These
+        include timeouts and buffer sizes.
+
+        Params:
+            socketToSetup = Reference to the `socket` to modify.
      +/
     void setDefaultOptions(Socket socketToSetup)
     {
@@ -357,10 +357,10 @@ public:
 
     // setupSSL
     /++
-     +  Sets up the SSL context for this connection.
-     +
-     +  Throws:
-     +      `SSLException` if the SSL context could not be set up.
+        Sets up the SSL context for this connection.
+
+        Throws:
+            `SSLException` if the SSL context could not be set up.
      +/
     void setupSSL() @system
     in (ssl, "Tried to set up SSL context on a non-SSL `Connection`")
@@ -398,7 +398,7 @@ public:
 
     // teardownSSL
     /++
-     +  Resets and frees SSL context and resources.
+        Resets and frees SSL context and resources.
      +/
     void teardownSSL()
     in (ssl, "Tried to teardown SSL on a non-SSL `Connection`")
@@ -410,23 +410,23 @@ public:
 
     // sendline
     /++
-     +  Sends a line to the server.
-     +
-     +  Intended for servers that deliminates lines by linebreaks, such as IRC servers.
-     +
-     +  Example:
-     +  ---
-     +  conn.sendline("NICK foobar");
-     +  conn.sendline("PRIVMSG #channel :text");
-     +  conn.sendline("PRIVMSG " ~ channel ~ " :" ~ content);
-     +  conn.sendline("PRIVMSG ", channel, " :", content);  // Identical to above
-     +  conn.sendline!1024(longerLine);  // Now with custom line lengths
-     +  ---
-     +
-     +  Params:
-     +      maxLineLength = Maximum line length before the sent message will be truncated.
-     +      data = Variadic list of strings or characters to send. May contain
-     +          complete substrings separated by newline characters.
+        Sends a line to the server.
+
+        Intended for servers that deliminates lines by linebreaks, such as IRC servers.
+
+        Example:
+        ---
+        conn.sendline("NICK foobar");
+        conn.sendline("PRIVMSG #channel :text");
+        conn.sendline("PRIVMSG " ~ channel ~ " :" ~ content);
+        conn.sendline("PRIVMSG ", channel, " :", content);  // Identical to above
+        conn.sendline!1024(longerLine);  // Now with custom line lengths
+        ---
+
+        Params:
+            maxLineLength = Maximum line length before the sent message will be truncated.
+            data = Variadic list of strings or characters to send. May contain
+                complete substrings separated by newline characters.
      +/
     void sendline(uint maxLineLength = 512, Data...)(const Data data) @system
     in (connected, "Tried to send a line on an unconnected `Connection`")
@@ -527,12 +527,12 @@ public:
 
 // ListenAttempt
 /++
- +  Embodies the idea of a listening attempt.
+    Embodies the idea of a listening attempt.
  +/
 struct ListenAttempt
 {
     /++
-     +  The various states a listening attempt may be in.
+        The various states a listening attempt may be in.
      +/
     enum State
     {
@@ -560,69 +560,69 @@ struct ListenAttempt
 
 // listenFiber
 /++
- +  A `std.socket.Socket`-reading `std.concurrency.Generator`. It reads and
- +  yields full string lines.
- +
- +  It maintains its own buffer into which it receives from the server, though
- +  not necessarily full lines. It thus keeps filling the buffer until it
- +  finds a newline character, yields `ListenAttempt`s back to the caller of
- +  the Fiber, checks for more lines to yield, and if none yields an attempt
- +  with a `ListenAttempt.State` denoting that nothing was read and that a new
- +  attempt should be made later.
- +
- +  Example:
- +  ---
- +  //Connection conn;  // Address previously connected established with
- +
- +  enum timeoutSeconds = 600;
- +
- +  auto listener = new Generator!ListenAttempt(() => listenFiber(conn, abort, timeoutSeconds));
- +
- +  listener.call();
- +
- +  foreach (const attempt; listener)
- +  {
- +      // attempt is a yielded `ListenAttempt`
- +
- +      with (ListenAttempt.State)
- +      final switch (attempt.state)
- +      {
- +      case prelisten:
- +          assert(0, "shouldn't happen");
- +
- +      case isEmpty:
- +      case timeout:
- +          // Reading timed out or nothing was read, happens
- +          break;
- +
- +      case hasString:
- +          // A line was successfully read!
- +          // program logic goes here
- +          doThings(attempt.line);
- +          break;
- +
- +      case warning:
- +          // Recoverable
- +          warnAboutSomething(attempt.error);
- +          break;
- +
- +      case error:
- +          // Unrecoverable
- +          dealWitError(attempt.error);
- +          return;
- +      }
- +  }
- +  ---
- +
- +  Params:
- +      conn = `Connection` whose `std.socket.Socket` it reads from the server with.
- +      abort = Reference "abort" flag, which -- if set -- should make the
- +          function return and the `core.thread.Fiber` terminate.
- +      connectionLost = How many seconds may pass before we consider the connection lost.
- +          Optional, defaults to `DefaultTimeout.connectionLost`.
- +
- +  Yields:
- +      `ListenAttempt`s with information about the line receieved in its member values.
+    A `std.socket.Socket`-reading `std.concurrency.Generator`. It reads and
+    yields full string lines.
+
+    It maintains its own buffer into which it receives from the server, though
+    not necessarily full lines. It thus keeps filling the buffer until it
+    finds a newline character, yields `ListenAttempt`s back to the caller of
+    the Fiber, checks for more lines to yield, and if none yields an attempt
+    with a `ListenAttempt.State` denoting that nothing was read and that a new
+    attempt should be made later.
+
+    Example:
+    ---
+    //Connection conn;  // Address previously connected established with
+
+    enum timeoutSeconds = 600;
+
+    auto listener = new Generator!ListenAttempt(() => listenFiber(conn, abort, timeoutSeconds));
+
+    listener.call();
+
+    foreach (const attempt; listener)
+    {
+        // attempt is a yielded `ListenAttempt`
+
+        with (ListenAttempt.State)
+        final switch (attempt.state)
+        {
+        case prelisten:
+            assert(0, "shouldn't happen");
+
+        case isEmpty:
+        case timeout:
+            // Reading timed out or nothing was read, happens
+            break;
+
+        case hasString:
+            // A line was successfully read!
+            // program logic goes here
+            doThings(attempt.line);
+            break;
+
+        case warning:
+            // Recoverable
+            warnAboutSomething(attempt.error);
+            break;
+
+        case error:
+            // Unrecoverable
+            dealWitError(attempt.error);
+            return;
+        }
+    }
+    ---
+
+    Params:
+        conn = `Connection` whose `std.socket.Socket` it reads from the server with.
+        abort = Reference "abort" flag, which -- if set -- should make the
+            function return and the `core.thread.Fiber` terminate.
+        connectionLost = How many seconds may pass before we consider the connection lost.
+            Optional, defaults to `DefaultTimeout.connectionLost`.
+
+    Yields:
+        `ListenAttempt`s with information about the line receieved in its member values.
  +/
 void listenFiber(Connection conn, ref bool abort,
     const int connectionLost = DefaultTimeout.connectionLost) @system
@@ -764,14 +764,14 @@ in ((connectionLost > 0), "Tried to set up a listening fiber with connection tim
 
 // ConnectionAttempt
 /++
- +  Embodies the idea of a connection attempt.
+    Embodies the idea of a connection attempt.
  +/
 struct ConnectionAttempt
 {
     import std.socket : Address;
 
     /++
-     +  The various states a connection attempt may be in.
+        The various states a connection attempt may be in.
      +/
     enum State
     {
@@ -801,62 +801,62 @@ struct ConnectionAttempt
 
 // connectFiber
 /++
- +  Fiber function that tries to connect to IPs in the `ips` array of the passed
- +  `Connection`, yielding at certain points throughout the process to let the
- +  calling function do stuff inbetween connection attempts.
- +
- +  Example:
- +  ---
- +  //Connection conn;  // Address previously resolved with `resolveFiber`
- +
- +  auto connector = new Generator!ConnectionAttempt(() =>
- +      connectFiber(conn, false, 10, abort));
- +
- +  connector.call();
- +
- +  connectorloop:
- +  foreach (const attempt; connector)
- +  {
- +      // attempt is a yielded `ConnectionAttempt`
- +
- +      with (ConnectionAttempt.State)
- +      final switch (attempt.state)
- +      {
- +      case preconnect:
- +          assert(0, "shouldn't happen");
- +
- +      case connected:
- +          // Socket is connected, continue with normal routine
- +          break connectorloop;
- +
- +      case delayThenReconnect:
- +      case delayThenNextIP:
- +          // Delay and retry
- +          Thread.sleep(5.seconds);
- +          break;
- +
- +      case ipv6Failure:
- +          // Deal with it
- +          dealWithIPv6(attempt.error);
- +          break;
- +
- +      case sslFailure:
- +      case error:
- +          // Failed to connect
- +          return;
- +      }
- +  }
- +
- +  // Connection established
- +  ---
- +
- +  Params:
- +      conn = Reference to the current, unconnected `Connection`.
- +      endlesslyConnect = Whether or not to endlessly try connecting.
- +      connectionRetries = How many times to attempt to connect before signaling
- +          that we should move on to the next IP.
- +      abort = Reference "abort" flag, which -- if set -- should make the
- +          function return and the `core.thread.Fiber` terminate.
+    Fiber function that tries to connect to IPs in the `ips` array of the passed
+    `Connection`, yielding at certain points throughout the process to let the
+    calling function do stuff inbetween connection attempts.
+
+    Example:
+    ---
+    //Connection conn;  // Address previously resolved with `resolveFiber`
+
+    auto connector = new Generator!ConnectionAttempt(() =>
+        connectFiber(conn, false, 10, abort));
+
+    connector.call();
+
+    connectorloop:
+    foreach (const attempt; connector)
+    {
+        // attempt is a yielded `ConnectionAttempt`
+
+        with (ConnectionAttempt.State)
+        final switch (attempt.state)
+        {
+        case preconnect:
+            assert(0, "shouldn't happen");
+
+        case connected:
+            // Socket is connected, continue with normal routine
+            break connectorloop;
+
+        case delayThenReconnect:
+        case delayThenNextIP:
+            // Delay and retry
+            Thread.sleep(5.seconds);
+            break;
+
+        case ipv6Failure:
+            // Deal with it
+            dealWithIPv6(attempt.error);
+            break;
+
+        case sslFailure:
+        case error:
+            // Failed to connect
+            return;
+        }
+    }
+
+    // Connection established
+    ---
+
+    Params:
+        conn = Reference to the current, unconnected `Connection`.
+        endlesslyConnect = Whether or not to endlessly try connecting.
+        connectionRetries = How many times to attempt to connect before signaling
+            that we should move on to the next IP.
+        abort = Reference "abort" flag, which -- if set -- should make the
+            function return and the `core.thread.Fiber` terminate.
  +/
 void connectFiber(ref Connection conn, const bool endlesslyConnect,
     const uint connectionRetries, ref bool abort) @system
@@ -998,12 +998,12 @@ in ((conn.ips.length > 0), "Tried to connect to an unresolved connection")
 
 // ResolveAttempt
 /++
- +  Embodies the idea of an address resolution attempt.
+    Embodies the idea of an address resolution attempt.
  +/
 struct ResolveAttempt
 {
     /++
-     +  The various states an address resolution attempt may be in.
+        The various states an address resolution attempt may be in.
      +/
     enum State
     {
@@ -1027,64 +1027,64 @@ struct ResolveAttempt
 
 // resolveFiber
 /++
- +  Given an address and a port, resolves these and populates the array of unique
- +  `std.socket.Address` IPs inside the passed `Connection`.
- +
- +  Example:
- +  ---
- +  import std.concurrency : Generator;
- +
- +  Connection conn;
- +  conn.reset();
- +
- +  auto resolver = new Generator!ResolveAttempt(() =>
- +      resolveFiber(conn, "irc.freenode.net", 6667, false, 10, abort));
- +
- +  resolver.call();
- +
- +  resolveloop:
- +  foreach (const attempt; resolver)
- +  {
- +      // attempt is a yielded `ResolveAttempt`
- +
- +      with (ResolveAttempt.State)
- +      final switch (attempt.state)
- +      {
- +      case preresolve:
- +          assert(0, "shouldn't happen");
- +
- +      case success:
- +          // Address was resolved, the passed `conn` was modified
- +          break resolveloop;
- +
- +      case exception:
- +          // Recoverable
- +          dealWithException(attempt.error);
- +          break;
- +
- +      case failure:
- +          // Resolution failed without errors
- +          failGracefully(attempt.error);
- +          break;
- +
- +      case error:
- +          // Unrecoverable
- +          dealWithError(attempt.error);
- +          return;
- +      }
- +  }
- +
- +  // Address resolved
- +  ---
- +
- +  Params:
- +      conn = Reference to the current `Connection`.
- +      address = String address to look up.
- +      port = Remote port build into the `std.socket.Address`.
- +      useIPv6 = Whether to include resolved IPv6 addresses or not.
- +      resolveAttempts = How many times to try resolving before giving up.
- +      abort = Reference "abort" flag, which -- if set -- should make the
- +          function return and the `core.thread.Fiber` terminate.
+    Given an address and a port, resolves these and populates the array of unique
+    `std.socket.Address` IPs inside the passed `Connection`.
+
+    Example:
+    ---
+    import std.concurrency : Generator;
+
+    Connection conn;
+    conn.reset();
+
+    auto resolver = new Generator!ResolveAttempt(() =>
+        resolveFiber(conn, "irc.freenode.net", 6667, false, 10, abort));
+
+    resolver.call();
+
+    resolveloop:
+    foreach (const attempt; resolver)
+    {
+        // attempt is a yielded `ResolveAttempt`
+
+        with (ResolveAttempt.State)
+        final switch (attempt.state)
+        {
+        case preresolve:
+            assert(0, "shouldn't happen");
+
+        case success:
+            // Address was resolved, the passed `conn` was modified
+            break resolveloop;
+
+        case exception:
+            // Recoverable
+            dealWithException(attempt.error);
+            break;
+
+        case failure:
+            // Resolution failed without errors
+            failGracefully(attempt.error);
+            break;
+
+        case error:
+            // Unrecoverable
+            dealWithError(attempt.error);
+            return;
+        }
+    }
+
+    // Address resolved
+    ---
+
+    Params:
+        conn = Reference to the current `Connection`.
+        address = String address to look up.
+        port = Remote port build into the `std.socket.Address`.
+        useIPv6 = Whether to include resolved IPv6 addresses or not.
+        resolveAttempts = How many times to try resolving before giving up.
+        abort = Reference "abort" flag, which -- if set -- should make the
+            function return and the `core.thread.Fiber` terminate.
  +/
 void resolveFiber(ref Connection conn, const string address, const ushort port,
     const bool useIPv6, const uint resolveAttempts, ref bool abort) @system
@@ -1154,11 +1154,11 @@ in (address.length, "Tried to set up a resolving fiber on an empty address")
 
 // SSLException
 /++
- +  Exception thrown when OpenSSL functions return a non-`1` error code, such as
- +  when the OpenSSL context could not be setup, or when it could not establish
- +  an SSL connection from an otherwise live connection.
- +
- +  The attached `code` should be the error integer yielded from the failing SSL call.
+    Exception thrown when OpenSSL functions return a non-`1` error code, such as
+    when the OpenSSL context could not be setup, or when it could not establish
+    an SSL connection from an otherwise live connection.
+
+    The attached `code` should be the error integer yielded from the failing SSL call.
  +/
 final class SSLException : Exception
 {
