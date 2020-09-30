@@ -221,67 +221,6 @@ immutable otherDef = Enum!Foo.fromString("def");
 immutable otherGhi = Enum!Foo.fromString("ghi");
 ```
 
-* [`net.d`](source/lu/net.d): Connection helpers, including Generator Fibers that resolve addresses, connect to servers and read full strings from connections.
-
-```d
-Connection conn;
-conn.ssl = true;
-bool abort;  // Set to true if something goes wrong
-
-conn.reset();
-
-bool useIPv6 = false;
-enum resolveAttempts = 10;
-
-auto resolver = new Generator!ResolveAttempt(() =>
-    resolveFiber(conn, "subdomain.address.tld", 6697, useIPv6, resolveAttempts, abort));
-
-resolver.call();
-
-resolveloop:
-foreach (const attempt; resolver)
-{
-    // `attempt` is a yielded `ResolveAttempt`
-    // switch on `attempt.state`, deal with it accordingly, repeating if need be
-    // breaking if successful
-}
-
-// Resolution done
-
-enum conectionRetries = 10;
-
-auto connector = new Generator!ConnectionAttempt(() =>
-    connectFiber(conn, false, connectionRetries, abort));
-
-connector.call();
-
-connectorloop:
-foreach (const attempt; connector)
-{
-    // `attempt` is a yielded `ConnectionAttempt`
-    // switch on `attempt.state`, deal with it accordingly, repeating if need be
-    // breaking if successful
-}
-
-// Connection established
-
-enum timeoutSeconds = 600;
-
-auto listener = new Generator!ListenAttempt(() => listenFiber(conn, abort, timeoutSeconds));
-
-listener.call();
-
-listenerloop:
-foreach (const attempt; listener)
-{
-    // `attempt` is a yielded `ListenAttempt`
-    // switch on `attempt.state`, deal with it accordingly
-    // read string is in `attempt.line`
-    // Main program logic goes here
-    // ...
-}
-```
-
 * [`json.d`](source/lu/json.d): Convenience wrappers around a `JSONValue`, which can be unwieldy.
 * [`container.d`](source/lu/container.d): Container things, so far only a primitive `Buffer`.
 * [`common.d`](source/lu/common.d): Things that don't have a better home yet.
