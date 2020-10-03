@@ -7,7 +7,6 @@ license "MIT"
 
 targetType "library"
 dflags "-dip25" "-dip1008"
-libs "phobos2" platform="posix-dmd"
 x:ddoxTool "scod"
 
 configuration "library" {
