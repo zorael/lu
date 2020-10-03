@@ -4,49 +4,37 @@ environment:
   matrix:
     - DC: dmd
       DReleaseType: releases
-      DVersion: 2.092.0
+      DVersion: 2.094.1
       DSubversion:
       arch: x64
       dubArgs:
     - DC: dmd
       DReleaseType: releases
-      DVersion: 2.092.0
+      DVersion: 2.094.1
       DSubversion:
       arch: x86
       dubArgs:
     - DC: dmd
       DReleaseType: releases
-      DVersion: 2.091.1
+      DVersion: 2.093.1
       DSubversion:
       arch: x64
       dubArgs:
     - DC: dmd
       DReleaseType: releases
-      DVersion: 2.091.1
+      DVersion: 2.093.1
       DSubversion:
       arch: x86
       dubArgs:
     - DC: dmd
       DReleaseType: releases
-      DVersion: 2.090.1
+      DVersion: 2.092.1
       DSubversion:
       arch: x64
       dubArgs:
     - DC: dmd
       DReleaseType: releases
-      DVersion: 2.090.1
-      DSubversion:
-      arch: x86
-      dubArgs:
-    - DC: dmd
-      DReleaseType: releases
-      DVersion: 2.089.1
-      DSubversion:
-      arch: x64
-      dubArgs:
-    - DC: dmd
-      DReleaseType: releases
-      DVersion: 2.089.1
+      DVersion: 2.092.1
       DSubversion:
       arch: x86
       dubArgs:
@@ -61,19 +49,24 @@ environment:
       DVersion: 2.084.0
       DSubversion:
       arch: x86
+      dubArgs:
+    - DC: ldc
+      DVersion: 1.24.0
+      DSubversion:
+      arch: x64
+      dubArgs:
+    - DC: ldc
+      DVersion: 1.23.0
+      DSubversion:
+      arch: x64
+      dubArgs:
+    - DC: ldc
+      DVersion: 1.22.0
+      DSubversion:
+      arch: x64
       dubArgs:
     - DC: ldc
       DVersion: 1.21.0
-      DSubversion:
-      arch: x64
-      dubArgs:
-    - DC: ldc
-      DVersion: 1.20.0
-      DSubversion:
-      arch: x64
-      dubArgs:
-    - DC: ldc
-      DVersion: 1.19.0
       DSubversion:
       arch: x64
       dubArgs:
