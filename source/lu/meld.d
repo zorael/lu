@@ -1,5 +1,5 @@
 /++
-    This module contains the $(REF meldInto) functions; functions that take two
+    This module contains the [meldInto] functions; functions that take two
     structs or classes of the same type and combine them, creating a resulting
     object with the union of the members of both parents. Array and associative
     array variants exist too.
@@ -93,7 +93,7 @@ struct Unmeldable;
     In the case of structs it also overwrites members that still have their
     default values, in cases where such is applicable.
 
-    Supply a template parameter $(REF MeldingStrategy) to decide to which extent
+    Supply a template parameter [MeldingStrategy] to decide to which extent
     values are overwritten.
 
     Example:
@@ -639,9 +639,9 @@ unittest
 
     It only overwrites members that are `T.init`, so only unset
     fields get their values overwritten by the melding array. Supply a
-    template parameter $(REF MeldingStrategy.aggressive) to make it overwrite if the
+    template parameter [MeldingStrategy.aggressive] to make it overwrite if the
     melding array's field is not `T.init`. Furthermore use
-    $(REF MeldingStrategy.overwriting) if working with bool members.
+    [MeldingStrategy.overwriting] if working with bool members.
 
     Example:
     ---
@@ -782,7 +782,7 @@ unittest
 /++
     Takes two associative arrays and melds them together, making a union of the two.
 
-    This is largely the same as the array-version $(REF meldInto) but doesn't need
+    This is largely the same as the array-version [meldInto] but doesn't need
     the extensive template constraints it employs, so it might as well be kept separate.
 
     Example:

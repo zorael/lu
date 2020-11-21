@@ -2,7 +2,7 @@
     This module contains functions that in one way or another converts its
     arguments into something else.
 
-    Credit for $(REF Enum) goes to Stephan Koch (https://github.com/UplinkCoder).
+    Credit for [Enum] goes to Stephan Koch (https://github.com/UplinkCoder).
 
     Example:
     ---
@@ -32,7 +32,7 @@ public:
     Template housing optimised functions to get the string name of an enum
     member, or the enum member of a name string.
 
-    $(REF std.conv.to) is typically the go-to for this job; however it quickly bloats
+    [std.conv.to] is typically the go-to for this job; however it quickly bloats
     the binary and is not performant on larger enums.
 
     Params:
@@ -46,7 +46,7 @@ if (is(E == enum))
         Takes the member of an enum by string and returns that enum member.
 
         It lowers to a big switch of the enum member strings. It is faster than
-        $(REF std.conv.to) and generates less template bloat. However, it does not work
+        [std.conv.to] and generates less template bloat. However, it does not work
         with enums where multiple members share the same values, as the big switch
         ends up getting duplicate cases.
 
@@ -71,7 +71,7 @@ if (is(E == enum))
             The enum member whose name matches the enumstring string (not whose
             *value* matches the string).
 
-        Throws: $(REF std.conv.ConvException) if no matching enum member with the
+        Throws: [std.conv.ConvException] if no matching enum member with the
             passed name could be found.
 
         Bugs:
@@ -103,11 +103,11 @@ if (is(E == enum))
 
     // toString
     /++
-        The inverse of $(REF fromString), this function takes an enum member value
+        The inverse of [fromString], this function takes an enum member value
         and returns its string identifier.
 
         It lowers to a big switch of the enum members. It is faster than
-        $(REF std.conv.to) and generates less template bloat.
+        [std.conv.to] and generates less template bloat.
 
         Taken from: https://forum.dlang.org/post/bfnwstkafhfgihavtzsz@forum.dlang.org
         written by Stephan Koch (https://github.com/UplinkCoder).
@@ -215,7 +215,7 @@ unittest
     Returns:
         An integer equalling the value of the passed hexadecimal string.
 
-    Throws: $(REF std.conv.ConvException) if the hex string was malformed.
+    Throws: [std.conv.ConvException] if the hex string was malformed.
  +/
 uint numFromHex(Flag!"acceptLowercase" acceptLowercase = No.acceptLowercase)(const string hex) pure
 out (total; (total < 16^^hex.length), "`numFromHex` output is too large")
@@ -469,7 +469,7 @@ unittest
     Translates an integer into an alphanumeric string. Assumes ASCII.
     Overload that returns the string.
 
-    Merely leverages $(REF toAlphaInto).
+    Merely leverages [toAlphaInto].
 
     Example:
     ---

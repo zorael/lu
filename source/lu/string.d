@@ -49,7 +49,7 @@ public:
     string up to that point, and advances the passed string by ref to after the token.
 
     The naming is in line with standard library functions such as
-    $(REF std.string.munch), $(REF std.file.slurp) and others.
+    [std.string.munch], [std.file.slurp] and others.
 
     Example:
     ---
@@ -80,7 +80,7 @@ public:
         variable is advanced to after the token.
 
     Throws:
-        $(REF NomException) if the needle could not be found in the string.
+        [NomException] if the needle could not be found in the string.
  +/
 T nom(Flag!"decode" decode = No.decode, T, C)(auto ref T haystack, const C needle,
     const string callingFile = __FILE__, const size_t callingLine = __LINE__) pure @nogc
@@ -257,7 +257,7 @@ unittest
     string up to that point, and advances the passed string by ref to after the token.
 
     The naming is in line with standard library functions such as
-    $(REF std.string.munch), $(REF std.file.slurp) and others.
+    [std.string.munch], [std.file.slurp] and others.
 
     Overload that takes an extra `Flag!"inherit"` template parameter, to toggle
     whether the return value inherits the passed line (and clearing it) upon no
@@ -397,19 +397,19 @@ unittest
 
 // NomException
 /++
-    Exception, to be thrown when a call to $(REF nom) went wrong.
+    Exception, to be thrown when a call to [nom] went wrong.
 
-    It is a normal $(REF object.Exception) but with an attached needle and haystack.
+    It is a normal [object.Exception] but with an attached needle and haystack.
  +/
 abstract class NomException : Exception
 {
-    /// Returns a string of the original haystack the call to $(REF nom) was operating on.
+    /// Returns a string of the original haystack the call to [nom] was operating on.
     string haystack();
 
-    /// Returns a string of the original needle the call to $(REF nom) was operating on.
+    /// Returns a string of the original needle the call to [nom] was operating on.
     string needle();
 
-    /// Create a new $(REF NomExceptionImpl), without attaching anything.
+    /// Create a new [NomExceptionImpl], without attaching anything.
     this(const string message, const string file = __FILE__, const size_t line = __LINE__,
         Throwable nextInChain = null) pure nothrow @nogc @safe
     {
@@ -420,12 +420,12 @@ abstract class NomException : Exception
 
 // NomExceptionImpl
 /++
-    Exception, to be thrown when a call to $(REF nom) went wrong.
+    Exception, to be thrown when a call to [nom] went wrong.
 
     This is the templated implementation, so that we can support more than one
     kind of needle and haystack combination.
 
-    It is a normal $(REF object.Exception) but with an attached needle and haystack.
+    It is a normal [object.Exception] but with an attached needle and haystack.
 
     Params:
         T = Haystack type (`string`, `wstring` or `dstring`).
@@ -441,7 +441,7 @@ final class NomExceptionImpl(T, C) : NomException
     C rawNeedle;
 
     /++
-        Returns a string of the original needle the call to $(REF nom) was operating on.
+        Returns a string of the original needle the call to [nom] was operating on.
 
         Returns:
             The raw haystack (be it any kind of string), converted to a `string`.
@@ -453,7 +453,7 @@ final class NomExceptionImpl(T, C) : NomException
     }
 
     /++
-        Returns a string of the original needle the call to $(REF nom) was operating on.
+        Returns a string of the original needle the call to [nom] was operating on.
 
         Returns:
             The raw needle (be it any kind of string or character), converted to a `string`.
@@ -464,14 +464,14 @@ final class NomExceptionImpl(T, C) : NomException
         return rawNeedle.to!string;
     }
 
-    /// Create a new $(REF NomExceptionImpl), without attaching anything.
+    /// Create a new [NomExceptionImpl], without attaching anything.
     this(const string message, const string file = __FILE__, const size_t line = __LINE__,
         Throwable nextInChain = null) pure nothrow @nogc @safe
     {
         super(message, file, line, nextInChain);
     }
 
-    /// Create a new $(REF NomExceptionImpl), attaching a command.
+    /// Create a new [NomExceptionImpl], attaching a command.
     this(const string message, const T rawHaystack, const C rawNeedle,
         const string file = __FILE__, const size_t line = __LINE__,
         Throwable nextInChain = null) pure nothrow @nogc @safe
@@ -531,7 +531,7 @@ unittest
     Removes paired preceding and trailing tokens around a string line.
     Assumes ASCII.
 
-    You should not need to use this directly; rather see $(REF unquoted) and $(REF unsinglequoted).
+    You should not need to use this directly; rather see [unquoted] and [unsinglequoted].
 
     Params:
         token = Token character to strip away.
@@ -646,7 +646,7 @@ unittest
 
 // beginsWith
 /++
-    A cheaper variant of $(REF std.algorithm.searching.startsWith), since this is
+    A cheaper variant of [std.algorithm.searching.startsWith], since this is
     such a hotspot.
 
     Merely slices; does not decode the string and may thus give weird results on
@@ -823,7 +823,7 @@ unittest
 /++
     Returns a range of *spaces* equal to that of `num` tabs (\t).
 
-    Use $(REF std.conv.to) or $(REF std.conv.text) or similar to flatten to a string.
+    Use [std.conv.to] or [std.conv.text] or similar to flatten to a string.
 
     Example:
     ---
@@ -1027,7 +1027,7 @@ so shrug"), '\n' ~ indentedTwo);
 // contains
 /++
     Checks a string to see if it contains a given substring or character.
-    Leverages $(REF std.string.indexOf) and $(REF std.algorithm.searching.countUntil).
+    Leverages [std.string.indexOf] and [std.algorithm.searching.countUntil].
 
     Merely slices; this is not UTF-8 safe. It is naïve in how it thinks a string
     always correspond to one set of codepoints and one set only.
@@ -1100,7 +1100,7 @@ unittest
     Returns a slice of the passed string with any trailing whitespace and/or
     linebreaks sliced off. Overload that implicitly strips `" \n\r\t"`.
 
-    Duplicates $(REF std.string.stripRight), which we can no longer trust not to
+    Duplicates [std.string.stripRight], which we can no longer trust not to
     assert on unexpected input.
 
     Params:
@@ -1153,7 +1153,7 @@ unittest
     Implementation template capable of handling both individual characters and
     string of tokens to strip.
 
-    Duplicates $(REF std.string.stripRight), which we can no longer trust not to
+    Duplicates [std.string.stripRight], which we can no longer trust not to
     assert on unexpected input.
 
     Params:
@@ -1263,7 +1263,7 @@ unittest
     Returns a slice of the passed string with any preceding whitespace and/or
     linebreaks sliced off. Overload that implicitly strips `" \n\r\t"`.
 
-    Duplicates $(REF std.string.stripLeft), which we can no longer trust not to
+    Duplicates [std.string.stripLeft], which we can no longer trust not to
     assert on unexpected input.
 
     Params:
@@ -1316,7 +1316,7 @@ unittest
     sliced off. Implementation capable of handling both individual characters
     and strings of tokens to strip.
 
-    Duplicates $(REF std.string.stripLeft), which we can no longer trust not to
+    Duplicates [std.string.stripLeft], which we can no longer trust not to
     assert on unexpected input.
 
     Params:
@@ -1427,8 +1427,8 @@ unittest
     whitespace or linebreaks sliced off both ends. Overload that implicitly
     strips `" \n\r\t"`.
 
-    It merely calls both $(REF strippedLeft) and $(REF strippedRight). As such it
-    duplicates $(REF std.string.strip), which we can no longer trust not to assert
+    It merely calls both [strippedLeft] and [strippedRight]. As such it
+    duplicates [std.string.strip], which we can no longer trust not to assert
     on unexpected input.
 
     Params:
@@ -1479,8 +1479,8 @@ unittest
     passed characters sliced off. Implementation template capable of handling both
     individual characters and strings of tokens to strip.
 
-    It merely calls both $(REF strippedLeft) and $(REF strippedRight). As such it
-    duplicates $(REF std.string.strip), which we can no longer trust not to assert
+    It merely calls both [strippedLeft] and [strippedRight]. As such it
+    duplicates [std.string.strip], which we can no longer trust not to assert
     on unexpected input.
 
     Params:
@@ -1556,7 +1556,7 @@ unittest
 /++
     Base64-encodes a string.
 
-    Merely wraps $(REF std.base64.Base64.encode) and $(REF std.string.representation)
+    Merely wraps [std.base64.Base64.encode] and [std.string.representation]
     into one function that will work with strings.
 
     Params:
@@ -1596,7 +1596,7 @@ unittest
 /++
     Base64-decodes a string.
 
-    Merely wraps $(REF std.base64.Base64.decode) and $(REF std.string.representation)
+    Merely wraps [std.base64.Base64.decode] and [std.string.representation]
     into one function that will work with strings.
 
     Params:
@@ -1943,7 +1943,7 @@ unittest
 
 // SplitResults
 /++
-    The result of a call to $(REF splitInto).
+    The result of a call to [splitInto].
  +/
 enum SplitResults
 {
@@ -1975,7 +1975,7 @@ enum SplitResults
         strings = Variadic list of strings to assign the split words in `slice`.
 
     Returns:
-        A $(REF SplitResults) with the results of the split attempt.
+        A [SplitResults] with the results of the split attempt.
  +/
 SplitResults splitInto(string separator = " ", Strings...)
     (auto ref string slice, ref Strings strings)

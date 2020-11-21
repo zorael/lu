@@ -66,7 +66,7 @@ public:
 
 // serialise
 /++
-    Convenience function to call $(REF serialise) on several objects.
+    Convenience function to call [serialise] on several objects.
 
     Example:
     ---
@@ -110,7 +110,7 @@ if ((Things.length > 1) && isOutputRange!(Sink, char[]) &&
 /++
     Serialises the fields of an object into an .ini file-like format.
 
-    It only serialises fields not annotated with $(REF lu.uda.Unserialisable),
+    It only serialises fields not annotated with [lu.uda.Unserialisable],
     and it doesn't recurse into other structs or classes.
 
     Example:
@@ -129,7 +129,7 @@ if ((Things.length > 1) && isOutputRange!(Sink, char[]) &&
     ---
 
     Params:
-        sink = Reference output range to write to, usually an $(REF std.array.Appender).
+        sink = Reference output range to write to, usually an [std.array.Appender].
         thing = Object to serialise.
  +/
 void serialise(Sink, QualThing)(auto ref Sink sink, QualThing thing)
@@ -439,7 +439,7 @@ b true`;
         things = Reference variadic list of one or more objects to apply the
             deserialised values to.
 
-    Throws: $(REF DeserialisationException) if there were bad lines.
+    Throws: [DeserialisationException] if there were bad lines.
  +/
 void deserialise(Range, Things...)(Range range, out string[][string] missingEntries,
     out string[][string] invalidEntries, ref Things things) pure
@@ -977,7 +977,7 @@ final class DeserialisationException : Exception
 {
 @safe:
     /++
-        Create a new $(REF DeserialisationException).
+        Create a new [DeserialisationException].
      +/
     this(const string message, const string file = __FILE__, const size_t line = __LINE__,
         Throwable nextInChain = null) pure nothrow @nogc @safe
