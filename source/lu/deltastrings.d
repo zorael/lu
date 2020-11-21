@@ -104,15 +104,14 @@ if (isOutputRange!(Sink, char[]) && isAggregateType!QualThing)
 
     foreach (immutable i, ref member; after.tupleof)
     {
-        import lu.traits : isAnnotated;
         import lu.uda : Hidden;
         import std.functional : unaryFun;
-        import std.traits : Unqual, isSomeFunction, isSomeString, isType;
+        import std.traits : Unqual, isSomeFunction, hasUDA, isSomeString, isType;
 
         alias T = Unqual!(typeof(member));
         enum memberstring = __traits(identifier, before.tupleof[i]);
 
-        static if (isAnnotated!(after.tupleof[i], Hidden))
+        static if (hasUDA!(after.tupleof[i], Hidden))
         {
             // Member is annotated as Hidden; skip
             continue;
@@ -261,7 +260,7 @@ unittest
         State state;
         string nickname;
         @Hidden string user;
-        @("Hidden") string password;
+        @Hidden string password;
         Server server;
     }
 

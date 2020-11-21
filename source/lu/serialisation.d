@@ -151,14 +151,15 @@ if (isOutputRange!(Sink, char[]) && isAggregateType!QualThing)
 
     foreach (immutable i, member; thing.tupleof)
     {
-        import lu.traits : isAnnotated, isSerialisable;
+        import lu.traits : isSerialisable;
         import lu.uda : Separator, Unserialisable;
+        import std.traits : hasUDA;
 
         alias T = Unqual!(typeof(member));
 
         static if (
             isSerialisable!member &&
-            !isAnnotated!(thing.tupleof[i], Unserialisable) &&
+            !hasUDA!(thing.tupleof[i], Unserialisable) &&
             !is(T == struct) && !is(T == class))
         {
             import std.traits : isArray, isSomeString;
@@ -276,7 +277,7 @@ if (isOutputRange!(Sink, char[]) && isAggregateType!QualThing)
             {
                 import lu.uda : Quoted;
 
-                static if (isSomeString!T && isAnnotated!(thing.tupleof[i], Quoted))
+                static if (isSomeString!T && hasUDA!(thing.tupleof[i], Quoted))
                 {
                     sink.formattedWrite("%s \"%s\"", memberstring, value);
                 }
@@ -445,10 +446,10 @@ void deserialise(Range, Things...)(Range range, out string[][string] missingEntr
 if (allSatisfy!(isAggregateType, Things) && allSatisfy!(isMutable, Things))
 {
     import lu.string : stripSuffix, stripped;
-    import lu.traits : isAnnotated, isSerialisable;
+    import lu.traits : isSerialisable;
     import lu.uda : Unserialisable;
     import std.format : format;
-    import std.traits : Unqual;
+    import std.traits : Unqual, hasUDA;
 
     string section;
     bool[Things.length] processedThings;
@@ -463,7 +464,7 @@ if (allSatisfy!(isAggregateType, Things) && allSatisfy!(isMutable, Things))
         static foreach (immutable n; 0..things[i].tupleof.length)
         {{
             static if (isSerialisable!(Things[i].tupleof[n]) &&
-                !isAnnotated!(things[i].tupleof[n], Unserialisable))
+                !hasUDA!(things[i].tupleof[n], Unserialisable))
             {
                 enum memberstring = __traits(identifier, Things[i].tupleof[n]);
                 encounteredOptions[Thing.stringof][memberstring] = false;
@@ -560,7 +561,7 @@ if (allSatisfy!(isAggregateType, Things) && allSatisfy!(isMutable, Things))
                 static foreach (immutable n; 0..things[i].tupleof.length)
                 {{
                     static if (isSerialisable!(Things[i].tupleof[n]) &&
-                        !isAnnotated!(things[i].tupleof[n], Unserialisable))
+                        !hasUDA!(things[i].tupleof[n], Unserialisable))
                     {
                         enum memberstring = __traits(identifier, Things[i].tupleof[n]);
 
@@ -571,7 +572,7 @@ if (allSatisfy!(isAggregateType, Things) && allSatisfy!(isMutable, Things))
                             {
                                 // Entry is uncommented; set
 
-                                static if (isAnnotated!(things[i].tupleof[n], CannotContainComments))
+                                static if (hasUDA!(things[i].tupleof[n], CannotContainComments))
                                 {
                                     cast(void)things[i].setMemberByName(entry, value);
                                 }

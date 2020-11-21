@@ -126,9 +126,8 @@ void meldInto(MeldingStrategy strategy = MeldingStrategy.conservative, QualThing
     (QualThing meldThis, ref Thing intoThis)
 if (isAggregateType!Thing && is(QualThing : Thing) && isMutable!Thing)
 {
-    import lu.traits : isAnnotated;
-    import std.traits : isArray, isAssignable, isPointer, isSomeString, isType,
-        hasUnsharedAliasing;
+    import std.traits : hasUDA, isArray, isAssignable, isPointer, isSomeString,
+        isType, hasUnsharedAliasing;
 
     static if (is(Thing == struct) && (strategy == MeldingStrategy.conservative))
     {
@@ -156,7 +155,7 @@ if (isAggregateType!Thing && is(QualThing : Thing) && isMutable!Thing)
         {
             alias T = typeof(targetMember);
 
-            static if (isAnnotated!(intoThis.tupleof[i], Unmeldable))
+            static if (hasUDA!(intoThis.tupleof[i], Unmeldable))
             {
                 // Do nothing
             }
