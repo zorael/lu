@@ -184,7 +184,7 @@ pure nothrow:
     {
         // opOpAssign
         /++
-            Implements `buf ~= someT` (appending) by wrapping `put`.
+            Implements `buf ~= someT` (appending) by wrapping $(REF put).
 
             Params:
                 op = Operation type, here specialised to "`~`".
@@ -199,7 +199,7 @@ pure nothrow:
     {
         // opOpAssign
         /++
-            Implements `buf ~= someT` (appending) by wrapping `put`.
+            Implements `buf ~= someT` (appending) by wrapping $(REF put).
 
             Params:
                 op = Operation type, here specialised to "`~`".
@@ -236,7 +236,7 @@ pure nothrow:
     // length
     /++
         Returns what amounts to the current length of the buffer; the distance
-        between the current position `pos` and the last element `end`.
+        between the current position $(REF pos) and the last element $(REF end).
 
         Returns:
             The buffer's current length.
@@ -250,11 +250,11 @@ pure nothrow:
     /++
         Returns whether or not the array is considered empty.
 
-        Mind that the buffer may well still contain old contents. Use `clear`
+        Mind that the buffer may well still contain old contents. Use $(REF clear)
         to zero it out.
 
         Returns:
-            `true` if there are items available to get via `front`, `false` if not.
+            `true` if there are items available to get via $(REF front), `false` if not.
      +/
     bool empty() const @nogc
     {

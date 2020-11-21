@@ -342,7 +342,7 @@ unittest
     `immutable` are skipped, which may make it a poor choice if dealing with
     functions that require such arguments.
 
-    It is merely syntactic sugar, using `std.meta` and `std.traits` behind the scenes.
+    It is merely syntactic sugar, using $(REF std.meta) and $(REF std.traits) behind the scenes.
 
     Example:
     ---
@@ -455,7 +455,7 @@ unittest
 /++
     True if a type is `string`, `dstring` or `wstring`; otherwise false.
 
-    Does not consider e.g. `char[]` a string, as `std.traits.isSomeString` does.
+    Does not consider e.g. `char[]` a string, as $(REF std.traits.isSomeString) does.
 
     Params:
         S = String type to introspect.
@@ -625,7 +625,7 @@ unittest
 /++
     Eponymous template that is true if the passed type is a struct.
 
-    Used with `std.meta.Filter`, which cannot take `is()` expressions.
+    Used with $(REF std.meta.Filter), which cannot take `is()` expressions.
 
     Params:
         T = Type to introspect.
@@ -678,9 +678,9 @@ static if ((__VERSION__ == 2088L) || (__VERSION__ == 2089L))
 {
     // getSymbolsByUDA
     /++
-        Provide a non-2.088, non-2.089 `std.traits.getSymbolsByUDA`.
+        Provide a non-2.088, non-2.089 $(REF std.traits.getSymbolsByUDA).
 
-        The `std.traits.getSymbolsByUDA` in 2.088/2.089 is completely broken by having
+        The $(REF std.traits.getSymbolsByUDA) in 2.088/2.089 is completely broken by having
         inserted a constraint to force it to only work on aggregates, which a module
         apparently isn't.
      +/
@@ -705,7 +705,7 @@ static if ((__VERSION__ == 2088L) || (__VERSION__ == 2089L))
 
     // getSymbolsByUDAImpl
     /++
-        Implementation of `std.traits.getSymbolsByUDA`, copy/pasted.
+        Implementation of $(REF std.traits.getSymbolsByUDA), copy/pasted.
      +/
     private template getSymbolsByUDAImpl(alias symbol, alias attribute, names...)
     {

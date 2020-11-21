@@ -72,9 +72,9 @@ public:
     Returns:
         `true` if a member was found and set, `false` if not.
 
-    Throws: `std.conv.ConvException` if a string could not be converted into an
+    Throws: $(REF std.conv.ConvException) if a string could not be converted into an
         array, if a passed string could not be converted into a bool, or if
-        `std.conv.to` failed to convert a string into wanted type T.
+        $(REF std.conv.to) failed to convert a string into wanted type T.
  +/
 bool setMemberByName(Thing)(ref Thing thing, const string memberToSet, const string valueToSet)
 if (isAggregateType!Thing && isMutable!Thing)
@@ -508,7 +508,7 @@ unittest
     Returns:
         `true` if a member was found and set, `false` if not.
 
-    Throws: `MeldException` if the passed `valueToSet` was not the same type
+    Throws: $(REF MeldException) if the passed `valueToSet` was not the same type
         (or implicitly convertible to) the member to set.
  +/
 bool setMemberByName(Thing, Val)(ref Thing thing, const string memberToSet, /*const*/ Val valueToSet)
@@ -612,9 +612,9 @@ unittest
 
 // SetMemberException
 /++
-    Exception, to be thrown when `setMemberByName` fails for some given reason.
+    Exception, to be thrown when $(REF setMemberByName) fails for some given reason.
 
-    It is a normal `object.Exception` but with attached strings of the type name,
+    It is a normal $(REF object.Exception) but with attached strings of the type name,
     name of member and the value that was attempted to set.
  +/
 final class SetMemberException : Exception
@@ -629,7 +629,7 @@ final class SetMemberException : Exception
     string valueToSet;
 
     /++
-        Create a new `SetMemberException`, without attaching anything.
+        Create a new $(REF SetMemberException), without attaching anything.
      +/
     this(const string message, const string file = __FILE__, const size_t line = __LINE__,
         Throwable nextInChain = null) pure nothrow @nogc @safe
@@ -638,7 +638,7 @@ final class SetMemberException : Exception
     }
 
     /++
-        Create a new `SetMemberException`, attaching extra set-member information.
+        Create a new $(REF SetMemberException), attaching extra set-member information.
      +/
     this(const string message, const string typeName, const string memberToSet,
         const string valueToSet, const string file = __FILE__,

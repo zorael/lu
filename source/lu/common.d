@@ -30,7 +30,7 @@ enum Next
 /++
     Exception, to be thrown when an executed command returns an error value.
 
-    It is a normal `object.Exception` but with an attached command and return value.
+    It is a normal $(REF object.Exception) but with an attached command and return value.
  +/
 final class ReturnValueException : Exception
 {
@@ -41,14 +41,14 @@ final class ReturnValueException : Exception
     /// The value returned.
     int retval;
 
-    /// Create a new `ReturnValueException`, without attaching anything.
+    /// Create a new $(REF ReturnValueException), without attaching anything.
     this(const string message, const string file = __FILE__, const size_t line = __LINE__,
         Throwable nextInChain = null) pure nothrow @nogc @safe
     {
         super(message, file, line, nextInChain);
     }
 
-    /// Create a new `ReturnValueException`, attaching a command.
+    /// Create a new $(REF ReturnValueException), attaching a command.
     this(const string message, const string command, const string file = __FILE__,
         const size_t line = __LINE__, Throwable nextInChain = null) pure nothrow @nogc @safe
     {
@@ -56,7 +56,7 @@ final class ReturnValueException : Exception
         super(message, file, line, nextInChain);
     }
 
-    /// Create a new `ReturnValueException`, attaching a command and a returned value.
+    /// Create a new $(REF ReturnValueException), attaching a command and a returned value.
     this(const string message, const string command, const int retval,
         const string file = __FILE__, const size_t line = __LINE__,
         Throwable nextInChain = null) pure nothrow @nogc @safe
@@ -73,7 +73,7 @@ final class ReturnValueException : Exception
     Exception, to be thrown when attempting to create a file or directory and
     finding that one already exists with the same name.
 
-    It is a normal `object.Exception` but with an attached filename string.
+    It is a normal $(REF object.Exception) but with an attached filename string.
  +/
 final class FileExistsException : Exception
 {
@@ -81,14 +81,14 @@ final class FileExistsException : Exception
     /// The name of the file.
     string filename;
 
-    /// Create a new `FileExistsException`, without attaching a filename.
+    /// Create a new $(REF FileExistsException), without attaching a filename.
     this(const string message, const string file = __FILE__, const size_t line = __LINE__,
         Throwable nextInChain = null) pure nothrow @nogc @safe
     {
         super(message, file, line, nextInChain);
     }
 
-    /// Create a new `FileExistsException`, attaching a filename.
+    /// Create a new $(REF FileExistsException), attaching a filename.
     this(const string message, const string filename, const string file = __FILE__,
         const size_t line = __LINE__, Throwable nextInChain = null) pure nothrow @nogc @safe
     {
@@ -103,7 +103,7 @@ final class FileExistsException : Exception
     Exception, to be thrown when attempting to access a file or directory and
     finding that something with the that name exists, but is of an unexpected type.
 
-    It is a normal `object.Exception` but with an embedded filename string, and an uint
+    It is a normal $(REF object.Exception) but with an embedded filename string, and an uint
     representing the existing file's type (file, directory, symlink, ...).
  +/
 final class FileTypeMismatchException : Exception
@@ -115,14 +115,14 @@ final class FileTypeMismatchException : Exception
     /// File attributes.
     ushort attrs;
 
-    /// Create a new `FileTypeMismatchException`, without embedding a filename.
+    /// Create a new $(REF FileTypeMismatchException), without embedding a filename.
     this(const string message, const string file = __FILE__, const size_t line = __LINE__,
         Throwable nextInChain = null) pure nothrow @nogc @safe
     {
         super(message, file, line, nextInChain);
     }
 
-    /// Create a new `FileTypeMismatchException`, embedding a filename.
+    /// Create a new $(REF FileTypeMismatchException), embedding a filename.
     this(const string message, const string filename, const ushort attrs,
         const string file = __FILE__, const size_t line = __LINE__,
         Throwable nextInChain = null) pure nothrow @nogc @safe

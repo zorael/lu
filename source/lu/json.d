@@ -1,6 +1,6 @@
 /++
-    Simple JSON wrappers around Phobos' `std.json` to make keeping JSON storages easier.
-    This is not a replacement for `std.json`; it merely extends it.
+    Simple JSON wrappers around Phobos' $(REF std.json) to make keeping JSON storages easier.
+    This is not a replacement for $(REF std.json); it merely extends it.
 
     Example:
     ---
@@ -37,7 +37,7 @@
     // Prints keys in sorted order.
     json.serialiseInto!(JSONStorage.KeyOrderStrategy.sorted)(stdout.lockingTextWriter)
 
-    // Use a `std.array.Appender` to serialise into a string.
+    // Use a $(REF std.array.Appender) to serialise into a string.
 
     // Adding and removing values still needs the same dance as with std.json.
     // Room for future improvement.
@@ -61,7 +61,7 @@ public:
 
 // JSONStorage
 /++
-    A wrapped `std.json.JSONValue` with helper functions.
+    A wrapped $(REF std.json.JSONValue) with helper functions.
 
     Example:
     ---
@@ -82,27 +82,27 @@ struct JSONStorage
 {
     import std.json : JSONValue, parseJSON;
 
-    /// The underlying `std.json.JSONValue` storage of this `JSONStorage`.
+    /// The underlying $(REF std.json.JSONValue) storage of this $(REF JSONStorage).
     JSONValue storage;
 
     alias storage this;
 
     /++
         Strategy in which to sort object-type JSON keys when we format/serialise
-        the stored `storage` to string.
+        the stored $(REF storage) to string.
      +/
     enum KeyOrderStrategy
     {
         /++
-            Order is as `std.json.JSONValue.toPrettyString` formats it.
+            Order is as $(REF std.json.JSONValue.toPrettyString) formats it.
          +/
         passthrough,
 
         /++
             Order is as it is when we iterate its members. The same order as
-            `KeyOrderStrategy.passthrough` sees, but formatted to look identical
-            to how `KeyOrderStrategy.sorted`, `KeyOrderStrategy.reverse` and
-            `KeyOrderStrategy.inGivenOrder`.
+            $(REF KeyOrderStrategy.passthrough) sees, but formatted to look identical
+            to how $(REF KeyOrderStrategy.sorted), $(REF KeyOrderStrategy.reverse) and
+            $(REF KeyOrderStrategy.inGivenOrder).
          +/
         adjusted,
 
@@ -120,7 +120,7 @@ struct JSONStorage
 
     // reset
     /++
-        Initialises and clears the `std.json.JSONValue`, preparing it for object storage.
+        Initialises and clears the $(REF std.json.JSONValue), preparing it for object storage.
      +/
     void reset() @safe pure nothrow @nogc
     {
@@ -132,14 +132,14 @@ struct JSONStorage
         Loads JSON from disk.
 
         In the case where the file doesn't exist or is otherwise invalid, then
-        `std.json.JSONValue` is initialised to null (by way of `JSONStorage.reset`).
+        $(REF std.json.JSONValue) is initialised to null (by way of $(REF JSONStorage.reset)).
 
         Params:
             filename = Filename of file to read from.
 
         Throws:
-            Whatever `std.file.readText` and/or `std.json.parseJSON` throws.
-            `lu.common.FileTypeMismatchException` if the filename exists
+            Whatever $(REF std.file.readText) and/or $(REF std.json.parseJSON) throws.
+            $(REF lu.common.FileTypeMismatchException) if the filename exists
             but is not a file.
      +/
     void load(const string filename) @safe
@@ -169,9 +169,9 @@ struct JSONStorage
     /++
         Saves the JSON storage to disk.
 
-        Non-object types are saved as their `std.json.JSONValue.toPrettyString` strings
+        Non-object types are saved as their $(REF std.json.JSONValue.toPrettyString) strings
         whereas object-types are formatted as specified by the passed
-        `KeyOrderStrategy` argument.
+        $(REF KeyOrderStrategy) argument.
 
         Params:
             filename = Filename of the file to save to.
@@ -241,8 +241,8 @@ struct JSONStorage
     /++
         Formats an object-type JSON storage into an output range sink.
 
-        Top-level keys are sorted as per the passed `KeyOrderStrategy`. This
-        overload is specialised for `KeyOrderStrategy.inGivenOrder`.
+        Top-level keys are sorted as per the passed $(REF KeyOrderStrategy). This
+        overload is specialised for $(REF KeyOrderStrategy.inGivenOrder).
 
         Params:
             strategy = Order strategy in which to sort top-level keys.
@@ -291,8 +291,8 @@ struct JSONStorage
     /++
         Formats an object-type JSON storage into an output range sink.
 
-        Top-level keys are sorted as per the passed `KeyOrderStrategy`. This
-        overload is specialised for strategies other than `KeyOrderStrategy.inGivenOrder`,
+        Top-level keys are sorted as per the passed $(REF KeyOrderStrategy). This
+        overload is specialised for strategies other than $(REF KeyOrderStrategy.inGivenOrder),
         and as such takes one parameter less.
 
         Params:
@@ -553,22 +553,22 @@ private import std.typecons : Flag, No, Yes;
 // populateFromJSON
 /++
     Recursively populates a passed associative or dynamic array with the
-    contents of a `std.json.JSONValue`.
+    contents of a $(REF std.json.JSONValue).
 
     This is used where we want to store information on disk but keep it in
-    memory without the overhead of dealing with `std.json.JSONValue`s.
+    memory without the overhead of dealing with $(REF std.json.JSONValue)s.
 
-    Note: This only works with `std.json.JSONValue`s that conform to arrays and
+    Note: This only works with $(REF std.json.JSONValue)s that conform to arrays and
     associative arrays, not such that mix element/value types.
 
     Params:
         target = Reference to target array or associative array to write to.
-        json = Source `std.json.JSONValue` to sync the contents with.
+        json = Source $(REF std.json.JSONValue) to sync the contents with.
         lowercaseKeys = Whether or not to save string keys in lowercase.
         lowercaseValues = Whether or not to save final string values in lowercase.
 
     Throws:
-        `object.Exception` if the passed `std.json.JSONValue` had unexpected types.
+        $(REF object.Exception) if the passed $(REF std.json.JSONValue) had unexpected types.
  +/
 void populateFromJSON(T)(ref T target, const JSONValue json,
     Flag!"lowercaseKeys" lowercaseKeys = No.lowercaseKeys,
