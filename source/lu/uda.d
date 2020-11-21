@@ -4,7 +4,7 @@
 module lu.uda;
 
 /// UDA conveying that a field cannot (or should not) be serialised.
-struct Unserialisable;
+enum Unserialisable;
 
 /++
     UDA conveying that the annotated array should have this token as separator
@@ -20,15 +20,15 @@ struct Separator
     UDA conveying that this member contains sensitive information and should not
     be printed in clear text; e.g. passwords.
  +/
-struct Hidden;
+enum Hidden;
 
 /++
     UDA conveying that this member may contain characters that would otherwise
     indicate a comment, but isn't.
  +/
-struct CannotContainComments;
+enum CannotContainComments;
 
 /++
     UDA conveying that this member's value must be quoted when serialised.
  +/
-struct Quoted;
+enum Quoted;
