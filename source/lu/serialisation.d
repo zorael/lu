@@ -37,7 +37,7 @@
     flerrp                  "hirr steff  "
     pi                      3.14159`;
 
-    Appender!string sink;
+    Appender!(char[]) sink;
 
     sink.serialise(f);
     assert(sink.data.justifiedEntryValueText == fooJustified);
@@ -83,7 +83,7 @@ public:
     Foo foo;
     Bar bar;
 
-    Appender!string sink;
+    Appender!(char[]) sink;
 
     sink.serialise(foo, bar);
     assert(!sink.data.empty);
@@ -122,14 +122,14 @@ if ((Things.length > 1) && isOutputRange!(Sink, char[]) &&
 
     Foo foo;
 
-    Appender!string sink;
+    Appender!(char[]) sink;
 
     sink.serialise(foo);
     assert(!sink.data.empty);
     ---
 
     Params:
-        sink = Reference output range to write to, usually an `std.array.Appender!string`.
+        sink = Reference output range to write to, usually an `std.array.Appender`.
         thing = Object to serialise.
  +/
 void serialise(Sink, QualThing)(auto ref Sink sink, QualThing thing)
@@ -760,7 +760,7 @@ naN     !"¤%&/`;
     Foo foo;
     Bar bar;
 
-    Appender!string sink;
+    Appender!(char[]) sink;
 
     sink.serialise(foo, bar);
     immutable justified = sink.data.justifiedEntryValueText;
@@ -910,7 +910,7 @@ unittest
         string naN = `!"#¤%&/`;
     }
 
-    Appender!string sink;
+    Appender!(char[]) sink;
     sink.reserve(512);
     Foo foo;
     DifferentSection diff;
@@ -962,7 +962,7 @@ naN                     !"#¤%&/`;
 
     sink.serialise(foo, diff);
     assert((sink.data == unjustified), '\n' ~ sink.data);
-    immutable configText = justifiedEntryValueText(sink.data);
+    immutable configText = justifiedEntryValueText(sink.data.idup);
 
     assert((configText == justified), '\n' ~ configText);
 }

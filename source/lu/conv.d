@@ -339,7 +339,7 @@ unittest
 
     Example:
     ---
-    Appender!string sink;
+    Appender!(char[]) sink;
     int num = 12345;
     num.toAlphaInto(sink);
     assert(sink.data == "12345");
