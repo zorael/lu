@@ -1,13 +1,14 @@
 language: d
 
 sudo: required
-dist: bionic
+dist: focal
 
 branches:
   except:
     - /appveyor-.*/
     - /circleci-.*/
     - gh-pages
+    - /dustmite-.*/
 
 d:
   - dmd
@@ -18,10 +19,10 @@ os:
   - osx
 
 script:
-  - dub test  --compiler=${DC}
-  - dub build --compiler=${DC} -b debug
-  - dub build --compiler=${DC} -b plain
-  - dub build --compiler=${DC} -b release
+  - time dub test  --compiler=${DC}
+  - time dub build --compiler=${DC} -b debug
+  - time dub build --compiler=${DC} -b plain
+  - time dub build --compiler=${DC} -b release
 
 before_deploy:
   #- time dub build --compiler=${DC} --nodeps --force -b ddox
