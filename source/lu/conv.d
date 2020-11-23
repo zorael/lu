@@ -353,7 +353,7 @@ unittest
         num = Integer to translate into string.
         sink = Output range sink.
  +/
-void toAlphaInto(size_t maxDigits = 12, uint leadingZeroes = 0, Num, Sink)
+void toAlphaInto(size_t maxDigits = 19, uint leadingZeroes = 0, Num, Sink)
     (const Num num, auto ref Sink sink)
 if (isIntegral!Num && isOutputRange!(Sink, char[]))
 {
