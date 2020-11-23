@@ -493,7 +493,7 @@ unittest
     Returns:
         The passed integer `num` in string form.
  +/
-string toAlpha(size_t maxDigits = 12, uint leadingZeroes = 0, Num)(const Num num) pure
+string toAlpha(size_t maxDigits = 19, uint leadingZeroes = 0, Num)(const Num num) pure
 {
     import std.array : Appender;
 
