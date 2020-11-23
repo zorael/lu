@@ -541,4 +541,9 @@ unittest
         immutable translated = num.toAlpha!15;
         assert((translated == "-123456789012345"), translated);
     }
+    {
+        enum num = long.min;
+        immutable translated = num.toAlpha;
+        assert((translated == "-9223372036854775808"), translated);
+    }
 }
