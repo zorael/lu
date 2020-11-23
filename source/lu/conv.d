@@ -391,9 +391,9 @@ if (isIntegral!Num && isOutputRange!(Sink, char[]))
 
     size_t pos;
 
-    for (Num window = abs(num); window > 0; window /= 10)
+    for (Num window = num; window != 0; window /= 10)
     {
-        digits[pos++] = cast(ubyte)(window % 10);
+        digits[pos++] = cast(ubyte)abs(window % 10);
     }
 
     static if (leadingZeroes > 0)
