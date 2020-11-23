@@ -357,8 +357,6 @@ void toAlphaInto(size_t maxDigits = 19, uint leadingZeroes = 0, Num, Sink)
     (const Num num, auto ref Sink sink)
 if (isIntegral!Num && isOutputRange!(Sink, char[]))
 {
-    import std.math : abs;
-
     if (num == 0)
     {
         static if (leadingZeroes > 0)
@@ -393,6 +391,7 @@ if (isIntegral!Num && isOutputRange!(Sink, char[]))
 
     for (Num window = num; window != 0; window /= 10)
     {
+        import std.math : abs;
         digits[pos++] = cast(ubyte)abs(window % 10);
     }
 
