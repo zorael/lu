@@ -459,6 +459,12 @@ unittest
         enum num = -123_456_789_012_345L;
         num.toAlphaInto!15(sink);
         assert((sink.data == "-123456789012345"), sink.data);
+        sink.clear();
+    }
+    {
+        enum num = long.min;
+        num.toAlphaInto(sink);
+        assert((sink.data == "-9223372036854775808"), sink.data);
         //sink.clear();
     }
 }
