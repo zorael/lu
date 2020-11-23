@@ -10,8 +10,8 @@ module lu.semver;
 /// SemVer versioning of this build.
 enum LuSemVer
 {
-    majorVersion = 0,  /// SemVer major version of the library.
-    minorVersion = 5,  /// SemVer minor version of the library.
+    majorVersion = 1,  /// SemVer major version of the library.
+    minorVersion = 0,  /// SemVer minor version of the library.
     patchVersion = 0,  /// SemVer patch version of the library.
 }
 
