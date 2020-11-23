@@ -4,7 +4,7 @@ Miscellaneous general-purpose library modules. Nothing extraordinary.
 
 # What it is
 
-API documentation can be found [here](https://zorael.github.io/lu/lu.html).
+API documentation can be found [here](https://lu.dpldocs.info).
 
 In summary:
 
