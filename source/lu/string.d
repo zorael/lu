@@ -321,7 +321,10 @@ do
         else
         {
             // No needle match; inherit string and clear the original
-            scope(exit) haystack = string.init;
+            static if (__traits(isRef, haystack))
+            {
+                scope(exit) haystack = string.init;
+            }
             return haystack;
         }
     }
