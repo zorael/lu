@@ -82,6 +82,8 @@ branches:
     - /circleci-.*/
     - /travis-.*/
     - gh-pages
+    - /dustmite-.*/
+    - /github-.*/
 
 install:
   - ps: function SetUpDCompiler
