@@ -94,7 +94,7 @@ public:
             their .ini file-like format).
         things = Variadic list of objects to serialise.
  +/
-void serialise(Sink, Things...)(auto ref Sink sink, Things things)
+void serialise(Sink, Things...)(auto ref Sink sink, auto ref Things things)
 if ((Things.length > 1) && isOutputRange!(Sink, char[]) &&
     allSatisfy!(isAggregateType, Things))
 {
@@ -132,7 +132,7 @@ if ((Things.length > 1) && isOutputRange!(Sink, char[]) &&
         sink = Reference output range to write to, usually an [std.array.Appender].
         thing = Object to serialise.
  +/
-void serialise(Sink, QualThing)(auto ref Sink sink, QualThing thing)
+void serialise(Sink, QualThing)(auto ref Sink sink, auto ref QualThing thing)
 if (isOutputRange!(Sink, char[]) && isAggregateType!QualThing)
 {
     import lu.string : stripSuffix;

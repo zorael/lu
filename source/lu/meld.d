@@ -659,7 +659,7 @@ unittest
         intoThis = Reference to the array to meld (target).
  +/
 void meldInto(MeldingStrategy strategy = MeldingStrategy.conservative, Array1, Array2)
-    (Array1 meldThis, ref Array2 intoThis) pure nothrow
+    (auto ref Array1 meldThis, ref Array2 intoThis) pure nothrow
 if (isMerelyArray!Array1 && isMerelyArray!Array2 && isMutable!Array2)
 {
     import std.traits : isDynamicArray, isStaticArray;
