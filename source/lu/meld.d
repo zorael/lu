@@ -123,7 +123,7 @@ struct Unmeldable;
         intoThis = Reference to object to meld (target).
  +/
 void meldInto(MeldingStrategy strategy = MeldingStrategy.conservative, QualThing, Thing)
-    (QualThing meldThis, ref Thing intoThis)
+    (auto ref QualThing meldThis, ref Thing intoThis)
 if (isAggregateType!Thing && is(QualThing : Thing) && isMutable!Thing)
 {
     import std.traits : hasUDA, isArray, isAssignable, isPointer, isSomeString,
