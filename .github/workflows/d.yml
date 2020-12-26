@@ -44,9 +44,9 @@ jobs:
     - name: 'Build and test'
       run: |
         dub test
-        dub build --nodeps -b debug   -c dev
-        dub build --nodeps -b plain   -c dev
-        dub build --nodeps -b release -c dev
+        dub build --nodeps -b debug
+        dub build --nodeps -b plain
+        dub build --nodeps -b release
 
     - name: 'Generate documenation'
       if: matrix.os == 'ubuntu-latest' && success()
