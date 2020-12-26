@@ -395,7 +395,24 @@ b true`;
     cSink.reserve(128);
     cSink.serialise(c);
     assert((cSink.data == cSerialised), '\n' ~ cSink.data);
+
+    enum Letters { abc, def, ghi, }
+
+    struct Struct
+    {
+        Letters let = Letters.def;
+    }
+
+    enum enumTestSerialised =
+`[Struct]
+let def`;
+
+    Struct st;
+    Appender!(char[]) enumTestSink;
+    enumTestSink.serialise(st);
+    assert((enumTestSink.data == enumTestSerialised), '\n' ~ enumTestSink.data);
 }
+
 
 
 @safe:
@@ -734,6 +751,24 @@ naN     !"¤%&/`;
         assert((nil == 5), nil.text);
         assert((naN == `!"¤%&/`), naN);
     }
+
+    enum Letters { abc, def, ghi, }
+
+    struct Struct
+    {
+        Letters lt = Letters.def;
+    }
+
+    enum configContents =
+`[Struct]
+lt ghi
+`;
+    Struct st;
+    configContents
+        .splitter("\n")
+        .deserialise(missing, invalid, st);
+
+    assert(st.lt == Letters.ghi);
 }
 
 
