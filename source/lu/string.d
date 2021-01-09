@@ -406,10 +406,10 @@ unittest
  +/
 abstract class NomException : Exception
 {
-    /// Returns a string of the original haystack the call to [nom] was operating on.
+    /// Returns a string of the original haystack the call to `nom` was operating on.
     string haystack();
 
-    /// Returns a string of the original needle the call to [nom] was operating on.
+    /// Returns a string of the original needle the call to `nom` was operating on.
     string needle();
 
     /// Create a new [NomExceptionImpl], without attaching anything.
@@ -444,7 +444,7 @@ final class NomExceptionImpl(T, C) : NomException
     C rawNeedle;
 
     /++
-        Returns a string of the original needle the call to [nom] was operating on.
+        Returns a string of the original needle the call to `nom` was operating on.
 
         Returns:
             The raw haystack (be it any kind of string), converted to a `string`.
@@ -456,7 +456,7 @@ final class NomExceptionImpl(T, C) : NomException
     }
 
     /++
-        Returns a string of the original needle the call to [nom] was operating on.
+        Returns a string of the original needle the call to `nom` was operating on.
 
         Returns:
             The raw needle (be it any kind of string or character), converted to a `string`.
@@ -467,14 +467,14 @@ final class NomExceptionImpl(T, C) : NomException
         return rawNeedle.to!string;
     }
 
-    /// Create a new [NomExceptionImpl], without attaching anything.
+    /// Create a new `NomExceptionImpl`, without attaching anything.
     this(const string message, const string file = __FILE__, const size_t line = __LINE__,
         Throwable nextInChain = null) pure nothrow @nogc @safe
     {
         super(message, file, line, nextInChain);
     }
 
-    /// Create a new [NomExceptionImpl], attaching a command.
+    /// Create a new `NomExceptionImpl`, attaching a command.
     this(const string message, const T rawHaystack, const C rawNeedle,
         const string file = __FILE__, const size_t line = __LINE__,
         Throwable nextInChain = null) pure nothrow @nogc @safe
