@@ -810,12 +810,14 @@ lt ghi
     Returns:
         .ini file-like text, justified into two columns.
  +/
-auto justifiedEntryValueText(const string origLines) pure
+string justifiedEntryValueText(const string origLines) pure
 {
     import lu.string : stripped;
     import std.algorithm.comparison : max;
     import std.algorithm.iteration : splitter;
     import std.array : Appender;
+
+    if (!origLines.length) return string.init;
 
     enum decentReserve = 4096;
 
