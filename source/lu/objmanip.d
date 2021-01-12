@@ -523,12 +523,11 @@ in (memberToSet.length, "Tried to set member by name but no member string was gi
     static foreach (immutable i; 0..thing.tupleof.length)
     {{
         alias QualT = typeof(thing.tupleof[i]);
+        enum memberstring = __traits(identifier, thing.tupleof[i]);
 
         static if (!isMutable!QualT)
         {
             // Can't set const or immutable, so just ignore and break
-            enum memberstring = __traits(identifier, thing.tupleof[i]);
-
             case memberstring:
                 break top;
         }
@@ -537,12 +536,10 @@ in (memberToSet.length, "Tried to set member by name but no member string was gi
             import lu.traits : isSerialisable;
             import std.traits : Unqual;
 
-            alias T = Unqual!(typeof(thing.tupleof[i]));
+            alias T = Unqual!QualT;
 
             static if (isSerialisable!(thing.tupleof[i]))
             {
-                enum memberstring = __traits(identifier, thing.tupleof[i]);
-
                 case memberstring:
                 {
                     static if (is(Val : T))
