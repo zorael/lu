@@ -555,6 +555,7 @@ unittest
     Returns:
         A slice of the passed string line without enclosing tokens.
  +/
+pragma(inline, true)
 private T unenclosed(char token = '"', T)(const T line) pure nothrow @nogc
 if (isSomeString!T)
 {
