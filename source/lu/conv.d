@@ -209,15 +209,16 @@ unittest
     ---
 
     Params:
-        acceptLowercase = Flag of whether or not to accept rrggbb in lowercase form.
         hex = Hexadecimal number in string form.
+        acceptLowercase = Flag of whether or not to accept rrggbb in lowercase form.
 
     Returns:
         An integer equalling the value of the passed hexadecimal string.
 
     Throws: [std.conv.ConvException] if the hex string was malformed.
  +/
-uint numFromHex(Flag!"acceptLowercase" acceptLowercase = No.acceptLowercase)(const string hex) pure
+uint numFromHex(const string hex,
+    const Flag!"acceptLowercase" acceptLowercase = No.acceptLowercase) pure
 out (total; (total < 16^^hex.length), "`numFromHex` output is too large")
 {
     import std.string : representation;
@@ -235,14 +236,18 @@ out (total; (total < 16^^hex.length), "`numFromHex` output is too large")
             val = (c - 48);
             goto case 'F';
 
-    static if (acceptLowercase)
-    {
         case 'a':
         ..
         case 'f':
-            val = (c - (55+32));
-            goto case 'F';
-    }
+            if (acceptLowercase)
+            {
+                val = (c - (55+32));
+                goto case 'F';
+            }
+            else
+            {
+                goto default;
+            }
 
         case 'A':
         ..
@@ -272,14 +277,14 @@ out (total; (total < 16^^hex.length), "`numFromHex` output is too large")
     red/green/blue equivalents.
 
     Params:
-        acceptLowercase = Whether or not to accept the rrggbb string in lowercase letters.
         hexString = Hexadecimal number (colour) in string form.
         r = Out-reference integer for the "red" part of the hex string.
         g = Out-reference integer for the "green" part of the hex string.
         b = Out-reference integer for the "blue" part of the hex string.
+        acceptLowercase = Whether or not to accept the rrggbb string in lowercase letters.
  +/
-void numFromHex(Flag!"acceptLowercase" acceptLowercase = No.acceptLowercase)
-    (const string hexString, out int r, out int g, out int b) pure
+void numFromHex(const string hexString, out int r, out int g, out int b,
+    const Flag!"acceptLowercase" acceptLowercase = No.acceptLowercase) pure
 out (; ((r >= 0) && (r <= 255)), "Red out of hex range")
 out (; ((g >= 0) && (g <= 255)), "Green out of hex range")
 out (; ((b >= 0) && (b <= 255)), "Blue out of hex range")
@@ -288,9 +293,9 @@ out (; ((b >= 0) && (b <= 255)), "Blue out of hex range")
 
     immutable hex = (hexString[0] == '#') ? hexString[1..$] : hexString;
 
-    r = numFromHex!acceptLowercase(hex[0..2]);
-    g = numFromHex!acceptLowercase(hex[2..4]);
-    b = numFromHex!acceptLowercase(hex[4..$]);
+    r = numFromHex(hex[0..2], acceptLowercase);
+    g = numFromHex(hex[2..4], acceptLowercase);
+    b = numFromHex(hex[4..$], acceptLowercase);
 }
 
 ///
@@ -323,7 +328,7 @@ unittest
     }
     {
         int r, g, b;
-        numFromHex!(Yes.acceptLowercase)("9a4B7c", r, g, b);
+        numFromHex("9a4B7c", r, g, b, Yes.acceptLowercase);
 
         assert((r == 154), r.text);
         assert((g == 75), g.text);
