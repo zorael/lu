@@ -163,14 +163,14 @@ final class FileTypeMismatchException : Exception
     int numDomains = sharedDomains("irc.freenode.net", "leguin.freenode.net");
     assert(numDomains == 2);  // freenode.net
 
-    int numDomains2 = sharedDomains!(No.caseSensitive)("Portlane2.EU.GameSurge.net", "services.gamesurge.net");
+    int numDomains2 = sharedDomains("Portlane2.EU.GameSurge.net", "services.gamesurge.net", No.caseSensitive);
     assert(numDomains2 == 2);  // gamesurge.net
     ---
 
     Params:
-        caseSensitive = Whether or not comparison should be done on a case-sensitive basis.
         one = First domain string.
         other = Second domain string.
+        caseSensitive = Whether or not comparison should be done on a case-sensitive basis.
 
     Returns:
         The number of domains the two strings share.
@@ -178,12 +178,12 @@ final class FileTypeMismatchException : Exception
     TODO:
         Support partial globs.
  +/
-auto sharedDomains(Flag!"caseSensitive" caseSensitive = Yes.caseSensitive)
-    (const string one, const string other) pure @nogc nothrow
+uint sharedDomains(const string one, const string other,
+    const Flag!"caseSensitive" caseSensitive = Yes.caseSensitive) pure @nogc nothrow
 {
     if (!one.length || !other.length) return 0;
 
-    static uint numDomains(const char[] one, const char[] other)
+    static uint numDomains(const char[] one, const char[] other, const bool caseSensitive)
     {
         uint dots;
         double doubleDots;
@@ -191,7 +191,7 @@ auto sharedDomains(Flag!"caseSensitive" caseSensitive = Yes.caseSensitive)
         // If both strings are the same, act as if there's an extra dot.
         // That gives (.)rizon.net and (.)rizon.net two suffixes.
 
-        static if (caseSensitive)
+        if (caseSensitive)
         {
             if (one.length && (one == other)) ++dots;
         }
@@ -214,7 +214,7 @@ auto sharedDomains(Flag!"caseSensitive" caseSensitive = Yes.caseSensitive)
 
             immutable c2 = other[$-i-1];
 
-            static if (caseSensitive)
+            if (caseSensitive)
             {
                 if (c1 != c2) break;
             }
@@ -242,8 +242,8 @@ auto sharedDomains(Flag!"caseSensitive" caseSensitive = Yes.caseSensitive)
     }
 
     return (one.length > other.length) ?
-        numDomains(one, other) :
-        numDomains(other, one);
+        numDomains(one, other, cast(bool)caseSensitive) :
+        numDomains(other, one, cast(bool)caseSensitive);
 }
 
 ///
@@ -287,12 +287,12 @@ unittest
     immutable n12 = sharedDomains("rizon.net", "irc.rizon.net");
     assert((n12 == 2), n12.text);
 
-    immutable n13 = sharedDomains!(No.caseSensitive)("irc.gamesurge.net", "Stuff.GameSurge.net");
+    immutable n13 = sharedDomains("irc.gamesurge.net", "Stuff.GameSurge.net", No.caseSensitive);
     assert((n13 == 2), n13.text);
 
-    immutable n14 = sharedDomains!(No.caseSensitive)("irc.freenode.net", "irc.FREENODE.net");
+    immutable n14 = sharedDomains("irc.freenode.net", "irc.FREENODE.net", No.caseSensitive);
     assert((n14 == 3), n14.text);
 
-    immutable n15 = sharedDomains!(No.caseSensitive)("irc.SpotChat.org", "irc.FREENODE.net");
+    immutable n15 = sharedDomains("irc.SpotChat.org", "irc.FREENODE.net", No.caseSensitive);
     assert((n15 == 0), n15.text);
 }
