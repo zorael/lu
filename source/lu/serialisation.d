@@ -458,8 +458,11 @@ let def`;
 
     Throws: [DeserialisationException] if there were bad lines.
  +/
-void deserialise(Range, Things...)(Range range, out string[][string] missingEntries,
-    out string[][string] invalidEntries, ref Things things) pure
+void deserialise(Range, Things...)
+    (Range range,
+    out string[][string] missingEntries,
+    out string[][string] invalidEntries,
+    ref Things things) pure
 if (allSatisfy!(isAggregateType, Things) && allSatisfy!(isMutable, Things))
 {
     import lu.string : stripSuffix, stripped;
@@ -1014,7 +1017,9 @@ final class DeserialisationException : Exception
     /++
         Create a new [DeserialisationException].
      +/
-    this(const string message, const string file = __FILE__, const size_t line = __LINE__,
+    this(const string message,
+        const string file = __FILE__,
+        const size_t line = __LINE__,
         Throwable nextInChain = null) pure nothrow @nogc @safe
     {
         super(message, file, line, nextInChain);

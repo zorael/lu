@@ -631,7 +631,9 @@ final class SetMemberException : Exception
     /++
         Create a new [SetMemberException], without attaching anything.
      +/
-    this(const string message, const string file = __FILE__, const size_t line = __LINE__,
+    this(const string message,
+        const string file = __FILE__,
+        const size_t line = __LINE__,
         Throwable nextInChain = null) pure nothrow @nogc @safe
     {
         super(message, file, line, nextInChain);
@@ -640,8 +642,11 @@ final class SetMemberException : Exception
     /++
         Create a new [SetMemberException], attaching extra set-member information.
      +/
-    this(const string message, const string typeName, const string memberToSet,
-        const string valueToSet, const string file = __FILE__,
+    this(const string message,
+        const string typeName,
+        const string memberToSet,
+        const string valueToSet,
+        const string file = __FILE__,
         const size_t line = __LINE__,
         Throwable nextInChain = null) pure nothrow @nogc @safe
     {

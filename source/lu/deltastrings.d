@@ -96,8 +96,11 @@ public:
         submember = The string name of a recursing symbol, if applicable.
  +/
 void formatDeltaInto(Flag!"asserts" asserts = No.asserts, Sink, QualThing)
-    (auto ref Sink sink, auto ref QualThing before, auto ref QualThing after,
-    const uint indents = 0, const string submember = string.init)
+    (auto ref Sink sink,
+    auto ref QualThing before,
+    auto ref QualThing after,
+    const uint indents = 0,
+    const string submember = string.init)
 if (isOutputRange!(Sink, char[]) && isAggregateType!QualThing)
 {
     immutable prefix = submember.length ? submember ~ '.' : string.init;

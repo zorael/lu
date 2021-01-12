@@ -82,8 +82,11 @@ public:
     Throws:
         [NomException] if the needle could not be found in the string.
  +/
-T nom(Flag!"decode" decode = No.decode, T, C)(auto ref T haystack, const C needle,
-    const string callingFile = __FILE__, const size_t callingLine = __LINE__) pure @nogc
+T nom(Flag!"decode" decode = No.decode, T, C)
+    (auto ref T haystack,
+    const C needle,
+    const string callingFile = __FILE__,
+    const size_t callingLine = __LINE__) pure @nogc
 if (isMutable!T && isSomeString!T && (is(C : T) || is(C : ElementType!T) || is(C : ElementEncodingType!T)))
 in
 {
@@ -299,7 +302,9 @@ unittest
         value and returned, while the `haystack` symbol itself is cleared.
  +/
 T nom(Flag!"inherit" inherit, Flag!"decode" decode = No.decode, T, C)
-    (auto ref T haystack, const C needle, const string callingFile = __FILE__,
+    (auto ref T haystack,
+    const C needle,
+    const string callingFile = __FILE__,
     const size_t callingLine = __LINE__) pure @nogc
 if (isMutable!T && isSomeString!T && (is(C : T) || is(C : ElementType!T) || is(C : ElementEncodingType!T)))
 in
@@ -413,7 +418,9 @@ abstract class NomException : Exception
     string needle();
 
     /// Create a new [NomExceptionImpl], without attaching anything.
-    this(const string message, const string file = __FILE__, const size_t line = __LINE__,
+    this(const string message,
+        const string file = __FILE__,
+        const size_t line = __LINE__,
         Throwable nextInChain = null) pure nothrow @nogc @safe
     {
         super(message, file, line, nextInChain);
@@ -468,15 +475,20 @@ final class NomExceptionImpl(T, C) : NomException
     }
 
     /// Create a new `NomExceptionImpl`, without attaching anything.
-    this(const string message, const string file = __FILE__, const size_t line = __LINE__,
+    this(const string message,
+        const string file = __FILE__,
+        const size_t line = __LINE__,
         Throwable nextInChain = null) pure nothrow @nogc @safe
     {
         super(message, file, line, nextInChain);
     }
 
     /// Create a new `NomExceptionImpl`, attaching a command.
-    this(const string message, const T rawHaystack, const C rawNeedle,
-        const string file = __FILE__, const size_t line = __LINE__,
+    this(const string message,
+        const T rawHaystack,
+        const C rawNeedle,
+        const string file = __FILE__,
+        const size_t line = __LINE__,
         Throwable nextInChain = null) pure nothrow @nogc @safe
     {
         this.rawHaystack = rawHaystack;
