@@ -2020,7 +2020,7 @@ SplitResults splitInto(string separator = " ", Strings...)
         if (pos == -1)
         {
             thisString = slice;
-            slice = string.init;
+            static if (__traits(isRef, slice)) slice = string.init;
             return (i+1 == Strings.length) ? SplitResults.match : SplitResults.underrun;
         }
 
