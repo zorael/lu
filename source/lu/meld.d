@@ -78,7 +78,7 @@ enum MeldingStrategy
 /++
     UDA conveying that this member's value cannot or should not be melded.
  +/
-struct Unmeldable;
+enum Unmeldable;
 
 
 // meldInto
