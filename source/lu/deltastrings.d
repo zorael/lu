@@ -109,7 +109,7 @@ if (isOutputRange!(Sink, char[]) && isAggregateType!QualThing)
     {
         import lu.uda : Hidden;
         import std.functional : unaryFun;
-        import std.traits : Unqual, isSomeFunction, hasUDA, isSomeString, isType;
+        import std.traits : Unqual, hasUDA, isAggregateType, isSomeFunction, isSomeString, isType;
 
         alias T = Unqual!(typeof(member));
         enum memberstring = __traits(identifier, before.tupleof[i]);
@@ -119,7 +119,7 @@ if (isOutputRange!(Sink, char[]) && isAggregateType!QualThing)
             // Member is annotated as Hidden; skip
             continue;
         }
-        else static if (is(T == struct) || is(T == class))
+        else static if (isAggregateType!T)
         {
             sink.formatDeltaInto!asserts(before.tupleof[i], member, indents, prefix ~ memberstring);
         }
