@@ -153,14 +153,14 @@ if (isOutputRange!(Sink, char[]) && isAggregateType!QualThing)
     {
         import lu.traits : isSerialisable;
         import lu.uda : Separator, Unserialisable;
-        import std.traits : hasUDA;
+        import std.traits : hasUDA, isAggregateType;
 
         alias T = Unqual!(typeof(member));
 
         static if (
             isSerialisable!member &&
             !hasUDA!(thing.tupleof[i], Unserialisable) &&
-            !is(T == struct) && !is(T == class))
+            !isAggregateType!T)
         {
             import std.traits : isArray, isSomeString;
 
