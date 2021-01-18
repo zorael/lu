@@ -31,6 +31,7 @@ module lu.objmanip;
 private:
 
 import std.traits : isAggregateType, isMutable;
+import std.typecons : Flag, No, Yes;
 
 public:
 
@@ -665,27 +666,31 @@ private import std.traits : isEqualityComparable;
     an optional parameter that defaults to the `.init` value of the token's type.
 
     Params:
+        recurse = Whether or not to recurse into aggregate members.
         thing = Reference to a struct or class whose members to iterate over.
         token = What value to look for in members, be it a string or an integer
             or whatever; anything that can be compared to.
         replacement = What to assign matched values. Defaults to the `.init`
             of the matched type.
  +/
-void replaceMembers(Thing, Token)(ref Thing thing, Token token,
-    Token replacement = Token.init) pure nothrow @nogc
+void replaceMembers(Flag!"recurse" recurse = No.recurse, Thing, Token)
+    (ref Thing thing, Token token, Token replacement = Token.init) pure nothrow @nogc
 if (isAggregateType!Thing && isMutable!Thing && isEqualityComparable!Token)
 {
     import std.range : ElementEncodingType, ElementType;
-    import std.traits : isArray, isSomeString;
+    import std.traits : isAggregateType, isArray, isSomeString;
 
     foreach (immutable i, ref member; thing.tupleof)
     {
         alias T = typeof(member);
 
-        static if (is(T == struct) || is(T == class))
+        static if (isAggregateType!T)
         {
-            // Recurse
-            member.replaceMembers(token, replacement);
+            static if (recurse)
+            {
+                // Recurse
+                member.replaceMembers!recurse(token, replacement);
+            }
         }
         else static if (is(T : Token))
         {
@@ -734,14 +739,16 @@ unittest
     foo2.replaceMembers("-");
     assert(!foo2.s.length);
     foo2.b.s = "-";
-    foo2.replaceMembers("-", "herblp");
+    foo2.replaceMembers!(Yes.recurse)("-", "herblp");
     assert((foo2.b.s == "herblp"), foo2.b.s);
 
     Foo foo3;
     foo3.s = "---";
     foo3.b.s = "---";
-    foo3.replaceMembers("---");
+    foo3.replaceMembers!(No.recurse)("---");
     assert(!foo3.s.length);
+    assert((foo3.b.s == "---"), foo3.b.s);
+    foo3.replaceMembers!(Yes.recurse)("---");
     assert(!foo3.b.s.length);
 
     class Baz
@@ -763,7 +770,7 @@ unittest
     assert(!b1.barT.length, b1.barT);
     assert(b1.f.s.length, b1.f.s);
 
-    b1.replaceMembers("more content");
+    b1.replaceMembers!(Yes.recurse)("more content");
     assert(!b1.f.s.length, b1.f.s);
 
     import std.conv : to;
