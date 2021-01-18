@@ -17,10 +17,12 @@ public:
  +/
 enum MixinScope
 {
-    function_ = 1 << 0,  /// Mixed in inside a function.
-    class_  = 1 << 1,    /// Mixed in inside a class.
-    struct_ = 1 << 2,    /// Mixed in inside a struct.
-    module_ = 1 << 3,    /// Mixed in inside a module.
+    function_  = 1 << 0,  /// Mixed in inside a function.
+    class_     = 1 << 1,  /// Mixed in inside a class.
+    struct_    = 1 << 2,  /// Mixed in inside a struct.
+    interface_ = 1 << 3,  /// Mixed in inside an interface.
+    union_     = 1 << 4,  /// Mixed in inside a union.
+    module_    = 1 << 5,  /// Mixed in inside a module.
 }
 
 
@@ -64,7 +66,6 @@ enum MixinScope
     {
         mixin MixinConstraints(MixinScope.struct_ | MixinScope.class_);
     }
-
     ---
 
     Params:
@@ -77,12 +78,13 @@ mixin template MixinConstraints(MixinScope mixinScope, string mixinName = "a con
 {
 private:
     import lu.traits : CategoryName, MixinScope;
-    import std.traits : isSomeFunction;
+    import std.traits : fullyQualifiedName, isSomeFunction;
 
     /// Sentinel value as anchor to get the parent scope from.
-    enum mixinSentinel = true;
+    enum MixinSentinel;
 
-    alias mixinParent = __traits(parent, mixinSentinel);
+    alias mixinParent = __traits(parent, MixinSentinel);
+
     static if (isSomeFunction!mixinParent)
     {
         static if (!(mixinScope & MixinScope.function_))
@@ -105,7 +107,7 @@ private:
                 .format(mixinParentInfo.type, mixinParentInfo.fqn, mixinName));
         }
     }
-    else static if(is(mixinParent == struct))
+    else static if (is(mixinParent == struct))
     {
         static if (!(mixinScope & MixinScope.struct_))
         {
@@ -116,25 +118,33 @@ private:
                 .format(mixinParentInfo.type, mixinParentInfo.fqn, mixinName));
         }
     }
-    else static if (__VERSION__ < 2087L)
+    else static if (is(mixinParent == interface))
     {
-        static if (isSomeFunction!mixinParent ||
-            is(mixinParent == class) ||
-            is(mixinParent == struct))
+        static if (!(mixinScope & MixinScope.interface_))
         {
-            static if (!(mixinScope & MixinScope.module_))
-            {
-                import std.format : format;
-                alias mixinParentInfo = CategoryName!mixinParent;
-                static assert(0, ("%s `%s` mixes in `%s` but it is not supposed to be " ~
-                    "mixed into a module-level scope")
-                    .format(mixinParentInfo.type, mixinParentInfo.fqn, mixinName));
-            }
+            import std.format : format;
+            alias mixinParentInfo = CategoryName!mixinParent;
+            static assert(0, ("%s `%s` mixes in `%s` but it is not supposed to be " ~
+                "mixed into an interface")
+                .format(mixinParentInfo.type, mixinParentInfo.fqn, mixinName));
         }
     }
-    else static if (__traits(isModule, mixinParent))
+    else static if (is(mixinParent == union))
     {
-        static if (!(mixinScope & mixinScope.module_))
+        static if (!(mixinScope & MixinScope.union_))
+        {
+            import std.format : format;
+            alias mixinParentInfo = CategoryName!mixinParent;
+            static assert(0, ("%s `%s` mixes in `%s` but it is not supposed to be " ~
+                "mixed into a union")
+                .format(mixinParentInfo.type, mixinParentInfo.fqn, mixinName));
+        }
+    }
+    else static if (((__VERSION__ >= 2087L) && __traits(isModule, mixinParent)) ||
+        ((__VERSION__ < 2087L) &&
+            __traits(compiles, { mixin("import ", fullyQualifiedName!sym, ";"); })))
+    {
+        static if (!(mixinScope & MixinScope.module_))
         {
             import std.format : format;
             alias mixinParentInfo = CategoryName!mixinParent;
