@@ -55,7 +55,6 @@ module lu.serialisation;
 
 private:
 
-import lu.traits : isStruct;
 import std.meta : allSatisfy;
 import std.range.primitives : isOutputRange;
 import std.traits : isAggregateType, isMutable;
@@ -778,7 +777,7 @@ lt ghi
 // justifiedEntryValueText
 /++
     Takes an unformatted string of serialised entry-value text and justifies it
-    intto two neat columns.
+    into two neat columns.
 
     It does one pass through it all first to determine the maximum width of the
     entry names, then another to format it and eventually return a flat string.
@@ -1033,7 +1032,7 @@ final class DeserialisationException : Exception
 /++
     Splits a line into an entry and a value component.
 
-    This drop-in-replaces the regex: `"^(?P<entry>[^ \t]+)[ \t]+(?P<value>.+)"`.
+    This drop-in-replaces the regex: `^(?P<entry>[^ \t]+)[ \t]+(?P<value>.+)`.
 
     Params:
         line = String to split up.
