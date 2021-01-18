@@ -24,20 +24,20 @@ public:
     ---
     immutable width = 15.getMultipleOf(4);
     assert(width == 16);
-    immutable width2 = 16.getMultipleOf!(Yes.alwaysOneUp)(4);
+    immutable width2 = 16.getMultipleOf(4, Yes.alwaysOneUp);
     assert(width2 == 20);
     ---
 
     Params:
-        oneUp = Whether or not to always overshoot.
         num = Number to reach.
         n = Base value to find a multiplier for.
+        oneUp = Whether or not to always overshoot.
 
     Returns:
         The multiple of `n` that reaches and possibly overshoots `num`.
  +/
-Number getMultipleOf(Flag!"alwaysOneUp" oneUp = No.alwaysOneUp, Number)
-    (const Number num, const int n) pure nothrow @nogc
+Number getMultipleOf(Number)(const Number num, const int n,
+    const Flag!"alwaysOneUp" oneUp = No.alwaysOneUp) pure nothrow @nogc
 in ((n > 0), "Cannot get multiple of 0 or negatives")
 in ((num >= 0), "Cannot get multiples for a negative number")
 {
@@ -45,27 +45,12 @@ in ((num >= 0), "Cannot get multiples for a negative number")
 
     if (num == n)
     {
-        static if (oneUp)
-        {
-            return (n + 1);
-        }
-        else
-        {
-            return n;
-        }
+        return oneUp ? (n + 1) : n;
     }
 
     immutable frac = (num / double(n));
     immutable floor_ = cast(uint)frac;
-
-    static if (oneUp)
-    {
-        immutable mod = (floor_ + 1);
-    }
-    else
-    {
-        immutable mod = (floor_ == frac) ? floor_ : (floor_ + 1);
-    }
+    immutable mod = oneUp ? (floor_ + 1) : ((floor_ == frac) ? floor_ : (floor_ + 1));
 
     return cast(uint)(mod * n);
 }
@@ -78,7 +63,7 @@ unittest
     immutable n1 = 15.getMultipleOf(4);
     assert((n1 == 16), n1.text);
 
-    immutable n2 = 16.getMultipleOf!(Yes.alwaysOneUp)(4);
+    immutable n2 = 16.getMultipleOf(4, Yes.alwaysOneUp);
     assert((n2 == 20), n2.text);
 
     immutable n3 = 16.getMultipleOf(4);
@@ -89,9 +74,9 @@ unittest
     immutable n5 = 1.getMultipleOf(1);
     assert((n5 == 1), n5.text);
 
-    immutable n6 = 1.getMultipleOf!(Yes.alwaysOneUp)(1);
+    immutable n6 = 1.getMultipleOf(1, Yes.alwaysOneUp);
     assert((n6 == 2), n6.text);
 
-    immutable n7 = 5.getMultipleOf!(Yes.alwaysOneUp)(5);
+    immutable n7 = 5.getMultipleOf(5, Yes.alwaysOneUp);
     assert((n7 == 6), n7.text);
 }
