@@ -113,9 +113,9 @@ in (memberToSet.length, "Tried to set member by name but no member string was gi
 
                 case memberstring:
                 {
-                    import std.traits : isArray, isAssociativeArray, isSomeString;
+                    import std.traits : isAggregateType, isArray, isAssociativeArray, isSomeString;
 
-                    static if (is(T == struct) || is(T == class))
+                    static if (isAggregateType!T)
                     {
                         static if (__traits(compiles, { thing.tupleof[i] = string.init; }))
                         {
