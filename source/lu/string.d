@@ -1792,6 +1792,7 @@ unittest
  +/
 string escapeControlCharacters(const string line) pure nothrow
 {
+    import std.algorithm.comparison : among;
     import std.array : Appender;
     import std.string : representation;
 
@@ -1802,20 +1803,16 @@ string escapeControlCharacters(const string line) pure nothrow
     {
         if (!dirty)
         {
-            switch (c)
+            if (c.among!('\n', '\t', '\r', '\0'))
             {
-            case '\n':
-            case '\t':
-            case '\r':
-            case '\0':
                 sink.reserve(line.length);
                 sink.put(line[0..i]);
                 dirty = true;
 
-                // Drop down into lower switch
-                break;
-
-            default:
+                // Drop down into lower dirty switch
+            }
+            else
+            {
                 continue;
             }
         }
