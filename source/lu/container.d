@@ -180,35 +180,17 @@ pure nothrow:
         }
     }
 
-    static if (dynamic)
-    {
-        // opOpAssign
-        /++
-            Implements `buf ~= someT` (appending) by wrapping `put`.
+    // opOpAssign
+    /++
+        Implements `buf ~= someT` (appending) by wrapping `put`.
 
-            Params:
-                op = Operation type, here specialised to "`~`".
-                more = Item to add.
-         +/
-        void opOpAssign(string op : "~")(const T more)
-        {
-            return put(more);
-        }
-    }
-    else
+        Params:
+            op = Operation type, here specialised to "`~`".
+            more = Item to add.
+     +/
+    void opOpAssign(string op : "~")(const T more)
     {
-        // opOpAssign
-        /++
-            Implements `buf ~= someT` (appending) by wrapping `put`.
-
-            Params:
-                op = Operation type, here specialised to "`~`".
-                more = Item to add.
-         +/
-        void opOpAssign(string op : "~")(const T more) @nogc
-        {
-            return put(more);
-        }
+        return put(more);
     }
 
     // front
