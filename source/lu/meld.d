@@ -335,9 +335,12 @@ if (isAggregateType!Thing && is(QualThing : Thing) && isMutable!Thing)
     }
 }
 
-version(unittest)
+///
+unittest
 {
-    struct TestFoo
+    import std.conv : to;
+
+    static struct TestFoo
     {
         string abc;
         string def;
@@ -359,12 +362,6 @@ version(unittest)
             this.bur = bur;
         }
     }
-}
-
-///
-unittest
-{
-    import std.conv : to;
 
     TestFoo f1; // = new TestFoo;
     f1.abc = "ABC";
