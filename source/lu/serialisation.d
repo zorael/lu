@@ -872,7 +872,7 @@ string justifiedEntryValueText(const string origLines) pure
     assert((unjustified.data.length > 0), "Unjustified data is empty");
 
     enum minimumWidth = 24;
-    immutable width = max(minimumWidth, longestEntryLength.getMultipleOf!(Yes.alwaysOneUp)(4));
+    immutable width = max(minimumWidth, longestEntryLength.getMultipleOf(4, Yes.alwaysOneUp));
 
     foreach (immutable i, immutable line; unjustified.data)
     {
