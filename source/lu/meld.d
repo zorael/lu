@@ -126,8 +126,8 @@ void meldInto(MeldingStrategy strategy = MeldingStrategy.conservative, QualThing
     (auto ref QualThing meldThis, ref Thing intoThis)
 if (isAggregateType!Thing && is(QualThing : Thing) && isMutable!Thing)
 {
-    import std.traits : hasUDA, isArray, isAssignable, isPointer, isSomeString,
-        isType, hasUnsharedAliasing;
+    import std.traits : hasUDA, isAggregateType, isArray, isAssignable, isPointer,
+        isSomeString, isType, hasUnsharedAliasing;
 
     static if (is(Thing == struct) && (strategy == MeldingStrategy.conservative))
     {
@@ -159,7 +159,7 @@ if (isAggregateType!Thing && is(QualThing : Thing) && isMutable!Thing)
             {
                 // Do nothing
             }
-            else static if (is(T == struct) || is(T == class))
+            else static if (isAggregateType!T)
             {
                 // Recurse
                 meldThis.tupleof[i].meldInto!strategy(targetMember);
