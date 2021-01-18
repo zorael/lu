@@ -250,11 +250,7 @@ template CategoryName(alias sym)
     {
         import std.traits : isDelegate, isFunction;
 
-        static if ((__VERSION__ >= 2087L) && __traits(isModule, sym))
-        {
-            return "module";
-        }
-        else static if (isFunction!sym)
+        static if (isFunction!sym)
         {
             return "function";
         }
@@ -270,9 +266,19 @@ template CategoryName(alias sym)
         {
             return "struct";
         }
-        else static if (__VERSION__ < 2087L)
+        else static if (is(sym == interface) || is(typeof(sym) == interface))
         {
-            return "module(?)";
+            return "interface";
+        }
+        else static if (is(sym == union) || is(typeof(sym) == union))
+        {
+            return "union";
+        }
+        else static if (((__VERSION__ >= 2087L) && __traits(isModule, sym)) ||
+            ((__VERSION__ < 2087L) &&
+                __traits(compiles, { mixin("import ", fullyQualifiedName!sym, ";"); })))
+        {
+            return "module";
         }
         else
         {
@@ -310,6 +316,16 @@ unittest
     struct S {}
     S s;
 
+    interface I {}
+
+    union U
+    {
+        int i;
+        bool b;
+    }
+
+    U u;
+
     alias Ffn = CategoryName!fn;
     static assert(Ffn.type == "function");
     static assert(Ffn.name == "fn");
@@ -342,6 +358,14 @@ unittest
 
     static assert(Fm.name == "traits");
     static assert(Fm.fqn == "lu.traits");
+
+    alias Fi = CategoryName!I;
+    static assert(Fi.type == "interface");
+    static assert(Fi.name == "I");
+
+    alias Fu = CategoryName!u;
+    static assert(Fu.type == "union");
+    static assert(Fu.name == "u");
 }
 
 
