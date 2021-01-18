@@ -663,9 +663,8 @@ unittest
         }
     }
 
-    enum serialisedFileContents = `
-
-[Foo]
+    enum serialisedFileContents =
+`[Foo]
 i       42
 ia      1,2,-3,4,5
 s       hello world!
@@ -771,6 +770,79 @@ lt ghi
         .deserialise(missing, invalid, st);
 
     assert(st.lt == Letters.ghi);
+
+    class Class
+    {
+        enum Bar { blaawp = 5, oorgle = -1 }
+        int i;
+        string s;
+        bool b;
+        float f;
+        double d;
+        Bar bar;
+        string omitted;
+
+        @Separator(",")
+        {
+            int[] ia;
+            string[] sa;
+            bool[] ba;
+            float[] fa;
+            double[] da;
+            Bar[] bara;
+        }
+    }
+
+    enum serialisedFileContentsClass =
+`[Class]
+i       42
+ia      1,2,-3,4,5
+s       hello world!
+sa      hello,world,!
+b       true
+ba      true,false,true
+wrong   name
+
+# comment
+; other type of comment
+// third type of comment
+
+f       3.14 #hirp
+fa      0.0,1.1,-2.2,3.3 ;herp
+d       99.9 //derp
+da      99.9999,0.0001,-1
+bar     oorgle
+bara    blaawp,oorgle,blaawp`;
+
+    Class c = new Class;
+    serialisedFileContentsClass
+        .splitter("\n")
+        .deserialise(missing, invalid, c);
+
+    with (c)
+    {
+        assert((i == 42), i.text);
+        assert((ia == [ 1, 2, -3, 4, 5 ]), ia.text);
+        assert((s == "hello world!"), s);
+        assert((sa == [ "hello", "world", "!" ]), sa.text);
+        assert(b);
+        assert((ba == [ true, false, true ]), ba.text);
+        assert((f == 3.14f), f.text);
+        assert((fa == [ 0.0f, 1.1f, -2.2f, 3.3f ]), fa.text);
+        assert((d == 99.9), d.text);
+
+        // rounding errors with LDC on Windows
+        import std.math : approxEqual;
+        assert(da[0].approxEqual(99.9999), da[0].text);
+        assert(da[1].approxEqual(0.0001), da[1].text);
+        assert(da[2].approxEqual(-1.0), da[2].text);
+
+        with (Class.Bar)
+        {
+            assert((bar == oorgle), b.text);
+            assert((bara == [ blaawp, oorgle, blaawp ]), bara.text);
+        }
+    }
 }
 
 
