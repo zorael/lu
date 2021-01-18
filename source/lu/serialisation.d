@@ -458,7 +458,7 @@ let def`;
     Throws: [DeserialisationException] if there were bad lines.
  +/
 void deserialise(Range, Things...)
-    (Range range,
+    (auto ref Range range,
     out string[][string] missingEntries,
     out string[][string] invalidEntries,
     ref Things things) pure
