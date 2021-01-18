@@ -346,16 +346,7 @@ unittest
     static assert(Fs.name == "s");
 
     alias Fm = CategoryName!(lu.traits);
-
-    static if (__VERSION__ >= 2087L)
-    {
-        static assert(Fm.type == "module");
-    }
-    else
-    {
-        static assert(Fm.type == "module(?)");
-    }
-
+    static assert(Fm.type == "module");
     static assert(Fm.name == "traits");
     static assert(Fm.fqn == "lu.traits");
 
