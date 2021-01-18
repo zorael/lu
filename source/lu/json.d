@@ -571,8 +571,8 @@ private import std.typecons : Flag, No, Yes;
         [object.Exception] if the passed [std.json.JSONValue] had unexpected types.
  +/
 void populateFromJSON(T)(ref T target, const JSONValue json,
-    Flag!"lowercaseKeys" lowercaseKeys = No.lowercaseKeys,
-    Flag!"lowercaseValues" lowercaseValues = No.lowercaseValues) @safe
+    const Flag!"lowercaseKeys" lowercaseKeys = No.lowercaseKeys,
+    const Flag!"lowercaseValues" lowercaseValues = No.lowercaseValues) @safe
 if (isMutable!T)
 {
     import std.traits : ValueType, isAssociativeArray, isArray, isDynamicArray, isSomeString;
