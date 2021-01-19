@@ -197,33 +197,6 @@ struct JSONStorage
         File(filename, "w").writeln(sink.data);
     }
 
-    ///
-    unittest
-    {
-        import std.array : Appender;
-        import std.json;
-
-        JSONStorage this_;
-        Appender!(char[]) sink;
-        JSONValue j;
-        this_.storage = parseJSON(
-`[
-"1first",
-"2second",
-"3third",
-"4fourth"
-]`);
-
-        sink.put(this_.storage.toPrettyString);
-        assert((sink.data ==
-`[
-    "1first",
-    "2second",
-    "3third",
-    "4fourth"
-]`), '\n' ~ sink.data);
-    }
-
 
     // serialiseInto
     /++
