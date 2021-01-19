@@ -906,8 +906,13 @@ unittest
         wallOfText = String to indent the individual lines of.
         sink = Output range to fill with the indented lines.
         numTabs = Optional amount of tabs to indent with, default 1.
+        skip = How many lines to skip indenting.
  +/
-void indentInto(uint spaces = 4, Sink)(const string wallOfText, auto ref Sink sink, const uint numTabs = 1)
+void indentInto(uint spaces = 4, Sink)
+    (const string wallOfText,
+    auto ref Sink sink,
+    const uint numTabs = 1,
+    const uint skip = 0)
 if (isOutputRange!(Sink, char[]))
 {
     import std.algorithm.iteration : splitter;
@@ -932,9 +937,16 @@ if (isOutputRange!(Sink, char[]))
             continue;
         }
 
-        // Cannot just put(indent), put(line) because indent is a joiner Result
-        import std.format : formattedWrite;
-        sink.formattedWrite("%s%s", indent, line);
+        if (skip > i)
+        {
+            sink.put(line);
+        }
+        else
+        {
+            // Cannot just put(indent), put(line) because indent is a joiner Result
+            import std.format : formattedWrite;
+            sink.formattedWrite("%s%s", indent, line);
+        }
     }
 }
 
