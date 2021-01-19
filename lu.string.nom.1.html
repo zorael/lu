@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <title>nom (lu.string.nom)</title>
+	<meta charset="utf-8" />
+	<meta content="width=device-width, initial-scale=1" name="viewport" />
+        <link href="style.css" rel="stylesheet" />
+        <script src="script.js" type="text/javascript"></script>
+
+	
+	<link href="search-results.html" rel="prefetch" />
+</head>
+<body>
+	<div id="page-header">
+		<div id="logotype">
+		<span>kameloso IRC bot</span>
+		<nav>
+			<a href="http://dlang.org/">Dlang.org</a>
+		</nav>
+		</div>
+
+		<form action="search-docs.html" id="search">
+			<input name="searchTerm" placeholder="Find a symbol name..." type="search" />
+			<input type="submit" value="Go" />
+		</form>
+	</div>
+	<div id="page-body">
+		<div id="page-content">
+		<h1>nom</h1><div class="breadcrumbs"><a class="breadcrumb" href="lu.html">lu</a> <a class="breadcrumb" href="lu.string.html">string</a> </div><div><div class="documentation-comment synopsis"><div><p>Given some string, finds the supplied needle token in it, returns the
+    string up to that point, and advances the passed string by ref to after the token.</p><p>The naming is in line with standard library functions such as
+    <a class="xref" href="std.string.munch.html">std.string.munch</a>, <a class="xref" href="std.file.slurp.html">std.file.slurp</a> and others.</p></div></div></div><div class="annotated-prototype"><ol class="overloads"><li class="active-overload-option"><span class="overload-signature"><tt class="highlighted"><span class="hid">T</span></tt> <span class="name">nom</span>(T haystack, C needle, string callingFile, size_t callingLine)</span><div class="function-prototype"><div class="attributes">@<span class="name" data-ident="safe">safe</span> pure @<span class="name" data-ident="nogc">nogc</span> </div><div class="return-type"><span class="name" data-ident="T">T</span></div><div class="function-name">nom</div><div class="template-parameters" data-count="3">(<div class="parameters-list toplevel"><div class="template-parameter-item parameter-item">	<span><span class="name" data-ident="Flag">Flag</span>!&quot;decode&quot; <span class="name" data-ident="decode">decode</span> = <span class="name" data-ident="No">No.decode</span></span></div><div class="template-parameter-item parameter-item">	<span><span class="name" data-ident="T">T</span></span></div><div class="template-parameter-item parameter-item">	<span><span class="name" data-ident="C">C</span></span></div></div>)</div><div class="runtime-parameters" data-count="4"><div class="parameters-list toplevel"><span class="paren">(</span><div class="runtime-parameter-item parameter-item"><span class="parameter-type-holder"><span class="parameter-type"><span class="storage-class">auto</span> <span class="storage-class">ref</span> <span class="name" data-ident="T">T</span></span></span> <span class="parameter-name name" data-ident="haystack"><a href="#param-haystack">haystack</a></span></div><span class="comma">,</span><div class="runtime-parameter-item parameter-item"><span class="parameter-type-holder"><span class="parameter-type"><span class="storage-class">const</span> <span class="name" data-ident="C">C</span></span></span> <span class="parameter-name name" data-ident="needle"><a href="#param-needle">needle</a></span></div><span class="comma">,</span><div class="runtime-parameter-item parameter-item"><span class="parameter-type-holder"><span class="parameter-type"><span class="storage-class">const</span> <span class="builtin-type">string</span></span></span> <span class="parameter-name name" data-ident="callingFile"><a href="#param-callingFile">callingFile</a></span><span class="parameter-default-value">&#160;=&#160;__FILE__</span></div><span class="comma">,</span><div class="runtime-parameter-item parameter-item"><span class="parameter-type-holder"><span class="parameter-type"><span class="storage-class">const</span> <span class="name" data-ident="size_t">size_t</span></span></span> <span class="parameter-name name" data-ident="callingLine"><a href="#param-callingLine">callingLine</a></span><span class="parameter-default-value">&#160;=&#160;__LINE__</span></div><span class="paren">)</span></div></div><div class="template-constraint"> <a class="lang-feature" href="http://dpldocs.info/template-constraints">if</a> (<div class="template-constraint-expression"><div class="andand-left"><div class="andand-left"><span class="name" data-ident="isMutable">isMutable</span>!<span class="name" data-ident="T">T</span> &amp;&amp; </div><div class="andand-right"><span class="name" data-ident="isSomeString">isSomeString</span>!<span class="name" data-ident="T">T</span></div> &amp;&amp; </div><div class="andand-right"><span class="parenthetical-expression">(<span class="parenthetical-expression-contents"><div class="oror-left"><div class="oror-left"><a class="lang-feature" href="http://dpldocs.info/is-expression">is</a>(<span class="name" data-ident="C">C</span> : <span class="name" data-ident="T">T</span>) || </div><div class="oror-right"><a class="lang-feature" href="http://dpldocs.info/is-expression">is</a>(<span class="name" data-ident="C">C</span> : <span class="name" data-ident="ElementType">ElementType</span>!<span class="name" data-ident="T">T</span>)</div> || </div><div class="oror-right"><a class="lang-feature" href="http://dpldocs.info/is-expression">is</a>(<span class="name" data-ident="C">C</span> : <span class="name" data-ident="ElementEncodingType">ElementEncodingType</span>!<span class="name" data-ident="T">T</span>)</div></span>)</span></div></div>)</div><div class="function-contracts"></div></div></li><li class="overload-option"><a href="lu.string.nom.2.html"><span class="overload-signature"><tt class="highlighted"><span class="hid">T</span></tt> <span class="name">nom</span>(T haystack, C needle, string callingFile, size_t callingLine)</span></a></li></ol></div><div><h2 id="parameters"><a class="header-anchor" href="#parameters">Parameters</a></h2><dl class="parameter-descriptions"><dt id="param-decode"><a class="parameter-name" data-ident="decode" href="#param-decode">decode</a></dt><dd><div class="documentation-comment"><div><p>Whether to use auto-decoding functions, or try to keep to non-
+            decoding ones (whenever possible).</p></div></div></dd><dt id="param-haystack"><a class="parameter-name" data-ident="haystack" href="#param-haystack">haystack</a> <span class="parameter-type"><span class="name" data-ident="T">T</span></span></dt><dd><div class="documentation-comment"><div><p>String to walk and advance.</p></div></div></dd><dt id="param-needle"><a class="parameter-name" data-ident="needle" href="#param-needle">needle</a> <span class="parameter-type"><span class="name" data-ident="C">C</span></span></dt><dd><div class="documentation-comment"><div><p>Token that deliminates what should be returned and to where to advance.</p></div></div></dd><dt id="param-callingFile"><a class="parameter-name" data-ident="callingFile" href="#param-callingFile">callingFile</a> <span class="parameter-type"><span class="builtin-type">string</span></span></dt><dd><div class="documentation-comment"><div><p>Name of the calling source file, used to pass along when
+            throwing an exception.</p></div></div></dd><dt id="param-callingLine"><a class="parameter-name" data-ident="callingLine" href="#param-callingLine">callingLine</a> <span class="parameter-type"><span class="name" data-ident="size_t">size_t</span></span></dt><dd><div class="documentation-comment"><div><p>Line number where in the source file this is called, used
+            to pass along when throwing an exception.</p></div></div></dd></dl><h2 id="returns"><a class="header-anchor" href="#returns">Return Value</a></h2><div><div class="return-type-holder">Type: <span class="return-type"><span class="name" data-ident="T">T</span></span></div><div class="documentation-comment returns-description"><div><p>The string <tt class="inline-code">haystack</tt> from the start up to the needle token. The original
+        variable is advanced to after the token.</p></div></div></div><h2 id="throws"><a class="header-anchor" href="#throws">Throws</a></h2><div class="documentation-comment throws-description"><div><p><a class="xref" href="lu.string.NomException.html">NomException</a> if the needle could not be found in the string.</p></div></div><h2 id="examples"><a class="header-anchor" href="#examples">Examples</a></h2><div class="documentation-comment"><div><pre class="d_code highlighted"><span class="type">string</span> <span class="hid">foobar</span> = <span class="str">&quot;foo bar!&quot;</span>;
+<span class="type">string</span> <span class="hid">foo</span> = <span class="hid">foobar</span>.<span class="hid">nom</span>(<span class="str">&quot; &quot;</span>);
+<span class="type">string</span> <span class="hid">bar</span> = <span class="hid">foobar</span>.<span class="hid">nom</span>(<span class="str">&quot;!&quot;</span>);
+
+<span class="kwrd">assert</span>((<span class="hid">foo</span> == <span class="str">&quot;foo&quot;</span>), <span class="hid">foo</span>);
+<span class="kwrd">assert</span>((<span class="hid">bar</span> == <span class="str">&quot;bar&quot;</span>), <span class="hid">bar</span>);
+<span class="kwrd">assert</span>(!<span class="hid">foobar</span>.<span class="hid">length</span>);
+
+<span class="kwrd">enum</span> <span class="hid">line</span> = <span class="str">&quot;abc def ghi&quot;</span>;
+<span class="type">string</span> <span class="hid">def</span> = <span class="hid">line</span>[<span class="num">4</span>..$].<span class="hid">nom</span>(<span class="str">&quot; &quot;</span>);  <span class="com">// now with auto ref</span></pre></div></div><div class="unittest-example-holder"><div class="documentation-comment"></div><pre class="d_code highlighted with-line-wrappers"><span class="br">1 </span><span class="kwrd">import</span> <span class="hid">std</span>.<span class="hid">conv</span> : <span class="hid">to</span>;
+<span class="br">2 </span>
+<span class="br">3 </span>{
+<span class="br">4 </span>    <span class="type">string</span> <span class="hid">line</span> = <span class="str">&quot;Lorem ipsum :sit amet&quot;</span>;
+<span class="br">5 </span>    <span class="kwrd">immutable</span> <span class="hid">lorem</span> = <span class="hid">line</span>.<span class="hid">nom</span>(<span class="str">&quot; :&quot;</span>);
+<span class="br">6 </span>    <span class="kwrd">assert</span>(<span class="hid">lorem</span> == <span class="str">&quot;Lorem ipsum&quot;</span>, <span class="hid">lorem</span>);
+<span class="br">7 </span>    <span class="kwrd">assert</span>(<span class="hid">line</span> == <span class="str">&quot;sit amet&quot;</span>, <span class="hid">line</span>);
+<span class="br">8 </span>}
+<span class="br">9 </span>{
+<span class="br">10 </span>    <span class="type">string</span> <span class="hid">line</span> = <span class="str">&quot;Lorem ipsum :sit amet&quot;</span>;
+<span class="br">11 </span>    <span class="kwrd">immutable</span> <span class="hid">lorem</span> = <span class="hid">line</span>.<span class="hid">nom</span>!(<span class="hid">Yes</span>.<span class="hid">decode</span>)(<span class="str">&quot; :&quot;</span>);
+<span class="br">12 </span>    <span class="kwrd">assert</span>(<span class="hid">lorem</span> == <span class="str">&quot;Lorem ipsum&quot;</span>, <span class="hid">lorem</span>);
+<span class="br">13 </span>    <span class="kwrd">assert</span>(<span class="hid">line</span> == <span class="str">&quot;sit amet&quot;</span>, <span class="hid">line</span>);
+<span class="br">14 </span>}
+<span class="br">15 </span>{
+<span class="br">16 </span>    <span class="type">string</span> <span class="hid">line</span> = <span class="str">&quot;Lorem ipsum :sit amet&quot;</span>;
+<span class="br">17 </span>    <span class="kwrd">immutable</span> <span class="hid">lorem</span> = <span class="hid">line</span>.<span class="hid">nom</span>(<span class="str">':'</span>);
+<span class="br">18 </span>    <span class="kwrd">assert</span>(<span class="hid">lorem</span> == <span class="str">&quot;Lorem ipsum &quot;</span>, <span class="hid">lorem</span>);
+<span class="br">19 </span>    <span class="kwrd">assert</span>(<span class="hid">line</span> == <span class="str">&quot;sit amet&quot;</span>, <span class="hid">line</span>);
+<span class="br">20 </span>}
+<span class="br">21 </span>{
+<span class="br">22 </span>    <span class="type">string</span> <span class="hid">line</span> = <span class="str">&quot;Lorem ipsum :sit amet&quot;</span>;
+<span class="br">23 </span>    <span class="kwrd">immutable</span> <span class="hid">lorem</span> = <span class="hid">line</span>.<span class="hid">nom</span>!(<span class="hid">Yes</span>.<span class="hid">decode</span>)(<span class="str">':'</span>);
+<span class="br">24 </span>    <span class="kwrd">assert</span>(<span class="hid">lorem</span> == <span class="str">&quot;Lorem ipsum &quot;</span>, <span class="hid">lorem</span>);
+<span class="br">25 </span>    <span class="kwrd">assert</span>(<span class="hid">line</span> == <span class="str">&quot;sit amet&quot;</span>, <span class="hid">line</span>);
+<span class="br">26 </span>}
+<span class="br">27 </span>{
+<span class="br">28 </span>    <span class="type">string</span> <span class="hid">line</span> = <span class="str">&quot;Lorem ipsum :sit amet&quot;</span>;
+<span class="br">29 </span>    <span class="kwrd">immutable</span> <span class="hid">lorem</span> = <span class="hid">line</span>.<span class="hid">nom</span>(<span class="str">' '</span>);
+<span class="br">30 </span>    <span class="kwrd">assert</span>(<span class="hid">lorem</span> == <span class="str">&quot;Lorem&quot;</span>, <span class="hid">lorem</span>);
+<span class="br">31 </span>    <span class="kwrd">assert</span>(<span class="hid">line</span> == <span class="str">&quot;ipsum :sit amet&quot;</span>, <span class="hid">line</span>);
+<span class="br">32 </span>}
+<span class="br">33 </span>{
+<span class="br">34 </span>    <span class="type">string</span> <span class="hid">line</span> = <span class="str">&quot;Lorem ipsum :sit amet&quot;</span>;
+<span class="br">35 </span>    <span class="kwrd">immutable</span> <span class="hid">lorem</span> = <span class="hid">line</span>.<span class="hid">nom</span>!(<span class="hid">Yes</span>.<span class="hid">decode</span>)(<span class="str">' '</span>);
+<span class="br">36 </span>    <span class="kwrd">assert</span>(<span class="hid">lorem</span> == <span class="str">&quot;Lorem&quot;</span>, <span class="hid">lorem</span>);
+<span class="br">37 </span>    <span class="kwrd">assert</span>(<span class="hid">line</span> == <span class="str">&quot;ipsum :sit amet&quot;</span>, <span class="hid">line</span>);
+<span class="br">38 </span>}
+<span class="br">39 </span><span class="com">/*{
+<span class="br">40 </span>    string line = &quot;Lorem ipsum :sit amet&quot;;
+<span class="br">41 </span>    immutable lorem = line.nom(&quot;&quot;);
+<span class="br">42 </span>    assert(!lorem.length, lorem);
+<span class="br">43 </span>    assert(line == &quot;Lorem ipsum :sit amet&quot;, line);
+<span class="br">44 </span>}*/</span>
+<span class="br">45 </span><span class="com">/*{
+<span class="br">46 </span>    string line = &quot;Lorem ipsum :sit amet&quot;;
+<span class="br">47 </span>    immutable lorem = line.nom!(Yes.decode)(&quot;&quot;);
+<span class="br">48 </span>    assert(!lorem.length, lorem);
+<span class="br">49 </span>    assert(line == &quot;Lorem ipsum :sit amet&quot;, line);
+<span class="br">50 </span>}*/</span>
+<span class="br">51 </span>{
+<span class="br">52 </span>    <span class="type">string</span> <span class="hid">line</span> = <span class="str">&quot;Lorem ipsum :sit amet&quot;</span>;
+<span class="br">53 </span>    <span class="kwrd">immutable</span> <span class="hid">lorem</span> = <span class="hid">line</span>.<span class="hid">nom</span>(<span class="str">&quot;Lorem ipsum&quot;</span>);
+<span class="br">54 </span>    <span class="kwrd">assert</span>(!<span class="hid">lorem</span>.<span class="hid">length</span>, <span class="hid">lorem</span>);
+<span class="br">55 </span>    <span class="kwrd">assert</span>(<span class="hid">line</span> == <span class="str">&quot; :sit amet&quot;</span>, <span class="hid">line</span>);
+<span class="br">56 </span>}
+<span class="br">57 </span>{
+<span class="br">58 </span>    <span class="type">string</span> <span class="hid">line</span> = <span class="str">&quot;Lorem ipsum :sit amet&quot;</span>;
+<span class="br">59 </span>    <span class="kwrd">immutable</span> <span class="hid">lorem</span> = <span class="hid">line</span>.<span class="hid">nom</span>!(<span class="hid">Yes</span>.<span class="hid">decode</span>)(<span class="str">&quot;Lorem ipsum&quot;</span>);
+<span class="br">60 </span>    <span class="kwrd">assert</span>(!<span class="hid">lorem</span>.<span class="hid">length</span>, <span class="hid">lorem</span>);
+<span class="br">61 </span>    <span class="kwrd">assert</span>(<span class="hid">line</span> == <span class="str">&quot; :sit amet&quot;</span>, <span class="hid">line</span>);
+<span class="br">62 </span>}
+<span class="br">63 </span>{
+<span class="br">64 </span>    <span class="type">string</span> <span class="hid">line</span> = <span class="str">&quot;Lorem ipsum :sit amet&quot;</span>;
+<span class="br">65 </span>    <span class="kwrd">immutable</span> <span class="type">dchar</span> <span class="hid">dspace</span> = <span class="str">' '</span>;
+<span class="br">66 </span>    <span class="kwrd">immutable</span> <span class="hid">lorem</span> = <span class="hid">line</span>.<span class="hid">nom</span>(<span class="hid">dspace</span>);
+<span class="br">67 </span>    <span class="kwrd">assert</span>(<span class="hid">lorem</span> == <span class="str">&quot;Lorem&quot;</span>, <span class="hid">lorem</span>);
+<span class="br">68 </span>    <span class="kwrd">assert</span>(<span class="hid">line</span> == <span class="str">&quot;ipsum :sit amet&quot;</span>, <span class="hid">line</span>);
+<span class="br">69 </span>}
+<span class="br">70 </span>{
+<span class="br">71 </span>    <span class="hid">dstring</span> <span class="hid">dline</span> = <span class="str">&quot;Lorem ipsum :sit amet&quot;d</span>;
+<span class="br">72 </span>    <span class="kwrd">immutable</span> <span class="hid">dspace</span> = <span class="str">&quot; &quot;d</span>;
+<span class="br">73 </span>    <span class="kwrd">immutable</span> <span class="hid">lorem</span> = <span class="hid">dline</span>.<span class="hid">nom</span>(<span class="hid">dspace</span>);
+<span class="br">74 </span>    <span class="kwrd">assert</span>((<span class="hid">lorem</span> == <span class="str">&quot;Lorem&quot;d</span>), <span class="hid">lorem</span>.<span class="hid">to</span>!<span class="type">string</span>);
+<span class="br">75 </span>    <span class="kwrd">assert</span>((<span class="hid">dline</span> == <span class="str">&quot;ipsum :sit amet&quot;d</span>), <span class="hid">dline</span>.<span class="hid">to</span>!<span class="type">string</span>);
+<span class="br">76 </span>}
+<span class="br">77 </span>{
+<span class="br">78 </span>    <span class="hid">dstring</span> <span class="hid">dline</span> = <span class="str">&quot;Lorem ipsum :sit amet&quot;d</span>;
+<span class="br">79 </span>    <span class="kwrd">immutable</span> <span class="type">wchar</span> <span class="hid">wspace</span> = <span class="str">' '</span>;
+<span class="br">80 </span>    <span class="kwrd">immutable</span> <span class="hid">lorem</span> = <span class="hid">dline</span>.<span class="hid">nom</span>(<span class="hid">wspace</span>);
+<span class="br">81 </span>    <span class="kwrd">assert</span>((<span class="hid">lorem</span> == <span class="str">&quot;Lorem&quot;d</span>), <span class="hid">lorem</span>.<span class="hid">to</span>!<span class="type">string</span>);
+<span class="br">82 </span>    <span class="kwrd">assert</span>((<span class="hid">dline</span> == <span class="str">&quot;ipsum :sit amet&quot;d</span>), <span class="hid">dline</span>.<span class="hid">to</span>!<span class="type">string</span>);
+<span class="br">83 </span>}
+<span class="br">84 </span>{
+<span class="br">85 </span>    <span class="hid">wstring</span> <span class="hid">wline</span> = <span class="str">&quot;Lorem ipsum :sit amet&quot;w</span>;
+<span class="br">86 </span>    <span class="kwrd">immutable</span> <span class="type">wchar</span> <span class="hid">wspace</span> = <span class="str">' '</span>;
+<span class="br">87 </span>    <span class="kwrd">immutable</span> <span class="hid">lorem</span> = <span class="hid">wline</span>.<span class="hid">nom</span>(<span class="hid">wspace</span>);
+<span class="br">88 </span>    <span class="kwrd">assert</span>((<span class="hid">lorem</span> == <span class="str">&quot;Lorem&quot;w</span>), <span class="hid">lorem</span>.<span class="hid">to</span>!<span class="type">string</span>);
+<span class="br">89 </span>    <span class="kwrd">assert</span>((<span class="hid">wline</span> == <span class="str">&quot;ipsum :sit amet&quot;w</span>), <span class="hid">wline</span>.<span class="hid">to</span>!<span class="type">string</span>);
+<span class="br">90 </span>}
+<span class="br">91 </span>{
+<span class="br">92 </span>    <span class="hid">wstring</span> <span class="hid">wline</span> = <span class="str">&quot;Lorem ipsum :sit amet&quot;w</span>;
+<span class="br">93 </span>    <span class="kwrd">immutable</span> <span class="hid">wspace</span> = <span class="str">&quot; &quot;w</span>;
+<span class="br">94 </span>    <span class="kwrd">immutable</span> <span class="hid">lorem</span> = <span class="hid">wline</span>.<span class="hid">nom</span>(<span class="hid">wspace</span>);
+<span class="br">95 </span>    <span class="kwrd">assert</span>((<span class="hid">lorem</span> == <span class="str">&quot;Lorem&quot;w</span>), <span class="hid">lorem</span>.<span class="hid">to</span>!<span class="type">string</span>);
+<span class="br">96 </span>    <span class="kwrd">assert</span>((<span class="hid">wline</span> == <span class="str">&quot;ipsum :sit amet&quot;w</span>), <span class="hid">wline</span>.<span class="hid">to</span>!<span class="type">string</span>);
+<span class="br">97 </span>}
+<span class="br">98 </span>{
+<span class="br">99 </span>    <span class="type">string</span> <span class="hid">user</span> = <span class="str">&quot;foo!bar@asdf.adsf.com&quot;</span>;
+<span class="br">100 </span>    <span class="hid">user</span> = <span class="hid">user</span>.<span class="hid">nom</span>(<span class="str">'!'</span>);
+<span class="br">101 </span>    <span class="kwrd">assert</span>((<span class="hid">user</span> == <span class="str">&quot;foo&quot;</span>), <span class="hid">user</span>);
+<span class="br">102 </span>}
+<span class="br">103 </span>{
+<span class="br">104 </span>    <span class="kwrd">immutable</span> <span class="hid">def</span> = <span class="str">&quot;abc def ghi&quot;</span>[<span class="num">4</span>..$].<span class="hid">nom</span>(<span class="str">&quot; &quot;</span>);
+<span class="br">105 </span>    <span class="kwrd">assert</span>((<span class="hid">def</span> == <span class="str">&quot;def&quot;</span>), <span class="hid">def</span>);
+<span class="br">106 </span>}</pre></div></div></div>
+		<div id="page-nav"><a class="parent" href="lu.html">lu</a> <a class="parent" href="lu.string.html">string</a> 
+		<span class="type-separator">classes</span><ul><li><a class="class" href="lu.string.NomException.html">NomException</a></li><li><a class="class" href="lu.string.NomExceptionImpl.html">NomExceptionImpl</a></li></ul><span class="type-separator">enums</span><ul><li><a class="enum" href="lu.string.SplitResults.html">SplitResults</a></li></ul><span class="type-separator">functions</span><ul><li><a class="function" href="lu.string.beginsWith.html">beginsWith</a></li><li><a class="function" href="lu.string.beginsWithOneOf.html">beginsWithOneOf</a></li><li><a class="function" href="lu.string.contains.html">contains</a></li><li><a class="function" href="lu.string.decode64.html">decode64</a></li><li><a class="function" href="lu.string.encode64.html">encode64</a></li><li><a class="function" href="lu.string.escapeControlCharacters.html">escapeControlCharacters</a></li><li><a class="function" href="lu.string.indent.html">indent</a></li><li><a class="function" href="lu.string.indentInto.html">indentInto</a></li><li><a class="function current" href="lu.string.nom.1.html">nom</a></li><li><a class="function" href="lu.string.plurality.html">plurality</a></li><li><a class="function" href="lu.string.removeControlCharacters.html">removeControlCharacters</a></li><li><a class="function" href="lu.string.splitInto.html">splitInto</a></li><li><a class="function" href="lu.string.splitLineAtPosition.html">splitLineAtPosition</a></li><li><a class="function" href="lu.string.stripSuffix.html">stripSuffix</a></li><li><a class="function" href="lu.string.stripped.1.html">stripped</a></li><li><a class="function" href="lu.string.strippedLeft.1.html">strippedLeft</a></li><li><a class="function" href="lu.string.strippedRight.1.html">strippedRight</a></li><li><a class="function" href="lu.string.tabs.html">tabs</a></li><li><a class="function" href="lu.string.unenclosed.html">unenclosed</a></li><li><a class="function" href="lu.string.unquoted.html">unquoted</a></li><li><a class="function" href="lu.string.unsinglequoted.html">unsinglequoted</a></li></ul></div>
+	</div>
+	<div id="page-footer">Page generated by <a href="https://github.com/adamdruppe/adrdox">adrdox</a></div>
+</body>
+</html>
