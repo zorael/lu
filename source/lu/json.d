@@ -97,15 +97,6 @@ struct JSONStorage
             Order is as [std.json.JSONValue.toPrettyString] formats it.
          +/
         passthrough,
-
-        /++
-            Order is as it is when we iterate its members. The same order as
-            [KeyOrderStrategy.passthrough] sees, but formatted to look identical
-            to how [KeyOrderStrategy.sorted], [KeyOrderStrategy.reverse] and
-            [KeyOrderStrategy.inGivenOrder].
-         +/
-        adjusted,
-
         sorted,   /// Sorted by key.
         reverse,  /// Reversely sorted by key.
 
