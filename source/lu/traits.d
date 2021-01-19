@@ -155,6 +155,9 @@ private:
     }
     else
     {
+        pragma(msg, "import ", fullyQualifiedName!sym, ";");
+        pragma(msg, __traits(compiles, { mixin("import ", fullyQualifiedName!sym, ";"); }));
+        mixin("import ", fullyQualifiedName!sym, ";");
         import std.format : format;
         static assert(0, "Logic error; unexpected scope type of parent of mixin `%s`: `%s`"
             .format(mixinName, fullyQualifiedName!mixinParent));
