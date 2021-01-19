@@ -177,6 +177,7 @@ struct JSONStorage
         import std.stdio : File, writeln;
 
         Appender!(char[]) sink;
+        sink.reserve(1024);  // guesstimate
 
         if (storage.type == JSONType.object)
         {
