@@ -11,7 +11,7 @@
     assert(json.storage.type == JSONType.object);
 
     json.serialiseInto!(JSONStorage.KeyOrderStrategy.inGivenOrder)
-        (stdout.lockingTextWriter, [ "foo", "bar", "baz "]);
+        (stdout.lockingTextWriter, [ "foo", "bar", "baz" ]);
 
     // Printed to screen, regardless how `.toPrettyString` would have ordered it:
     /*
@@ -155,15 +155,14 @@ struct JSONStorage
 
     // save
     /++
-        Saves the JSON storage to disk.
+        Saves the JSON storage to disk. Formatting is done as specified by the
+        passed [KeyOrderStrategy] argument.
 
-        Non-object types are saved as their [std.json.JSONValue.toPrettyString] strings
-        whereas object-types are formatted as specified by the passed
-        [KeyOrderStrategy] argument.
+        Merely leverages [serialiseInto] and [std.stdio.writeln].
 
         Params:
-            filename = Filename of the file to save to.
             strategy = Key order strategy in which to sort object-type JSON keys.
+            filename = Filename of the file to save to.
             givenOrder = The order in which object-type keys should be listed in
                 the output file. Non-existent keys are represented as empty. Not
                 specified keys are omitted.
@@ -255,7 +254,7 @@ struct JSONStorage
 
         Top-level keys are sorted as per the passed [KeyOrderStrategy]. This
         overload is specialised for strategies other than [KeyOrderStrategy.inGivenOrder],
-        and as such takes one parameter less.
+        and as such takes one parameter fewer.
 
         Params:
             strategy = Order strategy in which to sort top-level keys.
