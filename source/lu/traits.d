@@ -142,7 +142,7 @@ private:
     }
     else static if (((__VERSION__ >= 2087L) && __traits(isModule, mixinParent)) ||
         ((__VERSION__ < 2087L) &&
-            __traits(compiles, { mixin("import ", fullyQualifiedName!sym, ";"); })))
+            __traits(compiles, { mixin("import ", fullyQualifiedName!mixinParent, ";"); })))
     {
         static if (!(mixinScope & MixinScope.module_))
         {
@@ -155,9 +155,9 @@ private:
     }
     else
     {
-        pragma(msg, "import ", fullyQualifiedName!sym, ";");
-        pragma(msg, __traits(compiles, { mixin("import ", fullyQualifiedName!sym, ";"); }));
-        mixin("import ", fullyQualifiedName!sym, ";");
+        pragma(msg, "import ", fullyQualifiedName!mixinParent, ";");
+        pragma(msg, __traits(compiles, { mixin("import ", fullyQualifiedName!mixinParent, ";"); }));
+        mixin("import ", fullyQualifiedName!mixinParent, ";");
         import std.format : format;
         static assert(0, "Logic error; unexpected scope type of parent of mixin `%s`: `%s`"
             .format(mixinName, fullyQualifiedName!mixinParent));
