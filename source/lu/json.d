@@ -261,7 +261,7 @@ struct JSONStorage
 
         if (storage.isNull)
         {
-            sink.put("{\n}");
+            sink.put("{}");
             return;
         }
 
@@ -269,15 +269,16 @@ struct JSONStorage
 
         foreach (immutable i, immutable key; givenOrder)
         {
-            sink.formattedWrite("    \"%s\":\n", key);
+            sink.formattedWrite("    \"%s\": ", key);
 
             if (const entry = key in storage)
             {
-                sink.put(entry.toPrettyString.indent);
+                import lu.string : indentInto;
+                entry.toPrettyString.indentInto(sink, 1, 1);
             }
             else
             {
-                sink.put("{\n}".indent);
+                sink.put("{}");
             }
 
             sink.put((i+1 < givenOrder.length) ? ",\n" : "\n");
@@ -305,7 +306,7 @@ struct JSONStorage
     {
         if (storage.isNull)
         {
-            sink.put("{\n}");
+            sink.put("{}");
             return;
         }
 
@@ -314,76 +315,53 @@ struct JSONStorage
             // Just pass through and save .toPrettyString; keep original behaviour.
             sink.put(storage.toPrettyString);
         }
-        else
+        else static if ((strategy == KeyOrderStrategy.sorted) ||
+            (strategy == KeyOrderStrategy.reverse))
         {
             import lu.string : indent;
             import std.array : array;
             import std.format : formattedWrite;
             import std.range : enumerate;
+            import std.algorithm.sorting : sort;
 
-            static if (strategy == KeyOrderStrategy.adjusted)
+            auto rawRange = storage
+                .objectNoRef
+                .byKey
+                .array
+                .sort;
+
+            static if (strategy == KeyOrderStrategy.reverse)
             {
-                // adjusted can really just be saved as .toPrettyString, but if we want
-                // to make it look the same as reverse and inGivenOrder we have to
-                // manually iterate the keys, like they do.
-
-                auto range = storage
-                    .objectNoRef
-                    .byKey
-                    .array;
-
-                sink.put("{\n");
-
-                foreach(immutable i, immutable key; range.enumerate)
-                {
-                    sink.formattedWrite("    \"%s\":\n", key);
-                    sink.put(storage[key].toPrettyString.indent);
-                    sink.put((i+1 < range.length) ? ",\n" : "\n");
-                }
+                import std.range : retro;
+                auto range = rawRange.retro;
             }
-            else static if ((strategy == KeyOrderStrategy.sorted) ||
-                (strategy == KeyOrderStrategy.reverse))
+            else static if (strategy == KeyOrderStrategy.sorted)
             {
-                import std.algorithm.sorting : sort;
-
-                auto rawRange = storage
-                    .objectNoRef
-                    .byKey
-                    .array
-                    .sort;
-
-                static if (strategy == KeyOrderStrategy.reverse)
-                {
-                    import std.range : retro;
-                    auto range = rawRange.retro;
-                }
-                else static if (strategy == KeyOrderStrategy.sorted)
-                {
-                    // Already sorted
-                    alias range = rawRange;
-                }
-                else
-                {
-                    static assert(0, "Logic error; unexpected `KeyOrderStrategy` " ~
-                        "passed to `serialiseInto`");
-                }
-
-                sink.put("{\n");
-
-                foreach(immutable i, immutable key; range.enumerate)
-                {
-                    sink.formattedWrite("    \"%s\":\n", key);
-                    sink.put(storage[key].toPrettyString.indent);
-                    sink.put((i+1 < range.length) ? ",\n" : "\n");
-                }
+                // Already sorted
+                alias range = rawRange;
             }
             else
             {
-                static assert(0, "Logic error; invalid `KeyOrderStrategy` " ~
+                static assert(0, "Logic error; unexpected `KeyOrderStrategy` " ~
                     "passed to `serialiseInto`");
             }
 
+            sink.put("{\n");
+
+            foreach(immutable i, immutable key; range.enumerate)
+            {
+                import lu.string : indentInto;
+                sink.formattedWrite("    \"%s\": ", key);
+                storage[key].toPrettyString.indentInto(sink, 1, 1);
+                sink.put((i+1 < range.length) ? ",\n" : "\n");
+            }
+
             sink.put("}");
+        }
+        else
+        {
+            static assert(0, "Logic error; invalid `KeyOrderStrategy` " ~
+                "passed to `serialiseInto`");
         }
     }
 
@@ -433,43 +411,19 @@ struct JSONStorage
 }`), '\n' ~ sink.data);
         sink.clear();
 
-        // KeyOrderStrategy.adjusted
-        this_.serialiseInto!(KeyOrderStrategy.adjusted)(sink);
-        assert((sink.data ==
-`{
-    "#def":
-    {
-        "flerpeloso": "o",
-        "harrsteff": "v"
-    },
-    "#zzz":
-    {
-        "asdf": "v"
-    },
-    "#abc":
-    {
-        "foobar": "v",
-        "hirrsteff": "o"
-    }
-}`), '\n' ~ sink.data);
-        sink.clear();
-
         // KeyOrderStrategy.sorted
         this_.serialiseInto!(KeyOrderStrategy.sorted)(sink);
         assert((sink.data ==
 `{
-    "#abc":
-    {
+    "#abc": {
         "foobar": "v",
         "hirrsteff": "o"
     },
-    "#def":
-    {
+    "#def": {
         "flerpeloso": "o",
         "harrsteff": "v"
     },
-    "#zzz":
-    {
+    "#zzz": {
         "asdf": "v"
     }
 }`), '\n' ~ sink.data);
@@ -479,17 +433,14 @@ struct JSONStorage
         this_.serialiseInto!(KeyOrderStrategy.reverse)(sink);
         assert((sink.data ==
 `{
-    "#zzz":
-    {
+    "#zzz": {
         "asdf": "v"
     },
-    "#def":
-    {
+    "#def": {
         "flerpeloso": "o",
         "harrsteff": "v"
     },
-    "#abc":
-    {
+    "#abc": {
         "foobar": "v",
         "hirrsteff": "o"
     }
@@ -497,22 +448,19 @@ struct JSONStorage
         sink.clear();
 
         // KeyOrderStrategy.inGivenOrder
-        this_.serialiseInto!(KeyOrderStrategy.inGivenOrder)(sink, [ "#def", "#abc", "#foo" ]);
+        this_.serialiseInto!(KeyOrderStrategy.inGivenOrder)(sink, [ "#def", "#abc", "#foo", "#fighters" ]);
         assert((sink.data ==
 `{
-    "#def":
-    {
+    "#def": {
         "flerpeloso": "o",
         "harrsteff": "v"
     },
-    "#abc":
-    {
+    "#abc": {
         "foobar": "v",
         "hirrsteff": "o"
     },
-    "#foo":
-    {
-    }
+    "#foo": {},
+    "#fighters": {}
 }`), '\n' ~ sink.data);
         sink.clear();
 
@@ -520,8 +468,7 @@ struct JSONStorage
         JSONStorage this2;
         this2.serialiseInto(sink);
         assert((sink.data ==
-`{
-}`), '\n' ~ sink.data);
+`{}`), '\n' ~ sink.data);
     }
 }
 
