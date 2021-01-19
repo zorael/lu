@@ -191,7 +191,7 @@ struct JSONStorage
         }
         else
         {
-            sink.put(storage.toPrettyString);
+            serialiseInto!(KeyOrderStrategy.passthrough)(sink);
         }
 
         File(filename, "w").writeln(sink.data);
