@@ -1001,18 +1001,22 @@ so shrug"), '\n' ~ sink.data);
         spaces = How many spaces make up a tab.
         wallOfText = String to indent the lines of.
         numTabs = Amount of tabs to indent with, default 1.
+        skip = How many lines to skip indenting.
 
     Returns:
         A string with all the lines of the original string indented.
  +/
-string indent(uint spaces = 4)(const string wallOfText, const uint numTabs = 1) pure
+string indent(uint spaces = 4)
+    (const string wallOfText,
+    const uint numTabs = 1,
+    const uint skip = 0) pure
 {
     import std.array : Appender;
 
     Appender!(char[]) sink;
     sink.reserve(wallOfText.length + 10*spaces*numTabs);  // Extra room for 10 indents
 
-    wallOfText.indentInto!spaces(sink, numTabs);
+    wallOfText.indentInto!spaces(sink, numTabs, skip);
     return sink.data;
 }
 
@@ -1048,7 +1052,15 @@ so shrug";
 sit amet
 I don't remember
 any more offhand
-so shrug"), '\n' ~ indentedTwo);
+so shrug"), '\n' ~ indentedZero);
+
+    immutable indentedSkipTwo = string_.indent(1, 2);
+    assert((indentedSkipTwo ==
+"Lorem ipsum
+sit amet
+    I don't remember
+    any more offhand
+    so shrug"), '\n' ~ indentedSkipTwo);
 }
 
 
