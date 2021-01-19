@@ -16,18 +16,15 @@
     // Printed to screen, regardless how `.toPrettyString` would have ordered it:
     /*
         {
-            "foo"
-            {
+            "foo": {
                 1,
                 2,
             },
-            "bar"
-            {
+            "bar": {
                 3,
                 4,
             },
-            "baz"
-            {
+            "baz": {
                 5,
                 6,
             }
@@ -247,9 +244,6 @@ struct JSONStorage
     if (isOutputRange!(Sink, char[]))
     in (givenOrder.length, "Tried to serialise a JSON storage in order given without a given order")
     {
-        import lu.string : indent;
-        import std.format : formattedWrite;
-
         if (storage.isNull)
         {
             sink.put("{}");
@@ -260,6 +254,8 @@ struct JSONStorage
 
         foreach (immutable i, immutable key; givenOrder)
         {
+            import std.format : formattedWrite;
+
             sink.formattedWrite("    \"%s\": ", key);
 
             if (const entry = key in storage)
@@ -309,7 +305,6 @@ struct JSONStorage
         else static if ((strategy == KeyOrderStrategy.sorted) ||
             (strategy == KeyOrderStrategy.reverse))
         {
-            import lu.string : indent;
             import std.array : array;
             import std.format : formattedWrite;
             import std.range : enumerate;

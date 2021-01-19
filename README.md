@@ -136,7 +136,7 @@ assert((altered.i == 42), altered.i.to!string);
 `);
 ```
 
-* [`serialisation.d`](source/lu/serialisation.d): Functions and templates for serialising structs into an .ini file-like format.
+* [`serialisation.d`](source/lu/serialisation.d): Functions and templates for serialising structs into an .ini file-*like* format, with entries and values separated into two columns by whitespace.
 
 ```d
 struct Foo
@@ -204,7 +204,7 @@ assert(slice.length == 0);
 * [`conv.d`](source/lu/conv.d): Conversion functions and templates.
 
 ```d
-// Credit for Enum goes to Stephan Koch
+// Credit for Enum goes to Stephan Koch (https://github.com/UplinkCoder). Used with permission.
 
 enum Foo { abc, def, ghi }
 
@@ -221,8 +221,8 @@ immutable otherDef = Enum!Foo.fromString("def");
 immutable otherGhi = Enum!Foo.fromString("ghi");
 ```
 
-* [`json.d`](source/lu/json.d): Convenience wrappers around a `JSONValue`, which can be unwieldy.
-* [`container.d`](source/lu/container.d): Container things, so far only a primitive `Buffer`.
+* [`json.d`](source/lu/json.d): Convenience wrappers around a `JSONValue`, which can be unwieldy. Not a JSON parser implementation.
+* [`container.d`](source/lu/container.d): Container things, so far only a primitive FILO `Buffer`.
 * [`common.d`](source/lu/common.d): Things that don't have a better home yet.
 * [`numeric.d`](source/lu/numeric.d): Functions and templates that calculate or manipulate numbers in some way.
 * [`uda.d`](source/lu/uda.d): Some user-defined attributes used here and there.

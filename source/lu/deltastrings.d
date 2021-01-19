@@ -54,9 +54,9 @@ module lu.deltastrings;
 
 private:
 
-import std.typecons : Flag, No, Yes;
 import std.range.primitives : isOutputRange;
 import std.traits : isAggregateType;
+import std.typecons : Flag, No, Yes;
 
 public:
 
@@ -108,7 +108,6 @@ if (isOutputRange!(Sink, char[]) && isAggregateType!QualThing)
     foreach (immutable i, ref member; after.tupleof)
     {
         import lu.uda : Hidden;
-        import std.functional : unaryFun;
         import std.traits : Unqual, hasUDA, isAggregateType, isSomeFunction, isSomeString, isType;
 
         alias T = Unqual!(typeof(member));

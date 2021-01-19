@@ -45,7 +45,7 @@ public:
 
 // Buffer
 /++
-    Simple buffer for storing and fetching items of any type `T`. Does not use
+    Simple buffer/queue for storing and fetching items of any type `T`. Does not use
     manual memory allcation.
 
     It can use a static array internally to store elements on the stack, which
