@@ -80,10 +80,8 @@ private:
     import lu.traits : CategoryName, MixinScope;
     import std.traits : fullyQualifiedName, isSomeFunction;
 
-    /// Sentinel value as anchor to get the parent scope from.
-    enum MixinSentinel;
-
-    alias mixinParent = __traits(parent, MixinSentinel);
+    // https://forum.dlang.org/post/sk4hqm$12cf$1@digitalmars.com
+    alias mixinParent = __traits(parent, {});
 
     static if (isSomeFunction!mixinParent)
     {
