@@ -413,13 +413,21 @@ unittest
 
     with (f3)
     {
-        import std.math : approxEqual;
+        static if (__VERSION__ >= 2091)
+        {
+            import std.math : isClose;
+        }
+        else
+        {
+            import std.math : approxEqual;
+            alias isClose = approxEqual;
+        }
 
         assert((abc == "OVERWRITTEN"), abc);
         assert((def == "OVERWRITTEN TOO"), def);
         assert((i == 100_135), i.to!string); // 0 is int.init
         assert((f == 0.1f), f.to!string);
-        assert(d.approxEqual(99.999), d.to!string);
+        assert(d.isClose(99.999), d.to!string);
         assert((aa == [ "abc" : 999, "def" : 456, "ghi" : 789 ]), aa.to!string);
         assert((arr == [ 9, 2, 3, 4, 5 ]), arr.to!string);
     }

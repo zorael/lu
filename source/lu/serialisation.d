@@ -710,11 +710,20 @@ naN     !"¤%&/`;
         assert((fa == [ 0.0f, 1.1f, -2.2f, 3.3f ]), fa.text);
         assert((d == 99.9), d.text);
 
+        static if (__VERSION__ >= 2091)
+        {
+            import std.math : isClose;
+        }
+        else
+        {
+            import std.math : approxEqual;
+            alias isClose = approxEqual;
+        }
+
         // rounding errors with LDC on Windows
-        import std.math : approxEqual;
-        assert(da[0].approxEqual(99.9999), da[0].text);
-        assert(da[1].approxEqual(0.0001), da[1].text);
-        assert(da[2].approxEqual(-1.0), da[2].text);
+        assert(da[0].isClose(99.9999), da[0].text);
+        assert(da[1].isClose(0.0001), da[1].text);
+        assert(da[2].isClose(-1.0), da[2].text);
 
         with (FooSettings.Bar)
         {
@@ -831,11 +840,20 @@ bara    blaawp,oorgle,blaawp`;
         assert((fa == [ 0.0f, 1.1f, -2.2f, 3.3f ]), fa.text);
         assert((d == 99.9), d.text);
 
+        static if (__VERSION__ >= 2091)
+        {
+            import std.math : isClose;
+        }
+        else
+        {
+            import std.math : approxEqual;
+            alias isClose = approxEqual;
+        }
+
         // rounding errors with LDC on Windows
-        import std.math : approxEqual;
-        assert(da[0].approxEqual(99.9999), da[0].text);
-        assert(da[1].approxEqual(0.0001), da[1].text);
-        assert(da[2].approxEqual(-1.0), da[2].text);
+        assert(da[0].isClose(99.9999), da[0].text);
+        assert(da[1].isClose(0.0001), da[1].text);
+        assert(da[2].isClose(-1.0), da[2].text);
 
         with (Class.Bar)
         {
