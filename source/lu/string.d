@@ -92,7 +92,11 @@ in
 {
     static if (__traits(compiles, needle.length))
     {
-        assert(needle.length, "Tried to `nom` with no `needle` given");
+        if (!needle.length)
+        {
+            throw new NomExceptionImpl!(T, C)("Tried to `nom` with no `needle` given",
+                haystack, needle, callingFile, callingLine);
+        }
     }
 }
 do
@@ -251,6 +255,10 @@ unittest
         immutable def = "abc def ghi"[4..$].nom(" ");
         assert((def == "def"), def);
     }
+    {
+        import std.exception : assertThrown;
+        assertThrown!NomException("abc def ghi"[4..$].nom(""));
+    }
 }
 
 
@@ -311,7 +319,11 @@ in
 {
     static if (__traits(compiles, needle.length))
     {
-        assert(needle.length, "Tried to `nom` with no `needle` given");
+        if (!needle.length)
+        {
+            throw new NomExceptionImpl!(T, C)("Tried to `nom` with no `needle` given",
+                haystack, needle, callingFile, callingLine);
+        }
     }
 }
 do
@@ -399,6 +411,11 @@ unittest
         }
 
         assert(words == [ "Lorem", "ipsum", "sit", "amet" ]);
+    }
+    {
+        import std.exception : assertThrown;
+        string url = "https://google.com/index.html#fragment-identifier";
+        assertThrown!NomException(url.nom!(Yes.inherit)(""));
     }
 }
 
