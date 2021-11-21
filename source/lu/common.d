@@ -193,13 +193,13 @@ uint sharedDomains(const string one, const string other,
 
         if (caseSensitive)
         {
-            if (one.length && (one == other)) ++dots;
+            if (one == other) ++dots;
         }
         else
         {
             import std.algorithm.comparison : equal;
             import std.uni : asLowerCase;
-            if (one.length && one.asLowerCase.equal(other.asLowerCase)) ++dots;
+            if (one.asLowerCase.equal(other.asLowerCase)) ++dots;
         }
 
         foreach (immutable i; 0..one.length)
