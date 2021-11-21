@@ -276,6 +276,8 @@ out (total; (total < 16^^hex.length), "`numFromHex` output is too large")
     This is to be used when mapping a `#RRGGBB` colour to their decimal
     red/green/blue equivalents.
 
+    Deprecated; use [rgbFromHex] instead.
+
     Params:
         hexString = Hexadecimal number (colour) in string form.
         r = Out-reference integer for the "red" part of the hex string.
@@ -283,6 +285,7 @@ out (total; (total < 16^^hex.length), "`numFromHex` output is too large")
         b = Out-reference integer for the "blue" part of the hex string.
         acceptLowercase = Whether or not to accept the rrggbb string in lowercase letters.
  +/
+deprecated("Use `lu.conv.rgbFromHex` instead")
 void numFromHex(const string hexString, out int r, out int g, out int b,
     const Flag!"acceptLowercase" acceptLowercase = No.acceptLowercase) pure
 out (; ((r >= 0) && (r <= 255)), "Red out of hex range")
@@ -299,6 +302,7 @@ out (; ((b >= 0) && (b <= 255)), "Blue out of hex range")
 }
 
 ///
+version(none)
 unittest
 {
     import std.conv : text;
@@ -333,6 +337,76 @@ unittest
         assert((r == 154), r.text);
         assert((g == 75), g.text);
         assert((b == 124), b.text);
+    }
+}
+
+
+// voldemortNumFromHex
+/++
+    Convenience wrapper that takes a hex string and populates a Voldemort
+    struct with its RR, GG and BB components.
+
+    This is to be used when mapping a `#RRGGBB` colour to their decimal
+    red/green/blue equivalents.
+
+    Params:
+        hexString = Hexadecimal number (colour) in string form.
+        acceptLowercase = Whether or not to accept the rrggbb string in lowercase letters.
+
+    Returns:
+        A Voldemort struct with `r`, `g` and `b` members,
+ +/
+auto rgbFromHex(const string hexString,
+    const Flag!"acceptLowercase" acceptLowercase = No.acceptLowercase)
+{
+    struct RGB
+    {
+        int r;
+        int g;
+        int b;
+    }
+
+    RGB rgb;
+    immutable hex = (hexString[0] == '#') ? hexString[1..$] : hexString;
+
+    rgb.r = numFromHex(hex[0..2], acceptLowercase);
+    rgb.g = numFromHex(hex[2..4], acceptLowercase);
+    rgb.b = numFromHex(hex[4..$], acceptLowercase);
+
+    return rgb;
+}
+
+///
+unittest
+{
+    import std.conv : text;
+    {
+        auto rgb = rgbFromHex("000102");
+
+        assert((rgb.r == 0), rgb.r.text);
+        assert((rgb.g == 1), rgb.g.text);
+        assert((rgb.b == 2), rgb.b.text);
+    }
+    {
+        auto rgb = rgbFromHex("#FFFFFF");
+
+        assert((rgb.r == 255), rgb.r.text);
+        assert((rgb.g == 255), rgb.g.text);
+        assert((rgb.b == 255), rgb.b.text);
+    }
+    {
+        auto rgb = rgbFromHex("#3C507D");
+
+        assert((rgb.r == 60), rgb.r.text);
+        assert((rgb.g == 80), rgb.b.text);
+        assert((rgb.b == 125), rgb.b.text);
+    }
+    {
+        auto rgb = rgbFromHex("9a4B7c", Yes.acceptLowercase);
+
+        assert((rgb.r == 154), rgb.r.text);
+        assert((rgb.g == 75), rgb.g.text);
+        assert((rgb.b == 124), rgb.b.text);
     }
 }
 
