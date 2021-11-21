@@ -52,6 +52,7 @@ if (is(E == enum))
 
         Taken from: https://forum.dlang.org/post/bfnwstkafhfgihavtzsz@forum.dlang.org
         written by Stephan Koch (https://github.com/UplinkCoder).
+        Used with permission.
 
         Example:
         ---
@@ -81,18 +82,17 @@ if (is(E == enum))
     {
         enum enumSwitch = ()
         {
-            string enumSwitch = "import std.conv : ConvException;\n";
-            enumSwitch ~= "with (E) switch (enumstring)\n{\n";
+            string enumSwitch = "import std.conv : ConvException;\n" ~
+                "with (E) switch (enumstring)\n{\n";
 
             foreach (immutable memberstring; __traits(allMembers, E))
             {
-                enumSwitch ~= `case "` ~ memberstring ~ `":`;
-                enumSwitch ~= "return " ~ memberstring ~ ";\n";
+                enumSwitch ~= `case "` ~ memberstring ~ `": return ` ~ memberstring ~ ";\n";
             }
 
             enumSwitch ~= "default:\n" ~
-                "import std.traits : fullyQualifiedName;\n" ~
-                `throw new ConvException("No such " ~ fullyQualifiedName!E ~ ": " ~ enumstring);}`;
+                "    import std.traits : fullyQualifiedName;\n" ~
+                `    throw new ConvException("No such " ~ fullyQualifiedName!E ~ ": " ~ enumstring);` ~ "\n}";
 
             return enumSwitch;
         }();
@@ -111,6 +111,7 @@ if (is(E == enum))
 
         Taken from: https://forum.dlang.org/post/bfnwstkafhfgihavtzsz@forum.dlang.org
         written by Stephan Koch (https://github.com/UplinkCoder).
+        Used with permission.
 
         Example:
         ---
