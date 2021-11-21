@@ -721,9 +721,9 @@ naN     !"¤%&/`;
         }
 
         // rounding errors with LDC on Windows
-        assert(da[0].isClose(99.9999), da[0].text);
-        assert(da[1].isClose(0.0001), da[1].text);
-        assert(da[2].isClose(-1.0), da[2].text);
+        assert(isClose(da[0], 99.9999), da[0].text);
+        assert(isClose(da[1], 0.0001), da[1].text);
+        assert(isClose(da[2], -1.0), da[2].text);
 
         with (FooSettings.Bar)
         {
@@ -851,9 +851,9 @@ bara    blaawp,oorgle,blaawp`;
         }
 
         // rounding errors with LDC on Windows
-        assert(da[0].isClose(99.9999), da[0].text);
-        assert(da[1].isClose(0.0001), da[1].text);
-        assert(da[2].isClose(-1.0), da[2].text);
+        assert(isClose(da[0], 99.9999), da[0].text);
+        assert(isClose(da[1], 0.0001), da[1].text);
+        assert(isClose(da[2], -1.0), da[2].text);
 
         with (Class.Bar)
         {

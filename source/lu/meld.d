@@ -427,7 +427,7 @@ unittest
         assert((def == "OVERWRITTEN TOO"), def);
         assert((i == 100_135), i.to!string); // 0 is int.init
         assert((f == 0.1f), f.to!string);
-        assert(d.isClose(99.999), d.to!string);
+        assert(isClose(d, 99.999), d.to!string);
         assert((aa == [ "abc" : 999, "def" : 456, "ghi" : 789 ]), aa.to!string);
         assert((arr == [ 9, 2, 3, 4, 5 ]), arr.to!string);
     }
