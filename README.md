@@ -2,7 +2,7 @@
 
 Miscellaneous general-purpose library modules. Nothing extraordinary.
 
-# What it is
+## What it is
 
 API documentation can be found [here](https://lu.dpldocs.info).
 
@@ -227,15 +227,15 @@ immutable otherGhi = Enum!Foo.fromString("ghi");
 * [`numeric.d`](source/lu/numeric.d): Functions and templates that calculate or manipulate numbers in some way.
 * [`uda.d`](source/lu/uda.d): Some user-defined attributes used here and there.
 
-# Roadmap
+## Roadmap
 
 * nothing right now, ideas needed
 
-# Built with
+## Built with
 
 * [**D**](https://dlang.org)
 * [`dub`](https://code.dlang.org)
 
-# License
+## License
 
 This project is licensed under the **MIT** license - see the [LICENSE](LICENSE) file for details.
