@@ -114,7 +114,8 @@ in (memberToSet.length, "Tried to set member by name but no member string was gi
 
                 case memberstring:
                 {
-                    import std.traits : isAggregateType, isArray, isAssociativeArray, isSomeString;
+                    import std.traits : isAggregateType, isArray,
+                        isAssociativeArray, isPointer, isSomeString;
 
                     static if (isAggregateType!T)
                     {
@@ -220,6 +221,10 @@ in (memberToSet.length, "Tried to set member by name but no member string was gi
                     {
                         // Silently ignore AAs for now
                     }
+                    else static if (isPointer!T)
+                    {
+                        // Ditto for pointers
+                    }
                     else static if (is(T == bool))
                     {
                         import std.uni : toLower;
@@ -311,6 +316,7 @@ unittest
     {
         string bar;
         int baz;
+        float* f;
 
         @Separator("|")
         @Separator(" ")
