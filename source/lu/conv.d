@@ -437,6 +437,9 @@ void toAlphaInto(size_t maxDigits = 19, uint leadingZeroes = 0, Num, Sink)
     (const Num num, auto ref Sink sink)
 if (isIntegral!Num && isOutputRange!(Sink, char[]))
 {
+    static assert((maxDigits >= leadingZeroes), "Cannot pass more leading zeroes " ~
+        "than max digits to `toAlphaInto`");
+
     if (num == 0)
     {
         static if (leadingZeroes > 0)
