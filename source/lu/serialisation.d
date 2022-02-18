@@ -416,6 +416,7 @@ let def`;
 
 @safe:
 
+
 // deserialise
 /++
     Takes an input range containing serialised entry-value text and applies the
@@ -1002,6 +1003,7 @@ string justifiedEntryValueText(const string origLines) pure
     return justified.data;
 }
 
+///
 unittest
 {
     import std.algorithm.iteration : splitter;
