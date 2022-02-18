@@ -167,70 +167,48 @@ if (isOutputRange!(Sink, char[]) && isAggregateType!QualThing)
 
             static if (!isSomeString!T && isArray!T)
             {
-                import std.traits : getUDAs, hasUDA;
-
-                // array, join it together
+                import lu.traits : UnqualArray;
+                import std.traits : getUDAs;
 
                 static if (hasUDA!(thing.tupleof[i], Separator))
                 {
                     alias separators = getUDAs!(thing.tupleof[i], Separator);
                     enum separator = separators[0].token;
 
-                    static assert(separator.length, ("`%s.%s` is annotated with an " ~
-                        "invalid `Separator` (empty)")
-                        .format(Thing.stringof, memberstring));
+                    static if (!separator.length)
+                    {
+                        enum pattern = "`%s.%s` is annotated with an invalid `Separator` (empty)";
+                        static assert(0, pattern.format(Thing.stringof, memberstring));
+                    }
                 }
                 else static if ((__VERSION__ >= 2087L) && hasUDA!(thing.tupleof[i], string))
                 {
                     alias separators = getUDAs!(thing.tupleof[i], string);
                     enum separator = separators[0];
 
-                    static assert(separator.length, ("`%s.%s` is annotated with an " ~
-                        "empty separator string")
-                        .format(Thing.stringof, memberstring));
-                }
-                else
-                {
-                    static assert (0, "`%s.%s` is not annotated with a `Separator`"
-                        .format(Thing.stringof, memberstring));
-                }
-
-                enum arrayPattern = "%-(%s" ~ separator ~ "%)";
-
-                static if (is(typeof(member) == string[]))
-                {
-                    string value;
-
-                    if (member.length)
+                    static if (!separator.length)
                     {
-                        import std.algorithm.iteration : map;
-                        import std.array : replace;
-
-                        enum escaped = '\\' ~ separator;
-                        enum placeholder = "\0\0";  // anything really
-
-                        // Replace separators with a placeholder and flatten with format
-
-                        auto separatedElements = member.map!(a => a.replace(separator, placeholder));
-                        value = arrayPattern
-                            .format(separatedElements)
-                            .replace(placeholder, escaped);
-
-                        static if (separators.length > 1)
-                        {
-                            foreach (immutable furtherSeparator; separators[1..$])
-                            {
-                                // We're serialising; escape any other separators
-                                enum furtherEscaped = '\\' ~ furtherSeparator.token;
-                                value = value.replace(furtherSeparator.token, furtherEscaped);
-                            }
-                        }
+                        enum pattern = "`%s.%s` is annotated with an empty separator string";
+                        static assert(0, pattern.format(Thing.stringof, memberstring));
                     }
                 }
                 else
                 {
-                    immutable value = arrayPattern.format(member);
+                    enum pattern = "`%s.%s` is not annotated with a `Separator`";
+                    static assert (0, pattern.format(Thing.stringof, memberstring));
                 }
+
+                alias TA = UnqualArray!(typeof(member));
+
+                enum arrayPattern = "%-(%s" ~ separator ~ "%)";
+                enum escapedSeparator = '\\' ~ separator;
+
+                UDAs udas;
+                udas.separator = separator;
+                udas.arrayPattern = arrayPattern;
+                udas.escapedSeparator = escapedSeparator;
+
+                immutable value = serialiseArrayImpl!TA(thing.tupleof[i], udas);
             }
             else static if (is(T == enum))
             {
@@ -239,7 +217,7 @@ if (isOutputRange!(Sink, char[]) && isAggregateType!QualThing)
             }
             else
             {
-                immutable value = member;
+                auto value = member;
             }
 
             import std.range : hasLength;
@@ -278,12 +256,14 @@ if (isOutputRange!(Sink, char[]) && isAggregateType!QualThing)
 
                 static if (isSomeString!T && hasUDA!(thing.tupleof[i], Quoted))
                 {
-                    sink.formattedWrite("%s \"%s\"", memberstring, value);
+                    enum pattern = `%s "%s"`;
                 }
                 else
                 {
-                    sink.formattedWrite("%s %s", memberstring, value);
+                    enum pattern = "%s %s";
                 }
+
+                sink.formattedWrite(pattern, memberstring, value);
             }
         }
     }
@@ -308,11 +288,12 @@ unittest
         string bazzzzzzz = "foo 1";
         @Quoted flerrp = "hirr steff  ";
         double pi = 3.14159;
-        @Separator(",") arr = [ 1, 2, 3 ];
+        @Separator(",") int[] arr = [ 1, 2, 3 ];
+        @Separator(";") string[] harbl = [ "harbl;;", ";snarbl;", "dirp" ];
 
         static if (__VERSION__ >= 2087L)
         {
-            @("|") matey = [ "a", "b", "c" ];
+            @("|") string[] matey = [ "a", "b", "c" ];
         }
     }
 
@@ -335,6 +316,7 @@ bazzzzzzz foo 1
 flerrp "hirr steff  "
 pi 3.14159
 arr 1,2,3
+harbl harbl\;\;;\;snarbl\;;dirp
 matey a|b|c`;
     }
     else
@@ -346,7 +328,8 @@ bar foo 1
 bazzzzzzz foo 1
 flerrp "hirr steff  "
 pi 3.14159
-arr 1,2,3`;
+arr 1,2,3
+harbl harbl\;\;;\;snarbl\;;dirp`;
     }
 
     Appender!(char[]) fooSink;
@@ -412,6 +395,99 @@ let def`;
     assert((enumTestSink.data == enumTestSerialised), '\n' ~ enumTestSink.data);
 }
 
+
+// UDAs
+/++
+    Summary of UDAs that an array to be serialised is annotated with.
+
+    UDAs do not persist across function calls, so they must be summarised
+    (such as in a struct like this) and separately passed, at compile-time or runtime.
+ +/
+private struct UDAs
+{
+    /++
+        Whether or not the member was annotated [lu.uda.Unserialisable].
+     +/
+    bool unserialisable;
+
+    /++
+        Whether or not the member was annotated with a [lu.uda.Separator].
+     +/
+    string separator;
+
+    /++
+        The escaped form of [separator].
+
+        ---
+        enum escapedSeparator = '\\' ~ separator;
+        ---
+     +/
+    string escapedSeparator;
+
+    /++
+        The [std.format.format] pattern used to format the array this struct
+        refers to. This is separator-specific.
+
+        ---
+        enum arrayPattern = "%-(%s" ~ separator ~ "%)";
+        ---
+     +/
+    string arrayPattern;
+}
+
+
+// serialiseArrayImpl
+/++
+    Serialises a non-string array into a single row. To be used when serialising
+    an aggregate with [serialise].
+
+    Since UDAs do not persist across function calls, they must be summarised
+    in an [UDAs] struct separately so we can pass them at runtime.
+
+    Params:
+        array = Array to serialise.
+        udas = Aggregate of UDAs the original array was annotated with, passed as
+            a runtime value.
+
+    Returns:
+        A string, to be saved as a serialised row in an .ini file-like format.
+ +/
+private string serialiseArrayImpl(T)(const auto ref T array, const UDAs udas)
+{
+    import std.format : format, formattedWrite;
+    import std.traits : getUDAs, hasUDA;
+
+    static if (is(T == string[]))
+    {
+        /+
+            Strings must be formatted differently since the specified separator
+            can occur naturally in the string.
+         +/
+        string value;
+
+        if (array.length)
+        {
+            import std.algorithm.iteration : map;
+            import std.array : replace;
+
+            enum placeholder = "\0\0";  // anything really
+
+            // Replace separator with a placeholder and flatten with format
+            // enum arrayPattern = "%-(%s" ~ separator ~ "%)";
+
+            auto separatedElements = array.map!(a => a.replace(udas.separator, placeholder));
+            value = udas.arrayPattern
+                .format(separatedElements)
+                .replace(placeholder, udas.escapedSeparator);
+        }
+    }
+    else
+    {
+        immutable value = udas.arrayPattern.format(array);
+    }
+
+    return value;
+}
 
 
 @safe:
