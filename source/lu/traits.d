@@ -361,9 +361,11 @@ unittest
 // TakesParams
 /++
     Given a function and a tuple of types, evaluates whether that function could
-    be called with that tuple as parameters. Qualifiers like `const` and
-    `immutable` are skipped, which may make it a poor choice if dealing with
-    functions that require such arguments.
+    be called with that tuple as parameters. Alias version (works on functions,
+    not function types.)
+
+    Qualifiers like `const` and`immutable` are skipped, which may make it a poor
+    choice if dealing with functions that require such arguments.
 
     It is merely syntactic sugar, using [std.meta] and [std.traits] behind the scenes.
 
@@ -418,6 +420,80 @@ unittest
     static assert(!TakesParams!(foo, string));
     static assert(!TakesParams!(foo1, string, int));
     static assert(!TakesParams!(foo2, bool, bool, bool));
+}
+
+
+// TakesParams
+/++
+    Given a function and a tuple of types, evaluates whether that function could
+    be called with that tuple as parameters. Non-alias version (works on types).
+
+    Qualifiers like `const` and `immutable` are skipped, which may make it a
+    poor choice if dealing with functions that require such arguments.
+
+    It is merely syntactic sugar, using [std.meta] and [std.traits] behind the scenes.
+
+    Example:
+    ---
+    void noParams();
+    bool boolParam(bool);
+    string stringParam(string);
+    float floatParam(float);
+
+    alias N = typeof(noParams);
+    alias B = typeof(boolParam);
+    alias S = typeof(stringParam);
+    alias F = typeof(floatParam);
+
+    static assert(TakesParams!N);
+    static assert(TakesParams!(B, bool));
+    static assert(TakesParams!(S, string));
+    static assert(TakesParams!(F, float));
+    ---
+
+    Params:
+        Fun = Type of function to evaluate the parameters of.
+        P = Variadic list of types to compare `Fun` function parameters with.
+ +/
+template TakesParams(Fun, P...)
+if (isSomeFunction!Fun)
+{
+    import std.traits : Parameters, Unqual, staticMap;
+
+    alias FunParams = staticMap!(Unqual, Parameters!Fun);
+    alias PassedParams = staticMap!(Unqual, P);
+
+    static if (is(FunParams : PassedParams))
+    {
+        enum TakesParams = true;
+    }
+    else
+    {
+        enum TakesParams = false;
+    }
+}
+
+///
+unittest
+{
+    void foo();
+    void foo1(string);
+    void foo2(string, int);
+    void foo3(bool, bool, bool);
+
+    alias F = typeof(foo);
+    alias F1 = typeof(foo1);
+    alias F2 = typeof(foo2);
+    alias F3 = typeof(foo3);
+
+    static assert(TakesParams!F);//, AliasSeq!()));
+    static assert(TakesParams!(F1, string));
+    static assert(TakesParams!(F2, string, int));
+    static assert(TakesParams!(F3, bool, bool, bool));
+
+    static assert(!TakesParams!(F, string));
+    static assert(!TakesParams!(F1, string, int));
+    static assert(!TakesParams!(F2, bool, bool, bool));
 }
 
 
