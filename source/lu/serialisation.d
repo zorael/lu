@@ -203,7 +203,7 @@ if (isOutputRange!(Sink, char[]) && isAggregateType!QualThing)
                 enum arrayPattern = "%-(%s" ~ separator ~ "%)";
                 enum escapedSeparator = '\\' ~ separator;
 
-                UDAs udas;
+                SerialisationUDAs udas;
                 udas.separator = separator;
                 udas.arrayPattern = arrayPattern;
                 udas.escapedSeparator = escapedSeparator;
@@ -396,14 +396,14 @@ let def`;
 }
 
 
-// UDAs
+// SerialisationUDAs
 /++
     Summary of UDAs that an array to be serialised is annotated with.
 
     UDAs do not persist across function calls, so they must be summarised
     (such as in a struct like this) and separately passed, at compile-time or runtime.
  +/
-private struct UDAs
+private struct SerialisationUDAs
 {
     /++
         Whether or not the member was annotated [lu.uda.Unserialisable].
@@ -452,7 +452,7 @@ private struct UDAs
     Returns:
         A string, to be saved as a serialised row in an .ini file-like format.
  +/
-private string serialiseArrayImpl(T)(const auto ref T array, const UDAs udas)
+private string serialiseArrayImpl(T)(const auto ref T array, const SerialisationUDAs udas)
 {
     import std.format : format, formattedWrite;
     import std.traits : getUDAs, hasUDA;
