@@ -52,7 +52,7 @@ jobs:
       if: matrix.dc == 'dmd-latest' && matrix.os == 'ubuntu-latest' && success()
       run: |
         dub fetch adrdox
-        dub run adrdox -- -ip --header-title="kameloso IRC bot" source
+        dub run adrdox -- -ip --header-title="lu" source
         cp -rv .circleci generated-docs
 
     - name: 'Deploy documentation to GitHub Pages'
