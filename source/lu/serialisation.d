@@ -109,8 +109,9 @@ if ((Things.length > 1) && isOutputRange!(Sink, char[]) &&
 /++
     Serialises the fields of an object into an .ini file-like format.
 
-    It only serialises fields not annotated with [lu.uda.Unserialisable],
-    and it doesn't recurse into other structs or classes.
+    It only serialises fields not annotated with
+    [lu.uda.Unserialisable|Unserialisable], and it doesn't recurse into other
+    structs or classes.
 
     Example:
     ---
@@ -128,7 +129,8 @@ if ((Things.length > 1) && isOutputRange!(Sink, char[]) &&
     ---
 
     Params:
-        sink = Reference output range to write to, usually an [std.array.Appender].
+        sink = Reference output range to write to, usually an
+            [std.array.Appender|Appender].
         thing = Object to serialise.
  +/
 void serialise(Sink, QualThing)(auto ref Sink sink, auto ref QualThing thing)
@@ -406,12 +408,12 @@ let def`;
 private struct SerialisationUDAs
 {
     /++
-        Whether or not the member was annotated [lu.uda.Unserialisable].
+        Whether or not the member was annotated [lu.uda.Unserialisable|Unserialisable].
      +/
     bool unserialisable;
 
     /++
-        Whether or not the member was annotated with a [lu.uda.Separator].
+        Whether or not the member was annotated with a [lu.uda.Separator|Separator].
      +/
     string separator;
 
@@ -425,7 +427,7 @@ private struct SerialisationUDAs
     string escapedSeparator;
 
     /++
-        The [std.format.format] pattern used to format the array this struct
+        The [std.format.format|format] pattern used to format the array this struct
         refers to. This is separator-specific.
 
         ---
@@ -442,7 +444,7 @@ private struct SerialisationUDAs
     an aggregate with [serialise].
 
     Since UDAs do not persist across function calls, they must be summarised
-    in an [UDAs] struct separately so we can pass them at runtime.
+    in a [SerialisationUDAs] struct separately so we can pass them at runtime.
 
     Params:
         array = Array to serialise.

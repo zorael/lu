@@ -49,7 +49,7 @@ public:
     string up to that point, and advances the passed string by ref to after the token.
 
     The naming is in line with standard library functions such as
-    [std.string.munch], [std.file.slurp] and others.
+    [std.string.munch|munch], [std.file.slurp|slurp] and others.
 
     Example:
     ---
@@ -268,7 +268,7 @@ unittest
     string up to that point, and advances the passed string by ref to after the token.
 
     The naming is in line with standard library functions such as
-    [std.string.munch], [std.file.slurp] and others.
+    [std.string.munch|munch], [std.file.slurp|slurp] and others.
 
     Overload that takes an extra `Flag!"inherit"` template parameter, to toggle
     whether the return value inherits the passed line (and clearing it) upon no
@@ -424,14 +424,14 @@ unittest
 /++
     Exception, to be thrown when a call to [nom] went wrong.
 
-    It is a normal [object.Exception] but with an attached needle and haystack.
+    It is a normal [object.Exception|Exception] but with an attached needle and haystack.
  +/
 abstract class NomException : Exception
 {
-    /// Returns a string of the original haystack the call to `nom` was operating on.
+    /// Returns a string of the original haystack the call to [nom] was operating on.
     string haystack();
 
-    /// Returns a string of the original needle the call to `nom` was operating on.
+    /// Returns a string of the original needle the call to [nom] was operating on.
     string needle();
 
     /// Create a new [NomExceptionImpl], without attaching anything.
@@ -452,7 +452,7 @@ abstract class NomException : Exception
     This is the templated implementation, so that we can support more than one
     kind of needle and haystack combination.
 
-    It is a normal [object.Exception] but with an attached needle and haystack.
+    It is a normal [object.Exception|Exception] but with an attached needle and haystack.
 
     Params:
         T = Haystack type (`string`, `wstring` or `dstring`).
@@ -563,7 +563,8 @@ unittest
     Removes paired preceding and trailing tokens around a string line.
     Assumes ASCII.
 
-    You should not need to use this directly; rather see [unquoted] and [unsinglequoted].
+    You should not need to use this directly; rather see [unquoted] and
+    [unsinglequoted].
 
     Params:
         token = Token character to strip away.
@@ -678,8 +679,8 @@ unittest
 
 // beginsWith
 /++
-    A cheaper variant of [std.algorithm.searching.startsWith], since this is
-    such a hotspot.
+    A cheaper variant of [std.algorithm.searching.startsWith|startsWith], since
+    this can be such a hotspot.
 
     Merely slices; does not decode the string and may thus give weird results on
     weird inputs.
@@ -1083,7 +1084,8 @@ sit amet
 // contains
 /++
     Checks a string to see if it contains a given substring or character.
-    Leverages [std.string.indexOf] and [std.algorithm.searching.countUntil].
+    Leverages [std.string.indexOf|indexOf] and
+    [std.algorithm.searching.countUntil|countUntil].
 
     Merely slices; this is not UTF-8 safe. It is naïve in how it thinks a string
     always correspond to one set of codepoints and one set only.
@@ -1612,8 +1614,8 @@ unittest
 /++
     Base64-encodes a string.
 
-    Merely wraps [std.base64.Base64.encode] and [std.string.representation]
-    into one function that will work with strings.
+    Merely wraps [std.base64.Base64.encode|Base64.encode] and
+    [std.string.representation] into one function that will work with strings.
 
     Params:
         line = String line to encode.
@@ -1652,8 +1654,8 @@ unittest
 /++
     Base64-decodes a string.
 
-    Merely wraps [std.base64.Base64.decode] and [std.string.representation]
-    into one function that will work with strings.
+    Merely wraps [std.base64.Base64.decode|Base64.decode] and
+    [std.string.representation] into one function that will work with strings.
 
     Params:
         encoded = Encoded string to decode.
@@ -1918,7 +1920,7 @@ unittest
 
 // removeControlCharacters
 /++
-    Removes the control characters '\n', '\t', '\r' and '\0' from a string.
+    Removes the control characters `'\n'`, `'\t'`, `'\r'` and `'\0'` from a string.
     Does not allocate a new string if there was nothing to remove.
 
     Params:

@@ -34,7 +34,7 @@
     // Prints keys in sorted order.
     json.serialiseInto!(JSONStorage.KeyOrderStrategy.sorted)(stdout.lockingTextWriter)
 
-    // Use a [std.array.Appender] to serialise into a string.
+    // Use a [std.array.Appender|Appender] to serialise into a string.
 
     // Adding and removing values still needs the same dance as with std.json.
     // Room for future improvement.
@@ -58,7 +58,7 @@ public:
 
 // JSONStorage
 /++
-    A wrapped [std.json.JSONValue] with helper functions.
+    A wrapped [std.json.JSONValue|JSONValue] with helper functions.
 
     Example:
     ---
@@ -79,7 +79,7 @@ struct JSONStorage
 {
     import std.json : JSONValue, parseJSON;
 
-    /// The underlying [std.json.JSONValue] storage of this [JSONStorage].
+    /// The underlying [std.json.JSONValue|JSONValue] storage of this [JSONStorage].
     JSONValue storage;
 
     alias storage this;
@@ -91,7 +91,8 @@ struct JSONStorage
     enum KeyOrderStrategy
     {
         /++
-            Order is as [std.json.JSONValue.toPrettyString] formats it.
+            Order is as [std.json.JSONValue.toPrettyString|JSONValue.toPrettyString]
+            formats it.
          +/
         passthrough,
         sorted,   /// Sorted by key.
@@ -108,7 +109,8 @@ struct JSONStorage
 
     // reset
     /++
-        Initialises and clears the [std.json.JSONValue], preparing it for object storage.
+        Initialises and clears the [std.json.JSONValue|JSONValue], preparing
+        it for object storage.
      +/
     void reset() @safe pure nothrow @nogc
     {
@@ -120,13 +122,16 @@ struct JSONStorage
         Loads JSON from disk.
 
         In the case where the file doesn't exist or is otherwise invalid, then
-        [std.json.JSONValue] is initialised to null (by way of [JSONStorage.reset]).
+        [std.json.JSONValue|JSONValue] is initialised to null (by way of
+        [JSONStorage.reset]).
 
         Params:
             filename = Filename of file to read from.
 
         Throws:
-            Whatever [std.file.readText] and/or [std.json.parseJSON] throws.
+            Whatever [std.file.readText|readText] and/or
+            [std.json.parseJSON|parseJSON] throws.
+
             [lu.common.FileTypeMismatchException] if the filename exists
             but is not a file.
      +/
@@ -158,7 +163,7 @@ struct JSONStorage
         Saves the JSON storage to disk. Formatting is done as specified by the
         passed [KeyOrderStrategy] argument.
 
-        Merely leverages [serialiseInto] and [std.stdio.writeln].
+        Merely leverages [serialiseInto] and [std.stdio.writeln|writeln].
 
         Params:
             strategy = Key order strategy in which to sort object-type JSON keys.
@@ -253,8 +258,8 @@ struct JSONStorage
         Formats an object-type JSON storage into an output range sink.
 
         Top-level keys are sorted as per the passed [KeyOrderStrategy]. This
-        overload is specialised for strategies other than [KeyOrderStrategy.inGivenOrder],
-        and as such takes one parameter fewer.
+        overload is specialised for strategies other than
+        [KeyOrderStrategy.inGivenOrder], and as such takes one parameter fewer.
 
         Params:
             strategy = Order strategy in which to sort top-level keys.
@@ -459,22 +464,23 @@ private import std.typecons : Flag, No, Yes;
 // populateFromJSON
 /++
     Recursively populates a passed associative or dynamic array with the
-    contents of a [std.json.JSONValue].
+    contents of a [std.json.JSONValue|JSONValue].
 
     This is used where we want to store information on disk but keep it in
-    memory without the overhead of dealing with [std.json.JSONValue]s.
+    memory without the overhead of dealing with [std.json.JSONValue|JSONValue]s.
 
-    Note: This only works with [std.json.JSONValue]s that conform to arrays and
-    associative arrays, not such that mix element/value types.
+    Note: This only works with [std.json.JSONValue|JSONValue]s that conform to
+    arrays and associative arrays, not such that mix element/value types.
 
     Params:
         target = Reference to target array or associative array to write to.
-        json = Source [std.json.JSONValue] to sync the contents with.
+        json = Source [std.json.JSONValue|JSONValue] to sync the contents with.
         lowercaseKeys = Whether or not to save string keys in lowercase.
         lowercaseValues = Whether or not to save final string values in lowercase.
 
     Throws:
-        [object.Exception] if the passed [std.json.JSONValue] had unexpected types.
+        [object.Exception|Exception] if the passed [std.json.JSONValue|JSONValue]
+        had unexpected types.
  +/
 void populateFromJSON(T)(ref T target, const JSONValue json,
     const Flag!"lowercaseKeys" lowercaseKeys = No.lowercaseKeys,

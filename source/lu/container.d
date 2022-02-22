@@ -45,8 +45,8 @@ public:
 
 // Buffer
 /++
-    Simple buffer/queue for storing and fetching items of any type `T`. Does not use
-    manual memory allcation.
+    Simple buffer/queue for storing and fetching items of any type `T`.
+    Does not use manual memory allcation.
 
     It can use a static array internally to store elements on the stack, which
     imposes a hard limit on how many items can be added, or a dynamic heap one
@@ -236,7 +236,8 @@ pure nothrow:
         to zero it out.
 
         Returns:
-            `true` if there are items available to get via `front`, `false` if not.
+            `true` if there are items available to get via `front`,
+            `false` if not.
      +/
     bool empty() const @nogc
     {

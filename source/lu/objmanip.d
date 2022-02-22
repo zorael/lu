@@ -73,9 +73,9 @@ public:
     Returns:
         `true` if a member was found and set, `false` if not.
 
-    Throws: [std.conv.ConvException] if a string could not be converted into an
-        array, if a passed string could not be converted into a bool, or if
-        [std.conv.to] failed to convert a string into wanted type T.
+    Throws: [std.conv.ConvException|ConvException] if a string could not be
+        converted into an array, if a passed string could not be converted into
+        a bool, or if [std.conv.to] failed to convert a string into wanted type `T`.
  +/
 bool setMemberByName(Thing)(ref Thing thing, const string memberToSet, const string valueToSet)
 if (isAggregateType!Thing && isMutable!Thing)
@@ -618,8 +618,8 @@ unittest
 /++
     Exception, to be thrown when [setMemberByName] fails for some given reason.
 
-    It is a normal [object.Exception] but with attached strings of the type name,
-    name of member and the value that was attempted to set.
+    It is a normal [object.Exception|Exception] but with attached strings of
+    the type name, name of member and the value that was attempted to set.
  +/
 final class SetMemberException : Exception
 {

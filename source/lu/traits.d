@@ -554,7 +554,8 @@ unittest
 /++
     True if a type is `string`, `dstring` or `wstring`; otherwise false.
 
-    Does not consider e.g. `char[]` a string, as [std.traits.isSomeString] does.
+    Does not consider e.g. `char[]` a string, as
+    [std.traits.isSomeString|isSomeString] does.
 
     Params:
         S = String type to introspect.
@@ -777,11 +778,11 @@ static if ((__VERSION__ == 2088L) || (__VERSION__ == 2089L))
 {
     // getSymbolsByUDA
     /++
-        Provide a non-2.088, non-2.089 [std.traits.getSymbolsByUDA].
+        Provide a non-2.088, non-2.089 [std.traits.getSymbolsByUDA|getSymbolsByUDA].
 
-        The [std.traits.getSymbolsByUDA] in 2.088/2.089 is completely broken by having
-        inserted a constraint to force it to only work on aggregates, which a module
-        apparently isn't.
+        The [std.traits.getSymbolsByUDA|getSymbolsByUDA] in 2.088/2.089 is
+        completely broken by having inserted a constraint to force it to only
+        work on aggregates, which a module apparently isn't.
      +/
     template getSymbolsByUDA(alias symbol, alias attribute)
     //if (isAggregateType!symbol)  // <--
@@ -804,7 +805,7 @@ static if ((__VERSION__ == 2088L) || (__VERSION__ == 2089L))
 
     // getSymbolsByUDAImpl
     /++
-        Implementation of [std.traits.getSymbolsByUDA], copy/pasted.
+        Implementation of [std.traits.getSymbolsByUDA|getSymbolsByUDA], copy/pasted.
      +/
     private template getSymbolsByUDAImpl(alias symbol, alias attribute, names...)
     {

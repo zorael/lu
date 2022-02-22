@@ -18,11 +18,30 @@ public:
  +/
 enum Next
 {
-    continue_,     /// Keep doing whatever is being done, alternatively continue on to the next step.
-    retry,         /// Halt what's being done and give it another attempt.
-    returnSuccess, /// Exit or return with a positive return value.
-    returnFailure, /// Exit or abort with a negative return value.
-    crash,         /// Fatally abort.
+    /++
+        Keep doing whatever is being done, alternatively continue on to the next step.
+     +/
+    continue_,
+
+    /++
+        Halt what's being done and give it another attempt.
+     +/
+    retry,
+
+    /++
+        Exit or return with a positive return value.
+     +/
+    returnSuccess,
+
+    /++
+        Exit or abort with a negative return value.
+     +/
+    returnFailure,
+
+    /++
+        Fatally abort.
+     +/
+    crash,
 }
 
 
@@ -30,7 +49,8 @@ enum Next
 /++
     Exception, to be thrown when an executed command returns an error value.
 
-    It is a normal [object.Exception] but with an attached command and return value.
+    It is a normal [object.Exception|Exception] but with an attached command
+    and return value.
  +/
 final class ReturnValueException : Exception
 {
@@ -81,7 +101,7 @@ final class ReturnValueException : Exception
     Exception, to be thrown when attempting to create a file or directory and
     finding that one already exists with the same name.
 
-    It is a normal [object.Exception] but with an attached filename string.
+    It is a normal [object.Exception|Exception] but with an attached filename string.
  +/
 final class FileExistsException : Exception
 {
@@ -116,8 +136,9 @@ final class FileExistsException : Exception
     Exception, to be thrown when attempting to access a file or directory and
     finding that something with the that name exists, but is of an unexpected type.
 
-    It is a normal [object.Exception] but with an embedded filename string, and an uint
-    representing the existing file's type (file, directory, symlink, ...).
+    It is a normal [object.Exception|Exception] but with an embedded filename
+    string, and an uint representing the existing file's type (file, directory,
+    symlink, ...).
  +/
 final class FileTypeMismatchException : Exception
 {
@@ -170,7 +191,8 @@ final class FileTypeMismatchException : Exception
     Params:
         one = First domain string.
         other = Second domain string.
-        caseSensitive = Whether or not comparison should be done on a case-sensitive basis.
+        caseSensitive = Whether or not comparison should be done on a
+            case-sensitive basis.
 
     Returns:
         The number of domains the two strings share.

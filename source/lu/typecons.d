@@ -12,13 +12,15 @@ public:
 
 // Imprint
 /++
-    Mixin that copies all normal value types of a passed aggregate type into the mixin site scope.
+    Mixin that copies all normal value types of a passed aggregate type into
+    the mixin site scope.
 
-    Default values are carried over with structs, but not with classes and interfaces
-    (as `T.init` is a valid value for structs but `null` in the case of classes).
+    Default values are carried over with structs, but not with classes and
+    interfaces (as `T.init` is a valid value for structs but `null` in the case
+    of classes).
 
-    Deliberately does not enforce a mixin constraint, so as to be useful if someone
-    ever wants to copy an aggregate's fields into a function.
+    Deliberately does not enforce a mixin constraint, so as to be useful if
+    someone ever wants to copy an aggregate's fields into a function.
 
     Examples:
     ---
@@ -100,7 +102,7 @@ unittest
     static assert(Derived.init.b == false);
 }
 
-
+// For the above unittests to work.
 version(unittest)
 {
     /// For unittests.

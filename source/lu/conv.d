@@ -72,7 +72,7 @@ if (is(E == enum))
             The enum member whose name matches the enumstring string (not whose
             *value* matches the string).
 
-        Throws: [std.conv.ConvException] if no matching enum member with the
+        Throws: [std.conv.ConvException|ConvException] if no matching enum member with the
             passed name could be found.
 
         Bugs:
@@ -211,12 +211,12 @@ unittest
 
     Params:
         hex = Hexadecimal number in string form.
-        acceptLowercase = Flag of whether or not to accept rrggbb in lowercase form.
+        acceptLowercase = Flag of whether or not to accept `rrggbb` in lowercase form.
 
     Returns:
         An integer equalling the value of the passed hexadecimal string.
 
-    Throws: [std.conv.ConvException] if the hex string was malformed.
+    Throws: [std.conv.ConvException|ConvException] if the hex string was malformed.
  +/
 uint numFromHex(const string hex,
     const Flag!"acceptLowercase" acceptLowercase = No.acceptLowercase) pure
@@ -284,7 +284,8 @@ out (total; (total < 16^^hex.length), "`numFromHex` output is too large")
         r = Out-reference integer for the "red" part of the hex string.
         g = Out-reference integer for the "green" part of the hex string.
         b = Out-reference integer for the "blue" part of the hex string.
-        acceptLowercase = Whether or not to accept the rrggbb string in lowercase letters.
+        acceptLowercase = Whether or not to accept the rrggbb string in
+            lowercase letters.
  +/
 deprecated("Use `lu.conv.rgbFromHex` instead")
 void numFromHex(const string hexString, out int r, out int g, out int b,
@@ -352,7 +353,8 @@ unittest
 
     Params:
         hexString = Hexadecimal number (colour) in string form.
-        acceptLowercase = Whether or not to accept the rrggbb string in lowercase letters.
+        acceptLowercase = Whether or not to accept the `rrggbb` string in
+            lowercase letters.
 
     Returns:
         A Voldemort struct with `r`, `g` and `b` members,
