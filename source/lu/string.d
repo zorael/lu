@@ -86,7 +86,7 @@ T nom(Flag!"decode" decode = No.decode, T, C)
     (auto ref T haystack,
     const C needle,
     const string callingFile = __FILE__,
-    const size_t callingLine = __LINE__) pure @nogc
+    const size_t callingLine = __LINE__) /*pure @nogc*/
 if (isMutable!T && isSomeString!T && (is(C : T) || is(C : ElementType!T) || is(C : ElementEncodingType!T)))
 in
 {
@@ -313,7 +313,7 @@ T nom(Flag!"inherit" inherit, Flag!"decode" decode = No.decode, T, C)
     (auto ref T haystack,
     const C needle,
     const string callingFile = __FILE__,
-    const size_t callingLine = __LINE__) pure @nogc
+    const size_t callingLine = __LINE__) /*pure @nogc*/
 if (isMutable!T && isSomeString!T && (is(C : T) || is(C : ElementType!T) || is(C : ElementEncodingType!T)))
 in
 {
@@ -754,7 +754,7 @@ unittest
         `true` if the first character of `haystack` is also in `needles`,
         `false` if not.
  +/
-bool beginsWithOneOf(T, C)(const T haystack, const C needles) pure nothrow @nogc
+bool beginsWithOneOf(T, C)(const T haystack, const C needles) /*pure nothrow @nogc*/
 if (is(C : T) || is(C : ElementEncodingType!T) || is(T : ElementEncodingType!C))
 {
     import std.range.primitives : hasLength;
@@ -1107,7 +1107,7 @@ sit amet
         Whether or not the passed `haystack` string contained the passed `needle`
         substring or token.
  +/
-bool contains(Flag!"decode" decode = No.decode, T, C)(const T haystack, const C needle) pure nothrow @nogc
+bool contains(Flag!"decode" decode = No.decode, T, C)(const T haystack, const C needle) /*pure nothrow @nogc*/
 if (isSomeString!T && (isSomeString!C || (is(C : T) || is(C : ElementType!T) ||
     is(C : ElementEncodingType!T))))
 {
