@@ -3,7 +3,7 @@ description "Library of reusable miscellanea"
 authors "JR"
 copyright "Copyright © 2021, JR"
 homepage "https://www.github.com/zorael/lu"
-license "MIT"
+license "BSL-1.0"
 
 targetType "library"
 dflags "-dip25" "-dip1008"
