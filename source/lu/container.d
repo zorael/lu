@@ -369,3 +369,277 @@ unittest
         assert(buffer.buf == typeof(buffer.buf).init);
     }
 }
+
+
+// CircularBuffer
+/++
+    Simple circular-ish buffer for storing items of type `T` that discards elements
+    when the maximum size is reached. Does not use manual memory allocation.
+
+    It can use a static array internally to store elements on the stack, which
+    imposes a hard limit on how many items can be added, or a dynamic heap one
+    with a resizable buffer.
+
+    Example:
+    ---
+    CircularBuffer!(int, Yes.dynamic) buf;
+    buf.resize(3);
+    buf.put(1);
+    buf.put(2);
+    buf.put(3);
+    but.put(4);
+    assert(buf.front == 4);
+    assert(buf.buf == [ 4, 2, 3 ]);
+    ---
+
+    Params:
+        T = Buffer item type.
+        dynamic = Whether to use a dynamic array whose size can be grown at
+            runtime, or to use a static array with a fixed size. Trying to add
+            more elements than there is room for will wrap around and discard elements.
+            Defaults to `No.dynamic`; a static buffer.
+        originalSize = How many items to allocate space for in the case of a
+            static array.
+ +/
+struct CircularBuffer(T, Flag!"dynamic" dynamic = No.dynamic, size_t originalSize = 16)
+if (originalSize > 0)
+{
+private:
+    static if (dynamic)
+    {
+        // buf
+        /++
+            Internal buffer dynamic array.
+         +/
+        T[] buf;
+    }
+    else
+    {
+        // buf
+        /++
+            Internal buffer static array.
+         +/
+        T[originalSize] buf;
+    }
+
+    // head
+    /++
+        Head position in the internal buffer.
+     +/
+    size_t head;
+
+    // tail
+    /++
+        Tail position in the internal buffer.
+     +/
+    size_t tail;
+
+    // caughtUp
+    /++
+        Whether or not [head] and [tail] point to the same position in the
+        context of a circular array.
+     +/
+    bool caughtUp;
+
+    // initialised
+    /++
+        Whether or not at least one element has been added.
+     +/
+    bool initialised;
+
+public:
+    // front
+    /++
+        Returns the front element.
+
+        Returns:
+            An item T.
+     +/
+    auto front()
+    in ((buf.length > 0), "Tried to get `front` from an unresized " ~ typeof(this).stringof)
+    {
+        return buf[head];
+    }
+
+    // put
+    /++
+        Append an item to the buffer.
+
+        If it would be put beyond the end of the buffer, it will wrap around and
+        truncate old values.
+
+        Params:
+            item = Item to add.
+     +/
+    void put(T item) pure @safe @nogc nothrow
+    in ((buf.length > 0), "Tried to `put` something into an unresized " ~ typeof(this).stringof)
+    {
+        if (initialised) ++head %= buf.length;
+        buf[head] = item;
+        tail = head;
+        caughtUp = true;
+        initialised = true;
+    }
+
+    // popFront
+    /++
+        Advances the current position to the next item in the buffer.
+     +/
+    void popFront() pure @safe @nogc nothrow
+    in ((buf.length > 0), "Tried to `popFront` an unresized " ~ typeof(this).stringof)
+    in (!empty, "Tried to `popFront` an empty " ~ typeof(this).stringof)
+    {
+        if (head == 0)
+        {
+            head = (buf.length + (-1));
+            caughtUp = false;
+        }
+        else
+        {
+            --head;
+        }
+    }
+
+    static if (dynamic)
+    {
+        // resize
+        /++
+            Resizes the internal buffer to a specified size.
+
+            Params:
+                size = New size.
+         +/
+        void resize(const size_t size) pure @safe nothrow
+        {
+            buf.length = size;
+            if (head >= buf.length) head = buf.length +(-1);
+            if (tail >= buf.length) tail = buf.length +(-1);
+        }
+    }
+
+    // opOpAssign
+    /++
+        Implements `buf ~= someT` (appending) by wrapping `put`.
+
+        Params:
+            op = Operation type, here specialised to "`~`".
+            more = Item to add.
+     +/
+    void opOpAssign(string op : "~")(const T more) pure @safe @nogc nothrow
+    {
+        return put(more);
+    }
+
+    // size
+    /++
+        Returns the size of the internal buffer.
+
+        Returns:
+            Internal buffer size.
+     +/
+    auto size() const
+    {
+        return buf.length;
+    }
+
+    // empty
+    /++
+        Returns whether or not the container is considered empty.
+
+        Mind that the buffer may well still contain old contents. Use `clear`
+        to zero it out.
+
+        Returns:
+            `true` if there are items available to get via `front`,
+            `false` if not.
+     +/
+    auto empty() const
+    {
+        return !caughtUp && (head == tail);
+    }
+
+    // save
+    /++
+        Implements Range `save`.
+
+        Returns:
+            A shallow copy of the container.
+     +/
+    auto save()
+    {
+        return this;
+    }
+
+    // dup
+    /++
+        Makes a deep(er) duplicate of the container.
+
+        Returns:
+            A copy of the current container with the internal buffer explicitly `.dup`ed.
+     +/
+    auto dup()
+    {
+        auto copy = this;
+
+        static if (dynamic)
+        {
+            copy.buf = this.buf.dup;
+        }
+
+        return copy;
+    }
+
+    // clear
+    /++
+        Zeroes out the buffer's elements, getting rid of old contents.
+     +/
+    void clear() pure @safe @nogc nothrow
+    {
+        head = 0;
+        tail = 0;
+        buf[] = T.init;
+    }
+}
+
+///
+unittest
+{
+    import std.conv : text;
+
+    {
+        CircularBuffer!(int, Yes.dynamic) buf;
+        buf.resize(3);
+
+        buf.put(1);
+        assert((buf.front == 1), buf.front.text);
+        buf.put(2);
+        assert((buf.front == 2), buf.front.text);
+        buf.put(3);
+        assert((buf.front == 3), buf.front.text);
+        buf ~= 4;
+        assert((buf.front == 4), buf.front.text);
+        assert((buf.buf == [ 4, 2, 3 ]), buf.buf.text);
+        buf.popFront();
+        buf.popFront();
+        buf.popFront();
+        assert(buf.empty);
+    }
+    {
+        CircularBuffer!(int, No.dynamic, 3) buf;
+        //buf.resize(3);
+
+        buf.put(1);
+        assert((buf.front == 1), buf.front.text);
+        buf.put(2);
+        assert((buf.front == 2), buf.front.text);
+        buf.put(3);
+        assert((buf.front == 3), buf.front.text);
+        buf ~= 4;
+        assert((buf.front == 4), buf.front.text);
+        assert((buf.buf == [ 4, 2, 3 ]), buf.buf.text);
+        buf.popFront();
+        buf.popFront();
+        buf.popFront();
+        assert(buf.empty);
+    }
+}
