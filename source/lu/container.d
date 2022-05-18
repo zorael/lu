@@ -46,7 +46,7 @@ public:
 // Buffer
 /++
     Simple buffer/queue for storing and fetching items of any type `T`.
-    Does not use manual memory allcation.
+    Does not use manual memory allocation.
 
     It can use a static array internally to store elements on the stack, which
     imposes a hard limit on how many items can be added, or a dynamic heap one
@@ -230,7 +230,7 @@ pure nothrow:
 
     // empty
     /++
-        Returns whether or not the array is considered empty.
+        Returns whether or not the container is considered empty.
 
         Mind that the buffer may well still contain old contents. Use `clear`
         to zero it out.
