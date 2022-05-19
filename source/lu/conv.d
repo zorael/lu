@@ -27,6 +27,7 @@ public:
 
 @safe:
 
+
 // Enum
 /++
     Template housing optimised functions to get the string name of an enum
@@ -218,7 +219,8 @@ unittest
 
     Throws: [std.conv.ConvException|ConvException] if the hex string was malformed.
  +/
-uint numFromHex(const string hex,
+uint numFromHex(
+    const string hex,
     const Flag!"acceptLowercase" acceptLowercase = No.acceptLowercase) pure
 out (total; (total < 16^^hex.length), "`numFromHex` output is too large")
 {
@@ -288,7 +290,11 @@ out (total; (total < 16^^hex.length), "`numFromHex` output is too large")
             lowercase letters.
  +/
 deprecated("Use `lu.conv.rgbFromHex` instead")
-void numFromHex(const string hexString, out int r, out int g, out int b,
+void numFromHex(
+    const string hexString,
+    out int r,
+    out int g,
+    out int b,
     const Flag!"acceptLowercase" acceptLowercase = No.acceptLowercase) pure
 out (; ((r >= 0) && (r <= 255)), "Red out of hex range")
 out (; ((g >= 0) && (g <= 255)), "Green out of hex range")
@@ -359,7 +365,8 @@ unittest
     Returns:
         A Voldemort struct with `r`, `g` and `b` members,
  +/
-auto rgbFromHex(const string hexString,
+auto rgbFromHex(
+    const string hexString,
     const Flag!"acceptLowercase" acceptLowercase = No.acceptLowercase)
 {
     struct RGB

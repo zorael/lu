@@ -77,7 +77,10 @@ public:
         converted into an array, if a passed string could not be converted into
         a bool, or if [std.conv.to] failed to convert a string into wanted type `T`.
  +/
-bool setMemberByName(Thing)(ref Thing thing, const string memberToSet, const string valueToSet)
+bool setMemberByName(Thing)
+    (ref Thing thing,
+    const string memberToSet,
+    const string valueToSet)
 if (isAggregateType!Thing && isMutable!Thing)
 in (memberToSet.length, "Tried to set member by name but no member string was given")
 {
@@ -518,7 +521,10 @@ unittest
     Throws: [MeldException] if the passed `valueToSet` was not the same type
         (or implicitly convertible to) the member to set.
  +/
-bool setMemberByName(Thing, Val)(ref Thing thing, const string memberToSet, /*const*/ Val valueToSet)
+bool setMemberByName(Thing, Val)
+    (ref Thing thing,
+    const string memberToSet,
+    /*const*/ Val valueToSet)
 if (isAggregateType!Thing && isMutable!Thing && !is(Val : string))
 in (memberToSet.length, "Tried to set member by name but no member string was given")
 {
@@ -680,7 +686,9 @@ private import std.traits : isEqualityComparable;
             of the matched type.
  +/
 void replaceMembers(Flag!"recurse" recurse = No.recurse, Thing, Token)
-    (ref Thing thing, Token token, Token replacement = Token.init) pure nothrow @nogc
+    (ref Thing thing,
+    Token token,
+    Token replacement = Token.init) pure nothrow @nogc
 if (isAggregateType!Thing && isMutable!Thing && isEqualityComparable!Token)
 {
     import std.range : ElementEncodingType, ElementType;

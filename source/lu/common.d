@@ -54,7 +54,6 @@ enum Next
  +/
 final class ReturnValueException : Exception
 {
-@safe:
     /// The command run.
     string command;
 
@@ -105,7 +104,6 @@ final class ReturnValueException : Exception
  +/
 final class FileExistsException : Exception
 {
-@safe:
     /// The name of the file.
     string filename;
 
@@ -142,7 +140,6 @@ final class FileExistsException : Exception
  +/
 final class FileTypeMismatchException : Exception
 {
-@safe:
     /// The filename of the non-FIFO.
     string filename;
 
@@ -200,7 +197,9 @@ final class FileTypeMismatchException : Exception
     TODO:
         Support partial globs.
  +/
-uint sharedDomains(const string one, const string other,
+uint sharedDomains(
+    const string one,
+    const string other,
     const Flag!"caseSensitive" caseSensitive = Yes.caseSensitive) pure @nogc nothrow
 {
     if (!one.length || !other.length) return 0;

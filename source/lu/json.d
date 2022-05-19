@@ -173,7 +173,8 @@ struct JSONStorage
                 specified keys are omitted.
      +/
     void save(KeyOrderStrategy strategy = KeyOrderStrategy.passthrough)
-        (const string filename, const string[] givenOrder = string[].init) @safe
+        (const string filename,
+        const string[] givenOrder = string[].init) @safe
     in (filename.length, "Tried to save a JSON storage to an empty filename")
     {
         import std.array : Appender;
@@ -482,7 +483,9 @@ private import std.typecons : Flag, No, Yes;
         [object.Exception|Exception] if the passed [std.json.JSONValue|JSONValue]
         had unexpected types.
  +/
-void populateFromJSON(T)(ref T target, const JSONValue json,
+void populateFromJSON(T)
+    (ref T target,
+    const JSONValue json,
     const Flag!"lowercaseKeys" lowercaseKeys = No.lowercaseKeys,
     const Flag!"lowercaseValues" lowercaseValues = No.lowercaseValues) @safe
 if (isMutable!T)

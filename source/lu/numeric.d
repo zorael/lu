@@ -36,7 +36,9 @@ public:
     Returns:
         The multiple of `n` that reaches and possibly overshoots `num`.
  +/
-Number getMultipleOf(Number)(const Number num, const int n,
+Number getMultipleOf(Number)
+    (const Number num,
+    const int n,
     const Flag!"alwaysOneUp" oneUp = No.alwaysOneUp) pure nothrow @nogc
 in ((n > 0), "Cannot get multiple of 0 or negatives")
 in ((num >= 0), "Cannot get multiples for a negative number")

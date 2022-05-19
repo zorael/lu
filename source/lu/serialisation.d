@@ -1184,7 +1184,6 @@ naN                     !"#¤%&/`;
  +/
 final class DeserialisationException : Exception
 {
-@safe:
     /++
         Create a new [DeserialisationException].
      +/
