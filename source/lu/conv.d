@@ -271,7 +271,7 @@ out (total; (total < 16^^hex.length), "`numFromHex` output is too large")
 }
 
 
-// voldemortNumFromHex
+// rgbFromHex
 /++
     Convenience wrapper that takes a hex string and populates a Voldemort
     struct with its RR, GG and BB components.
