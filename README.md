@@ -222,7 +222,7 @@ immutable otherGhi = Enum!Foo.fromString("ghi");
 ```
 
 * [`json.d`](source/lu/json.d): Convenience wrappers around a `JSONValue`, which can be unwieldy. Not a JSON parser implementation.
-* [`container.d`](source/lu/container.d): Container things, so far only a primitive FIFO `Buffer` (queue).
+* [`container.d`](source/lu/container.d): Container things, so far only a primitive FIFO `Buffer` (queue) and a LIFO `CircularBuffer`.
 * [`common.d`](source/lu/common.d): Things that don't have a better home yet.
 * [`numeric.d`](source/lu/numeric.d): Functions and templates that calculate or manipulate numbers in some way.
 * [`uda.d`](source/lu/uda.d): Some user-defined attributes used here and there.
