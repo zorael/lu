@@ -35,7 +35,7 @@ module lu.string;
 private:
 
 import std.range.primitives : ElementEncodingType, ElementType, isOutputRange;
-import std.traits : isIntegral, isMutable, isSomeString;
+import std.traits : allSameType, isIntegral, isMutable, isSomeString;
 import std.typecons : Flag, No, Yes;
 
 public:
@@ -2034,6 +2034,7 @@ enum SplitResults
  +/
 SplitResults splitInto(string separator = " ", Strings...)
     (auto ref string slice, ref Strings strings)
+if (Strings.length && is(Strings[0] == string) && allSameType!Strings)
 {
     if (!slice.length)
     {
@@ -2144,11 +2145,6 @@ unittest
         string abc, def;
         immutable results = line.splitInto(abc, def);
         assert((results == SplitResults.underrun), Enum!SplitResults.toString(results));
-    }
-    {
-        string line;
-        immutable results = line.splitInto();
-        assert((results == SplitResults.match), Enum!SplitResults.toString(results));
     }
 }
 
