@@ -2024,6 +2024,8 @@ enum SplitResults
     Splits a string by a passed separator and assign the delimited words to the
     passed strings by ref.
 
+    Note: Does *not* take quoted substrings into consideration.
+
     Params:
         separator = What token to separate the input string into words with.
         slice = Input string of words separated by `separator`.
@@ -2153,6 +2155,8 @@ unittest
 /++
     Splits a string by a passed separator and assign the delimited words to the
     passed strings by ref. Overload that stores overflow strings into a passed array.
+
+    Note: *Does* take quoted substrings into consideration.
 
     Params:
         separator = What token to separate the input string into words with.
