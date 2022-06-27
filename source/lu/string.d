@@ -2170,15 +2170,17 @@ unittest
         A `string[]` composed of the input string split up into substrings,
         deliminated by whitespace. Quoted sections are treated as one substring.
  +/
-auto splitWithQuotes(const string line)
+auto splitWithQuotes(string separator = " ")(const string line)
+if (separator.length)
 {
     import std.array : Appender;
     import std.string : representation;
+    //debug import std.stdio;
 
     if (!line.length) return null;
 
     Appender!(string[]) sink;
-    sink.reserve(8);
+    sink.reserve(8);  // guesstimate
 
     size_t start;
     bool betweenQuotes;
@@ -2197,8 +2199,17 @@ auto splitWithQuotes(const string line)
         return slice;
     }
 
-    foreach (immutable i, immutable c; line.representation)
+    //debug writeln("------------------ SEPARATOR:'", separator, "' line:'", line, "'");
+
+    immutable asUbytes = line.representation;
+    size_t separatorStep;
+
+    for (size_t i = 0; i < asUbytes.length; ++i)
     {
+        immutable c = asUbytes[i];
+
+        //debug writefln("[%s] s:%d i:%d", cast(string)asUbytes[start..i], start, i);
+
         if (escaping)
         {
             if (c == '\\')
@@ -2212,20 +2223,41 @@ auto splitWithQuotes(const string line)
 
             escaping = false;
         }
-        else if (c == ' ')
+        else if (separatorStep >= separator.length)
         {
-            if (betweenQuotes)
+            //debug writeln("separator halted, step:", separatorStep);
+            separatorStep = 0;
+        }
+        else if (!betweenQuotes && (c == separator[separatorStep]))
+        {
+            /*debug writefln("SEPARATOR[%d] = '%c' (%s)",
+                separatorStep, cast(char)c, separator[0..separatorStep]);*/
+
+            static if (separator.length > 1)
             {
-                // do nothing
-            }
-            else if (i == start)
-            {
-                ++start;
+                if (i == 0)
+                {
+                    ++separatorStep;
+                    continue;
+                }
+                else if (++separatorStep >= separator.length)
+                {
+                    // Full separator
+                    immutable end = i-separator.length+1;
+                    //debug writeln("FULL SEPARATOR! COMMIT:'", line[start..end], "'");
+                    if (start != end) sink.put(line[start..end]);
+                    start = i+1;
+                }
+                else
+                {
+                    //debug writeln("not full separator yet..");
+                }
             }
             else
             {
-                // commit
-                sink.put(line[start..i]);
+                // Full separator
+                //debug writeln("COMMIT:'", line[start..i], "'");
+                if (start != i) sink.put(line[start..i]);
                 start = i+1;
             }
         }
