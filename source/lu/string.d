@@ -2149,6 +2149,197 @@ unittest
 }
 
 
+// splitInto
+/++
+    Splits a string by a passed separator and assign the delimited words to the
+    passed strings by ref. Overload that stores overflow strings into a passed array.
+
+    Params:
+        separator = What token to separate the input string into words with.
+        slice = Input string of words separated by `separator`.
+        strings = Variadic list of strings to assign the split words in `slice`.
+        overflow = Overflow array.
+
+    Returns:
+        A [SplitResults] with the results of the split attempt.
+ +/
+SplitResults splitInto(string separator = " ", Strings...)
+    (const string slice, ref Strings strings, out string[] overflow)
+if (Strings.length && is(Strings[0] == string) && allSameType!Strings)
+{
+    if (!slice.length)
+    {
+        return Strings.length ? SplitResults.underrun : SplitResults.match;
+    }
+
+    auto chunks = splitWithQuotes!separator(slice);
+
+    foreach (immutable i, ref thisString; strings)
+    {
+        if (chunks.length > i)
+        {
+            thisString = chunks[i];
+        }
+    }
+
+    if (strings.length < chunks.length)
+    {
+        overflow = chunks[strings.length..$];
+        return SplitResults.overrun;
+    }
+    else if (strings.length == chunks.length)
+    {
+        return SplitResults.match;
+    }
+    else /*if (strings.length > chunks.length)*/
+    {
+        return SplitResults.underrun;
+    }
+}
+
+///
+unittest
+{
+    import lu.conv : Enum;
+    import std.conv : text;
+
+    {
+        string line = "abc def ghi";
+        string abc, def, ghi;
+        string[] overflow;
+        immutable results = line.splitInto(abc, def, ghi, overflow);
+
+        assert((abc == "abc"), abc);
+        assert((def == "def"), def);
+        assert((ghi == "ghi"), ghi);
+        assert(!overflow.length, overflow.text);
+        assert((results == SplitResults.match), Enum!SplitResults.toString(results));
+    }
+    {
+        string line = "abc##def##ghi";
+        string abc, def, ghi;
+        string[] overflow;
+        immutable results = line.splitInto!"##"(abc, def, ghi, overflow);
+
+        assert((abc == "abc"), abc);
+        assert((def == "def"), def);
+        assert((ghi == "ghi"), ghi);
+        assert(!overflow.length, overflow.text);
+        assert((results == SplitResults.match), Enum!SplitResults.toString(results));
+    }
+    {
+        string line = "abc  def  ghi";
+        string abc, def, ghi;
+        string[] overflow;
+        immutable results = line.splitInto(abc, def, ghi, overflow);
+
+        assert((abc == "abc"), abc);
+        assert((def == "def"), def);
+        assert((ghi == "ghi"), ghi);
+        assert(!overflow.length, overflow.text);
+        assert((results == SplitResults.match), Enum!SplitResults.toString(results));
+    }
+    {
+        string line = "abc_def ghi";
+        string abc, def, ghi;
+        string[] overflow;
+        immutable results = line.splitInto!"_"(abc, def, ghi, overflow);
+
+        assert((abc == "abc"), abc);
+        assert((def == "def ghi"), def);
+        assert(!ghi.length, ghi);
+        assert(!overflow.length, overflow.text);
+        assert((results == SplitResults.underrun), Enum!SplitResults.toString(results));
+    }
+    {
+        string line = "abc def ghi";
+        string abc, def;
+        string[] overflow;
+        immutable results = line.splitInto(abc, def, overflow);
+
+        assert((abc == "abc"), abc);
+        assert((def == "def"), def);
+        assert((overflow == [ "ghi" ]), overflow.text);
+        assert((results == SplitResults.overrun), Enum!SplitResults.toString(results));
+    }
+    {
+        string line = "abc///def";
+        string abc, def;
+        string[] overflow;
+        immutable results = line.splitInto!"//"(abc, def, overflow);
+
+        assert((abc == "abc"), abc);
+        assert((def == "/def"), def);
+        assert(!overflow.length, overflow.text);
+        assert((results == SplitResults.match), Enum!SplitResults.toString(results));
+    }
+    {
+        string line = "abc 123 def I am a fish";
+        string abc, a123, def;
+        string[] overflow;
+        immutable results = line.splitInto(abc, a123, def, overflow);
+
+        assert((abc == "abc"), abc);
+        assert((a123 == "123"), a123);
+        assert((def == "def"), def);
+        assert((overflow == [ "I", "am", "a", "fish" ]), overflow.text);
+        assert((results == SplitResults.overrun), Enum!SplitResults.toString(results));
+    }
+    {
+        string line = `abc 123 def "I am a fish"`;
+        string abc, a123, def;
+        string[] overflow;
+        immutable results = line.splitInto(abc, a123, def, overflow);
+
+        assert((abc == "abc"), abc);
+        assert((a123 == "123"), a123);
+        assert((def == "def"), def);
+        assert((overflow == [ "I am a fish" ]), overflow.text);
+        assert((results == SplitResults.overrun), Enum!SplitResults.toString(results));
+    }
+    {
+        string line;
+        string abc, def;
+        string[] overflow;
+        immutable results = line.splitInto(abc, def, overflow);
+        assert((results == SplitResults.underrun), Enum!SplitResults.toString(results));
+    }
+    {
+        string line = "abchonkelonkhonkelodef";
+        string abc, def;
+        string[] overflow;
+        immutable results = line.splitInto!"honkelonk"(abc, def, overflow);
+
+        assert((abc == "abc"), abc);
+        assert((def == "honkelodef"), def);
+        assert(!overflow.length, overflow.text);
+        assert((results == SplitResults.match), Enum!SplitResults.toString(results));
+    }
+    {
+        string line = "honkelonkhonkelodef";
+        string abc, def;
+        string[] overflow;
+        immutable results = line.splitInto!"honkelonk"(abc, def, overflow);
+
+        assert((abc == "honkelodef"), abc);
+        assert((def == string.init), def);
+        assert(!overflow.length, overflow.text);
+        assert((results == SplitResults.underrun), Enum!SplitResults.toString(results));
+    }
+    {
+        string line = "###########hirrsteff#snabel";
+        string abc, def;
+        string[] overflow;
+        immutable results = line.splitInto!"#"(abc, def, overflow);
+
+        assert((abc == "hirrsteff"), abc);
+        assert((def == "snabel"), def);
+        assert(!overflow.length, overflow.text);
+        assert((results == SplitResults.match), Enum!SplitResults.toString(results));
+    }
+}
+
+
 // splitWithQuotes
 /++
     Splits a string into an array of strings by whitespace, but honours quotes.
