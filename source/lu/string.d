@@ -2175,7 +2175,6 @@ if (separator.length)
 {
     import std.array : Appender;
     import std.string : representation;
-    //debug import std.stdio;
 
     if (!line.length) return null;
 
@@ -2199,16 +2198,12 @@ if (separator.length)
         return slice;
     }
 
-    //debug writeln("------------------ SEPARATOR:'", separator, "' line:'", line, "'");
-
     immutable asUbytes = line.representation;
     size_t separatorStep;
 
     for (size_t i = 0; i < asUbytes.length; ++i)
     {
         immutable c = asUbytes[i];
-
-        //debug writefln("[%s] s:%d i:%d", cast(string)asUbytes[start..i], start, i);
 
         if (escaping)
         {
@@ -2225,14 +2220,10 @@ if (separator.length)
         }
         else if (separatorStep >= separator.length)
         {
-            //debug writeln("separator halted, step:", separatorStep);
             separatorStep = 0;
         }
         else if (!betweenQuotes && (c == separator[separatorStep]))
         {
-            /*debug writefln("SEPARATOR[%d] = '%c' (%s)",
-                separatorStep, cast(char)c, separator[0..separatorStep]);*/
-
             static if (separator.length > 1)
             {
                 if (i == 0)
@@ -2244,19 +2235,13 @@ if (separator.length)
                 {
                     // Full separator
                     immutable end = i-separator.length+1;
-                    //debug writeln("FULL SEPARATOR! COMMIT:'", line[start..end], "'");
                     if (start != end) sink.put(line[start..end]);
                     start = i+1;
-                }
-                else
-                {
-                    //debug writeln("not full separator yet..");
                 }
             }
             else
             {
                 // Full separator
-                //debug writeln("COMMIT:'", line[start..i], "'");
                 if (start != i) sink.put(line[start..i]);
                 start = i+1;
             }
