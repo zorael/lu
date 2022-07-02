@@ -54,7 +54,7 @@ in ((num >= 0), "Cannot get multiples for a negative number")
     immutable floor_ = cast(uint)frac;
     immutable mod = oneUp ? (floor_ + 1) : ((floor_ == frac) ? floor_ : (floor_ + 1));
 
-    return cast(uint)(mod * n);
+    return (mod * n);
 }
 
 ///
@@ -81,4 +81,13 @@ unittest
 
     immutable n7 = 5.getMultipleOf(5, Yes.alwaysOneUp);
     assert((n7 == 6), n7.text);
+
+    immutable n8 = 5L.getMultipleOf(5L, Yes.alwaysOneUp);
+    assert((n8 == 6L), n8.text);
+
+    immutable n9 = 5UL.getMultipleOf(5UL, No.alwaysOneUp);
+    assert((n9 == 5UL), n9.text);
+
+    immutable n10 = (5.0).getMultipleOf(5UL, Yes.alwaysOneUp);
+    assert((n10 == (6.0)), n10.text);
 }
