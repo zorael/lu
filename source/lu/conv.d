@@ -219,7 +219,7 @@ unittest
 
     Throws: [std.conv.ConvException|ConvException] if the hex string was malformed.
  +/
-uint numFromHex(
+auto numFromHex(
     const string hex,
     const Flag!"acceptLowercase" acceptLowercase = No.acceptLowercase) pure
 out (total; (total < 16^^hex.length), "`numFromHex` output is too large")

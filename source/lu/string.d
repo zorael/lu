@@ -834,7 +834,7 @@ unittest
     Returns:
         `line` with `suffix` sliced off the end.
  +/
-string stripSuffix(const string line, const string suffix) pure nothrow @nogc
+auto stripSuffix(const string line, const string suffix) pure nothrow @nogc
 {
     if (line.length < suffix.length) return line;
 
@@ -1167,7 +1167,7 @@ unittest
     Returns:
         The passed line without any trailing whitespace or linebreaks.
  +/
-string strippedRight(const string line) pure nothrow @nogc
+auto strippedRight(const string line) pure nothrow @nogc
 {
     if (!line.length) return line;
 
@@ -1330,7 +1330,7 @@ unittest
     Returns:
         The passed line without any preceding whitespace or linebreaks.
  +/
-string strippedLeft(const string line) pure nothrow @nogc
+auto strippedLeft(const string line) pure nothrow @nogc
 {
     if (!line.length) return line;
 
@@ -1495,7 +1495,7 @@ unittest
     Returns:
         The passed line, stripped of surrounding whitespace.
  +/
-string stripped(const string line) pure nothrow @nogc
+auto stripped(const string line) pure nothrow @nogc
 {
     return line.strippedLeft.strippedRight;
 }
@@ -1832,7 +1832,7 @@ unittest
     Returns:
         A new string with control characters escaped, or the original one unchanged.
  +/
-string escapeControlCharacters(const string line) pure nothrow
+auto escapeControlCharacters(const string line) pure nothrow
 {
     import std.algorithm.comparison : among;
     import std.array : Appender;
@@ -1929,7 +1929,7 @@ unittest
     Returns:
         A new string with control characters removed, or the original one unchanged.
  +/
-string removeControlCharacters(const string line) pure nothrow
+auto removeControlCharacters(const string line) pure nothrow
 {
     import std.array : Appender;
     import std.string : representation;

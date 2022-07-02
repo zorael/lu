@@ -197,7 +197,7 @@ final class FileTypeMismatchException : Exception
     TODO:
         Support partial globs.
  +/
-uint sharedDomains(
+auto sharedDomains(
     const string one,
     const string other,
     const Flag!"caseSensitive" caseSensitive = Yes.caseSensitive) pure @nogc nothrow
