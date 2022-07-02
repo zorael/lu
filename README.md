@@ -199,6 +199,25 @@ assert(slice == "spaces");
 immutable fourth = slice.nom!(Yes.inherit)(" ");
 assert(fourth == "spaces");
 assert(slice.length == 0);
+
+enum quoted = `author "John Doe" title "Foo Bar" tag1 tag2 tag3 tag4`;
+string authorHeader;
+string author;
+string titleHeader;
+string title;
+string[] overflow;
+
+immutable results = quoted.splitInto(authorHeader, author, titleHeader, title, overflow);
+assert(results == SplitResults.overrun);
+assert(author == "John Doe");
+assert(title == "Foo Bar");
+assert(overflow == [ "tag1", "tag2", "tag3", "tag4" ]);
+
+immutable intoArray = quoted.splitWithQuotes();
+assert(intoArray.length == 8);
+assert(intoArray[1] == "John Doe");
+assert(intoArary[3] == "Foo Bar");
+assert(intoArray[4..8] == [ "tag1", "tag2", "tag3", "tag4" ]);
 ```
 
 * [`conv.d`](source/lu/conv.d): Conversion functions and templates.
