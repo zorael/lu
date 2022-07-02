@@ -456,7 +456,7 @@ public:
             An item T.
      +/
     auto front()
-    in ((buf.length > 0), "Tried to get `front` from an unresized " ~ typeof(this).stringof)
+    in ((buf.length > 0), "Tried to get `front` from a zero-sized " ~ typeof(this).stringof)
     {
         return buf[head];
     }
@@ -472,7 +472,7 @@ public:
             item = Item to add.
      +/
     void put(T item) pure @safe @nogc nothrow
-    in ((buf.length > 0), "Tried to `put` something into an unresized " ~ typeof(this).stringof)
+    in ((buf.length > 0), "Tried to `put` something into a zero-sized " ~ typeof(this).stringof)
     {
         if (initialised) ++head %= buf.length;
         buf[head] = item;
@@ -486,7 +486,7 @@ public:
         Advances the current position to the next item in the buffer.
      +/
     void popFront() pure @safe @nogc nothrow
-    in ((buf.length > 0), "Tried to `popFront` an unresized " ~ typeof(this).stringof)
+    in ((buf.length > 0), "Tried to `popFront` a zero-sized " ~ typeof(this).stringof)
     in (!empty, "Tried to `popFront` an empty " ~ typeof(this).stringof)
     {
         if (head == 0)
