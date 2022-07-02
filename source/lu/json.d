@@ -79,8 +79,10 @@ public:
  +/
 struct JSONStorage
 {
+private:
     import std.json : JSONValue, parseJSON;
 
+public:
     /// The underlying [std.json.JSONValue|JSONValue] storage of this [JSONStorage].
     JSONValue storage;
 
