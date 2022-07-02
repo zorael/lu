@@ -50,8 +50,10 @@ module lu.json;
 
 private:
 
+import std.json : JSONValue;
 import std.range.primitives : isOutputRange;
 import std.traits : isMutable;
+import std.typecons : Flag, No, Yes;
 
 public:
 
@@ -458,9 +460,6 @@ unittest
     assert((s.storage["foo"]["arr"].array.length == 2), s.storage["foo"]["arr"].array.length.text);
 }
 
-
-private import std.json : JSONValue;
-private import std.typecons : Flag, No, Yes;
 
 // populateFromJSON
 /++

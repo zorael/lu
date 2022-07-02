@@ -30,7 +30,7 @@ module lu.objmanip;
 
 private:
 
-import std.traits : isAggregateType, isMutable;
+import std.traits : isAggregateType, isAssociativeArray, isEqualityComparable, isMutable;
 import std.typecons : Flag, No, Yes;
 
 public:
@@ -669,8 +669,6 @@ final class SetMemberException : Exception
 }
 
 
-private import std.traits : isEqualityComparable;
-
 // replaceMembers
 /++
     Inspects a passed struct or class for members whose values match that of the
@@ -817,8 +815,6 @@ unittest
     assert(!flerp.arr.length);
 }
 
-
-private import std.traits : isAssociativeArray;
 
 // pruneAA
 /++
