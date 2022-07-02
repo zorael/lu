@@ -591,12 +591,21 @@ public:
 
     // clear
     /++
+        Resets the buffer pointers but doesn't clear the contents.
+     +/
+    void reset() pure @safe @nogc nothrow
+    {
+        head = 0;
+        tail = 0;
+    }
+
+    // clear
+    /++
         Zeroes out the buffer's elements, getting rid of old contents.
      +/
     void clear() pure @safe @nogc nothrow
     {
-        head = 0;
-        tail = 0;
+        reset();
         buf[] = T.init;
     }
 }
