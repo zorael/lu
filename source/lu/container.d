@@ -402,7 +402,7 @@ unittest
             static array.
  +/
 struct CircularBuffer(T, Flag!"dynamic" dynamic = No.dynamic, size_t originalSize = 16)
-if (originalSize > 0)
+if (originalSize > 1)
 {
 private:
     static if (dynamic)
@@ -641,5 +641,23 @@ unittest
         buf.popFront();
         buf.popFront();
         assert(buf.empty);
+    }
+    {
+        CircularBuffer!(int, No.dynamic, 2) buf;
+        //buf.resize(2);
+
+        buf.put(1);
+        assert((buf.front == 1), buf.front.text);
+        buf.put(2);
+        assert((buf.front == 2), buf.front.text);
+        buf.put(3);
+        assert((buf.front == 3), buf.front.text);
+        buf ~= 4;
+        assert((buf.front == 4), buf.front.text);
+        assert((buf.buf == [ 3, 4 ]), buf.buf.text);
+        buf.popFront();
+        buf.popFront();
+        assert(buf.empty);
+        //buf.popFront();  // AssertError
     }
 }
