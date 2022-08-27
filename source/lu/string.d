@@ -1167,7 +1167,7 @@ unittest
     Returns:
         The passed line without any trailing whitespace or linebreaks.
  +/
-auto strippedRight(const string line) pure nothrow @nogc
+auto strippedRight(/*const*/ string line) pure nothrow @nogc
 {
     if (!line.length) return line;
 
@@ -1330,7 +1330,7 @@ unittest
     Returns:
         The passed line without any preceding whitespace or linebreaks.
  +/
-auto strippedLeft(const string line) pure nothrow @nogc
+auto strippedLeft(/*const*/ string line) pure nothrow @nogc
 {
     if (!line.length) return line;
 
@@ -1495,7 +1495,7 @@ unittest
     Returns:
         The passed line, stripped of surrounding whitespace.
  +/
-auto stripped(const string line) pure nothrow @nogc
+auto stripped(/*const*/ string line) pure nothrow @nogc
 {
     return line.strippedLeft.strippedRight;
 }
