@@ -110,7 +110,7 @@ Appender!(char[]) sink;
 // Generate assignment statements by passing `No.asserts`
 sink.formatDeltaInto!(No.asserts)(Foo.init, altered);
 
-asser(sink[] ==
+assert(sink[] ==
 `s = "some string";
 i = 42;
 `);
@@ -120,7 +120,7 @@ sink.clear();
 // As above but prepend the name "altered" before the members
 sink.formatDeltaInto!(No.asserts)(Foo.init, altered, 0, "altered");
 
-asser(sink[] ==
+assert(sink[] ==
 `altered.s = "some string";
 altered.i = 42;
 `);
