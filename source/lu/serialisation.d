@@ -597,8 +597,18 @@ if (allSatisfy!(isAggregateType, Things) && allSatisfy!(isMutable, Things))
             if ((line.length > 1) && (line[1] == '/'))
             {
                 // Also a comment; //
-                continue;
+                line = line[2..$];
             }
+
+            while (line.length && (line[0] == '/'))
+            {
+                // Consume extra slashes too
+                line = line[1..$];
+            }
+
+            if (!line.length) continue;
+
+            commented = true;
             goto default;
 
         case '[':
