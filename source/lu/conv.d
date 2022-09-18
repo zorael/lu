@@ -221,7 +221,7 @@ unittest
  +/
 auto numFromHex(
     const string hex,
-    const Flag!"acceptLowercase" acceptLowercase = No.acceptLowercase) pure
+    const Flag!"acceptLowercase" acceptLowercase = Yes.acceptLowercase) pure
 out (total; (total < 16^^hex.length), "`numFromHex` output is too large")
 {
     import std.string : representation;
