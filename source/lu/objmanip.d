@@ -71,7 +71,7 @@ public:
             even if the member is of a different type.
 
     Returns:
-        `true` if a member was found and set, `false` if not.
+        `true` if a member was found and set, `false` if nothing was done.
 
     Throws: [std.conv.ConvException|ConvException] if a string could not be
         converted into an array, if a passed string could not be converted into
@@ -109,7 +109,7 @@ in (memberToSet.length, "Tried to set member by name but no member string was gi
             import lu.traits : isSerialisable;
             import std.traits : Unqual;
 
-            alias T = Unqual!(typeof(thing.tupleof[i]));
+            alias T = Unqual!QualT;
 
             static if (isSerialisable!(thing.tupleof[i]))
             {
@@ -133,6 +133,7 @@ in (memberToSet.length, "Tried to set member by name but no member string was gi
                     else static if (!isSomeString!T && isArray!T)
                     {
                         import lu.uda : Separator;
+                        import std.algorithm.iteration : splitter;
                         import std.array : replace;
                         import std.traits : getUDAs, hasUDA;
 
@@ -164,34 +165,31 @@ in (memberToSet.length, "Tried to set member by name but no member string was gi
                         {
                             static if (is(Unqual!(typeof(thisSeparator)) == Separator))
                             {
-                                enum escaped = '\\' ~ thisSeparator.token;
+                                enum escapedSeparator = '\\' ~ thisSeparator.token;
                                 enum separator = thisSeparator.token;
                             }
                             else
                             {
-                                enum escaped = '\\' ~ thisSeparator;
+                                enum escapedSeparator = '\\' ~ thisSeparator;
                                 alias separator = thisSeparator;
                             }
 
                             values = values
-                                .replace(escaped, escapedPlaceholder)
+                                .replace(escapedSeparator, escapedPlaceholder)
                                 .replace(separator, ephemeralSeparator)
                                 .replace(escapedPlaceholder, separator);
                         }
 
-                        import lu.string : contains;
-                        while (values.contains(doubleEphemeral))
-                        {
-                            values = values.replace(doubleEphemeral, ephemeralSeparator);
-                        }
+                        values = values
+                            .replace(doubleEphemeral, ephemeralSeparator)
+                            .replace(doubleEscapePlaceholder, "\\");
 
-                        values = values.replace(doubleEscapePlaceholder, "\\");
-
-                        import std.algorithm.iteration : splitter;
                         auto range = values.splitter(ephemeralSeparator);
 
                         foreach (immutable entry; range)
                         {
+                            if (!entry.length) continue;
+
                             try
                             {
                                 import std.range : ElementEncodingType;
@@ -207,10 +205,15 @@ in (memberToSet.length, "Tried to set member by name but no member string was gi
                             {
                                 import std.format : format;
 
-                                immutable message = ("Could not convert `%s.%s` array " ~
-                                    "entry \"%s\" into `%s` (%s)")
-                                    .format(Thing.stringof.stripSuffix("Settings"),
-                                    memberToSet, entry, T.stringof, e.msg);
+                                enum pattern = "Could not convert `%s.%s` array " ~
+                                    "entry \"%s\" into `%s` (%s)";
+                                immutable message = pattern.format(
+                                    Thing.stringof.stripSuffix("Settings"),
+                                    memberToSet,
+                                    entry,
+                                    T.stringof,
+                                    e.msg);
+
                                 throw new ConvException(message);
                             }
                         }
@@ -239,7 +242,6 @@ in (memberToSet.length, "Tried to set member by name but no member string was gi
                         case "on":
                         case "1":
                             thing.tupleof[i] = true;
-                            success = true;
                             break;
 
                         case "false":
@@ -247,18 +249,22 @@ in (memberToSet.length, "Tried to set member by name but no member string was gi
                         case "off":
                         case "0":
                             thing.tupleof[i] = false;
-                            success = true;
                             break;
 
                         default:
                             import std.format : format;
 
-                            immutable message = ("Invalid value for setting `%s.%s`: " ~
-                                `could not convert "%s" to a boolean value`)
-                                .format(Thing.stringof.stripSuffix("Settings"),
-                                memberToSet, valueToSet);
+                            enum pattern = "Invalid value for setting `%s.%s`: " ~
+                                `could not convert "%s" to a boolean value`;
+                            immutable message = pattern.format(
+                                Thing.stringof.stripSuffix("Settings"),
+                                memberToSet,
+                                valueToSet);
+
                             throw new ConvException(message);
                         }
+
+                        success = true;
                     }
                     else
                     {
@@ -289,10 +295,15 @@ in (memberToSet.length, "Tried to set member by name but no member string was gi
                         {
                             import std.format : format;
 
-                            immutable message = ("Invalid value for setting `%s.%s`: " ~
-                                "could not convert \"%s\" to `%s` (%s)")
-                                .format(Thing.stringof.stripSuffix("Settings"),
-                                memberToSet, valueToSet, T.stringof, e.msg);
+                            enum pattern = "Invalid value for setting `%s.%s`: " ~
+                                "could not convert \"%s\" to `%s` (%s)";
+                            immutable message = pattern.format(
+                                Thing.stringof.stripSuffix("Settings"),
+                                memberToSet,
+                                valueToSet,
+                                T.stringof,
+                                e.msg);
+
                             throw new ConvException(message);
                         }
                     }
@@ -332,6 +343,11 @@ unittest
         {
             string[] parrots;
             string[] withSpaces;
+        }
+
+        @Separator(`\o/`)
+        {
+            string[] blurgh;
         }
 
         static if (__VERSION__ >= 2087L)
@@ -393,6 +409,10 @@ unittest
     success = foo.setMemberByName("matey", "asdf\\ fdsa\\\\ hirr                                steff");
     assert(success);
     assert((foo.matey == [ "asdf fdsa\\", "hirr", "steff" ]), foo.matey.to!string);
+
+    success = foo.setMemberByName("blurgh", "asdf\\\\o/fdsa\\\\\\o/hirr\\o/\\o/\\o/\\o/\\o/\\o/\\o/\\o/steff");
+    assert(success);
+    assert((foo.blurgh == [ "asdf\\o/fdsa\\", "hirr", "steff" ]), foo.blurgh.to!string);
 
     static if (__VERSION__ >= 2087L)
     {
