@@ -103,7 +103,7 @@ void formatDeltaInto(Flag!"asserts" asserts = No.asserts, Sink, QualThing)
     const string submember = string.init)
 if (isOutputRange!(Sink, char[]) && isAggregateType!QualThing)
 {
-    immutable prefix = submember.length ? submember ~ '.' : string.init;
+    immutable prefix = submember.length ? (submember ~ '.') : string.init;
 
     foreach (immutable i, ref member; after.tupleof)
     {
@@ -120,6 +120,7 @@ if (isOutputRange!(Sink, char[]) && isAggregateType!QualThing)
         }
         else static if (isAggregateType!T)
         {
+            // Recurse
             sink.formatDeltaInto!asserts(before.tupleof[i], member, indents, prefix ~ memberstring);
         }
         else static if (!isType!member && !isSomeFunction!member && !__traits(isTemplate, member))

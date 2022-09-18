@@ -600,7 +600,7 @@ unittest
     Returns:
         `true` if a member was found and set, `false` if not.
 
-    Throws: [MeldException] if the passed `valueToSet` was not the same type
+    Throws: [SetMemberException] if the passed `valueToSet` was not the same type
         (or implicitly convertible to) the member to set.
  +/
 bool setMemberByName(Thing, Val)
@@ -646,9 +646,9 @@ in (memberToSet.length, "Tried to set member by name but no member string was gi
                     else
                     {
                         import std.conv : to;
-                        throw new SetMemberException("A set-member action failed " ~
-                            "due to type mismatch", Thing.stringof, memberToSet,
-                            valueToSet.to!string);
+                        enum message = "A set-member action failed due to type mismatch";
+                        throw new SetMemberException(message, Thing.stringof,
+                            memberToSet, valueToSet.to!string);
                     }
                 }
             }

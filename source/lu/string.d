@@ -308,6 +308,9 @@ unittest
         If so, the original variable is advanced to after the token.
         If it doesn't exist, the string in `haystack` is inherited into the return
         value and returned, while the `haystack` symbol itself is cleared.
+
+    Throws:
+        [NomException] if errors were encountered.
  +/
 T nom(Flag!"inherit" inherit, Flag!"decode" decode = No.decode, T, C)
     (auto ref T haystack,
@@ -2359,6 +2362,7 @@ unittest
     ---
 
     Params:
+        separator = Separator string. May be more than one character.
         line = Input string.
 
     Returns:
