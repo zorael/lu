@@ -646,6 +646,7 @@ if (allSatisfy!(isAggregateType, Things) && allSatisfy!(isMutable, Things))
             thingloop:
             foreach (immutable i, thing; things)
             {
+                import lu.string : strippedLeft;
                 import lu.traits : isSerialisable;
                 import lu.uda : CannotContainComments;
                 import std.traits : Unqual;
@@ -656,7 +657,7 @@ if (allSatisfy!(isAggregateType, Things) && allSatisfy!(isMutable, Things))
                 if (section != settingslessT) continue thingloop;
                 processedThings[i] = true;
 
-                immutable result = splitEntryValue(line);
+                immutable result = splitEntryValue(line.strippedLeft);
                 immutable entry = result.entry;
                 if (!entry.length) continue;
 
