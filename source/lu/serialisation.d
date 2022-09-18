@@ -738,7 +738,10 @@ unittest
         float f;
         double d;
         Bar bar;
-        string omitted;
+        string commented;
+        string slashed;
+        int missing;
+        //bool invalid;
 
         @Separator(",")
         {
@@ -759,7 +762,7 @@ s       hello world!
 sa      hello,world,!
 b       true
 ba      true,false,true
-wrong   name
+invalid name
 
 # comment
 ; other type of comment
@@ -771,6 +774,9 @@ d       99.9 //derp
 da      99.9999,0.0001,-1
 bar     oorgle
 bara    blaawp,oorgle,blaawp
+#commented hi
+// slashed also commented
+invalid ho
 
 [DifferentSection]
 ignored completely
@@ -815,7 +821,7 @@ naN     !"¤%&/`;
 
         with (FooSettings.Bar)
         {
-            assert((bar == oorgle), b.text);
+            assert((bar == oorgle), bar.text);
             assert((bara == [ blaawp, oorgle, blaawp ]), bara.text);
         }
     }
@@ -823,9 +829,11 @@ naN     !"¤%&/`;
     import std.algorithm.searching : canFind;
 
     assert("Foo" in missing);
-    assert(missing["Foo"].canFind("omitted"));
+    assert(missing["Foo"].canFind("missing"));
+    assert(!missing["Foo"].canFind("commented"));
+    assert(!missing["Foo"].canFind("slashed"));
     assert("Foo" in invalid);
-    assert(invalid["Foo"].canFind("wrong"));
+    assert(invalid["Foo"].canFind("invalid"));
 
     struct DifferentSection
     {
