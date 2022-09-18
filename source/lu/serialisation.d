@@ -248,9 +248,7 @@ if (isOutputRange!(Sink, char[]) && isAggregateType!QualThing)
             if (comment)
             {
                 // .init or otherwise disabled
-                //sink.formattedWrite("#%s", memberstring);
-                sink.put('#');
-                sink.put(memberstring);
+                sink.put("#" ~ memberstring);
             }
             else
             {
