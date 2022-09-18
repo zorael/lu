@@ -236,7 +236,43 @@ in (memberToSet.length, "Tried to set member by name but no member string was gi
                     }
                     else static if (isAssociativeArray!T)
                     {
-                        // Silently ignore AAs for now
+                        static if (__traits(compiles, valueToSet.to!T))
+                        {
+                            try
+                            {
+                                thing.tupleof[i] = valueToSet.stripped.unquoted.to!T;
+                                success = true;
+                            }
+                            catch (ConvException e)
+                            {
+                                import std.format : format;
+
+                                enum pattern = "Could not convert `%s.%s` text \"%s\" " ~
+                                    "to a `%s` associative array (%s)";
+                                immutable message = pattern.format(
+                                    Thing.stringof.stripSuffix("Settings"),
+                                    memberToSet,
+                                    valueToSet.stripped.unquoted,
+                                    T.stringof,
+                                    e.msg);
+
+                                throw new ConvException(message);
+                            }
+                            catch (Exception e)
+                            {
+                                import std.format : format;
+
+                                enum pattern = "A set-member action failed (AA): %s";
+                                immutable message = pattern.format(e.msg);
+
+                                throw new SetMemberException(message, Thing.stringof,
+                                    memberToSet, valueToSet.stripped.unquoted);
+                            }
+                        }
+                        else
+                        {
+                            // Inconvertible AA, silently ignore
+                        }
                     }
                     else static if (isPointer!T)
                     {
@@ -352,6 +388,7 @@ unittest
         string bar;
         int baz;
         float* f;
+        string[string] aa;
 
         @Separator("|")
         @Separator(" ")
@@ -390,6 +427,10 @@ unittest
     success = foo.setMemberByName("baz", "42");
     assert(success);
     assert((foo.baz == 42), foo.baz.to!string);
+
+    success = foo.setMemberByName("aa", `["abc":"def", "ghi":"jkl"]`);
+    assert(success);
+    assert((foo.aa == [ "abc":"def", "ghi":"jkl" ]), foo.aa.to!string);
 
     success = foo.setMemberByName("arr", "herp|derp|dirp|darp");
     assert(success);
