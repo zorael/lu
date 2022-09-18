@@ -76,6 +76,7 @@ public:
     Throws: [std.conv.ConvException|ConvException] if a string could not be
         converted into an array, if a passed string could not be converted into
         a bool, or if [std.conv.to] failed to convert a string into wanted type `T`.
+        [SetMemberException] if an unexpected exception was thrown.
  +/
 bool setMemberByName(Thing)
     (ref Thing thing,
@@ -216,6 +217,16 @@ in (memberToSet.length, "Tried to set member by name but no member string was gi
 
                                 throw new ConvException(message);
                             }
+                            catch (Exception e)
+                            {
+                                import std.format : format;
+
+                                enum pattern = "A set-member action failed: %s";
+                                immutable message = pattern.format(e.msg);
+
+                                throw new SetMemberException(message, Thing.stringof,
+                                    memberToSet, values);
+                            }
                         }
                     }
                     else static if (is(T : string))
@@ -305,6 +316,16 @@ in (memberToSet.length, "Tried to set member by name but no member string was gi
                                 e.msg);
 
                             throw new ConvException(message);
+                        }
+                        catch (Exception e)
+                        {
+                            import std.format : format;
+
+                            enum pattern = "A set-member action failed: %s";
+                            immutable message = pattern.format(e.msg);
+
+                            throw new SetMemberException(message, Thing.stringof,
+                                memberToSet, valueToSet);
                         }
                     }
                     break top;
