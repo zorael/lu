@@ -2400,7 +2400,7 @@ if (separator.length)
     immutable asUbytes = line.representation;
     size_t separatorStep;
 
-    for (size_t i = 0; i < asUbytes.length; ++i)
+    for (size_t i; i < asUbytes.length; ++i)
     {
         immutable c = asUbytes[i];
 
