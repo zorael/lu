@@ -16,7 +16,6 @@ mixin template MyMixin()
     mixin MixinConstraints!(MixinScope.struct_ | MixinScope.class_);
 
     void foo() {}
-
     int i;
 }
 
@@ -36,9 +35,10 @@ void baz()
 }
 ```
 
-* [`meld.d`](source/lu/meld.d): Melding two structs/classes of the same type into a union set of their members' values. Non-init values overwrite init ones.
+* [`meld.d`](source/lu/meld.d): Melding two structs/classes of the same type into a union set of their members' values. Also works with arrays and associative arrays. A melding strategy can be supplied as a template parameter for fine-tuning behaviour, but in general non-init values overwrite init ones.
 
 ```d
+// Aggregate
 struct Foo
 {
     string s;
@@ -52,9 +52,21 @@ Foo target;
 target.i = 42;
 
 source.meldInto(target);
-
 assert(target.s == "some string");
 assert(target.i == 42);
+
+// Array
+auto sourceArr = [ 123, 0, 789, 0, 456, 0 ];
+auto targetArr = [ 0, 456, 0, 123, 0, 789 ];
+sourceArr.meldInto(targetArr);
+assert(targetArr == [ 123, 456, 789, 123, 456, 789 ]);
+
+// Associative array
+string[string] sourceAA = [ "a":"a", "b":"b" ];
+string[string] targetAA = [ "c":"c", "d":"d" ];
+
+sourceAA.meldInto(targetAA);
+assert(targetAA == [ "a":"a", "b":"b", "c":"c", "d":"d" ]);
 ```
 
 * [`objmanip.d`](source/lu/objmanip.d): Struct/class manipulation, such as setting a member field by its string name.
@@ -136,7 +148,7 @@ assert((altered.i == 42), altered.i.to!string);
 `);
 ```
 
-* [`serialisation.d`](source/lu/serialisation.d): Functions and templates for serialising structs into an .ini file-*like* format, with entries and values separated into two columns by whitespace.
+* [`serialisation.d`](source/lu/serialisation.d): Functions and templates for serialising structs into an `.ini` file-**like** format, with entries and values separated into two columns by whitespace.
 
 ```d
 struct Foo
@@ -165,7 +177,7 @@ b               true
 pi              3.14159
 `);
 
-File file = File("config.conf", "rw");
+File file = File("config.conf", "w");
 file.writeln(justified);
 
 // Later...
@@ -224,6 +236,7 @@ assert(intoArray[4..8] == [ "tag1", "tag2", "tag3", "tag4" ]);
 
 ```d
 // Credit for Enum goes to Stephan Koch (https://github.com/UplinkCoder). Used with permission.
+// Generates less bloat than `std.conv.to` on larger enums. Restricitons apply.
 
 enum Foo { abc, def, ghi }
 
@@ -240,7 +253,7 @@ immutable otherDef = Enum!Foo.fromString("def");
 immutable otherGhi = Enum!Foo.fromString("ghi");
 ```
 
-* [`json.d`](source/lu/json.d): Convenience wrappers around a `JSONValue`, which can be unwieldy. Not a JSON parser implementation.
+* [`json.d`](source/lu/json.d): Convenience wrappers around a Phobos `JSONValue`, which can be unwieldy. Not a JSON parser implementation.
 * [`container.d`](source/lu/container.d): Container things, so far only a primitive FIFO `Buffer` (queue) and a LIFO `CircularBuffer`.
 * [`common.d`](source/lu/common.d): Things that don't have a better home yet.
 * [`numeric.d`](source/lu/numeric.d): Functions and templates that calculate or manipulate numbers in some way.
