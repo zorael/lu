@@ -669,4 +669,30 @@ unittest
         assert(buf.empty);
         //buf.popFront();  // AssertError
     }
+    {
+        CircularBuffer!(int, No.dynamic, 2) buf;
+        //buf.resize(2);
+
+        buf.put(1);
+        assert((buf.front == 1), buf.front.text);
+        buf.put(2);
+        assert((buf.front == 2), buf.front.text);
+        buf.put(3);
+        assert((buf.front == 3), buf.front.text);
+        buf ~= 4;
+        assert((buf.front == 4), buf.front.text);
+        assert((buf.buf[] == [ 3, 4 ]), buf.buf.text);
+        auto savedBuf = buf.save();
+        buf.popFront();
+        buf.popFront();
+        assert(buf.empty);
+        assert((savedBuf.front == 4), savedBuf.front.text);
+        savedBuf.popFront();
+        auto savedBuf2 = savedBuf.save();
+        savedBuf.popFront();
+        assert(savedBuf.empty);
+        assert((savedBuf2.front == 3), savedBuf2.front.text);
+        savedBuf2.popFront();
+        assert(savedBuf2.empty);
+    }
 }
