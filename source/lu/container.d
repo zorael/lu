@@ -627,7 +627,7 @@ unittest
         assert((buf.front == 3), buf.front.text);
         buf ~= 4;
         assert((buf.front == 4), buf.front.text);
-        assert((buf.buf == [ 4, 2, 3 ]), buf.buf.text);
+        assert((buf.buf[] == [ 4, 2, 3 ]), buf.buf.text);
         buf.popFront();
         buf.popFront();
         buf.popFront();
@@ -645,7 +645,7 @@ unittest
         assert((buf.front == 3), buf.front.text);
         buf ~= 4;
         assert((buf.front == 4), buf.front.text);
-        assert((buf.buf == [ 4, 2, 3 ]), buf.buf.text);
+        assert((buf.buf[] == [ 4, 2, 3 ]), buf.buf.text);
         buf.popFront();
         buf.popFront();
         buf.popFront();
@@ -663,7 +663,7 @@ unittest
         assert((buf.front == 3), buf.front.text);
         buf ~= 4;
         assert((buf.front == 4), buf.front.text);
-        assert((buf.buf == [ 3, 4 ]), buf.buf.text);
+        assert((buf.buf[] == [ 3, 4 ]), buf.buf.text);
         buf.popFront();
         buf.popFront();
         assert(buf.empty);
