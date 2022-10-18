@@ -565,7 +565,7 @@ public:
         Returns:
             A shallow copy of the container.
      +/
-    auto save() const
+    auto save()
     {
         return this;
     }
