@@ -1841,7 +1841,7 @@ auto escapeControlCharacters(const string line) pure nothrow
     import std.array : Appender;
     import std.string : representation;
 
-    Appender!string sink;
+    Appender!(char[]) sink;
     bool dirty;
 
     foreach (immutable i, immutable c; line.representation)
