@@ -643,7 +643,7 @@ if (allSatisfy!(isAggregateType, Things) && allSatisfy!(isMutable, Things))
                     .format(line));
             }
 
-            thingloop:
+            //thingloop:
             foreach (immutable i, thing; things)
             {
                 import lu.string : strippedLeft;
@@ -654,7 +654,7 @@ if (allSatisfy!(isAggregateType, Things) && allSatisfy!(isMutable, Things))
                 alias T = Unqual!(typeof(thing));
                 enum settingslessT = T.stringof.stripSuffix("Settings").idup;
 
-                if (section != settingslessT) continue thingloop;
+                if (section != settingslessT) continue; // thingloop;
                 processedThings[i] = true;
 
                 immutable result = splitEntryValue(line.strippedLeft);

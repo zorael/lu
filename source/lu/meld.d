@@ -149,11 +149,11 @@ if (isAggregateType!Thing && is(QualThing : Thing) && isMutable!Thing)
         }
     }
 
-    foreach (immutable i, ref targetMember; intoThis.tupleof)
+    foreach (immutable i, ref _; intoThis.tupleof)
     {
-        static if (!isType!targetMember)
+        static if (!isType!(intoThis.tupleof[i]))
         {
-            alias T = typeof(targetMember);
+            alias T = typeof(intoThis.tupleof[i]);
 
             static if (hasUDA!(intoThis.tupleof[i], Unmeldable))
             {
@@ -162,7 +162,7 @@ if (isAggregateType!Thing && is(QualThing : Thing) && isMutable!Thing)
             else static if (isAggregateType!T)
             {
                 // Recurse
-                meldThis.tupleof[i].meldInto!strategy(targetMember);
+                meldThis.tupleof[i].meldInto!strategy(intoThis.tupleof[i]);
             }
             else static if (isAssignable!T)
             {
@@ -179,7 +179,7 @@ if (isAggregateType!Thing && is(QualThing : Thing) && isMutable!Thing)
 
                         if (!meldThis.tupleof[i].isNaN)
                         {
-                            targetMember = meldThis.tupleof[i];
+                            intoThis.tupleof[i] = meldThis.tupleof[i];
                         }
                     }
                     else static if (is(T == bool))
@@ -187,7 +187,7 @@ if (isAggregateType!Thing && is(QualThing : Thing) && isMutable!Thing)
                         static if (strategy == MeldingStrategy.overwriting)
                         {
                             // Non-discriminately overwrite bools
-                            targetMember = meldThis.tupleof[i];
+                            intoThis.tupleof[i] = meldThis.tupleof[i];
                         }
                         else static if (strategy == MeldingStrategy.aggressive)
                         {
@@ -196,13 +196,13 @@ if (isAggregateType!Thing && is(QualThing : Thing) && isMutable!Thing)
                                 // We cannot tell whether or not it has the same value as
                                 // `Thing.init` does, as it would need to be instantiated.
                                 // Assume overwrite?
-                                targetMember = meldThis.tupleof[i];
+                                intoThis.tupleof[i] = meldThis.tupleof[i];
                             }
                             else
                             {
-                                if (targetMember == Thing.init.tupleof[i])
+                                if (intoThis.tupleof[i] == Thing.init.tupleof[i])
                                 {
-                                    targetMember = meldThis.tupleof[i];
+                                    intoThis.tupleof[i] = meldThis.tupleof[i];
                                 }
                             }
                         }
@@ -215,28 +215,28 @@ if (isAggregateType!Thing && is(QualThing : Thing) && isMutable!Thing)
                     else static if (isArray!T && !isSomeString!T)
                     {
                         // Pass on to array melder
-                        meldThis.tupleof[i].meldInto!strategy(targetMember);
+                        meldThis.tupleof[i].meldInto!strategy(intoThis.tupleof[i]);
                     }
                     else static if (isAssociativeArray!T)
                     {
                         // Pass on to AA melder
-                        meldThis.tupleof[i].meldInto!strategy(targetMember);
+                        meldThis.tupleof[i].meldInto!strategy(intoThis.tupleof[i]);
                     }
                     else static if (isPointer!T)
                     {
                         // Aggressive and/or overwriting, so just overwrite the pointer?
-                        targetMember = meldThis.tupleof[i];
+                        intoThis.tupleof[i] = meldThis.tupleof[i];
                     }
                     else static if (is(Thing == class))
                     {
                         // Can't compare with Thing.init.tupleof[i]
-                        targetMember = meldThis.tupleof[i];
+                        intoThis.tupleof[i] = meldThis.tupleof[i];
                     }
                     else
                     {
                         if (meldThis.tupleof[i] != Thing.init.tupleof[i])
                         {
-                            targetMember = meldThis.tupleof[i];
+                            intoThis.tupleof[i] = meldThis.tupleof[i];
                         }
                     }
                 }
@@ -248,41 +248,41 @@ if (isAggregateType!Thing && is(QualThing : Thing) && isMutable!Thing)
                     {
                         import std.math : isNaN;
 
-                        if (targetMember.isNaN)
+                        if (intoThis.tupleof[i].isNaN)
                         {
-                            targetMember = meldThis.tupleof[i];
+                            intoThis.tupleof[i] = meldThis.tupleof[i];
                         }
                     }
                     else static if (is(T == enum))
                     {
-                        if (meldThis.tupleof[i] > targetMember)
+                        if (meldThis.tupleof[i] > intoThis.tupleof[i])
                         {
-                            targetMember = meldThis.tupleof[i];
+                            intoThis.tupleof[i] = meldThis.tupleof[i];
                         }
                     }
                     else static if (is(T == string[]))
                     {
                         import std.algorithm.searching : canFind;
 
-                        if (!targetMember.canFind(meldThis.tupleof[i]))
+                        if (!intoThis.tupleof[i].canFind(meldThis.tupleof[i]))
                         {
-                            targetMember ~= meldThis.tupleof[i];
+                            intoThis.tupleof[i] ~= meldThis.tupleof[i];
                         }
                     }
                     else static if (isArray!T && !isSomeString!T)
                     {
                         // Pass on to array melder
-                        meldThis.tupleof[i].meldInto!strategy(targetMember);
+                        meldThis.tupleof[i].meldInto!strategy(intoThis.tupleof[i]);
                     }
                     else static if (isAssociativeArray!T)
                     {
                         // Pass on to AA melder
-                        meldThis.tupleof[i].meldInto!strategy(targetMember);
+                        meldThis.tupleof[i].meldInto!strategy(intoThis.tupleof[i]);
                     }
                     else static if (isPointer!T)
                     {
                         // Conservative, so check if null and overwrite if so
-                        if (!targetMember) targetMember = meldThis.tupleof[i];
+                        if (!intoThis.tupleof[i]) intoThis.tupleof[i] = meldThis.tupleof[i];
                     }
                     else static if (is(T == bool))
                     {
@@ -291,13 +291,13 @@ if (isAggregateType!Thing && is(QualThing : Thing) && isMutable!Thing)
                             // We cannot tell whether or not it has the same value as
                             // `Thing.init` does, as it would need to be instantiated.
                             // Assume overwrite?
-                            targetMember = meldThis.tupleof[i];
+                            intoThis.tupleof[i] = meldThis.tupleof[i];
                         }
                         else
                         {
-                            if (targetMember == Thing.init.tupleof[i])
+                            if (intoThis.tupleof[i] == Thing.init.tupleof[i])
                             {
-                                targetMember = meldThis.tupleof[i];
+                                intoThis.tupleof[i] = meldThis.tupleof[i];
                             }
                         }
                     }
@@ -309,17 +309,17 @@ if (isAggregateType!Thing && is(QualThing : Thing) && isMutable!Thing)
 
                         static if (is(Thing == class))
                         {
-                            if (targetMember == T.init)
+                            if (intoThis.tupleof[i] == T.init)
                             {
-                                targetMember = meldThis.tupleof[i];
+                                intoThis.tupleof[i] = meldThis.tupleof[i];
                             }
                         }
                         else
                         {
-                            if ((targetMember == T.init) ||
-                                (targetMember == Thing.init.tupleof[i]))
+                            if ((intoThis.tupleof[i] == T.init) ||
+                                (intoThis.tupleof[i] == Thing.init.tupleof[i]))
                             {
-                                targetMember = meldThis.tupleof[i];
+                                intoThis.tupleof[i] = meldThis.tupleof[i];
                             }
                         }
                     }
