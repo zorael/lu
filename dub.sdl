@@ -1,7 +1,7 @@
 name "lu"
 description "Library of reusable miscellanea"
 authors "JR"
-copyright "Copyright © 2016-2022, JR"
+copyright "Copyright © 2016+, JR"
 homepage "https://www.github.com/zorael/lu"
 license "BSL-1.0"
 
