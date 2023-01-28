@@ -60,6 +60,8 @@ import std.typecons : Flag, No, Yes;
 
 public:
 
+import lu.uda : Hidden;
+
 @safe:
 
 
