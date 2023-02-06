@@ -6,36 +6,7 @@ Miscellaneous general-purpose library modules. Nothing extraordinary.
 
 API documentation can be found [here](https://lu.dpldocs.info).
 
-In summary:
-
-* [`traits.d`](source/lu/traits.d): Various traits and cleverness.
-
-```d
-mixin template MyMixin()
-{
-    mixin MixinConstraints!(MixinScope.struct_ | MixinScope.class_);
-
-    void foo() {}
-    int i;
-}
-
-struct Bar
-{
-    mixin MyMixin;  // ok
-}
-
-class Baz
-{
-    mixin MyMixin; // also ok
-}
-
-void baz()
-{
-    mixin MyMixin;  // static assert 0, wrong mixin scope type
-}
-```
-
-* [`meld.d`](source/lu/meld.d): Melding two structs/classes of the same type into a union set of their members' values. Also works with arrays and associative arrays. A melding strategy can be supplied as a template parameter for fine-tuning behaviour, but in general non-init values overwrite init ones.
+* [`meld.d`](source/lu/meld.d): Combining two structs/classes of the same type into a union set of their members' values. Also works with arrays and associative arrays. A melding strategy can be supplied as a template parameter for fine-tuning behaviour, but in general non-init values overwrite init ones.
 
 ```d
 // Aggregate
@@ -146,6 +117,33 @@ assert(sink[] ==
 `assert((altered.s == "some string"), altered.s);
 assert((altered.i == 42), altered.i.to!string);
 `);
+```
+
+* [`traits.d`](source/lu/traits.d): Various traits and cleverness.
+
+```d
+mixin template MyMixin()
+{
+    mixin MixinConstraints!(MixinScope.struct_ | MixinScope.class_);
+
+    void foo() {}
+    int i;
+}
+
+struct Bar
+{
+    mixin MyMixin;  // ok
+}
+
+class Baz
+{
+    mixin MyMixin; // also ok
+}
+
+void baz()
+{
+    mixin MyMixin;  // static assert 0, wrong mixin scope type
+}
 ```
 
 * [`serialisation.d`](source/lu/serialisation.d): Functions and templates for serialising structs into an `.ini` file-**like** format, with entries and values separated into two columns by whitespace.
