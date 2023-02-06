@@ -426,4 +426,42 @@ assert(b);
 assert((child.i == 42), child.i.to!string);
 `, '\n' ~ sink.data);
     }
+    {
+        struct Blah
+        {
+            int[5] arr;
+            string[3] sarr;
+            char[2] carr;
+        }
+
+        Blah b1;
+        Blah b2;
+        b2.arr = [ 1, 0, 3, 0, 5 ];
+        b2.sarr = [ "hello", string.init, "world" ];
+        b2.carr = [ 'a', char.init ];
+
+        sink = typeof(sink).init;
+
+        sink.formatDeltaInto(b1, b2);
+        assert(sink.data ==
+`arr[0] = 1;
+arr[2] = 3;
+arr[4] = 5;
+sarr[0] = "hello";
+sarr[2] = "world";
+carr[0] = 'a';
+`);
+
+        sink = typeof(sink).init;
+
+        sink.formatDeltaInto!(Yes.asserts)(b1, b2);
+        assert(sink.data ==
+`assert((arr[0] == 1), arr[0].to!string);
+assert((arr[2] == 3), arr[2].to!string);
+assert((arr[4] == 5), arr[4].to!string);
+assert((sarr[0] == "hello"), sarr[0]);
+assert((sarr[2] == "world"), sarr[2]);
+assert((carr[0] == 'a'), carr[0].to!string);
+`);
+    }
 }
