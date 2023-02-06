@@ -208,6 +208,14 @@ version(unittest)
         mixin MixinConstraints!((MixinScope.class_ | MixinScope.struct_),
             "TestMixinConstrainedToClassOrStruct");
     }
+
+    mixin template TestMixinConstrainedToModule()
+    {
+        mixin MixinConstraints!((MixinScope.module_),
+            "TestMixinConstrainedToModule");
+    }
+
+    mixin TestMixinConstrainedToModule;
 }
 
 
