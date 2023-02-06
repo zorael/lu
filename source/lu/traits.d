@@ -140,7 +140,7 @@ private:
     }
     else static if (((__VERSION__ >= 2087L) && __traits(isModule, mixinParent)) ||
         ((__VERSION__ < 2087L) &&
-            __traits(compiles, { mixin("import ", fullyQualifiedName!mixinParent, ";"); })))
+            __traits(compiles, { mixin("import ", /*fullyQualifiedName!*/mixinParent, ";"); })))
     {
         static if (!(mixinScope & MixinScope.module_))
         {

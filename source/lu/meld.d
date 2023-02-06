@@ -327,9 +327,10 @@ if (isAggregateType!Thing && is(QualThing : Thing) && isMutable!Thing)
             }
             else
             {
-                /*import std.traits : fullyQualifiedName;
-                pragma(msg, '`' ~ T.stringof ~ "` `" ~
-                    fullyQualifiedName!(meldThis.tupleof[i]) ~ "` is not meldable!");*/
+                /*import std.traits : Unqual;
+                static assert(0, Unqual!T.stringof ~ " `" ~
+                    Unqual!QualThing.stringof ~ '.' ~
+                    __traits(identifier, meldThis.tupleof[i]) ~ "` is not meldable!");*/
             }
         }
     }

@@ -195,24 +195,7 @@ if (isOutputRange!(Sink, char[]) && isAggregateType!QualThing)
                 }
                 else static if (is(T == enum))
                 {
-                    import std.traits : fullyQualifiedName;
-
-                    // We could use __traits(identifier, T) but we'd get
-                    // State.connected instead of Connection.State.connected
-                    enum typename = ()
-                    {
-                        import std.algorithm.searching : count;
-                        import std.string : indexOf;
-
-                        string typename = fullyQualifiedName!T;
-
-                        while (typename.count('.') > 1)
-                        {
-                            typename = typename[typename.indexOf('.')+1..$];
-                        }
-
-                        return typename;
-                    }().idup;
+                    enum typename = Unqual!QualThing.stringof ~ '.' ~ T.stringof;
 
                     static if (asserts)
                     {

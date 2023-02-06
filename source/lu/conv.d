@@ -92,8 +92,8 @@ if (is(E == enum))
             }
 
             enumSwitch ~= "default:\n" ~
-                "    import std.traits : fullyQualifiedName;\n" ~
-                `    throw new ConvException("No such " ~ fullyQualifiedName!E ~ ": " ~ enumstring);` ~ "\n}";
+                "    //import std.traits : fullyQualifiedName;\n" ~
+                `    throw new ConvException("No such " ~ E.stringof ~ ": " ~ enumstring);` ~ "\n}";
 
             return enumSwitch;
         }();
