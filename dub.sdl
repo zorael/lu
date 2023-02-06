@@ -7,7 +7,9 @@ license "BSL-1.0"
 
 targetType "library"
 dflags "-dip25" "-dip1008"
-x:ddoxTool "scod"
+dflags "-linkonce-templates" "-disable-verify" platform="ldc"
+#dflags "-ftime-trace" "-ftime-trace-file=trace.json" platform="ldc"
+#postBuildCommands "tracy-import-chrome ./trace.json ./trace.tracy" platform="ldc"
 
 configuration "library" {
     sourcePaths "source"
