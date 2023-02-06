@@ -110,7 +110,8 @@ if (isOutputRange!(Sink, char[]) && isAggregateType!QualThing)
     foreach (immutable i, ref member; after.tupleof)
     {
         import lu.uda : Hidden;
-        import std.traits : Unqual, hasUDA, isAggregateType, isSomeFunction, isSomeString, isType;
+        import std.traits : Unqual, hasUDA, isAggregateType, isArray,
+            isSomeFunction, isSomeString, isType;
 
         alias T = Unqual!(typeof(member));
         enum memberstring = __traits(identifier, before.tupleof[i]);
@@ -129,7 +130,48 @@ if (isOutputRange!(Sink, char[]) && isAggregateType!QualThing)
         {
             if (after.tupleof[i] != before.tupleof[i])
             {
-                static if (isSomeString!T)
+                static if (isArray!T && !isSomeString!T)
+                {
+                    import std.range : ElementEncodingType;
+
+                    // TODO: Rewrite this to recurse
+                    alias E = ElementEncodingType!T;
+
+                    static if (isSomeString!E)
+                    {
+                        static if (asserts)
+                        {
+                            enum pattern = "%sassert((%s%s[%d] == \"%s\"), %2$s%3$s[%4$d]);\n";
+                        }
+                        else
+                        {
+                            enum pattern = "%s%s%s[%d] = \"%s\";\n";
+                        }
+                    }
+                    else static if (is(E == char))
+                    {
+                        static if (asserts)
+                        {
+                            enum pattern = "%sassert((%s%s[%d] == '%s'), %2$s%3$s[%4$d].to!string);\n";
+                        }
+                        else
+                        {
+                            enum pattern = "%s%s%s[%d] = '%s';\n";
+                        }
+                    }
+                    else
+                    {
+                        static if (asserts)
+                        {
+                            enum pattern = "%sassert((%s%s[%d] == %s), %2$s%3$s[%4$d].to!string);\n";
+                        }
+                        else
+                        {
+                            enum pattern = "%s%s%s[%d] = %s;\n";
+                        }
+                    }
+                }
+                else static if (isSomeString!T)
                 {
                     static if (asserts)
                     {
@@ -222,6 +264,14 @@ if (isOutputRange!(Sink, char[]) && isAggregateType!QualThing)
                         .replace('"', `\"`);
 
                     sink.formattedWrite(pattern, indentation, prefix, memberstring, escaped);
+                }
+                else static if (isArray!T)
+                {
+                    foreach (n, val; member)
+                    {
+                        if (before.tupleof[i][n] == after.tupleof[i][n]) continue;
+                        sink.formattedWrite(pattern, indentation, prefix, memberstring, n, member[n]);
+                    }
                 }
                 else
                 {
