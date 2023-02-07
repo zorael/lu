@@ -576,8 +576,7 @@ unittest
     Returns:
         A slice of the passed string line without enclosing tokens.
  +/
-private T unenclosed(char token = '"', T)(const T line) pure nothrow @nogc
-if (isSomeString!T)
+private string unenclosed(char token = '"')(const string line) pure nothrow @nogc
 {
     enum escaped = "\\" ~ token;
 
@@ -623,7 +622,7 @@ if (isSomeString!T)
         A slice of the `line` argument that excludes the quotes.
  +/
 pragma(inline, true)
-T unquoted(T)(const T line) pure nothrow @nogc
+auto unquoted(const string line) pure nothrow @nogc
 {
     return unenclosed!'"'(line);
 }
@@ -662,7 +661,7 @@ unittest
         A slice of the `line` argument that excludes the single-quotes.
  +/
 pragma(inline, true)
-T unsinglequoted(T)(const T line) pure nothrow @nogc
+auto unsinglequoted(const string line) pure nothrow @nogc
 {
     return unenclosed!'\''(line);
 }
