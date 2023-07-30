@@ -119,6 +119,48 @@ assert((altered.i == 42), altered.i.to!string);
 `);
 ```
 
+* [`typecons.d`](source/lu/typecons.d): Basic type constructors.
+
+```d
+struct Foo
+{
+    int _i;
+    string _s;
+    bool _b;
+    string[] _add;
+    alias wordList = _add;
+
+    mixin UnderscoreOpDispatcher;
+}
+
+Foo f;
+f.i = 42;         // f.opDispatch!"i"(42);
+f.s = "hello";    // f.opDispatch!"s"("hello");
+f.b = true;       // f.opDispatch!"b"(true);
+f.add("hello");   // f.opDispatch!"add"("hello");
+f.add("world");   // f.opDispatch!"add"("world");
+
+assert(f.i == 42);
+assert(f.s == "hello");
+assert(f.b);
+assert(f.wordList == [ "hello", "world" ]);
+
+/+
+    Returns `this` by reference, so we can chain calls.
+    +/
+auto f2 = Foo()
+    .i(9001)
+    .s("world")
+    .b(false)
+    .add("hello")
+    .add("world");
+
+assert(f2.i == 9001);
+assert(f2.s == "world");
+assert(!f2.b);
+assert(f2.wordList == [ "hello", "world" ]);
+```
+
 * [`traits.d`](source/lu/traits.d): Various traits and cleverness.
 
 ```d
