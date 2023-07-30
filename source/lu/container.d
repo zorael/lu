@@ -628,6 +628,11 @@ unittest
         buf ~= 4;
         assert((buf.front == 4), buf.front.text);
         assert((buf.buf[] == [ 4, 2, 3 ]), buf.buf.text);
+        buf ~= 5;
+        assert((buf.front == 5), buf.front.text);
+        buf ~= 6;
+        assert((buf.front == 6), buf.front.text);
+        assert((buf.buf[] == [ 4, 5, 6 ]), buf.buf.text);
         buf.popFront();
         buf.popFront();
         buf.popFront();
