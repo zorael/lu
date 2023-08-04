@@ -15,6 +15,14 @@ public:
  +/
 mixin template UnderscoreOpDispatcher()
 {
+    version(unittest)
+    {
+        import lu.traits : MixinConstraints, MixinScope;
+        mixin MixinConstraints!(
+            (MixinScope.struct_ | MixinScope.class_ | MixinScope.union_),
+            typeof(this).stringof);
+    }
+
     /++
         Mutator.
 
