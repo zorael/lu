@@ -78,7 +78,6 @@ public:
 struct Buffer(T, Flag!"dynamic" dynamic = No.dynamic, size_t originalSize = 128)
 {
 pure nothrow:
-
     static if (dynamic)
     {
         /++
@@ -118,7 +117,6 @@ pure nothrow:
         Position of last entry in the array.
      +/
     ptrdiff_t end;
-
 
     static if (dynamic)
     {
