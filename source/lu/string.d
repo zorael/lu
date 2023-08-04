@@ -69,7 +69,7 @@ public:
         decode = Whether to use auto-decoding functions, or try to keep to non-
             decoding ones (whenever possible).
         haystack = String to walk and advance.
-        needle = Token that deliminates what should be returned and to where to advance.
+        needle = Token that delimits what should be returned and to where to advance.
         callingFile = Name of the calling source file, used to pass along when
             throwing an exception.
         callingLine = Line number where in the source file this is called, used
@@ -297,7 +297,7 @@ unittest
         decode = Whether to use auto-decoding functions, or try to keep to non-
             decoding ones (when possible).
         haystack = String to walk and advance.
-        needle = Token that deliminates what should be returned and to where to advance.
+        needle = Token that delimits what should be returned and to where to advance.
         callingFile = Name of the calling source file, used to pass along when
             throwing an exception.
         callingLine = Line number where in the source file this is called, used
@@ -1692,7 +1692,7 @@ unittest
 
 // splitLineAtPosition
 /++
-    Splits a string with on boundary as deliminated by a supplied separator, into
+    Splits a string with on boundary as delimited by a supplied separator, into
     one or more more lines not longer than the passed maximum length.
 
     If a line cannot be split due to the line being too short or the separator
@@ -2366,7 +2366,7 @@ unittest
 
     Returns:
         A `string[]` composed of the input string split up into substrings,
-        deliminated by whitespace. Quoted sections are treated as one substring.
+        delimited by whitespace. Quoted sections are treated as one substring.
  +/
 auto splitWithQuotes(string separator = " ")(const string line)
 if (separator.length)
