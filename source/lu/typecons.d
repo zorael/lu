@@ -61,7 +61,7 @@ mixin template UnderscoreOpDispatcher()
         Returns:
             The value of the variable.
      +/
-    auto opDispatch(string var)() const
+    auto opDispatch(string var)() inout
     {
         enum realVar = '_' ~ var;
         return mixin(realVar);
