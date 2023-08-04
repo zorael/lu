@@ -246,51 +246,48 @@ version(unittest)
  +/
 template CategoryName(alias sym)
 {
-    import std.traits : fullyQualifiedName;
+    import std.traits : isDelegate, isFunction, fullyQualifiedName;
 
     // type
     /++
         String representation of the category type of `sym`.
      +/
-    enum type = ()
+    static if (isFunction!sym)
     {
-        import std.traits : isDelegate, isFunction;
-
-        static if (isFunction!sym)
-        {
-            return "function";
-        }
-        else static if (isDelegate!sym)
-        {
-            return "delegate";
-        }
-        else static if (is(sym == class) || is(typeof(sym) == class))
-        {
-            return "class";
-        }
-        else static if (is(sym == struct) || is(typeof(sym) == struct))
-        {
-            return "struct";
-        }
-        else static if (is(sym == interface) || is(typeof(sym) == interface))
-        {
-            return "interface";
-        }
-        else static if (is(sym == union) || is(typeof(sym) == union))
-        {
-            return "union";
-        }
-        else static if (((__VERSION__ >= 2087L) && __traits(isModule, sym)) ||
-            ((__VERSION__ < 2087L) &&
-                __traits(compiles, { mixin("import ", fullyQualifiedName!sym, ";"); })))
-        {
-            return "module";
-        }
-        else
-        {
-            return "(unknown)";
-        }
-    }();
+        enum type = "function";
+    }
+    else static if (isDelegate!sym)
+    {
+        enum type = "delegate";
+    }
+    else static if (is(sym == class) || is(typeof(sym) == class))
+    {
+        enum type = "class";
+    }
+    else static if (is(sym == struct) || is(typeof(sym) == struct))
+    {
+        enum type = "struct";
+    }
+    else static if (is(sym == interface) || is(typeof(sym) == interface))
+    {
+        enum type = "interface";
+    }
+    else static if (is(sym == union) || is(typeof(sym) == union))
+    {
+        enum type = "union";
+    }
+    else static if (
+        ((__VERSION__ >= 2087L) && __traits(isModule, sym)) ||
+        ((__VERSION__ < 2087L) &&
+            __traits(compiles, { mixin("import ", fullyQualifiedName!sym, ";"); })))
+    {
+        enum type = "module";
+    }
+    else
+    {
+        // Not quite sure when this could happen
+        enum type = "some";
+    }
 
 
     // name
