@@ -119,7 +119,7 @@ assert((altered.i == 42), altered.i.to!string);
 `);
 ```
 
-* [`typecons.d`](source/lu/typecons.d): Basic type constructors.
+* [`typecons.d`](source/lu/typecons.d): So far only `UnderscoreOpDispatcher`. When mixed into some aggregate, it generates an `opDispatch` that allows for accessing and mutating any (potentially private) members of it whose names start with an underscore. Arrays are appended to.
 
 ```d
 struct Foo
@@ -147,7 +147,7 @@ assert(f.wordList == [ "hello", "world" ]);
 
 /+
     Returns `this` by reference, so we can chain calls.
-    +/
+ +/
 auto f2 = Foo()
     .i(9001)
     .s("world")
@@ -276,7 +276,7 @@ assert(intoArray[4..8] == [ "tag1", "tag2", "tag3", "tag4" ]);
 
 ```d
 // Credit for Enum goes to Stephan Koch (https://github.com/UplinkCoder). Used with permission.
-// Generates less bloat than `std.conv.to` on larger enums. Restricitons apply.
+// Generates less bloat than `std.conv.to` on larger enums. Restrictions apply.
 
 enum Foo { abc, def, ghi }
 
