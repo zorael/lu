@@ -35,12 +35,17 @@ mixin template UnderscoreOpDispatcher()
      +/
     ref auto opDispatch(string var, T)(T value)
     {
-        import std.traits : isArray, isSomeString;
+        import std.traits : isArray, isAssociativeArray, isSomeString;
 
         enum realVar = '_' ~ var;
         alias V = typeof(mixin(realVar));
 
-        static if (isArray!V && !isSomeString!V)
+        static if (isAssociativeArray!V)
+        {
+            import lu.meld : MeldingStrategy, meldInto;
+            value.meldInto!(MeldingStrategy.overwriting)(mixin(realVar));
+        }
+        else static if (isArray!V && !isSomeString!V)
         {
             mixin(realVar) ~= value;
         }
@@ -71,41 +76,56 @@ mixin template UnderscoreOpDispatcher()
 ///
 unittest
 {
-    struct Foo
     {
-        int _i;
-        string _s;
-        bool _b;
-        string[] _add;
-        alias wordList = _add;
+        struct Foo
+        {
+            int _i;
+            string _s;
+            bool _b;
+            string[] _add;
+            alias wordList = _add;
 
-        mixin UnderscoreOpDispatcher;
+            mixin UnderscoreOpDispatcher;
+        }
+
+        Foo f;
+        f.i = 42;         // f.opDispatch!"i"(42);
+        f.s = "hello";    // f.opDispatch!"s"("hello");
+        f.b = true;       // f.opDispatch!"b"(true);
+        f.add("hello");   // f.opDispatch!"add"("hello");
+        f.add("world");   // f.opDispatch!"add"("world");
+
+        assert(f.i == 42);
+        assert(f.s == "hello");
+        assert(f.b);
+        assert(f.wordList == [ "hello", "world" ]);
+
+        /+
+            Returns `this` by reference, so we can chain calls.
+        +/
+        auto f2 = Foo()
+            .i(9001)
+            .s("world")
+            .b(false)
+            .add("hello")
+            .add("world");
+
+        assert(f2.i == 9001);
+        assert(f2.s == "world");
+        assert(!f2.b);
+        assert(f2.wordList == [ "hello", "world" ]);
     }
+    {
+        struct Bar
+        {
+            string[string] _aa;
 
-    Foo f;
-    f.i = 42;         // f.opDispatch!"i"(42);
-    f.s = "hello";    // f.opDispatch!"s"("hello");
-    f.b = true;       // f.opDispatch!"b"(true);
-    f.add("hello");   // f.opDispatch!"add"("hello");
-    f.add("world");   // f.opDispatch!"add"("world");
+            mixin UnderscoreOpDispatcher;
+        }
 
-    assert(f.i == 42);
-    assert(f.s == "hello");
-    assert(f.b);
-    assert(f.wordList == [ "hello", "world" ]);
-
-    /+
-        Returns `this` by reference, so we can chain calls.
-     +/
-    auto f2 = Foo()
-        .i(9001)
-        .s("world")
-        .b(false)
-        .add("hello")
-        .add("world");
-
-    assert(f2.i == 9001);
-    assert(f2.s == "world");
-    assert(!f2.b);
-    assert(f2.wordList == [ "hello", "world" ]);
+        Bar bar;
+        bar.aa = [ "hello" : "world" ];
+        bar.aa = [ "foo" : "bar" ];
+        assert(bar.aa == [ "hello" : "world", "foo" : "bar"]);
+    }
 }
