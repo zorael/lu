@@ -1,18 +1,17 @@
 /++
-    String manipulation functions complementing the standard library, as well as
-    providing dumbed-down and optimised versions of existing functions therein.
+    String manipulation functions complementing the standard library.
 
     Example:
     ---
     {
         string line = "Lorem ipsum :sit amet";
-        immutable lorem = line.nom(" :");
+        immutable lorem = line.advancePast(" :");
         assert(lorem == "Lorem ipsum", lorem);
         assert(line == "sit amet", line);
     }
     {
         string line = "Lorem ipsum :sit amet";
-        immutable lorem = line.nom(':');
+        immutable lorem = line.advancePast(':');
         assert(lorem == "Lorem ipsum ", lorem);
         assert(line == "sit amet", line);
     }
@@ -22,7 +21,7 @@
 
         while (line.length > 0)
         {
-            immutable word = line.nom!(Yes.inherit)(" ");
+            immutable word = line.advancePast(" ", Yes.inherit);
             words ~= word;
         }
 
@@ -34,8 +33,7 @@ module lu.string;
 
 private:
 
-import std.range.primitives : ElementEncodingType, ElementType, isOutputRange;
-import std.traits : allSameType, isIntegral, isMutable, isSomeString;
+import std.traits : allSameType;
 import std.typecons : Flag, No, Yes;
 
 public:
@@ -43,93 +41,148 @@ public:
 @safe:
 
 
-// nom
+// advancePast
 /++
     Given some string, finds the supplied needle token in it, returns the
     string up to that point, and advances the passed string by ref to after the token.
 
-    The naming is in line with standard library functions such as
-    [std.string.munch|munch], [std.file.slurp|slurp] and others.
+    The closest equivalent in Phobos is [std.algorithm.searching.findSplit],
+    which largely serves the same function but doesn't advance the input string.
+
+    Additionally takes an optional `Flag!"inherit"` argument, to toggle
+    whether the return value inherits the passed line (and clearing it) upon no
+    needle match.
 
     Example:
     ---
     string foobar = "foo bar!";
-    string foo = foobar.nom(" ");
-    string bar = foobar.nom("!");
+    string foo = foobar.advancePast(" ");
+    string bar = foobar.advancePast("!");
 
     assert((foo == "foo"), foo);
     assert((bar == "bar"), bar);
     assert(!foobar.length);
 
     enum line = "abc def ghi";
-    string def = line[4..$].nom(" ");  // now with auto ref
+    string def = line[4..$].advancePast(" ");  // now with auto ref
+
+    string foobar2 = "foo bar!";
+    string foo2 = foobar2.advancePast(" ");
+    string bar2 = foobar2.advancePast("?", Yes.inherit);
+
+    assert((foo2 == "foo"), foo2);
+    assert((bar2 == "bar!"), bar2);
+    assert(!foobar2.length);
+
+    string slice2 = "snarfl";
+    string verb2 = slice2.advancePast(" ", Yes.inherit);
+
+    assert((verb2 == "snarfl"), verb2);
+    assert(!slice2.length, slice2);
     ---
 
     Params:
-        decode = Whether to use auto-decoding functions, or try to keep to non-
-            decoding ones (whenever possible).
-        haystack = String to walk and advance.
+        haystack = Array to walk and advance.
         needle = Token that delimits what should be returned and to where to advance.
-        callingFile = Name of the calling source file, used to pass along when
-            throwing an exception.
-        callingLine = Line number where in the source file this is called, used
-            to pass along when throwing an exception.
+            May be another array or some individual character.
+        inherit = Optional flag of whether or not the whole string should be
+            returned and the haystack variable cleared on no needle match.
+        callingFile = Optional file name to attach to an exception.
+        callingLine = Optional line number to attach to an exception.
 
     Returns:
         The string `haystack` from the start up to the needle token. The original
         variable is advanced to after the token.
 
     Throws:
-        [NomException] if the needle could not be found in the string.
+        [AdvanceException] if the needle could not be found in the string.
  +/
-T nom(Flag!"decode" decode = No.decode, T, C)
-    (auto ref T haystack,
-    const C needle,
+auto advancePast(Haystack, Needle)
+    (auto ref return scope Haystack haystack,
+    const scope Needle needle,
+    const Flag!"inherit" inherit = No.inherit,
     const string callingFile = __FILE__,
-    const size_t callingLine = __LINE__) /*pure @nogc*/
-if (isMutable!T && isSomeString!T && (is(C : T) || is(C : ElementType!T) || is(C : ElementEncodingType!T)))
+    const size_t callingLine = __LINE__) @safe
 in
 {
-    static if (__traits(compiles, needle.length))
+    import std.traits : isArray;
+
+    static if (isArray!Needle)
     {
         if (!needle.length)
         {
-            throw new NomExceptionImpl!(T, C)("Tried to `nom` with no `needle` given",
-                haystack, needle, callingFile, callingLine);
+            enum message = "Tried to `advancePast` with no `needle` given";
+            throw new AdvanceExceptionImpl!(Haystack, Needle)
+                (message,
+                haystack.idup,
+                needle.idup,
+                callingFile,
+                callingLine);
         }
     }
 }
 do
 {
-    static if (decode || is(T : dstring) || is(T : wstring))
+    import std.traits : isArray, isMutable, isSomeChar;
+
+    static if (!isMutable!Haystack)
+    {
+        enum message = "`advancePast` only works on mutable haystacks";
+        static assert(0, message);
+    }
+    else static if (!isArray!Haystack)
+    {
+        enum message = "`advancePast` only works on array-type haystacks";
+        static assert(0, message);
+    }
+    else static if (
+        !isArray!Haystack &&
+        !is(Needle : ElementType!Haystack) &&
+        !is(Needle : ElementEncodingType!Haystack))
+    {
+        enum message = "`advancePast` only works with array- or single-element-type needles";
+        static assert(0, message);
+    }
+
+    static if (isArray!Needle || isSomeChar!Needle)
     {
         import std.string : indexOf;
-        // dstring and wstring only work with indexOf, not countUntil
         immutable index = haystack.indexOf(needle);
     }
     else
     {
-        // Only do this if we know it's not user text
         import std.algorithm.searching : countUntil;
-        import std.string : representation;
-
-        static if (isSomeString!C)
-        {
-            immutable index = haystack.representation.countUntil(needle.representation);
-        }
-        else
-        {
-            immutable index = haystack.representation.countUntil(cast(ubyte)needle);
-        }
+        immutable index = haystack.countUntil(needle);
     }
 
     if (index == -1)
     {
-        throw new NomExceptionImpl!(T, C)("Tried to nom too much",
-            haystack, needle, callingFile, callingLine);
+        if (inherit)
+        {
+            // No needle match; inherit string and clear the original
+            static if (__traits(isRef, haystack)) scope(exit) haystack = null;
+            return haystack;
+        }
+
+        static if (isArray!Needle)
+        {
+            immutable needleIdup = needle.idup;
+        }
+        else
+        {
+            alias needleIdup = needle;
+        }
+
+        enum message = "Tried to advance a string past something that wasn't there";
+        throw new AdvanceExceptionImpl!(Haystack, Needle)
+            (message,
+            haystack.idup,
+            needleIdup,
+            callingFile,
+            callingLine);
     }
 
-    static if (isSomeString!C)
+    static if (isArray!Needle)
     {
         immutable separatorLength = needle.length;
     }
@@ -138,235 +191,135 @@ do
         enum separatorLength = 1;
     }
 
-    static if (__traits(isRef, haystack))
-    {
-        scope(exit) haystack = haystack[(index+separatorLength)..$];
-    }
-
+    static if (__traits(isRef, haystack)) scope(exit) haystack = haystack[(index+separatorLength)..$];
     return haystack[0..index];
 }
+
 
 ///
 unittest
 {
     import std.conv : to;
+    import std.string : indexOf;
 
     {
         string line = "Lorem ipsum :sit amet";
-        immutable lorem = line.nom(" :");
+        immutable lorem = line.advancePast(" :");
         assert(lorem == "Lorem ipsum", lorem);
         assert(line == "sit amet", line);
     }
     {
         string line = "Lorem ipsum :sit amet";
-        immutable lorem = line.nom!(Yes.decode)(" :");
+        //immutable lorem = line.advancePast(" :");
+        immutable lorem = line.advancePast(" :");
         assert(lorem == "Lorem ipsum", lorem);
         assert(line == "sit amet", line);
     }
     {
         string line = "Lorem ipsum :sit amet";
-        immutable lorem = line.nom(':');
+        immutable lorem = line.advancePast(':');
         assert(lorem == "Lorem ipsum ", lorem);
         assert(line == "sit amet", line);
     }
     {
         string line = "Lorem ipsum :sit amet";
-        immutable lorem = line.nom!(Yes.decode)(':');
+        immutable lorem = line.advancePast(':');
         assert(lorem == "Lorem ipsum ", lorem);
         assert(line == "sit amet", line);
     }
     {
         string line = "Lorem ipsum :sit amet";
-        immutable lorem = line.nom(' ');
+        immutable lorem = line.advancePast(' ');
         assert(lorem == "Lorem", lorem);
         assert(line == "ipsum :sit amet", line);
     }
     {
         string line = "Lorem ipsum :sit amet";
-        immutable lorem = line.nom!(Yes.decode)(' ');
+        immutable lorem = line.advancePast(' ');
         assert(lorem == "Lorem", lorem);
         assert(line == "ipsum :sit amet", line);
     }
     /*{
         string line = "Lorem ipsum :sit amet";
-        immutable lorem = line.nom("");
+        immutable lorem = line.advancePast("");
         assert(!lorem.length, lorem);
         assert(line == "Lorem ipsum :sit amet", line);
     }*/
     /*{
         string line = "Lorem ipsum :sit amet";
-        immutable lorem = line.nom!(Yes.decode)("");
+        immutable lorem = line.advancePast("");
         assert(!lorem.length, lorem);
         assert(line == "Lorem ipsum :sit amet", line);
     }*/
     {
         string line = "Lorem ipsum :sit amet";
-        immutable lorem = line.nom("Lorem ipsum");
+        immutable lorem = line.advancePast("Lorem ipsum");
         assert(!lorem.length, lorem);
         assert(line == " :sit amet", line);
     }
     {
         string line = "Lorem ipsum :sit amet";
-        immutable lorem = line.nom!(Yes.decode)("Lorem ipsum");
+        immutable lorem = line.advancePast("Lorem ipsum");
         assert(!lorem.length, lorem);
         assert(line == " :sit amet", line);
     }
     {
         string line = "Lorem ipsum :sit amet";
         immutable dchar dspace = ' ';
-        immutable lorem = line.nom(dspace);
+        immutable lorem = line.advancePast(dspace);
         assert(lorem == "Lorem", lorem);
         assert(line == "ipsum :sit amet", line);
     }
     {
         dstring dline = "Lorem ipsum :sit amet"d;
         immutable dspace = " "d;
-        immutable lorem = dline.nom(dspace);
+        immutable lorem = dline.advancePast(dspace);
         assert((lorem == "Lorem"d), lorem.to!string);
         assert((dline == "ipsum :sit amet"d), dline.to!string);
     }
     {
         dstring dline = "Lorem ipsum :sit amet"d;
         immutable wchar wspace = ' ';
-        immutable lorem = dline.nom(wspace);
+        immutable lorem = dline.advancePast(wspace);
         assert((lorem == "Lorem"d), lorem.to!string);
         assert((dline == "ipsum :sit amet"d), dline.to!string);
     }
     {
         wstring wline = "Lorem ipsum :sit amet"w;
         immutable wchar wspace = ' ';
-        immutable lorem = wline.nom(wspace);
+        immutable lorem = wline.advancePast(wspace);
         assert((lorem == "Lorem"w), lorem.to!string);
         assert((wline == "ipsum :sit amet"w), wline.to!string);
     }
     {
         wstring wline = "Lorem ipsum :sit amet"w;
         immutable wspace = " "w;
-        immutable lorem = wline.nom(wspace);
+        immutable lorem = wline.advancePast(wspace);
         assert((lorem == "Lorem"w), lorem.to!string);
         assert((wline == "ipsum :sit amet"w), wline.to!string);
     }
     {
         string user = "foo!bar@asdf.adsf.com";
-        user = user.nom('!');
+        user = user.advancePast('!');
         assert((user == "foo"), user);
     }
     {
-        immutable def = "abc def ghi"[4..$].nom(" ");
+        immutable def = "abc def ghi"[4..$].advancePast(" ");
         assert((def == "def"), def);
     }
     {
         import std.exception : assertThrown;
-        assertThrown!NomException("abc def ghi"[4..$].nom(""));
+        assertThrown!AdvanceException("abc def ghi"[4..$].advancePast(""));
     }
-}
-
-
-// nom
-/++
-    Given some string, finds the supplied needle token in it, returns the
-    string up to that point, and advances the passed string by ref to after the token.
-
-    The naming is in line with standard library functions such as
-    [std.string.munch|munch], [std.file.slurp|slurp] and others.
-
-    Overload that takes an extra `Flag!"inherit"` template parameter, to toggle
-    whether the return value inherits the passed line (and clearing it) upon no
-    needle match.
-
-    Example:
-    ---
-    string foobar = "foo bar!";
-    string foo = foobar.nom(" ");
-    string bar = foobar.nom!(Yes.inherit)("?");
-
-    assert((foo == "foo"), foo);
-    assert((bar == "bar!"), bar);
-    assert(!foobar.length);
-
-    string slice = "snarfl";
-    string verb = slice.nom!(Yes.inherit)(" ");
-
-    assert((verb == "snarfl"), verb);
-    assert(!slice.length, slice);
-    ---
-
-    Params:
-        inherit = Whether or not to have the returned string inherit (and clear)
-            the passed haystack by ref.
-        decode = Whether to use auto-decoding functions, or try to keep to non-
-            decoding ones (when possible).
-        haystack = String to walk and advance.
-        needle = Token that delimits what should be returned and to where to advance.
-        callingFile = Name of the calling source file, used to pass along when
-            throwing an exception.
-        callingLine = Line number where in the source file this is called, used
-            to pass along when throwing an exception.
-
-    Returns:
-        The string `haystack` from the start up to the needle token, if it exists.
-        If so, the original variable is advanced to after the token.
-        If it doesn't exist, the string in `haystack` is inherited into the return
-        value and returned, while the `haystack` symbol itself is cleared.
-
-    Throws:
-        [NomException] if errors were encountered.
- +/
-T nom(Flag!"inherit" inherit, Flag!"decode" decode = No.decode, T, C)
-    (auto ref T haystack,
-    const C needle,
-    const string callingFile = __FILE__,
-    const size_t callingLine = __LINE__) /*pure @nogc*/
-if (isMutable!T && isSomeString!T && (is(C : T) || is(C : ElementType!T) || is(C : ElementEncodingType!T)))
-in
-{
-    static if (__traits(compiles, needle.length))
-    {
-        if (!needle.length)
-        {
-            throw new NomExceptionImpl!(T, C)("Tried to `nom` with no `needle` given",
-                haystack, needle, callingFile, callingLine);
-        }
-    }
-}
-do
-{
-    static if (inherit)
-    {
-        if (haystack.contains!decode(needle))
-        {
-            // Separator exists, no inheriting will take place, call original nom
-            return haystack.nom!decode(needle, callingFile, callingLine);
-        }
-        else
-        {
-            // No needle match; inherit string and clear the original
-            static if (__traits(isRef, haystack))
-            {
-                scope(exit) haystack = string.init;
-            }
-            return haystack;
-        }
-    }
-    else
-    {
-        // Not inheriting due to argument No.inherit, so just pass onto original nom
-        return haystack.nom!decode(needle, callingFile, callingLine);
-    }
-}
-
-///
-unittest
-{
     {
         string line = "Lorem ipsum";
-        immutable head = line.nom(" ");
+        immutable head = line.advancePast(" ");
         assert((head == "Lorem"), head);
         assert((line == "ipsum"), line);
     }
     {
         string line = "Lorem";
-        immutable head = line.nom!(Yes.inherit)(" ");
+        immutable head = line.advancePast(" ", Yes.inherit);
         assert((head == "Lorem"), head);
         assert(!line.length, line);
     }
@@ -374,9 +327,9 @@ unittest
         string slice = "verb";
         string verb;
 
-        if (slice.contains(' '))
+        if (slice.indexOf(' ') != -1)
         {
-            verb = slice.nom(' ');
+            verb = slice.advancePast(' ');
         }
         else
         {
@@ -389,18 +342,18 @@ unittest
     }
     {
         string slice = "verb";
-        immutable verb = slice.nom!(Yes.inherit)(' ');
+        immutable verb = slice.advancePast(' ', Yes.inherit);
         assert((verb == "verb"), verb);
         assert(!slice.length, slice);
     }
     {
         string url = "https://google.com/index.html#fragment-identifier";
-        url = url.nom!(Yes.inherit)('#');
+        url = url.advancePast('#', Yes.inherit);
         assert((url == "https://google.com/index.html"), url);
     }
     {
         string url = "https://google.com/index.html";
-        url = url.nom!(Yes.inherit)('#');
+        url = url.advancePast('#', Yes.inherit);
         assert((url == "https://google.com/index.html"), url);
     }
     {
@@ -409,7 +362,7 @@ unittest
 
         while (line.length > 0)
         {
-            immutable word = line.nom!(Yes.inherit)(" ");
+            immutable word = line.advancePast(" ", Yes.inherit);
             words ~= word;
         }
 
@@ -418,27 +371,82 @@ unittest
     {
         import std.exception : assertThrown;
         string url = "https://google.com/index.html#fragment-identifier";
-        assertThrown!NomException(url.nom!(Yes.inherit)(""));
+        assertThrown!AdvanceException(url.advancePast("", Yes.inherit));
     }
 }
 
 
+// advancePast
+/++
+    Params:
+        inherit = Optional flag of whether or not the whole string should be
+            returned and the haystack variable cleared on no needle match.
+        haystack = Array to walk and advance.
+        needle = Token that delimits what should be returned and to where to advance.
+            May be another array or some individual character.
+        callingFile = Optional file name to attach to an exception.
+        callingLine = Optional line number to attach to an exception.
+
+    Returns:
+        The string `haystack` from the start up to the needle token. The original
+        variable is advanced to after the token.
+ +/
+deprecated("Use `advancePast` with a runtime `inherit` flag instead")
+pragma(inline, true)
+auto advancePast(Flag!"inherit" inherit, Haystack, Needle)
+    (auto ref return scope Haystack haystack,
+    const scope Needle needle,
+    const string callingFile = __FILE__,
+    const size_t callingLine = __LINE__) @safe
+{
+    return advancePast(haystack, needle, inherit, callingFile, callingLine);
+}
+
+
+// nom
+/++
+    Compatibility alias to [advancePast].
+ +/
+alias nom = advancePast;
+
+
 // NomException
 /++
-    Exception, to be thrown when a call to [nom] went wrong.
+    Compatibility alias to [AdvanceException].
+ +/
+alias NomException = AdvanceException;
+
+
+// NomExceptionImpl
+/++
+    Compatibility alias to [AdvanceExceptionImpl].
+ +/
+alias NomExceptionImpl = AdvanceExceptionImpl;
+
+
+// AdvanceException
+/++
+    Exception, to be thrown when a call to [advancePast] went wrong.
 
     It is a normal [object.Exception|Exception] but with an attached needle and haystack.
  +/
-abstract class NomException : Exception
+abstract class AdvanceException : Exception
 {
-    /// Returns a string of the original haystack the call to [nom] was operating on.
-    string haystack();
+    /++
+        Returns a string of the original haystack the call to [advancePast] was operating on.
+     +/
+    string haystack() pure @safe;
 
-    /// Returns a string of the original needle the call to [nom] was operating on.
-    string needle();
+    /++
+        Returns a string of the original needle the call to [advancePast] was operating on.
+     +/
+    string needle() pure @safe;
 
-    /// Create a new [NomExceptionImpl], without attaching anything.
-    this(const string message,
+    /++
+        Create a new [AdvanceExceptionImpl], without attaching anything.
+     +/
+    this(
+        const string message,
         const string file = __FILE__,
         const size_t line = __LINE__,
         Throwable nextInChain = null) pure nothrow @nogc @safe
@@ -448,9 +456,9 @@ abstract class NomException : Exception
 }
 
 
-// NomExceptionImpl
+// AdvanceExceptionImpl
 /++
-    Exception, to be thrown when a call to [nom] went wrong.
+    Exception, to be thrown when a call to [advancePast] went wrong.
 
     This is the templated implementation, so that we can support more than one
     kind of needle and haystack combination.
@@ -458,61 +466,72 @@ abstract class NomException : Exception
     It is a normal [object.Exception|Exception] but with an attached needle and haystack.
 
     Params:
-        T = Haystack type (`string`, `wstring` or `dstring`).
-        C = Needle type (any type of character or any string).
+        Haystack = Haystack array type.
+        Needle = Needle array or char-like type.
  +/
-final class NomExceptionImpl(T, C) : NomException
+final class AdvanceExceptionImpl(Haystack, Needle) : AdvanceException
 {
-@safe:
-    /// Raw haystack that `haystack` converts to string and returns.
-    T rawHaystack;
-
-    /// Raw needle that `needle` converts to string and returns.
-    C rawNeedle;
+private:
+    import std.conv : to;
 
     /++
-        Returns a string of the original needle the call to `nom` was operating on.
+        Raw haystack that `haystack` converts to string and returns.
+     +/
+    string _haystack;
+
+    /++
+        Raw needle that `needle` converts to string and returns.
+     +/
+    string _needle;
+
+public:
+    /++
+        Returns a string of the original needle the call to `advancePast` was operating on.
 
         Returns:
             The raw haystack (be it any kind of string), converted to a `string`.
      +/
-    override string haystack()
+    override string haystack() pure @safe
     {
-        import std.conv : to;
-        return rawHaystack.to!string;
+        return _haystack;
     }
 
     /++
-        Returns a string of the original needle the call to `nom` was operating on.
+        Returns a string of the original needle the call to `advancePast` was operating on.
 
         Returns:
             The raw needle (be it any kind of string or character), converted to a `string`.
      +/
-    override string needle()
+    override string needle() pure @safe
     {
-        import std.conv : to;
-        return rawNeedle.to!string;
+        return _needle;
     }
 
-    /// Create a new `NomExceptionImpl`, without attaching anything.
-    this(const string message,
+    /++
+        Create a new `AdvanceExceptionImpl`, without attaching anything.
+     +/
+    this(
+        const string message,
         const string file = __FILE__,
         const size_t line = __LINE__,
-        Throwable nextInChain = null) pure nothrow @nogc @safe
+        Throwable nextInChain = null) pure @safe nothrow @nogc
     {
         super(message, file, line, nextInChain);
     }
 
-    /// Create a new `NomExceptionImpl`, attaching a command.
-    this(const string message,
-        const T rawHaystack,
-        const C rawNeedle,
+    /++
+        Create a new `AdvanceExceptionImpl`, attaching a command.
+     +/
+    this(
+        const string message,
+        const Haystack haystack,
+        const Needle needle,
         const string file = __FILE__,
         const size_t line = __LINE__,
-        Throwable nextInChain = null) pure nothrow @nogc @safe
+        Throwable nextInChain = null) pure @safe
     {
-        this.rawHaystack = rawHaystack;
-        this.rawNeedle = rawNeedle;
+        this._haystack = haystack.to!string;
+        this._needle = needle.to!string;
         super(message, file, line, nextInChain);
     }
 }
@@ -522,6 +541,8 @@ final class NomExceptionImpl(T, C) : NomException
 /++
     Selects the correct singular or plural form of a word depending on the
     numerical count of it.
+
+    Technically works with any type provided the number is some comparable integral.
 
     Example:
     ---
@@ -537,17 +558,27 @@ final class NomExceptionImpl(T, C) : NomException
     ---
 
     Params:
-        num = Numerical count of the noun.
-        singular = The noun in singular form.
-        plural = The noun in plural form.
+        num = Numerical count.
+        singular = The singular form.
+        plural = The plural form.
 
     Returns:
-        The singular string if num is `1` or `-1`, otherwise the plural string.
+        The singular if num is `1` or `-1`, otherwise the plural.
  +/
 pragma(inline, true)
-T plurality(Num, T)(const Num num, const T singular, const T plural) pure nothrow @nogc
-if (isIntegral!Num && isSomeString!T)
+T plurality(Num, T)(
+    const Num num,
+    const return scope T singular,
+    const return scope T plural) pure nothrow @nogc
 {
+    import std.traits : isIntegral;
+
+    static if (!isIntegral!Num)
+    {
+        enum message = "`plurality` only works with integral types";
+        static assert(0, message);
+    }
+
     return ((num == 1) || (num == -1)) ? singular : plural;
 }
 
@@ -576,7 +607,7 @@ unittest
     Returns:
         A slice of the passed string line without enclosing tokens.
  +/
-private string unenclosed(char token = '"')(const string line) pure nothrow @nogc
+private auto unenclosed(char token = '"')(/*const*/ return scope string line) pure nothrow @nogc
 {
     enum escaped = "\\" ~ token;
 
@@ -622,7 +653,7 @@ private string unenclosed(char token = '"')(const string line) pure nothrow @nog
         A slice of the `line` argument that excludes the quotes.
  +/
 pragma(inline, true)
-auto unquoted(const string line) pure nothrow @nogc
+auto unquoted(/*const*/ return scope string line) pure nothrow @nogc
 {
     return unenclosed!'"'(line);
 }
@@ -661,7 +692,7 @@ unittest
         A slice of the `line` argument that excludes the single-quotes.
  +/
 pragma(inline, true)
-auto unsinglequoted(const string line) pure nothrow @nogc
+auto unsinglequoted(/*const*/ return scope string line) pure nothrow @nogc
 {
     return unenclosed!'\''(line);
 }
@@ -681,62 +712,13 @@ unittest
 
 // beginsWith
 /++
-    A cheaper variant of [std.algorithm.searching.startsWith|startsWith], since
-    this can be such a hotspot.
+    Deprecated alias to Phobos' [std.algorithm.searching.startsWith|startsWith].
 
-    Merely slices; does not decode the string and may thus give weird results on
-    weird inputs.
-
-    Example:
-    ---
-    assert("Lorem ipsum sit amet".beginsWith("Lorem ip"));
-    assert(!"Lorem ipsum sit amet".beginsWith("ipsum sit amet"));
-    ---
-
-    Params:
-        haystack = Original line to examine.
-        needle = Snippet of text to check if `haystack` begins with.
-
-    Returns:
-        `true` if `haystack` begins with `needle`, `false` if not.
+    `beginsWith` performed the same function but was worse at it.
  +/
-bool beginsWith(T, C)(const T haystack, const C needle) pure nothrow @nogc
-if (isSomeString!T && (is(C : T) || is(C : ElementType!T) || is(C : ElementEncodingType!T)))
-{
-    static if (is(C : ElementEncodingType!T))
-    {
-        // Needle is never empty but haystack may be
-        return haystack.length && (haystack[0] == needle);
-    }
-    else
-    {
-        if (!needle.length)
-        {
-            return true;
-        }
-        else if ((needle.length > haystack.length) || !haystack.length)
-        {
-            return false;
-        }
-
-        if (haystack[0] != needle[0]) return false;
-
-        return (haystack[0..needle.length] == needle);
-    }
-}
-
-///
-unittest
-{
-    assert("Lorem ipsum sit amet".beginsWith("Lorem ip"));
-    assert(!"Lorem ipsum sit amet".beginsWith("ipsum sit amet"));
-    assert("Lorem ipsum sit amet".beginsWith(""));
-    assert("Lorem ipsum sit amet".beginsWith('L'));
-    assert(!"Lorem ipsum sit amet".beginsWith(char.init));
-    assert(!"".beginsWith("Harbl"));
-    assert(!"".beginsWith('c'));
-    assert("".beginsWith(""));
-}
+static import std.algorithm.searching;
+deprecated("Use `std.algorithm.searching.startsWith` instead")
+alias beginsWith = std.algorithm.searching.startsWith;
 
 
 // beginsWithOneOf
@@ -756,12 +738,16 @@ unittest
         `true` if the first character of `haystack` is also in `needles`,
         `false` if not.
  +/
-bool beginsWithOneOf(T, C)(const T haystack, const C needles) /*pure nothrow @nogc*/
-if (is(C : T) || is(C : ElementEncodingType!T) || is(T : ElementEncodingType!C))
+deprecated("Suggest to rewrite to reversely use Phobos' `std.algorithm.searching.canFind` instead")
+bool beginsWithOneOf(Haystack, Needle)
+    (const scope Haystack haystack,
+    const scope Needle needles) /*pure nothrow @nogc*/
 {
-    import std.range.primitives : hasLength;
+    import std.range : ElementEncodingType, ElementType;
+    import std.string : indexOf;
+    import std.traits : isArray;
 
-    static if (is(C : T) && (isSomeString!T || hasLength!T))
+    static if (isArray!Haystack && is(Needle : Haystack))
     {
         version(Windows)
         {
@@ -778,27 +764,36 @@ if (is(C : T) || is(C : ElementEncodingType!T) || is(T : ElementEncodingType!C))
         // An empty line begins with nothing
         if (!haystack.length) return false;
 
-        return needles.contains(haystack[0]);
+        return (needles.indexOf(haystack[0]) != -1);
     }
-    else static if (is(C : ElementEncodingType!T))
+    else static if (
+        is(Needle : ElementType!Haystack) ||
+        is(Needle : ElementEncodingType!Haystack))
     {
-        // T is a string, C is a char
+        // Haystack is a string, Needle is a char
         return haystack[0] == needles;
     }
-    else static if (is(T : ElementEncodingType!C))
+    else static if (
+        is(Haystack : ElementType!Needle) ||
+        is(Haystack : ElementEncodingType!Needle))
     {
-        // T is a char, C is a string
-        return needles.length ? needles.contains(haystack) : true;
+        // Haystack is a char, Needle is a string
+        return needles.length ?
+            (needles.indexOf(haystack) != -1) :
+            true;
     }
     else
     {
         import std.format : format;
-        static assert(0, "Unexpected types passed to `beginWithOneOf`: `%s` and `%s`"
-            .format(T.stringof, C.stringof));
+
+        enum pattern = "Unexpected types passed to `beginWithOneOf`: `%s` and `%s`";
+        enum message = pattern.format(Haystack.stringof, Needle.stringof);
+        static assert(0, message);
     }
 }
 
 ///
+version(none)
 unittest
 {
     assert("#channel".beginsWithOneOf("#%+"));
@@ -836,10 +831,11 @@ unittest
     Returns:
         `line` with `suffix` sliced off the end.
  +/
-auto stripSuffix(const string line, const string suffix) pure nothrow @nogc
+auto stripSuffix(
+    /*const*/ return scope string line,
+    const scope string suffix) pure nothrow @nogc
 {
     if (line.length < suffix.length) return line;
-
     return (line[($-suffix.length)..$] == suffix) ? line[0..($-suffix.length)] : line;
 }
 
@@ -873,7 +869,7 @@ unittest
         num = How many tabs we want.
 
     Returns:
-        Whitespace equalling (`num` * `spaces`) spaces.
+        A range of whitespace equalling (`num` * `spaces`) spaces.
  +/
 auto tabs(uint spaces = 4)(const int num) pure nothrow @nogc
 in ((num >= 0), "Negative number of tabs passed to `tabs`")
@@ -883,7 +879,6 @@ in ((num >= 0), "Negative number of tabs passed to `tabs`")
     import std.array : array;
 
     enum char[spaces] tab = ' '.repeat.takeExactly(spaces).array;
-
     return tab[].repeat.takeExactly(num).joiner;
 }
 
@@ -932,10 +927,16 @@ void indentInto(uint spaces = 4, Sink)
     auto ref Sink sink,
     const uint numTabs = 1,
     const uint skip = 0)
-if (isOutputRange!(Sink, char[]))
 {
     import std.algorithm.iteration : splitter;
     import std.range : enumerate;
+    import std.range : isOutputRange;
+
+    static if (!isOutputRange!(Sink, char[]))
+    {
+        enum message = "`indentInto` only works with output ranges of `char[]`";
+        static assert(0, message);
+    }
 
     if (numTabs == 0)
     {
@@ -1085,74 +1086,13 @@ sit amet
 
 // contains
 /++
-    Checks a string to see if it contains a given substring or character.
-    Leverages [std.string.indexOf|indexOf] and
-    [std.algorithm.searching.countUntil|countUntil].
+    Deprecated alias to Phobos' [std.algorithm.searching.canFind|canFind].
 
-    Merely slices; this is not UTF-8 safe. It is naïve in how it thinks a string
-    always correspond to one set of codepoints and one set only.
-
-    Example:
-    ---
-    assert("Lorem ipsum".contains("Lorem"));
-    assert(!"Lorem ipsum".contains('l'));
-    assert("Lorem ipsum".contains!(Yes.decode)(" "));
-    ---
-
-    Params:
-        decode = Whether to use auto-decoding functions, or try to keep to non-
-            decoding ones (when possible).
-        haystack = String to search for `needle`.
-        needle = Substring to search `haystack` for.
-
-    Returns:
-        Whether or not the passed `haystack` string contained the passed `needle`
-        substring or token.
+    It performed the same function but was worse at it.
  +/
-bool contains(Flag!"decode" decode = No.decode, T, C)(const T haystack, const C needle) /*pure nothrow @nogc*/
-if (isSomeString!T && (isSomeString!C || (is(C : T) || is(C : ElementType!T) ||
-    is(C : ElementEncodingType!T))))
-{
-    static if (is(C : T)) if (haystack == needle) return true;
-
-    static if (decode || is(T : dstring) || is(T : wstring) ||
-        is(C : ElementType!T) || is(C : ElementEncodingType!T))
-    {
-        import std.string : indexOf;
-        // dstring and wstring only work with indexOf, not countUntil
-        return haystack.indexOf(needle) != -1;
-    }
-    else
-    {
-        // Only do this if we know it's not user text
-        import std.algorithm.searching : canFind;
-        import std.string : representation;
-
-        static if (isSomeString!C)
-        {
-            return haystack.representation.canFind(needle.representation);
-        }
-        else
-        {
-            return haystack.representation.canFind(cast(ubyte)needle);
-        }
-    }
-}
-
-///
-unittest
-{
-    assert("Lorem ipsum sit amet".contains("sit"));
-    assert("".contains(""));
-    assert(!"Lorem ipsum".contains("sit amet"));
-    assert("Lorem ipsum".contains(' '));
-    assert(!"Lorem ipsum".contains('!'));
-    assert("Lorem ipsum"d.contains("m"d));
-    assert("Lorem ipsum".contains(['p', 's', 'u', 'm' ]));
-    assert([ 'L', 'o', 'r', 'e', 'm' ].contains([ 'L' ]));
-    assert([ 'L', 'o', 'r', 'e', 'm' ].contains("Lor"));
-    assert([ 'L', 'o', 'r', 'e', 'm' ].contains(cast(char[])[]));
-}
+static import std.algorithm.searching;
+deprecated("Use `std.algorithm.searching.canFind` or `std.string.indexOf(haystack, needle) != -1` instead")
+alias contains = std.algorithm.searching.canFind;
 
 
 // strippedRight
@@ -1169,16 +1109,21 @@ unittest
     Returns:
         The passed line without any trailing whitespace or linebreaks.
  +/
-auto strippedRight(/*const*/ string line) pure nothrow @nogc
+auto strippedRight(/*const*/ return scope string line) pure nothrow @nogc
 {
     if (!line.length) return line;
-
     return strippedRight(line, " \n\r\t");
 }
 
 ///
 unittest
 {
+    static if (!is(typeof("blah".strippedRight) == string))
+    {
+        enum message = "`lu.string.strippedRight` should return a mutable string";
+        static assert(0, message);
+    }
+
     {
         immutable trailing = "abc  ";
         immutable stripped = trailing.strippedRight;
@@ -1223,15 +1168,30 @@ unittest
     Returns:
         The passed line without any trailing passed characters.
  +/
-T strippedRight(T, C)(T line, C chaff) pure nothrow @nogc
-if (isSomeString!T && (is(C : T) || is(C : ElementType!T) || is(C : ElementEncodingType!T)))
+auto strippedRight(Line, Chaff)
+    (/*const*/ return scope Line line,
+    const scope Chaff chaff) pure nothrow @nogc
 {
-    import std.traits : isSomeString;
-    import std.range : hasLength;
+    import std.traits : isArray;
+    import std.range : ElementEncodingType, ElementType;
+
+    static if (!isArray!Line)
+    {
+        enum message = "`strippedRight` only works on strings and arrays";
+        static assert(0, message);
+    }
+    else static if (
+        !is(Chaff : Line) &&
+        !is(Chaff : ElementType!Line) &&
+        !is(Chaff : ElementEncodingType!Line))
+    {
+        enum message = "`strippedRight` only works with array- or single-element-type chaff";
+        static assert(0, message);
+    }
 
     if (!line.length) return line;
 
-    static if (isSomeString!C || hasLength!C)
+    static if (isArray!Chaff)
     {
         if (!chaff.length) return line;
     }
@@ -1241,7 +1201,7 @@ if (isSomeString!T && (is(C : T) || is(C : ElementType!T) || is(C : ElementEncod
     loop:
     while (pos > 0)
     {
-        static if (isSomeString!C || hasLength!C)
+        static if (isArray!Chaff)
         {
             import std.string : representation;
 
@@ -1332,16 +1292,21 @@ unittest
     Returns:
         The passed line without any preceding whitespace or linebreaks.
  +/
-auto strippedLeft(/*const*/ string line) pure nothrow @nogc
+auto strippedLeft(/*const*/ return scope string line) pure nothrow @nogc
 {
     if (!line.length) return line;
-
     return strippedLeft(line, " \n\r\t");
 }
 
 ///
 unittest
 {
+    static if (!is(typeof("blah".strippedLeft) == string))
+    {
+        enum message = "`lu.string.strippedLeft` should return a mutable string";
+        static assert(0, message);
+    }
+
     {
         immutable preceded = "   abc";
         immutable stripped = preceded.strippedLeft;
@@ -1386,15 +1351,30 @@ unittest
     Returns:
         The passed line without any preceding passed characters.
  +/
-T strippedLeft(T, C)(T line, C chaff) pure nothrow @nogc
-if (isSomeString!T && (is(C : T) || is(C : ElementType!T) || is(C : ElementEncodingType!T)))
+auto strippedLeft(Line, Chaff)
+    (/*const*/ return scope Line line,
+    const scope Chaff chaff) pure nothrow @nogc
 {
-    import std.traits : isSomeString;
-    import std.range : hasLength;
+    import std.traits : isArray;
+    import std.range : ElementEncodingType, ElementType;
+
+    static if (!isArray!Line)
+    {
+        enum message = "`strippedLeft` only works on strings and arrays";
+        static assert(0, message);
+    }
+    else static if (
+        !is(Chaff : Line) &&
+        !is(Chaff : ElementType!Line) &&
+        !is(Chaff : ElementEncodingType!Line))
+    {
+        enum message = "`strippedLeft` only works with array- or single-element-type chaff";
+        static assert(0, message);
+    }
 
     if (!line.length) return line;
 
-    static if (isSomeString!C || hasLength!C)
+    static if (isArray!Chaff)
     {
         if (!chaff.length) return line;
     }
@@ -1404,7 +1384,7 @@ if (isSomeString!T && (is(C : T) || is(C : ElementType!T) || is(C : ElementEncod
     loop:
     while (pos < line.length)
     {
-        static if (isSomeString!C || hasLength!C)
+        static if (isArray!Chaff)
         {
             import std.string : representation;
 
@@ -1497,7 +1477,7 @@ unittest
     Returns:
         The passed line, stripped of surrounding whitespace.
  +/
-auto stripped(/*const*/ string line) pure nothrow @nogc
+auto stripped(/*const*/ return scope string line) pure nothrow @nogc
 {
     return line.strippedLeft.strippedRight;
 }
@@ -1505,6 +1485,12 @@ auto stripped(/*const*/ string line) pure nothrow @nogc
 ///
 unittest
 {
+    static if (!is(typeof("blah".stripped) == string))
+    {
+        enum message = "`lu.string.stripped` should return a mutable string";
+        static assert(0, message);
+    }
+
     {
         immutable line = "   abc   ";
         immutable stripped_ = line.stripped;
@@ -1550,9 +1536,27 @@ unittest
     Returns:
         The passed line, stripped of surrounding passed characters.
  +/
-T stripped(T, C)(T line, C chaff) pure nothrow @nogc
-if (isSomeString!T && (is(C : T) || is(C : ElementType!T) || is(C : ElementEncodingType!T)))
+auto stripped(Line, Chaff)
+    (/*const*/ return scope Line line,
+    const scope Chaff chaff) pure nothrow @nogc
 {
+    import std.traits : isArray;
+    import std.range : ElementEncodingType, ElementType;
+
+    static if (!isArray!Line)
+    {
+        enum message = "`stripped` only works on strings and arrays";
+        static assert(0, message);
+    }
+    else static if (
+        !is(Chaff : Line) &&
+        !is(Chaff : ElementType!Line) &&
+        !is(Chaff : ElementEncodingType!Line))
+    {
+        enum message = "`stripped` only works with array- or single-element-type chaff";
+        static assert(0, message);
+    }
+
     return line.strippedLeft(chaff).strippedRight(chaff);
 }
 
@@ -1718,20 +1722,39 @@ unittest
     Returns:
         A `T[]` array with lines split out of the passed `line`.
  +/
-T[] splitLineAtPosition(T, C)(const T line, const C separator, const size_t maxLength) pure //nothrow
-if (isSomeString!T && (is(C : ElementType!T) || is(C : ElementEncodingType!T)))
+auto splitLineAtPosition(Line, Separator)
+    (const Line line,
+    const Separator separator,
+    const size_t maxLength) pure //nothrow
 in
 {
-    static if (is(C : T))
+    static if (is(Separator : Line))
     {
-        assert(separator.length, "Tried to `splitLineAtPosition` but no " ~
-            "`separator` was supplied");
+        enum message = "Tried to `splitLineAtPosition` but no " ~
+            "`separator` was supplied";
+        assert(separator.length, message);
     }
 }
 do
 {
-    string[] lines;
+    import std.traits : isArray;
+    import std.range : ElementEncodingType, ElementType;
 
+    static if (!isArray!Line)
+    {
+        enum message = "`splitLineAtPosition` only works on strings and arrays";
+        static assert(0, message);
+    }
+    else static if (
+        !is(Separator : Line) &&
+        !is(Separator : ElementType!Line) &&
+        !is(Separator : ElementEncodingType!Line))
+    {
+        enum message = "`splitLineAtPosition` only works on strings and arrays of characters";
+        static assert(0, message);
+    }
+
+    string[] lines;
     if (!line.length) return lines;
 
     string slice = line;  // mutable
@@ -1834,7 +1857,7 @@ unittest
     Returns:
         A new string with control characters escaped, or the original one unchanged.
  +/
-auto escapeControlCharacters(const string line) pure nothrow
+auto escapeControlCharacters(/*const*/ return scope string line) pure nothrow
 {
     import std.algorithm.comparison : among;
     import std.array : Appender;
@@ -1931,12 +1954,12 @@ unittest
     Returns:
         A new string with control characters removed, or the original one unchanged.
  +/
-auto removeControlCharacters(const string line) pure nothrow
+auto removeControlCharacters(/*const*/ return scope string line) pure nothrow
 {
     import std.array : Appender;
     import std.string : representation;
 
-    Appender!string sink;
+    Appender!(char[]) sink;
     bool dirty;
 
     foreach (immutable i, immutable c; line.representation)
@@ -2036,8 +2059,9 @@ enum SplitResults
     Returns:
         A [SplitResults] with the results of the split attempt.
  +/
-SplitResults splitInto(string separator = " ", Strings...)
-    (auto ref string slice, ref Strings strings)
+auto splitInto(string separator = " ", Strings...)
+    (auto ref string slice,
+    scope ref Strings strings)
 if (Strings.length && is(Strings[0] == string) && allSameType!Strings)
 {
     if (!slice.length)
@@ -2169,8 +2193,10 @@ unittest
     Returns:
         A [SplitResults] with the results of the split attempt.
  +/
-SplitResults splitInto(string separator = " ", Strings...)
-    (const string slice, ref Strings strings, out string[] overflow)
+auto splitInto(string separator = " ", Strings...)
+    (const string slice,
+    ref Strings strings,
+    out string[] overflow)
 if (Strings.length && is(Strings[0] == string) && allSameType!Strings)
 {
     if (!slice.length)

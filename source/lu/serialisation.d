@@ -687,12 +687,13 @@ if (allSatisfy!(isAggregateType, Things) && allSatisfy!(isMutable, Things))
                                 }
                                 else
                                 {
-                                    import lu.string : contains, nom;
+                                    import lu.string : nom;
+                                    import std.string : indexOf;
 
                                     // Slice away any comments
-                                    value = value.contains('#') ? value.nom('#') : value;
-                                    value = value.contains(';') ? value.nom(';') : value;
-                                    value = value.contains("//") ? value.nom("//") : value;
+                                    value = (value.indexOf('#') != -1)  ? value.nom('#')  : value;
+                                    value = (value.indexOf(';') != -1)  ? value.nom(';')  : value;
+                                    value = (value.indexOf("//") != -1) ? value.nom("//") : value;
                                     cast(void)things[i].setMemberByName(entry, value);
                                 }
                             }
