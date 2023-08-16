@@ -234,7 +234,7 @@ assert(newFoo.pi == 3.14159);
 * [`string.d`](source/lu/string.d): String manipulation functions and templates.
 
 ```d
-enum line = "Word split by spaces \o/";
+enum line = "Word split by spaces \\o/";
 string slice = line;  // mutable
 
 immutable first = slice.advancePast(" ");
@@ -245,14 +245,14 @@ assert(second == "split");
 
 immutable third = slice.advancePast(" ");
 assert(third == "by");
-assert(slice == "spaces \o/");
+assert(slice == "spaces \\o/");
 
 /+
     If the optional Yes.inherit is passed, the whole slice is returned
     in case the delimiter isn't found, otherwise it throws.
  +/
 immutable fourth = slice.advancePast("?", Yes.inherit);
-assert(fourth == "spaces \o/");
+assert(fourth == "spaces \\o/");
 assert(slice.length == 0);
 
 enum quoted = `author "John Doe" title "Foo Bar" tag1 tag2 tag3 tag4`;
