@@ -13,17 +13,17 @@ enum LuSemVer
     /++
         SemVer major version of the library.
      +/
-    major = 1,
+    major = 2,
 
     /++
         SemVer minor version of the library.
      +/
-    minor = 2,
+    minor = 0,
 
     /++
         SemVer patch version of the library.
      +/
-    patch = 5,
+    patch = 0,
 
     /++
         SemVer version of the library. Deprecated; use `LuSemVer.major` instead.
