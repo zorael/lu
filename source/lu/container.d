@@ -453,7 +453,7 @@ public:
         Returns:
             An item T.
      +/
-    auto front() const
+    ref auto front() inout
     in ((buf.length > 0), "Tried to get `front` from a zero-sized " ~ typeof(this).stringof)
     {
         return buf[head];
