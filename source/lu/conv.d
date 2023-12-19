@@ -200,6 +200,45 @@ unittest
 }
 
 
+// enumToString
+/++
+    Convenience wrapper around [Enum] that infers the type of the passed enum member.
+
+    Params:
+        value = Enum member whose string name we want.
+
+    Returns:
+        The string name of the passed enum member.
+
+    See_Also:
+        [Enum]
+ +/
+auto enumToString(E)(const E value)
+if (is(E == enum))
+{
+    return Enum!E.toString(value);
+}
+
+///
+unittest
+{
+    enum T
+    {
+        UNSET,
+        QUERY,
+        PRIVMSG,
+        RPL_ENDOFMOTD
+    }
+
+    with (T)
+    {
+        static assert(enumToString(QUERY) == "QUERY");
+        static assert(enumToString(PRIVMSG) == "PRIVMSG");
+        static assert(enumToString(RPL_ENDOFMOTD) == "RPL_ENDOFMOTD");
+    }
+}
+
+
 // numFromHex
 /++
     Returns the decimal value of a hex number in string form.
