@@ -6,7 +6,7 @@ Miscellaneous general-purpose library modules. Nothing extraordinary.
 
 API documentation can be found [here](https://lu.dpldocs.info).
 
-* [`meld.d`](source/lu/meld.d): Combining two structs/classes of the same type into a union set of their members' values. Also works with arrays and associative arrays. A melding strategy can be supplied as a template parameter for fine-tuning behaviour, but in general non-init values overwrite init ones.
+* [`meld.d`](source/lu/meld.d): Combining two structs/classes of the same type into a union set of their members' values. Also works with arrays and associative arrays. A melding strategy can be supplied as a template parameter for fine-tuning behaviour, but in general non-`.init` values overwrite `.init` ones.
 
 ```d
 // Aggregate
@@ -74,7 +74,7 @@ assert(success);
 assert(foo.i == 999);
 ```
 
-* [`deltastrings.d`](source/lu/deltastrings.d): Expressing the differences between two instances of a struct or class of the same type, as either assignment statements or assert statements.
+* [`deltastrings.d`](source/lu/deltastrings.d): Expressing the differences between two instances of a struct or class of the same type into an output range, as either assignment statements or assert statements.
 
 ```d
 struct Foo
@@ -119,7 +119,7 @@ assert((altered.i == 42), altered.i.to!string);
 `);
 ```
 
-* [`typecons.d`](source/lu/typecons.d): So far only `UnderscoreOpDispatcher`. When mixed into some aggregate, it generates an `opDispatch` that allows for accessing and mutating any (potentially private) members of it whose names start with an underscore. Arrays are appended to.
+* [`typecons.d`](source/lu/typecons.d): The `UnderscoreOpDispatcher` mixin template. When mixed into some aggregate, it generates an `opDispatch` that allows for accessing and mutating any (potentially private) members of it whose names start with an underscore. (Dynamic) arrays are appended to.
 
 ```d
 struct Foo
@@ -146,7 +146,7 @@ assert(f.b);
 assert(f.wordList == [ "hello", "world" ]);
 
 /+
-    Returns `this` by reference, so we can chain calls.
+    The generated functions return `this` by reference, to allow for chaining calls.
  +/
 auto f2 = Foo()
     .i(9001)
@@ -188,7 +188,7 @@ void baz()
 }
 ```
 
-* [`serialisation.d`](source/lu/serialisation.d): Functions and templates for serialising structs into an `.ini` file-**like** format, with entries and values separated into two columns by whitespace.
+* [`serialisation.d`](source/lu/serialisation.d): Functions and templates for serialising structs into an `.ini` file-**like** format, with entries and values optionally separated into two columns by whitespace.
 
 ```d
 struct Foo
@@ -245,16 +245,21 @@ assert(second == "split");
 
 immutable third = slice.advancePast(" ");
 assert(third == "by");
-assert(slice == "spaces \\o/");
+
+alias fourth = slice;
+assert(fourth == "spaces \\o/");
 
 /+
     If the optional Yes.inherit is passed, the whole slice is returned
-    in case the delimiter isn't found, otherwise it throws.
+    if the delimiter isn't found, otherwise it throws.
  +/
 immutable fourth = slice.advancePast("?", Yes.inherit);
 assert(fourth == "spaces \\o/");
 assert(slice.length == 0);
 
+/+
+    splitInto splits a string of words separated by whitespace into multiple ref strings, and returns a SplitResults enum indicating whether the split words matched the number of passed ref strings. If there are more words than ref strings, the remainder is returned in an overflow array.
+ +/
 enum quoted = `author "John Doe" title "Foo Bar" tag1 tag2 tag3 tag4`;
 string authorHeader;
 string author;
@@ -268,6 +273,9 @@ assert(author == "John Doe");
 assert(title == "Foo Bar");
 assert(overflow == [ "tag1", "tag2", "tag3", "tag4" ]);
 
+/+
+    splitWithQuotes splits a string into multiple parts, where multiple words enclosed between quotes are counted as one word. The quotes are removed from the result. The delimiter is optional and defaults to whitespace.
+ +/
 immutable intoArray = quoted.splitWithQuotes();
 assert(intoArray.length == 8);
 assert(intoArray[1] == "John Doe");
@@ -296,8 +304,92 @@ immutable otherDef = Enum!Foo.fromString("def");
 immutable otherGhi = Enum!Foo.fromString("ghi");
 ```
 
-* [`json.d`](source/lu/json.d): Convenience wrappers around a Phobos `JSONValue`, which can be unwieldy. Not a JSON parser implementation.
-* [`container.d`](source/lu/container.d): Container things, so far only a primitive FIFO `Buffer` (queue) and a LIFO `CircularBuffer`.
+* [`container.d`](source/lu/container.d): Miscellaneous containers.
+
+```d
+/+
+    Basic FIFO buffer.
+ +/
+Buffer!string buffer;
+
+buffer.put("abc");
+buffer.put("def");
+assert(!buffer.empty);
+assert(buffer.front == "abc");
+buffer.popFront();
+assert(buffer.front == "def");
+buffer.popFront();
+assert(buffer.empty);
+
+/+
+    Simple circular buffer.
+ +/
+CircularBuffer!(int, Yes.dynamic) circBuf;
+circBuf.resize(3);
+
+circBuf.put(1);
+circBuf.put(2);
+circBuf.put(3);
+circBut.put(4);
+assert(circBuf.front == 4);
+assert(circBuf.buf == [ 4, 2, 3 ]);
+
+/+
+    A wrapper of a built-in associative array with controllable rehashing.
+ +/
+RehashingAA!(int[string]) aa1;
+aa1.minimumNeededForRehash = 2;
+
+aa1["abc"] = 123;
+aa1["def"] = 456;
+assert(aa1.newKeysSinceLastRehash == 2);
+assert(aa1.numRehashes == 0);
+aa1["ghi"] = 789;
+assert(aa1.numRehashes == 1);
+assert(aa1.newKeysSinceLastRehash == 0);
+aa1.rehash();
+assert(aa1.numRehashes == 2);
+
+/+
+    A wrapper of a built-in associative array with mutexed access to elements.
+ +/
+MutexedAA!(string[int]) aa2;
+aa2.setup();  // important!
+
+aa2[1] = "one";
+aa2[2] = "two";
+aa2[3] = "three";
+
+auto hasOne = aa2.has(1);
+assert(hasOne);
+assert(aa2[1] == "one");
+
+assert(aa2[2] == "two");
+
+auto three = aa2.get(3);
+assert(three == "three");
+
+auto four = aa2.get(4, "four");
+assert(four == "four");
+
+auto five = aa2.require(5, "five");
+assert(five == "five");
+assert(aa2[5] == "five");
+
+auto keys = aa2.keys;
+assert(keys.canFind(1));
+assert(keys.canFind(5));
+assert(!keys.canFind(6));
+
+auto values = aa2.values;
+assert(values.canFind("one"));
+assert(values.canFind("four"));
+assert(!values.canFind("six"));
+
+aa2.rehash();
+```
+
+* [`json.d`](source/lu/json.d): Convenience wrappers around a Phobos `JSONValue`, which can be unwieldy. **Not** a JSON parser implementation.
 * [`common.d`](source/lu/common.d): Things that don't have a better home yet.
 * [`numeric.d`](source/lu/numeric.d): Functions and templates that calculate or manipulate numbers in some way.
 * [`uda.d`](source/lu/uda.d): Some user-defined attributes used here and there.
