@@ -2197,7 +2197,7 @@ auto splitInto(string separator = " ", Strings...)
     (const string slice,
     ref Strings strings,
     out string[] overflow)
-if (Strings.length && is(Strings[0] == string) && allSameType!Strings)
+if (!Strings.length || (is(Strings[0] == string) && allSameType!Strings))
 {
     if (!slice.length)
     {
@@ -2368,6 +2368,15 @@ unittest
         assert((def == "snabel"), def);
         assert(!overflow.length, overflow.text);
         assert((results == SplitResults.match), Enum!SplitResults.toString(results));
+    }
+    {
+        string line = "abc def ghi";
+        string[] overflow;
+        immutable results = line.splitInto(overflow);
+        immutable expectedOverflow = [ "abc", "def", "ghi" ];
+
+        assert((overflow == expectedOverflow), overflow.text);
+        assert((results == SplitResults.overrun), Enum!SplitResults.toString(results));
     }
 }
 
