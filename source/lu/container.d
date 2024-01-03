@@ -1,5 +1,5 @@
 /++
-    Containers and thereto related functionality.
+    Containers.
 
     Example:
     ---
@@ -29,6 +29,69 @@
         assert(buffer[0..5] == "abcd");
         buffer.clear();
         assert(buffer.empty);
+    }
+    {
+        RehashingAA!(int[string]) aa;
+        aa.minimumNeededForRehash = 2;
+
+        aa["abc"] = 123;
+        aa["def"] = 456;
+        assert((aa.newKeysSinceLastRehash == 2), aa.newKeysSinceLastRehash.to!string);
+        assert((aa.numRehashes == 0), aa.numRehashes.to!string);
+        aa["ghi"] = 789;
+        assert((aa.numRehashes == 1), aa.numRehashes.to!string);
+        assert((aa.newKeysSinceLastRehash == 0), aa.newKeysSinceLastRehash.to!string);
+        aa.rehash();
+        assert((aa.numRehashes == 2), aa.numRehashes.to!string);
+
+        auto realAA = cast(int[string])aa;
+        assert("abc" in realAA);
+        assert("def" in realAA);
+
+        auto alsoRealAA = aa.aaOf;
+        assert("ghi" in realAA);
+        assert("jkl" !in realAA);
+
+        auto aa2 = aa.dup;
+        aa2["jkl"] = 123;
+        assert("jkl" in aa2);
+        assert("jkl" !in aa);
+    }
+    {
+        MutexedAA!(string[int]) aa;
+        aa.setup();  // important!
+
+        aa[1] = "one";
+        aa[2] = "two";
+        aa[3] = "three";
+
+        auto hasOne = aa.has(1);
+        assert(hasOne);
+        assert(aa[1] == "one");
+
+        assert(aa[2] == "two");
+
+        auto three = aa.get(3);
+        assert(three == "three");
+
+        auto four = aa.get(4, "four");
+        assert(four == "four");
+
+        auto five = aa.require(5, "five");
+        assert(five == "five");
+        assert(aa[5] == "five");
+
+        auto keys = aa.keys;
+        assert(keys.canFind(1));
+        assert(keys.canFind(5));
+        assert(!keys.canFind(6));
+
+        auto values = aa.values;
+        assert(values.canFind("one"));
+        assert(values.canFind("four"));
+        assert(!values.canFind("six"));
+
+        aa.rehash();
     }
     ---
  +/
