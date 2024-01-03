@@ -17,6 +17,16 @@ public:
 enum Next
 {
     /++
+        Unset, invalid value.
+     +/
+    unset,
+
+    /++
+        Do nothing.
+     +/
+    noop,
+
+    /++
         Keep doing whatever is being done, alternatively continue on to the next step.
      +/
     continue_,
