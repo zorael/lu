@@ -132,7 +132,7 @@ public:
         dynamic = Whether to use a dynamic array whose size can be grown at
             runtime, or to use a static array with a fixed size. Trying to add
             more elements than there is room for will cause an assert.
-            Defaults to `No.dynamic`; a static bufferCurrent position in the array..
+            Defaults to `No.dynamic`; a static array.
         originalSize = How many items to allocate space for. If `No.dynamic` was
             passed it will assert if you attempt to store anything past this amount.
  +/
@@ -190,7 +190,7 @@ pure nothrow:
             Params:
                 more = Item to add.
          +/
-        void put(/*const*/ T more)
+        void put(/*const*/ T more) pure @safe nothrow
         {
             if (end == bufferSize)
             {
@@ -212,7 +212,7 @@ pure nothrow:
             Params:
                 more = Item to add.
          +/
-        void put(/*const*/ T more) @nogc
+        void put(/*const*/ T more) pure @safe nothrow @nogc
         in ((end < bufferSize), '`' ~ typeof(this).stringof ~ "` buffer overflow")
         {
             buf[end++] = more;
@@ -229,7 +229,7 @@ pure nothrow:
             Params:
                 reserveSize = Number of elements to reserve size for.
          +/
-        void reserve(const size_t reserveSize)
+        void reserve(const size_t reserveSize) pure @safe nothrow
         {
             if (bufferSize < reserveSize)
             {
@@ -247,7 +247,7 @@ pure nothrow:
             op = Operation type, here specialised to "`~`".
             more = Item to add.
      +/
-    void opOpAssign(string op : "~")(const T more)
+    void opOpAssign(string op : "~")(/*const*/ T more) pure @safe nothrow
     {
         return put(more);
     }
@@ -259,7 +259,7 @@ pure nothrow:
         Returns:
             An item T.
      +/
-    T front() const @nogc
+    ref auto front() inout pure @safe nothrow @nogc
     in ((end > 0), '`' ~ typeof(this).stringof ~ "` buffer underrun")
     {
         return buf[pos];
@@ -269,7 +269,7 @@ pure nothrow:
     /++
         Advances the current position to the next item in the buffer.
      +/
-    void popFront() @nogc
+    void popFront() pure @safe nothrow @nogc
     {
         if (++pos == end) reset();
     }
@@ -282,7 +282,7 @@ pure nothrow:
         Returns:
             The buffer's current length.
      +/
-    size_t length() const @nogc
+    auto length() inout
     {
         return (end - pos);
     }
@@ -298,7 +298,7 @@ pure nothrow:
             `true` if there are items available to get via `front`,
             `false` if not.
      +/
-    bool empty() const @nogc
+    auto empty() inout
     {
         return (end == 0);
     }
@@ -310,7 +310,7 @@ pure nothrow:
         The old elements' values are still there, they will just be overwritten
         as the buffer is appended to.
      +/
-    void reset() @nogc
+    void reset() pure @safe nothrow @nogc
     {
         pos = 0;
         end = 0;
@@ -320,7 +320,7 @@ pure nothrow:
     /++
         Zeroes out the buffer's elements, getting rid of old contents.
      +/
-    void clear() @nogc
+    void clear() pure @safe nothrow @nogc
     {
         reset();
         buf[] = T.init;
@@ -596,7 +596,7 @@ public:
         Returns:
             Internal buffer size.
      +/
-    auto size() const
+    auto size() inout
     {
         return buf.length;
     }
@@ -612,7 +612,7 @@ public:
             `true` if there are items available to get via `front`,
             `false` if not.
      +/
-    auto empty() const
+    auto empty() inout
     {
         return !caughtUp && (head == tail);
     }
@@ -950,7 +950,7 @@ public:
         Returns:
             The number of times this instance has rehashed itself.
      +/
-    auto numRehashes() const inout
+    auto numRehashes() inout
     {
         return _numRehashes;
     }
@@ -962,7 +962,7 @@ public:
         Returns:
             The number of new entries that has been added since the last rehash.
      +/
-    auto newKeysSinceLastRehash() const
+    auto newKeysSinceLastRehash() inout
     {
         return _newKeysSinceLastRehash;
     }
@@ -991,7 +991,7 @@ public:
         Returns:
             The length of the internal associative array.
      +/
-    auto length() const inout
+    auto length() inout
     {
         return aa.length;
     }
@@ -1156,7 +1156,7 @@ public:
             Whether or not the [mutex] was instantiated, and thus whether this
             instance has been set up.
      +/
-    auto isReady()
+    auto isReady() inout
     {
         return (mutex !is null);
     }
