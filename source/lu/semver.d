@@ -24,24 +24,6 @@ enum LuSemVer
         SemVer patch version of the library.
      +/
     patch = 0,
-
-    /++
-        SemVer version of the library. Deprecated; use `LuSemVer.major` instead.
-     +/
-    //deprecated("Use `LuSemVer.major` instead. This symbol will be removed in a future release.")
-    majorVersion = major,
-
-    /++
-        SemVer version of the library. Deprecated; use `LuSemVer.minor` instead.
-     +/
-    //deprecated("Use `LuSemVer.minor` instead. This symbol will be removed in a future release.")
-    minorVersion = minor,
-
-    /++
-        SemVer version of the library. Deprecated; use `LuSemVer.patch` instead.
-     +/
-    //deprecated("Use `LuSemVer.patch` instead. This symbol will be removed in a future release.")
-    patchVersion = patch,
 }
 
 
