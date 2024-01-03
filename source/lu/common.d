@@ -9,8 +9,6 @@ import std.typecons : Flag, No, Yes;
 
 public:
 
-@safe:
-
 
 // Next
 /++
@@ -200,7 +198,7 @@ final class FileTypeMismatchException : Exception
 auto sharedDomains(
     const string one,
     const string other,
-    const Flag!"caseSensitive" caseSensitive = Yes.caseSensitive) pure @nogc nothrow
+    const Flag!"caseSensitive" caseSensitive = Yes.caseSensitive) pure @safe @nogc nothrow
 {
     if (!one.length || !other.length) return 0;
 
@@ -268,6 +266,7 @@ auto sharedDomains(
 }
 
 ///
+@safe
 unittest
 {
     import std.conv : text;
