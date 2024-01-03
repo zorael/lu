@@ -45,6 +45,12 @@
 
     json.save("somefile.json");
     ---
+
+    Copyright: [JR](https://github.com/zorael)
+    License: [Boost Software License 1.0](https://www.boost.org/users/license.html)
+
+    Authors:
+        [JR](https://github.com/zorael)
  +/
 module lu.json;
 
@@ -83,7 +89,9 @@ private:
     import std.json : JSONValue, parseJSON;
 
 public:
-    /// The underlying [std.json.JSONValue|JSONValue] storage of this [JSONStorage].
+    /++
+        The underlying [std.json.JSONValue|JSONValue] storage of this [JSONStorage].
+     +/
     JSONValue storage;
 
     alias storage this;
@@ -99,8 +107,16 @@ public:
             formats it.
          +/
         passthrough,
-        sorted,   /// Sorted by key.
-        reverse,  /// Reversely sorted by key.
+
+        /++
+            Sorted by key.
+         +/
+        sorted,
+
+        /++
+            Reversely sorted by key.
+         +/
+        reverse,
 
         /++
             Keys are listed in the order given in a passed `string[]` array.

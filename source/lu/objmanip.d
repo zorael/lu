@@ -25,6 +25,12 @@
     assert(foo.nickname.length == 0);
     assert(foo.address.length == 0);
     ---
+
+    Copyright: [JR](https://github.com/zorael)
+    License: [Boost Software License 1.0](https://www.boost.org/users/license.html)
+
+    Authors:
+        [JR](https://github.com/zorael)
  +/
 module lu.objmanip;
 
@@ -713,13 +719,19 @@ unittest
  +/
 final class SetMemberException : Exception
 {
-    /// Name of type that was attempted to set the member of.
+    /++
+        Name of type that was attempted to set the member of.
+     +/
     string typeName;
 
-    /// Name of the member that was attempted to set.
+    /++
+        Name of the member that was attempted to set.
+     +/
     string memberToSet;
 
-    /// String representation of the value that was attempted to assign.
+    /++
+        String representation of the value that was attempted to assign.
+     +/
     string valueToSet;
 
     /++

@@ -1,6 +1,20 @@
 /++
     Functions and templates that do numeric calculations or other manipulation,
     in some way or another.
+
+    Example:
+    ---
+    immutable width = 15.getMultipleOf(4);
+    assert(width == 16);
+    immutable width2 = 16.getMultipleOf(4, Yes.alwaysOneUp);
+    assert(width2 == 20);
+    ---
+
+    Copyright: [JR](https://github.com/zorael)
+    License: [Boost Software License 1.0](https://www.boost.org/users/license.html)
+
+    Authors:
+        [JR](https://github.com/zorael)
  +/
 module lu.numeric;
 

@@ -1,5 +1,11 @@
 /++
     Functionality generic enough to be used in several places.
+
+    Copyright: [JR](https://github.com/zorael)
+    License: [Boost Software License 1.0](https://www.boost.org/users/license.html)
+
+    Authors:
+        [JR](https://github.com/zorael)
  +/
 module lu.common;
 
@@ -62,13 +68,19 @@ enum Next
  +/
 final class ReturnValueException : Exception
 {
-    /// The command run.
+    /++
+        The command run.
+     +/
     string command;
 
-    /// The value returned.
+    /++
+        The value returned.
+     +/
     int retval;
 
-    /// Create a new [ReturnValueException], without attaching anything.
+    /++
+        Create a new [ReturnValueException], without attaching anything.
+     +/
     this(const string message,
         const string file = __FILE__,
         const size_t line = __LINE__,
@@ -77,7 +89,9 @@ final class ReturnValueException : Exception
         super(message, file, line, nextInChain);
     }
 
-    /// Create a new [ReturnValueException], attaching a command.
+    /++
+        Create a new [ReturnValueException], attaching a command.
+     +/
     this(const string message,
         const string command,
         const string file = __FILE__,
@@ -88,7 +102,9 @@ final class ReturnValueException : Exception
         super(message, file, line, nextInChain);
     }
 
-    /// Create a new [ReturnValueException], attaching a command and a returned value.
+    /++
+        Create a new [ReturnValueException], attaching a command and a returned value.
+     +/
     this(const string message,
         const string command,
         const int retval,
@@ -112,10 +128,14 @@ final class ReturnValueException : Exception
  +/
 final class FileExistsException : Exception
 {
-    /// The name of the file.
+    /++
+        The name of the file.
+     +/
     string filename;
 
-    /// Create a new [FileExistsException], without attaching a filename.
+    /++
+        Create a new [FileExistsException], without attaching a filename.
+     +/
     this(const string message,
         const string file = __FILE__,
         const size_t line = __LINE__,
@@ -124,7 +144,9 @@ final class FileExistsException : Exception
         super(message, file, line, nextInChain);
     }
 
-    /// Create a new [FileExistsException], attaching a filename.
+    /++
+        Create a new [FileExistsException], attaching a filename.
+     +/
     this(const string message,
         const string filename,
         const string file = __FILE__,
@@ -148,13 +170,19 @@ final class FileExistsException : Exception
  +/
 final class FileTypeMismatchException : Exception
 {
-    /// The filename of the non-FIFO.
+    /++
+        The filename of the non-FIFO.
+     +/
     string filename;
 
-    /// File attributes.
+    /++
+        File attributes.
+     +/
     ushort attrs;
 
-    /// Create a new [FileTypeMismatchException], without embedding a filename.
+    /++
+        Create a new [FileTypeMismatchException], without embedding a filename.
+     +/
     this(const string message,
         const string file = __FILE__,
         const size_t line = __LINE__,
@@ -163,7 +191,9 @@ final class FileTypeMismatchException : Exception
         super(message, file, line, nextInChain);
     }
 
-    /// Create a new [FileTypeMismatchException], embedding a filename.
+    /++
+        Create a new [FileTypeMismatchException], embedding a filename.
+     +/
     this(const string message,
         const string filename,
         const ushort attrs,

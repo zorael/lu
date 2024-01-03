@@ -11,6 +11,12 @@
     assert(key in aa);
     assert(aa[key] == string.init);
     ---
+
+    Copyright: [JR](https://github.com/zorael)
+    License: [Boost Software License 1.0](https://www.boost.org/users/license.html)
+
+    Authors:
+        [JR](https://github.com/zorael)
  +/
 module lu.array;
 
@@ -28,6 +34,15 @@ public:
 
     Note: This function will end up in an endless loop if a narrow range of indexes
     is supplied and the associative array already contains values for all of them.
+
+    Example:
+    ---
+    string[int] aa;
+    immutable key = aa.uniqueKey;
+    assert(key > 0);
+    assert(key in aa);
+    assert(aa[key] == string.init);
+    ---
 
     Params:
         aa = Associative array to get a unique key for.

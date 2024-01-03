@@ -1,9 +1,17 @@
 /++
     Common user-defined attributes (UDAs).
+
+    Copyright: [JR](https://github.com/zorael)
+    License: [Boost Software License 1.0](https://www.boost.org/users/license.html)
+
+    Authors:
+        [JR](https://github.com/zorael)
  +/
 module lu.uda;
 
-/// UDA conveying that a field cannot (or should not) be serialised.
+/++
+    UDA conveying that a field cannot (or should not) be serialised.
+ +/
 enum Unserialisable;
 
 /++
@@ -12,7 +20,9 @@ enum Unserialisable;
  +/
 struct Separator
 {
-    /// Separator, can be more than one character.
+    /++
+        Separator, can be more than one character.
+     +/
     string token = ",";
 }
 
