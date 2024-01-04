@@ -26,15 +26,15 @@ jobs:
         dc: [ dmd-latest, dmd-2.084.0, ldc-latest, ldc-1.18.0 ]
         exclude:
           - { os: macOS-latest, dc: dmd-2.084.0 }
-          - { os: macOS-latest, dc: ldc-1.18.0 }
 
     runs-on: ${{ matrix.os }}
+    continue-on-error: false
     env:
       ACTIONS_ALLOW_UNSECURE_COMMANDS: true
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: 'Install D compiler'
       uses: dlang-community/setup-dlang@v1
@@ -57,7 +57,7 @@ jobs:
 
     - name: 'Deploy documentation to GitHub Pages'
       if: matrix.dc == 'dmd-latest' && matrix.os == 'ubuntu-latest' && success()
-      uses: crazy-max/ghaction-github-pages@v2.2.0
+      uses: crazy-max/ghaction-github-pages@v3
       with:
         target_branch: gh-pages
         keep_history: false
