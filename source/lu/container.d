@@ -1120,6 +1120,7 @@ struct MutexedAA(AA : V[K], V, K)
 {
 private:
     import std.range.primitives : ElementEncodingType;
+    import std.traits : isIntegral;
     import core.sync.mutex : Mutex;
 
     /++
@@ -1281,47 +1282,51 @@ public:
         return value;
     }
 
-    /++
-        Reserves a unique key in the associative array.
-
-        Note: The key type must be an integral type.
-
-        Example:
-        ---
-        MutexedAA!(string[int]) aa;
-        aa.setup();  // important!
-
-        int i = aa.uniqueKey;
-        assert(i > 0);
-        assert(aa.has(i));
-        assert(aa[i] == string.init);
-        ---
-
-        Params:
-            min = Optional minimum key value; defaults to `1``.
-            max = Optional maximum key value; defaults to `K.max`, where `K` is
-                the key type of the passed associative array.
-            value = Optional value to assign to the key; defaults to `V.init`,
-                where `V` is the value type of the passed associative array.
-
-        Returns:
-            A unique key for the passed associative array, for which there is now
-            a value of `value`.`
-
-        See_Also:
-            [uniqueKey]
-     +/
-    auto uniqueKey()
-        (K min = 1,
-        K max = K.max,
-        V value = V.init)
-    if (isIntegral!K)
-    in (mutex, typeof(this).stringof ~ " has null Mutex")
+    static if (isIntegral!K)
     {
-        mutex.lock_nothrow();
-        auto key = .uniqueKey(cast(AA)aa, min, max, value);
-        mutex.unlock_nothrow();
-        return key;
+        /++
+            Reserves a unique key in the associative array.
+
+            Note: The key type must be an integral type.
+
+            Example:
+            ---
+            MutexedAA!(string[int]) aa;
+            aa.setup();  // important!
+
+            int i = aa.uniqueKey;
+            assert(i > 0);
+            assert(aa.has(i));
+            assert(aa[i] == string.init);
+            ---
+
+            Params:
+                min = Optional minimum key value; defaults to `1``.
+                max = Optional maximum key value; defaults to `K.max`, where `K` is
+                    the key type of the passed associative array.
+                value = Optional value to assign to the key; defaults to `V.init`,
+                    where `V` is the value type of the passed associative array.
+
+            Returns:
+                A unique key for the passed associative array, for which there is now
+                a value of `value`.`
+
+            See_Also:
+                [uniqueKey]
+         +/
+        auto uniqueKey()
+            (K min = 1,
+            K max = K.max,
+            V value = V.init)
+        in (mutex, typeof(this).stringof ~ " has null Mutex")
+        {
+            static import lu.array;
+
+            mutex.lock_nothrow();
+            auto key = lu.array.uniqueKey(*(cast(AA*)&aa), min, max, value);
+            mutex.unlock_nothrow();
+            return key;
+        }
     }
 
     /++
@@ -1910,6 +1915,23 @@ unittest
 
         aa[1] ~= [ 'd', 'e', 'f' ];
         assert(aa[1] == "abcdef".dup);
+    }
+    {
+        MutexedAA!(int[int]) aa;
+        aa.setup();
+
+        immutable key = aa.uniqueKey;
+        assert(key > 0);
+
+        assert(aa.has(key));
+        assert(aa[key] == int.init);
+        aa.remove(key);
+        assert(!aa.has(key));
+
+        immutable key2 = aa.uniqueKey(1, 2, -1);
+        assert(key2 == 1);
+        assert(aa.has(key2));
+        assert(aa[key2] == -1);
     }
     static if (__VERSION__ >= 2088L)
     {
