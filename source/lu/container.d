@@ -288,7 +288,7 @@ pure nothrow:
         Returns:
             The buffer's current length.
      +/
-    auto length() inout
+    auto length() const inout
     {
         return (end - pos);
     }
@@ -304,7 +304,7 @@ pure nothrow:
             `true` if there are items available to get via `front`,
             `false` if not.
      +/
-    auto empty() inout
+    auto empty() const inout
     {
         return (end == 0);
     }
@@ -602,7 +602,7 @@ public:
         Returns:
             Internal buffer size.
      +/
-    auto size() inout
+    auto size() const inout
     {
         return buf.length;
     }
@@ -618,7 +618,7 @@ public:
             `true` if there are items available to get via `front`,
             `false` if not.
      +/
-    auto empty() inout
+    auto empty() const inout
     {
         return !caughtUp && (head == tail);
     }
@@ -997,7 +997,7 @@ public:
         Returns:
             The length of the internal associative array.
      +/
-    auto length() inout
+    auto length() const inout
     {
         return aa.length;
     }
