@@ -954,3 +954,52 @@ unittest
     static assert(udaIndexOf!(foo, string) == -1);
     static assert(udaIndexOf!(i, UDA) == -1);
 }
+
+
+// stringOfTypeOf
+/++
+    The string representation of a type. Non-alias parameter overload.
+
+    Params:
+        T = Type to get the string representation of.
+
+    Returns:
+        The string representation of the type.
+ +/
+enum stringOfTypeOf(T) = T.stringof;
+
+///
+unittest
+{
+    static struct Foo {}
+    static struct Bar {}
+
+    assert(stringOfTypeOf!Foo == "Foo");
+    assert(stringOfTypeOf!Bar == "Bar");
+}
+
+// stringOfTypeOf
+/++
+    The string representation of the type of something. Alias parameter overload.
+
+    Params:
+        T = Symbol whose type to get the string representation of.
+
+    Returns:
+        The string representation of the type.
+ +/
+enum stringOfTypeOf(alias T) = typeof(T).stringof;
+
+///
+unittest
+{
+    static struct Foo {}
+
+    Foo foo;
+    int i;
+    alias n = int;
+
+    static assert(stringOfTypeOf!foo == "Foo");
+    static assert(stringOfTypeOf!i == "int");
+    static assert(stringOfTypeOf!n == "int");
+}
