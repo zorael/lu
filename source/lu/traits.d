@@ -896,3 +896,61 @@ unittest
     static assert(isMutableArrayOfImmutables!(immutable(int)[]));
     static assert(!isMutableArrayOfImmutables!(immutable(int[])));
 }
+
+
+// udaIndexOf
+/++
+    Returns the index of a given UDA, as annotated on a symbol.
+
+    Params:
+        symbol = Symbol to introspect.
+        T = UDA to get the index of.
+
+    Returns:
+        The index of the UDA if found, or `-1` if it was not present.
+ +/
+enum udaIndexOf(alias symbol, T) = ()
+{
+    /// Silence dscanner by adding this ddoc.
+    ptrdiff_t index = -1;
+
+    foreach (immutable i, uda; __traits(getAttributes, symbol))
+    {
+        static if (is(typeof(uda)))
+        {
+            alias U = typeof(uda);
+        }
+        else
+        {
+            alias U = uda;
+        }
+
+        static if (is(U == T))
+        {
+            index = i;
+            break;
+        }
+    }
+
+    return index;
+}();
+
+///
+unittest
+{
+    enum UDA;
+    enum UDA2;
+
+    @UDA
+    @UDA2
+    @(42)
+    static void foo() {}
+
+    int i;
+
+    static assert(udaIndexOf!(foo, UDA) == 0);
+    static assert(udaIndexOf!(foo, UDA2) == 1);
+    static assert(udaIndexOf!(foo, int) == 2);
+    static assert(udaIndexOf!(foo, string) == -1);
+    static assert(udaIndexOf!(i, UDA) == -1);
+}
