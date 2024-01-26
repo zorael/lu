@@ -2,8 +2,6 @@
 
 Miscellaneous general-purpose library modules. Nothing extraordinary.
 
-## What it is
-
 API documentation can be found [here](https://lu.dpldocs.info).
 
 * [`meld.d`](source/lu/meld.d): Combining two structs/classes of the same type into a union set of their members' values. Also works with arrays and associative arrays. A melding strategy can be supplied as a template parameter for fine-tuning behaviour, but in general non-`.init` values overwrite `.init` ones.
@@ -40,7 +38,8 @@ sourceAA.meldInto(targetAA);
 assert(targetAA == [ "a":"a", "b":"b", "c":"c", "d":"d" ]);
 ```
 
-* [`objmanip.d`](source/lu/objmanip.d): Struct/class manipulation, such as setting a member field by its string name.
+* [`objmanip.d`](source/lu/objmanip.d): Struct/class manipulation, such as
+setting a member field by its string name.
 
 ```d
 struct Foo
@@ -69,12 +68,15 @@ assert(foo.b == true);
 success = foo.setMemberByName("pi", "3.15");
 assert(!success);
 
-success = foo.setMemberByName("i", 999);  // Now works with non-string values
+// Originally meant to work on string values but works on any type
+success = foo.setMemberByName("i", 999);
 assert(success);
 assert(foo.i == 999);
 ```
 
-* [`deltastrings.d`](source/lu/deltastrings.d): Expressing the differences between two instances of a struct or class of the same type into an output range, as either assignment statements or assert statements.
+* [`deltastrings.d`](source/lu/deltastrings.d): Expressing the differences
+between two instances of a struct or class of the same type into an output
+range, as either assignment statements or assert statements.
 
 ```d
 struct Foo
@@ -90,7 +92,9 @@ altered.i = 42;
 
 Appender!(char[]) sink;
 
-// Generate assignment statements by passing `No.asserts`
+/+
+    Generate assignment statements by passing `No.asserts`.
+ +/
 sink.formatDeltaInto!(No.asserts)(Foo.init, altered);
 
 assert(sink[] ==
@@ -100,7 +104,9 @@ i = 42;
 
 sink.clear();
 
-// As above but prepend the name "altered" before the members
+/+
+    As above but prepend the name "altered" before the members.
+ +/
 sink.formatDeltaInto!(No.asserts)(Foo.init, altered, 0, "altered");
 
 assert(sink[] ==
@@ -110,7 +116,9 @@ altered.i = 42;
 
 sink.clear();
 
-// Generate assert statements by passing `Yes.asserts`
+/+
+    Generate assert statements by passing `Yes.asserts`.
+ +/
 sink.formatDeltaInto!(Yes.asserts)(Foo.init, altered, 0, "altered");
 
 assert(sink[] ==
@@ -119,7 +127,10 @@ assert((altered.i == 42), altered.i.to!string);
 `);
 ```
 
-* [`typecons.d`](source/lu/typecons.d): The `UnderscoreOpDispatcher` mixin template. When mixed into some aggregate, it generates an `opDispatch` that allows for accessing and mutating any (potentially private) members of it whose names start with an underscore. (Dynamic) arrays are appended to.
+* [`typecons.d`](source/lu/typecons.d): The `UnderscoreOpDispatcher` mixin
+template. When mixed into some aggregate, it generates an `opDispatch` that
+allows for accessing and mutating any (potentially private) members of it whose
+names start with an underscore. (Dynamic) arrays are appended to.
 
 ```d
 struct Foo
@@ -188,7 +199,9 @@ void baz()
 }
 ```
 
-* [`serialisation.d`](source/lu/serialisation.d): Functions and templates for serialising structs into an `.ini` file-**like** format, with entries and values optionally separated into two columns by whitespace.
+* [`serialisation.d`](source/lu/serialisation.d): Functions and templates for
+serialising structs into an `.ini` file-**like** format, with entries and values
+optionally separated into two columns by whitespace.
 
 ```d
 struct Foo
@@ -258,7 +271,10 @@ assert(fourth == "spaces \\o/");
 assert(slice.length == 0);
 
 /+
-    splitInto splits a string of words separated by whitespace into multiple ref strings, and returns a SplitResults enum indicating whether the split words matched the number of passed ref strings. If there are more words than ref strings, the remainder is returned in an overflow array.
+    splitInto splits a string of words separated by whitespace into multiple ref
+    strings, and returns a SplitResults enum indicating whether the split words
+    matched the number of passed ref strings. If there are more words than ref
+    strings, the remainder is returned in an overflow array.
  +/
 enum quoted = `author "John Doe" title "Foo Bar" tag1 tag2 tag3 tag4`;
 string authorHeader;
@@ -274,7 +290,9 @@ assert(title == "Foo Bar");
 assert(overflow == [ "tag1", "tag2", "tag3", "tag4" ]);
 
 /+
-    splitWithQuotes splits a string into multiple parts, where multiple words enclosed between quotes are counted as one word. The quotes are removed from the result. The delimiter is optional and defaults to whitespace.
+    splitWithQuotes splits a string into multiple parts, where multiple words
+    enclosed between quotes are counted as one word. The quotes are removed from
+    the result. The delimiter is optional and defaults to whitespace.
  +/
 immutable intoArray = quoted.splitWithQuotes();
 assert(intoArray.length == 8);
@@ -286,8 +304,10 @@ assert(intoArray[4..8] == [ "tag1", "tag2", "tag3", "tag4" ]);
 * [`conv.d`](source/lu/conv.d): Conversion functions and templates.
 
 ```d
-// Credit for Enum goes to Stephan Koch (https://github.com/UplinkCoder). Used with permission.
-// Generates less bloat than `std.conv.to` on larger enums. Restrictions apply.
+/+
+    Credit for Enum goes to Stephan Koch (https://github.com/UplinkCoder). Used with permission.
+    Generates less bloat than `std.conv.to` on larger enums. Restrictions apply.
+ +/
 
 enum Foo { abc, def, ghi }
 
@@ -302,6 +322,9 @@ assert(Enum!Foo.toString(someGhi) == "ghi");
 immutable otherAbc = Enum!Foo.fromString("abc");
 immutable otherDef = Enum!Foo.fromString("def");
 immutable otherGhi = Enum!Foo.fromString("ghi");
+
+// Shorthand, infers the type from the argument
+assert(enumToString(Foo.abc) == "abc");
 ```
 
 * [`container.d`](source/lu/container.d): Miscellaneous containers.
@@ -336,9 +359,13 @@ assert(circBuf.buf == [ 4, 2, 3 ]);
 
 /+
     A wrapper of a built-in associative array with controllable rehashing.
+    Should otherwise transparently behave like the underlying AA.
  +/
 RehashingAA!(int[string]) aa1;
 aa1.minimumNeededForRehash = 2;
+
+void rehashCallback() { /* Do something */ }
+aa.onRehashDg = &rehashCallback;
 
 aa1["abc"] = 123;
 aa1["def"] = 456;
