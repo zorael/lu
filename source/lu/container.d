@@ -2013,7 +2013,7 @@ public:
                 a value of `value`.`
 
             See_Also:
-                [uniqueKey]
+                [lu.array.uniqueKey]
          +/
         auto uniqueKey()
             (K min = 1,
@@ -2635,7 +2635,7 @@ unittest
         assert(aa[key2] == -1);
     }
     static if (__VERSION__ >= 2088L)
-    {
+    {{
         MutexedAA!(int[int]) aa;
         aa.setup();
 
@@ -2651,5 +2651,5 @@ unittest
             () => 42,
             (int i) => i + 1);
         assert(aa[1] == 43);
-    }
+    }}
 }

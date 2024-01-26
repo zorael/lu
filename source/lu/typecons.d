@@ -108,7 +108,7 @@ unittest
 
         /+
             Returns `this` by reference, so we can chain calls.
-        +/
+         +/
         auto f2 = Foo()
             .i(9001)
             .s("world")
