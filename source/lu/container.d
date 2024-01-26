@@ -781,6 +781,9 @@ unittest
 struct RehashingAA(AA : V[K], V, K)
 {
 private:
+    import std.range.primitives : ElementEncodingType;
+    import std.traits : isIntegral;
+
     /++
         Internal associative array.
      +/
@@ -822,6 +825,13 @@ public:
         Assigns a value into the internal associative array. If it created a new
         entry, then call [maybeRehash] to bump the internal counter and maybe rehash.
 
+        Example:
+        ---
+        RehashingAA!(int[string]) aa;
+        aa["abc"] = 123;
+        aa["def"] = 456;
+        ---
+
         Params:
             value = Value.
             key = Key.
@@ -839,9 +849,64 @@ public:
         }
     }
 
+    // opIndex
+    /++
+        Returns the value for the passed key in the internal associative array.
+
+        Example:
+        ---
+        RehashingAA!(int[string]) aa;
+        aa["abc"] = 123;
+        writeln(aa["abc"]);  // 123
+        ---
+
+        Params:
+            key = Key.
+
+        Returns:
+            The value for the key `key`.
+     +/
+    ref auto opIndex(K key)
+    {
+        return aa[key];
+    }
+
+    // opIndexUnary
+    /++
+        Performs a unary operation on a value in the internal associative array.
+
+        Example:
+        ---
+        RehashingAA!(int[string]) aa;
+        aa["abc"] = 123;
+        writeln(-aa["abc"]);  // -123
+        ---
+
+        Params:
+            op = Unary operation as a string.
+            key = Key.
+
+        Returns:
+            The result of the operation.
+     +/
+    ref auto opIndexUnary(string op)(K key)
+    {
+        mixin("return " ~ op ~ "aa[key];");
+    }
+
     // opAssign
     /++
         Inherit a native associative array into [RehashingAA.aa|aa].
+
+        Example:
+        ---
+        RehashingAA!(int[string]) aa;
+        int[string] nativeAA;
+
+        nativeAA["abc"] = 123;
+        aa = nativeAA;
+        assert(aa["abc"] == 123);
+        ---
 
         Params:
             aa = Other associative array.
@@ -853,9 +918,44 @@ public:
         _numRehashes = 0;
     }
 
+    // opIndexOpAssign
+    /++
+        Performs an assingment operation on a value in the internal associative array.
+
+        Example:
+        ---
+        RehashingAA!(int[int]) aa;
+        aa[1] = 42;
+        aa[1] += 1;
+        assert(aa[1] == 43);
+
+        aa[1] *= 2;
+        assert(aa[1] == 86);
+        ---
+
+        Params:
+            op = Assignment operation as a string.
+            value = Value to assign.
+            key = Key.
+     +/
+    void opIndexOpAssign(string op, U)(U value, K key)
+    if (is(U == V) || is(U == ElementEncodingType!V))
+    {
+        mixin("aa[key] " ~ op ~ "= value;");
+        maybeRehash();
+    }
+
     // opCast
     /++
         Allows for casting this into the base associative array type.
+
+        Example:
+        ---
+        RehashingAA!(int[string]) aa;
+        aa["abc"] = 123;
+        auto native = cast(int[string])aa;
+        assert(native["abc"] == 123);
+        ---
 
         Params:
             T = Type to cast to, here the same as the type of [RehashingAA.aa|aa].
@@ -863,7 +963,7 @@ public:
         Returns:
             The internal associative array.
      +/
-    auto opCast(T : AA)() inout
+    ref auto opCast(T : AA)() inout
     {
         return aa;
     }
@@ -872,10 +972,16 @@ public:
     /++
         Returns the internal associative array, for when the wrapper is insufficient.
 
+        Example:
+        ---
+        RehashingAA!(int[string]) aa;
+        static assert(is(typeof(aa.aaOf) == int[string]));
+        ---
+
         Returns:
             The internal associative array.
      +/
-    auto aaOf() inout
+    ref auto aaOf() inout
     {
         return aa;
     }
@@ -884,6 +990,16 @@ public:
     /++
         Removes a key from the [RehashingAA.aa|aa] associative array by merely
         invoking `.remove`.
+
+        Example:
+        ---
+        RehashingAA!(int[string]) aa;
+        aa["abc"] = 123;
+        assert("abc" in aa);
+
+        aa.remove("abc");
+        assert("abc" !in aa);
+        ---
 
         Params:
             key = The key to remove.
@@ -939,9 +1055,9 @@ public:
         Returns:
             A reference to the rehashed internal array.
      +/
-    ref auto rehash()
+    ref auto rehash() @system
     {
-        scope(exit) if (onRehashDg) onRehashDg();
+        scope(exit) if (onRehashDg) onRehashDg(aa);
         _lengthAtLastRehash = aa.length;
         _newKeysSinceLastRehash = 0;
         ++_numRehashes;
@@ -977,6 +1093,13 @@ public:
     /++
         Wraps `key in aa` to the internal associative array.
 
+        Example:
+        ---
+        RehashingAA!(int[string]) aa;
+        aa["abc"] = 123;
+        assert("abc" in aa);
+        ---
+
         Params:
             op = Operation, here "in".
             key = Key.
@@ -988,6 +1111,141 @@ public:
     auto opBinaryRight(string op : "in")(K key) inout
     {
         return key in aa;
+    }
+
+    // byValue
+    /++
+        Wraps the internal associative array's `byValue` function.
+
+        Example:
+        ---
+        RehashingAA!(int[string]) aa;
+        aa["abc"] = 123;
+        aa["def"] = 456;
+        aa["ghi"] = 789;
+
+        foreach (value; aa.byValue)
+        {
+            writeln(value);
+        }
+        ---
+
+        Returns:
+            The Voldemort returned from the associative array's `byValue` function.
+     +/
+    auto byValue() inout
+    {
+        return aa.byValue();
+    }
+
+    // byKey
+    /++
+        Wraps the internal associative array's `byKey` function.
+
+        Example:
+        ---
+        RehashingAA!(int[string]) aa;
+        aa["abc"] = 123;
+        aa["def"] = 456;
+        aa["ghi"] = 789;
+
+        foreach (key; aa.byKey)
+        {
+            writeln(key);
+        }
+        ---
+
+        Returns:
+            The Voldemort returned from the associative array's `byKey` function.
+     +/
+    auto byKey() inout
+    {
+        return aa.byKey();
+    }
+
+    // values
+    /++
+        Wraps the internal associative array's `values` function.
+
+        Example:
+        ---
+        RehashingAA!(int[string]) aa;
+        aa["abc"] = 123;
+        aa["def"] = 456;
+        aa["ghi"] = 789;
+
+        auto values = aa.values;  // allocate it once
+
+        // Order cannot be relied upon
+        foreach (val; [ 123, 456, 789 ])
+        {
+            import std.algorithm.searching : canFind;
+            assert(values.canFind(val));
+        }
+        ---
+
+        Returns:
+            A new dynamic array of all values, as returned by the associative array's
+            `values` function.
+     +/
+    auto values() const
+    {
+        return aa.values;
+    }
+
+    // keys
+    /++
+        Wraps the internal associative array's `keys` function.
+
+        Example:
+        ---
+        RehashingAA!(int[string]) aa;
+        aa["abc"] = 123;
+        aa["def"] = 456;
+        aa["ghi"] = 789;
+
+        auto keys = aa.keys;  // allocate it once
+
+        // Order cannot be relied upon
+        foreach (key; [ "abc", "def", "ghi" ])
+        {
+            assert(key in aa);
+        }
+        ---
+
+        Returns:
+            A new dynamic array of all keys, as returned by the associative array's
+            `keys` function.
+     +/
+    auto keys() const
+    {
+        return aa.keys;
+    }
+
+    // byKeyValue
+    /++
+        Wraps the internal associative array's `byKeyValue` function.
+
+        Example:
+        ---
+        RehashingAA!(int[string]) aa;
+        aa["abc"] = 123;
+        aa["def"] = 456;
+        aa["ghi"] = 789;
+
+        foreach (key, value; aa.byKeyValue)
+        {
+            writeln(key, " = ", value);
+        }
+        ---
+
+        Returns:
+            A new range of all key-value pairs, as returned by the associative
+            array's `byKeyValue` function.
+     +/
+    auto byKeyValue() inout
+    {
+        return aa.byKeyValue();
     }
 
     // length
@@ -1006,14 +1264,251 @@ public:
     /++
         Duplicates this. Explicitly copies the internal associative array.
 
+        If `No.copyState` is passed, it will not copy over the internal state
+        such as the number of rehashes and keys added since the last rehash.
+
+        Example:
+        ---
+        RehashingAA!(int[string]) aa;
+        aa.minimumNeededForRehash = 2;
+
+        aa["abc"] = 123;
+        aa["def"] = 456;
+        aa["ghi"] = 789;
+        assert(aa.numRehashes == 1);
+
+        auto aa2 = aa.dup(Yes.copyState);
+        assert(aa2 == aa);
+        assert(aa2.numRehashes == 1);
+
+        auto aa3 = aa.dup;  //(No.copyState);
+        assert(aa3 == aa);
+        assert(aa3.numRehashes == 0);
+        ---
+
+        Params:
+            copyState = (Optional) Whether or not to copy over the internal state.
+
         Returns:
             A duplicate of this object.
      +/
-    auto dup()
+    auto dup(const Flag!"copyState" copyState = No.copyState)
     {
-        auto copy = this;
-        copy.aa = copy.aa.dup;
+        auto copy = copyState ?
+            this :
+            typeof(this).init;
+
+        copy.aa = this.aa.dup;
         return copy;
+    }
+
+    // require
+    /++
+        Returns the value for the key `key`, inserting `value` lazily if it is not present.
+
+        Example:
+        ---
+        RehashingAA!(string[int]) aa;
+        string hello = aa.require(42, "hello");
+        assert(hello == "hello");
+        assert(aa[42] == "hello");
+        ---
+
+        Params:
+            key = Key.
+            value = Value to insert if the key is not present.
+
+        Returns:
+            The value for the key `key`, or `value` if it was not present.
+     +/
+    ref auto require(K key, lazy V value)
+    {
+        if (auto existing = key in aa)
+        {
+            return *existing;
+        }
+        else
+        {
+            aa[key] = value;
+            return value;
+        }
+    }
+
+    // get
+    /++
+        Retrieves the value for the key `key`, or returns the default `value`
+        if there was none.
+
+        Example:
+        ---
+        RehashingAA!(int[int]) aa;
+        aa[1] = 42;
+        aa[2] = 99;
+
+        assert(aa.get(1, 0) == 42);
+        assert(aa.get(2, 0) == 99);
+        assert(aa.get(0, 0) == 0);
+        assert(aa.get(3, 999) == 999);
+
+        assert(0 !in aa);
+        assert(3 !in aa);
+        ---
+     +/
+    ref auto get(K key, lazy V value)
+    {
+        if (auto existing = key in aa)
+        {
+            return *existing;
+        }
+        else
+        {
+            return value;
+        }
+    }
+
+    static if (isIntegral!K)
+    {
+        /++
+            Reserves a unique key in the associative array.
+
+            Note: The key type must be an integral type.
+
+            Example:
+            ---
+            RehashingAA!(string[int]) aa;
+
+            int i = aa.uniqueKey;
+            assert(i > 0);
+            assert(i in aa);
+            assert(aa[i] == string.init);
+            ---
+
+            Params:
+                min = Optional minimum key value; defaults to `1``.
+                max = Optional maximum key value; defaults to `K.max`, where `K` is
+                    the key type of the passed associative array.
+                value = Optional value to assign to the key; defaults to `V.init`,
+                    where `V` is the value type of the passed associative array.
+
+            Returns:
+                A unique key for the passed associative array, for which there is now
+                a value of `value`.`
+
+            See_Also:
+                [lu.array.uniqueKey]
+         +/
+        auto uniqueKey()
+            (K min = 1,
+            K max = K.max,
+            V value = V.init)
+        {
+            static import lu.array;
+            return lu.array.uniqueKey(aa, min, max, value);
+        }
+    }
+
+    // update
+    /++
+        Updates the value for the key `key` in the internal associative array,
+        invoking the first of the passed delegate to insert a new value if it
+        doesn't exist, or the second selegate to modify it in place if it does.
+
+        Note: Doesn't compile with compilers earlier than version 2.088.
+
+        Example:
+        ---
+        RehashingAA!(int[int]) aa;
+
+        assert(1 !in aa);
+
+        aa.update(1,
+            () => 42,
+            (int i) => i + 1);
+        assert(aa[1] == 42);
+
+        aa.update(1,
+            () => 42,
+            (int i) => i + 1);
+        assert(aa[1] == 43);
+        ---
+
+        Params:
+            key = Key.
+            createDg = Delegate to invoke to create a new value if it doesn't exist.
+            updateDg = Delegate to invoke to update an existing value.
+     +/
+    static if (__VERSION__ >= 2088L)
+    void update(U)
+        (K key,
+        scope V delegate() createDg,
+        scope U delegate(K) updateDg)
+    if (is(U == V) || is(U == void))
+    {
+        .object.update(aa, key, createDg, updateDg);
+    }
+
+    // opEquals
+    /++
+        Implements `opEquals` for this type, comparing the internal associative
+        array with that of another `RehashingAA`.
+
+        Example:
+        ---
+        RehashingAA!(string[int]) aa1;
+        aa1[1] = "one";
+
+        RehashingAA!(string[int]) aa2;
+        aa2[1] = "one";
+        assert(aa1 == aa2);
+
+        aa2[2] = "two";
+        assert(aa1 != aa2);
+
+        aa1[2] = "two";
+        assert(aa1 == aa2);
+        ---
+
+        Params:
+            other = Other `RehashingAA` whose internal associative array to compare
+                with the one of this instance.
+
+        Returns:
+            `true` if the internal associative arrays are equal; `false` if not.
+     +/
+    auto opEquals(typeof(this) other)
+    {
+        return (aa == other.aa);
+    }
+
+    // opEquals
+    /++
+        Implements `opEquals` for this type, comparing the internal associative
+        array with a different one.
+
+        Example:
+        ---
+        RehashingAA!(string[int]) aa1;
+        aa1[1] = "one";
+        aa1[2] = "two";
+
+        string[int] aa2;
+        aa2[1] = "one";
+
+        assert(aa1 != aa2);
+
+        aa2[2] = "two";
+        assert(aa1 == aa2);
+        ---
+
+        Params:
+            other = Other associative array to compare the internal one with.
+
+        Returns:
+            `true` if the internal associative arrays are equal; `false` if not.
+     +/
+    auto opEquals(AA other)
+    {
+        return (aa == other);
     }
 
     // this
@@ -1031,8 +1526,30 @@ public:
     // onRehashDg
     /++
         Delegate called when rehashing takes place.
+
+        Example:
+        ---
+        uint counter;
+
+        void dg(ref int[string] aa)
+        {
+            ++counter;
+            writeln("Rehashed!");
+        }
+
+        RehashingAA!(int[string]) aa;
+        aa.onRehashDg = &dg;
+        aa.minimumNeededForRehash = 2;
+
+        aa["abc"] = 123;
+        aa["def"] = 456;
+        aa["ghi"] = 789;
+
+        assert(aa.numRehashes == 1);
+        assert(counter == 1);
+        ---
      +/
-    void delegate() onRehashDg;
+    void delegate(ref AA) @system onRehashDg;
 }
 
 ///
@@ -1040,31 +1557,215 @@ unittest
 {
     import std.conv : to;
 
-    RehashingAA!(int[string]) aa;
-    aa.minimumNeededForRehash = 2;
+    {
+        uint counter;
 
-    aa["abc"] = 123;
-    aa["def"] = 456;
-    assert((aa.newKeysSinceLastRehash == 2), aa.newKeysSinceLastRehash.to!string);
-    assert((aa.numRehashes == 0), aa.numRehashes.to!string);
-    aa["ghi"] = 789;
-    assert((aa.numRehashes == 1), aa.numRehashes.to!string);
-    assert((aa.newKeysSinceLastRehash == 0), aa.newKeysSinceLastRehash.to!string);
-    aa.rehash();
-    assert((aa.numRehashes == 2), aa.numRehashes.to!string);
+        void dg(ref int[string] aa)
+        {
+            ++counter;
+        }
 
-    auto realAA = cast(int[string])aa;
-    assert("abc" in realAA);
-    assert("def" in realAA);
+        RehashingAA!(int[string]) aa;
+        aa.onRehashDg = &dg;
+        aa.minimumNeededForRehash = 2;
 
-    auto alsoRealAA = aa.aaOf;
-    assert("ghi" in realAA);
-    assert("jkl" !in realAA);
+        aa["abc"] = 123;
+        aa["def"] = 456;
+        assert((aa.newKeysSinceLastRehash == 2), aa.newKeysSinceLastRehash.to!string);
+        assert((aa.numRehashes == 0), aa.numRehashes.to!string);
+        aa["ghi"] = 789;
+        assert((aa.numRehashes == 1), aa.numRehashes.to!string);
+        assert((aa.newKeysSinceLastRehash == 0), aa.newKeysSinceLastRehash.to!string);
+        aa.rehash();
+        assert((aa.numRehashes == 2), aa.numRehashes.to!string);
+        assert((counter == 2), counter.to!string);
 
-    auto aa2 = aa.dup;
-    aa2["jkl"] = 123;
-    assert("jkl" in aa2);
-    assert("jkl" !in aa);
+        auto realAA = cast(int[string])aa;
+        assert("abc" in realAA);
+        assert("def" in realAA);
+
+        auto alsoRealAA = aa.aaOf;
+        assert("ghi" in alsoRealAA);
+        assert("jkl" !in alsoRealAA);
+
+        auto aa2 = aa.dup(Yes.copyState);
+        assert((aa2.numRehashes == 2), aa2.numRehashes.to!string);
+        aa2["jkl"] = 123;
+        assert("jkl" in aa2);
+        assert("jkl" !in aa);
+
+        auto aa3 = aa.dup();  //(No.copyState);
+        assert(!aa3.numRehashes, aa3.numRehashes.to!string);
+        assert(aa3.aaOf == aa.aaOf);
+        assert(aa3.aaOf !is aa.aaOf);
+    }
+    {
+        RehashingAA!(int[int]) aa;
+        aa[1] = 2;
+        ++aa[1];
+        assert((aa[1] == 3), aa[1].to!string);
+        assert((-aa[1] == -3), (-aa[1]).to!string);
+    }
+    {
+        RehashingAA!(int[int]) aa;
+        aa[1] = 42;
+        aa[1] += 1;
+        assert(aa[1] == 43);
+
+        aa[1] *= 2;
+        assert(aa[1] == 86);
+    }
+    {
+        RehashingAA!(int[string]) aa;
+        static assert(is(typeof(aa.aaOf()) == int[string]));
+
+        aa["abc"] = 123;
+        auto native = cast(int[string])aa;
+        assert(native["abc"] == 123);
+    }
+    {
+        RehashingAA!(int[string]) aa;
+        aa["abc"] = 123;
+        aa["def"] = 456;
+        assert((aa.length == 2), aa.length.to!string);
+        aa.remove("abc");
+        assert((aa.length == 1), aa.length.to!string);
+        aa.remove("def");
+        assert(!aa.length, aa.length.to!string);
+    }
+    {
+        RehashingAA!(int[string]) aa;
+        aa["abc"] = 123;
+        aa["def"] = 456;
+        aa["ghi"] = 789;
+
+        foreach (value; aa.byValue)
+        {
+            import std.algorithm.comparison : among;
+            assert(value.among!(123, 456, 789), value.to!string);
+        }
+    }
+    {
+        RehashingAA!(int[string]) aa;
+        aa["abc"] = 123;
+        aa["def"] = 456;
+        aa["ghi"] = 789;
+
+        foreach (key; aa.byKey)
+        {
+            assert(key in aa);
+        }
+    }
+    {
+        RehashingAA!(int[string]) aa;
+        aa["abc"] = 123;
+        aa["def"] = 456;
+        aa["ghi"] = 789;
+
+        auto values = aa.values;  // allocate it once
+
+        // Order cannot be relied upon
+        foreach (val; [ 123, 456, 789 ])
+        {
+            import std.algorithm.searching : canFind;
+            assert(values.canFind(val));
+        }
+    }
+    {
+        RehashingAA!(int[string]) aa;
+        aa["abc"] = 123;
+        aa["def"] = 456;
+        aa["ghi"] = 789;
+
+        auto keys = aa.keys;  // allocate it once
+
+        // Order cannot be relied upon
+        foreach (key; [ "abc", "def", "ghi" ])
+        {
+            assert(key in aa);
+        }
+    }
+    {
+        RehashingAA!(int[string]) aa;
+        aa["abc"] = 123;
+        aa["def"] = 456;
+        aa["ghi"] = 789;
+
+        foreach (kv; aa.byKeyValue)
+        {
+            assert(kv.key in aa);
+            assert(aa[kv.key] == kv.value);
+        }
+    }
+    {
+        RehashingAA!(string[int]) aa;
+        string hello = aa.require(42, "hello");
+        assert(hello == "hello");
+        assert(aa[42] == "hello");
+    }
+    {
+        RehashingAA!(int[int]) aa;
+        aa[1] = 42;
+        aa[2] = 99;
+
+        assert(aa.get(1, 0) == 42);
+        assert(aa.get(2, 0) == 99);
+        assert(aa.get(0, 0) == 0);
+        assert(aa.get(3, 999) == 999);
+
+        assert(0 !in aa);
+        assert(3 !in aa);
+    }
+    static if (__VERSION__ >= 2088L)
+    {{
+        RehashingAA!(int[int]) aa;
+
+        assert(1 !in aa);
+
+        aa.update(1,
+            () => 42,
+            (int i) => i + 1);
+        assert(aa[1] == 42);
+
+        aa.update(1,
+            () => 42,
+            (int i) => i + 1);
+        assert(aa[1] == 43);
+    }}
+    {
+        RehashingAA!(string[int]) aa1;
+        aa1[1] = "one";
+
+        RehashingAA!(string[int]) aa2;
+        aa2[1] = "one";
+        assert(aa1 == aa2);
+
+        aa2[2] = "two";
+        assert(aa1 != aa2);
+
+        aa1[2] = "two";
+        assert(aa1 == aa2);
+    }
+    {
+        RehashingAA!(string[int]) aa1;
+        aa1[1] = "one";
+        aa1[2] = "two";
+
+        string[int] aa2;
+        aa2[1] = "one";
+
+        assert(aa1 != aa2);
+
+        aa2[2] = "two";
+        assert(aa1 == aa2);
+    }
+    {
+        RehashingAA!(string[int]) aa;
+        int i = aa.uniqueKey;
+        assert(i > 0);
+        assert(i in aa);
+        assert(aa[i] == string.init);
+    }
 }
 
 
