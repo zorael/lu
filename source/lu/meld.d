@@ -351,10 +351,15 @@ if (isAggregateType!Thing && is(QualThing : Thing) && isMutable!Thing)
             }
             else
             {
-                /*import std.traits : Unqual;
-                static assert(0, Unqual!T.stringof ~ " `" ~
-                    Unqual!QualThing.stringof ~ '.' ~
-                    __traits(identifier, meldThis.tupleof[i]) ~ "` is not meldable!");*/
+                /*import std.format : format;
+                import std.traits : Unqual;
+
+                enum pattern = "`%s` `%s.%s` is not meldable!";
+                enum message = pattern.format(
+                    Unqual!T.stringof,
+                    Unqual!QualThing.stringof,
+                    __traits(identifier, meldThis.tupleof[i]));
+                static assert(0, message);*/
             }
         }
     }
