@@ -185,15 +185,15 @@ void serialise(Sink, QualThing)(auto ref Sink sink, auto ref QualThing thing)
 
     foreach (immutable i, member; thing.tupleof)
     {
-        import lu.traits : isSerialisable;
+        import lu.traits : isSerialisable, udaIndexOf;
         import lu.uda : Separator, Unserialisable;
-        import std.traits : hasUDA, isAggregateType;
+        import std.traits : isAggregateType;
 
         alias T = Unqual!(typeof(member));
 
         static if (
             isSerialisable!member &&
-            !hasUDA!(thing.tupleof[i], Unserialisable) &&
+            (udaIndexOf!(thing.tupleof[i], Unserialisable) == -1) &&
             !isAggregateType!T)
         {
             import std.traits : isArray, isSomeString;
@@ -205,7 +205,7 @@ void serialise(Sink, QualThing)(auto ref Sink sink, auto ref QualThing thing)
                 import lu.traits : UnqualArray;
                 import std.traits : getUDAs;
 
-                static if (hasUDA!(thing.tupleof[i], Separator))
+                static if (udaIndexOf!(thing.tupleof[i], Separator) != -1)
                 {
                     alias separators = getUDAs!(thing.tupleof[i], Separator);
                     enum separator = separators[0].token;
@@ -216,7 +216,7 @@ void serialise(Sink, QualThing)(auto ref Sink sink, auto ref QualThing thing)
                         static assert(0, pattern.format(Thing.stringof, memberstring));
                     }
                 }
-                else static if ((__VERSION__ >= 2087L) && hasUDA!(thing.tupleof[i], string))
+                else static if ((__VERSION__ >= 2087L) && (udaIndexOf!(thing.tupleof[i], string) != -1))
                 {
                     alias separators = getUDAs!(thing.tupleof[i], string);
                     enum separator = separators[0];
@@ -287,7 +287,7 @@ void serialise(Sink, QualThing)(auto ref Sink sink, auto ref QualThing thing)
             {
                 import lu.uda : Quoted;
 
-                static if (isSomeString!T && hasUDA!(thing.tupleof[i], Quoted))
+                static if (isSomeString!T && (udaIndexOf!(thing.tupleof[i], Quoted) != -1))
                 {
                     enum pattern = `%s "%s"`;
                 }
@@ -487,8 +487,7 @@ private struct SerialisationUDAs
  +/
 private string serialiseArrayImpl(T)(const auto ref T array, const SerialisationUDAs udas)
 {
-    import std.format : format, formattedWrite;
-    import std.traits : getUDAs, hasUDA;
+    import std.format : format;
 
     static if (is(T == string[]))
     {
@@ -604,8 +603,9 @@ void deserialise(Range, Things...)
 
         static foreach (immutable n; 0..things[i].tupleof.length)
         {{
-            static if (isSerialisable!(Things[i].tupleof[n]) &&
-                !hasUDA!(things[i].tupleof[n], Unserialisable))
+            static if (
+                isSerialisable!(Things[i].tupleof[n]) &&
+                (udaIndexOf!(things[i].tupleof[n], Unserialisable) == -1))
             {
                 enum memberstring = __traits(identifier, Things[i].tupleof[n]);
                 encounteredOptions[Thing.stringof][memberstring] = false;
@@ -712,8 +712,9 @@ void deserialise(Range, Things...)
                 {
                 static foreach (immutable n; 0..things[i].tupleof.length)
                 {{
-                    static if (isSerialisable!(Things[i].tupleof[n]) &&
-                        !hasUDA!(things[i].tupleof[n], Unserialisable))
+                    static if (
+                        isSerialisable!(Things[i].tupleof[n]) &&
+                        (udaIndexOf!(things[i].tupleof[n], Unserialisable) == -1))
                     {
                         enum memberstring = __traits(identifier, Things[i].tupleof[n]);
 
@@ -724,7 +725,7 @@ void deserialise(Range, Things...)
                             {
                                 // Entry is uncommented; set
 
-                                static if (hasUDA!(things[i].tupleof[n], CannotContainComments))
+                                static if (udaIndexOf!(things[i].tupleof[n], CannotContainComments) != -1)
                                 {
                                     cast(void)things[i].setMemberByName(entry, value);
                                 }

@@ -132,11 +132,10 @@ void meldInto(MeldingStrategy strategy = MeldingStrategy.conservative, QualThing
     (auto ref QualThing meldThis, ref Thing intoThis)
 if (isAggregateType!Thing && is(QualThing : Thing) && isMutable!Thing)
 {
-    import std.traits : hasUDA, isAggregateType, isArray, isAssignable, isPointer,
-        isSomeString, isType, hasUnsharedAliasing;
-
     static if (is(Thing == struct) && (strategy == MeldingStrategy.conservative))
     {
+        import std.traits : hasUnsharedAliasing;
+
         if (meldThis == Thing.init)
         {
             // We're merging an .init with something, and .init does not have
@@ -157,11 +156,21 @@ if (isAggregateType!Thing && is(QualThing : Thing) && isMutable!Thing)
 
     foreach (immutable i, ref _; intoThis.tupleof)
     {
+        import std.traits : isType;
+
         static if (!isType!(intoThis.tupleof[i]))
         {
+            import lu.traits : udaIndexOf;
+            import std.traits :
+                isAggregateType,
+                isArray,
+                isAssignable,
+                isPointer,
+                isSomeString;
+
             alias T = typeof(intoThis.tupleof[i]);
 
-            static if (hasUDA!(intoThis.tupleof[i], Unmeldable))
+            static if (udaIndexOf!(intoThis.tupleof[i], Unmeldable) != -1)
             {
                 // Do nothing
             }

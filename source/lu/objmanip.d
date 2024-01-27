@@ -141,18 +141,19 @@ in (memberToSet.length, "Tried to set member by name but no member string was gi
                     }
                     else static if (!isSomeString!T && isArray!T)
                     {
+                        import lu.traits : udaIndexOf;
                         import lu.uda : Separator;
                         import std.algorithm.iteration : splitter;
                         import std.array : replace;
-                        import std.traits : getUDAs, hasUDA;
+                        import std.traits : getUDAs;
 
                         thing.tupleof[i].length = 0;
 
-                        static if (hasUDA!(thing.tupleof[i], Separator))
+                        static if (udaIndexOf!(thing.tupleof[i], Separator) != -1)
                         {
                             alias separators = getUDAs!(thing.tupleof[i], Separator);
                         }
-                        else static if ((__VERSION__ >= 2087L) && hasUDA!(thing.tupleof[i], string))
+                        else static if ((__VERSION__ >= 2087L) && (udaIndexOf!(thing.tupleof[i], string) != -1))
                         {
                             alias separators = getUDAs!(thing.tupleof[i], string);
                         }

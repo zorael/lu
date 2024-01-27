@@ -127,14 +127,20 @@ void formatDeltaInto(Flag!"asserts" asserts = No.asserts, Sink, QualThing)
 
     foreach (immutable i, ref member; after.tupleof)
     {
+        import lu.traits : udaIndexOf;
         import lu.uda : Hidden;
-        import std.traits : Unqual, hasUDA, isAggregateType, isArray,
-            isSomeFunction, isSomeString, isType;
+        import std.traits :
+            Unqual,
+            isAggregateType,
+            isArray,
+            isSomeFunction,
+            isSomeString,
+            isType;
 
         alias T = Unqual!(typeof(member));
         enum memberstring = __traits(identifier, before.tupleof[i]);
 
-        static if (hasUDA!(after.tupleof[i], Hidden))
+        static if (udaIndexOf!(after.tupleof[i], Hidden) != -1)
         {
             // Member is annotated as Hidden; skip
             continue;
