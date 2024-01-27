@@ -1,5 +1,5 @@
 /++
-    $(B lu) is a general purpose library, doing a little bit of everything.
+    $(B lu) is a general purpose library for the D programming language.
 
     It complements the standard library and is not a replacement for it.
 

@@ -794,6 +794,8 @@ static if ((__VERSION__ == 2088L) || (__VERSION__ == 2089L))
         The [std.traits.getSymbolsByUDA|getSymbolsByUDA] in 2.088/2.089 is
         completely broken by having inserted a constraint to force it to only
         work on aggregates, which a module apparently isn't.
+
+        Keep as-is, don't refactor to use [lu.traits.udaIndexOf|udaIndexOf].
      +/
     template getSymbolsByUDA(alias symbol, alias attribute)
     //if (isAggregateType!symbol)  // <--
@@ -869,7 +871,10 @@ static if ((__VERSION__ == 2088L) || (__VERSION__ == 2089L))
 }
 else
 {
-    // Merely forward to the real template.
+    /++
+        [std.traits.getSymbolsByUDA|Phobos' getSymbolsByUDA] publicly imported
+        in versions other than 2.088 and 2.089.
+     +/
     public import std.traits : getSymbolsByUDA;
 }
 

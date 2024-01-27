@@ -1135,7 +1135,6 @@ string justifiedEntryValueText(const string origLines) pure
 
         default:
             import std.format : formattedWrite;
-
             immutable result = splitEntryValue(line);
             justified.formattedWrite("%-*s%s", width, result.entry, result.value);
             break;

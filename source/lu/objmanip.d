@@ -41,6 +41,11 @@ import std.typecons : Flag, No, Yes;
 
 public:
 
+
+// Separator
+/++
+    Public import of `lu.uda.Separator`.
+ +/
 import lu.uda : Separator;
 
 
@@ -808,8 +813,9 @@ if (isAggregateType!Thing && isMutable!Thing && isEqualityComparable!Token)
                 member = replacement;
             }
         }
-        else static if (isArray!T && (is(ElementEncodingType!T : Token) ||
-            is(ElementType!T : Token)))
+        else static if (
+            isArray!T &&
+            (is(ElementEncodingType!T : Token) || is(ElementType!T : Token)))
         {
             if ((member.length == 1) && (member[0] == token))
             {
@@ -954,7 +960,7 @@ if (isAssociativeArray!AA && isMutable!AA)
 {
     if (!aa.length) return;
 
-    string[] garbage;
+    string[] toRemove;
 
     // Mark
     foreach (/*immutable*/ key, value; aa)
@@ -968,28 +974,29 @@ if (isAssociativeArray!AA && isMutable!AA)
 
             static if (__traits(compiles, unaryPred(value)))
             {
-                if (unaryPred(value)) garbage ~= key;
+                if (unaryPred(value)) toRemove ~= key;
             }
             else static if (__traits(compiles, binaryPred(key, value)))
             {
-                if (unaryPred(key, value)) garbage ~= key;
+                if (unaryPred(key, value)) toRemove ~= key;
             }
             else
             {
-                static assert(0, "Unknown predicate type passed to `pruneAA`");
+                enum message = "Unknown predicate type passed to `pruneAA`";
+                static assert(0, message);
             }
         }
         else
         {
             if (value == typeof(value).init)
             {
-                garbage ~= key;
+                toRemove ~= key;
             }
         }
     }
 
     // Sweep
-    foreach (immutable key; garbage)
+    foreach (immutable key; toRemove)
     {
         aa.remove(key);
     }

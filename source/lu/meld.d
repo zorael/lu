@@ -181,11 +181,15 @@ if (isAggregateType!Thing && is(QualThing : Thing) && isMutable!Thing)
             }
             else static if (isAssignable!T)
             {
-                // Overwriting strategy overwrites everything except where the
-                // source is clearly `.init`.
-                // Aggressive strategy works like overwriting except it doesn't
-                // blindly overwrite struct bools.
-                static if ((strategy == MeldingStrategy.overwriting) ||
+                /+
+                    Overwriting strategy overwrites everything except where the
+                    source is clearly `.init`.
+
+                    Aggressive strategy works like overwriting except it doesn't
+                    blindly overwrite struct bools.
+                 +/
+                static if (
+                    (strategy == MeldingStrategy.overwriting) ||
                     (strategy == MeldingStrategy.aggressive))
                 {
                     static if (is(T == float) || is(T == double))
@@ -255,8 +259,10 @@ if (isAggregateType!Thing && is(QualThing : Thing) && isMutable!Thing)
                         }
                     }
                 }
-                // Conservative strategy takes care not to overwrite members
-                // with non-`init` values.
+                /+
+                    Conservative strategy takes care not to overwrite members
+                    with non-`init` values.
+                 +/
                 else static if (strategy == MeldingStrategy.conservative)
                 {
                     static if (is(T == float) || is(T == double))
@@ -303,9 +309,11 @@ if (isAggregateType!Thing && is(QualThing : Thing) && isMutable!Thing)
                     {
                         static if (is(Thing == class))
                         {
-                            // We cannot tell whether or not it has the same value as
-                            // `Thing.init` does, as it would need to be instantiated.
-                            // Assume overwrite?
+                            /+
+                                We cannot tell whether or not it has the same value as
+                                `Thing.init` does, as it would need to be instantiated.
+                                Assume overwrite?
+                             +/
                             intoThis.tupleof[i] = meldThis.tupleof[i];
                         }
                         else
@@ -318,10 +326,11 @@ if (isAggregateType!Thing && is(QualThing : Thing) && isMutable!Thing)
                     }
                     else
                     {
-                        /+  This is tricksy for bools. A value of false could be
+                        /+
+                            This is tricksy for bools. A value of false could be
                             false, or merely unset. If we're not overwriting,
-                            let whichever side is true win out? +/
-
+                            let whichever side is true win out?
+                         +/
                         static if (is(Thing == class))
                         {
                             if (intoThis.tupleof[i] == T.init)
