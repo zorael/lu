@@ -1701,58 +1701,53 @@ unittest
     Returns:
         A new string with control characters escaped, or the original one unchanged.
  +/
-auto escapeControlCharacters(/*const*/ return scope string line) pure nothrow
+string escapeControlCharacters(/*const*/ return scope string line) pure nothrow
 {
-    import std.algorithm.comparison : among;
     import std.array : Appender;
     import std.string : representation;
 
+    if (!line.length) return line;
+
     Appender!(char[]) sink;
-    bool dirty;
+    size_t lastEnd;
+    bool reserved;
 
-    foreach (immutable i, immutable c; line.representation)
+    immutable asBytes = line.representation;
+
+    void commitUpTo(const size_t i)
     {
-        if (!dirty)
+        if (!reserved)
         {
-            if (c.among!('\n', '\t', '\r', '\0'))
-            {
-                sink.reserve(line.length);
-                sink.put(line[0..i]);
-                dirty = true;
-
-                // Drop down into lower dirty switch
-            }
-            else
-            {
-                continue;
-            }
+            sink.reserve(asBytes.length + 16);  // guesstimate
+            reserved = true;
         }
+        sink.put(asBytes[lastEnd..i]);
+    }
 
-        switch (c)
+    for (size_t i; i<asBytes.length; ++i)
+    {
+        import std.algorithm.comparison : among;
+
+        if (asBytes[i].among!('\n', '\t', '\r', '\0'))
         {
-        case '\n':
-            sink.put("\\n");
-            break;
+            commitUpTo(i);
+            lastEnd = i+1;
 
-        case '\t':
-            sink.put("\\t");
-            break;
-
-        case '\r':
-            sink.put("\\r");
-            break;
-
-        case '\0':
-            sink.put("\\0");
-            break;
-
-        default:
-            sink.put(c);
-            break;
+            switch (asBytes[i])
+            {
+            case '\n': sink.put(`\n`); break;
+            case '\t': sink.put(`\t`); break;
+            case '\r': sink.put(`\r`); break;
+            case '\0': sink.put(`\0`); break;
+            default: break;
+            }
         }
     }
 
-    return dirty ? sink.data : line;
+    if (!sink.data.length) return line;
+
+    sink.put(asBytes[lastEnd..$]);
+    return sink.data;
 }
 
 ///
@@ -1798,40 +1793,44 @@ unittest
     Returns:
         A new string with control characters removed, or the original one unchanged.
  +/
-auto removeControlCharacters(/*const*/ return scope string line) pure nothrow
+string removeControlCharacters(/*const*/ return scope string line) pure nothrow
 {
     import std.array : Appender;
     import std.string : representation;
 
+    if (!line.length) return line;
+
     Appender!(char[]) sink;
-    bool dirty;
+    size_t lastEnd;
+    bool reserved;
 
-    foreach (immutable i, immutable c; line.representation)
+    immutable asBytes = line.representation;
+
+    void commitUpTo(const size_t i)
     {
-        switch (c)
+        if (!reserved)
         {
-        case '\n':
-        case '\t':
-        case '\r':
-        case '\0':
-            if (!dirty)
-            {
-                sink.reserve(line.length);
-                sink.put(line[0..i]);
-                dirty = true;
-            }
-            break;
+            sink.reserve(asBytes.length);
+            reserved = true;
+        }
+        sink.put(asBytes[lastEnd..i]);
+    }
 
-        default:
-            if (dirty)
-            {
-                sink.put(c);
-            }
-            break;
+    for (size_t i; i<asBytes.length; ++i)
+    {
+        import std.algorithm.comparison : among;
+
+        if (asBytes[i].among!('\n', '\t', '\r', '\0'))
+        {
+            commitUpTo(i);
+            lastEnd = i+1;
         }
     }
 
-    return dirty ? sink.data : line;
+    if (lastEnd == 0) return line;
+
+    sink.put(asBytes[lastEnd..$]);
+    return sink.data;
 }
 
 ///
