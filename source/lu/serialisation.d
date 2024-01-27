@@ -1044,17 +1044,19 @@ bara    blaawp,oorgle,blaawp`;
  +/
 string justifiedEntryValueText(const string origLines) pure
 {
+    import lu.numeric : getMultipleOf;
     import lu.string : stripped;
     import std.algorithm.comparison : max;
-    import std.algorithm.iteration : splitter;
+    import std.algorithm.iteration : joiner, splitter;
     import std.array : Appender;
 
     if (!origLines.length) return string.init;
 
-    enum decentReserve = 4096;
+    enum decentReserveOfLines = 256;
+    enum decentReserveOfChars = 4096;
 
     Appender!(string[]) unjustified;
-    unjustified.reserve(decentReserve);
+    unjustified.reserve(decentReserveOfLines);
     size_t longestEntryLength;
 
     foreach (immutable rawline; origLines.splitter("\n"))
@@ -1094,11 +1096,8 @@ string justifiedEntryValueText(const string origLines) pure
         }
     }
 
-    import lu.numeric : getMultipleOf;
-    import std.algorithm.iteration : joiner;
-
     Appender!(char[]) justified;
-    justified.reserve(decentReserve);
+    justified.reserve(decentReserveOfChars);
 
     assert((longestEntryLength > 0), "No longest entry; is the struct empty?");
     assert((unjustified.data.length > 0), "Unjustified data is empty");
