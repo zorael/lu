@@ -91,7 +91,7 @@ import lu.uda : Separator;
         a bool, or if [std.conv.to] failed to convert a string into wanted type `T`.
         [SetMemberException] if an unexpected exception was thrown.
  +/
-bool setMemberByName(Thing)
+auto setMemberByName(Thing)
     (ref Thing thing,
     const string memberToSet,
     const string valueToSet)
@@ -617,7 +617,7 @@ unittest
     Throws: [SetMemberException] if the passed `valueToSet` was not the same type
         (or implicitly convertible to) the member to set.
  +/
-bool setMemberByName(Thing, Val)
+auto setMemberByName(Thing, Val)
     (ref Thing thing,
     const string memberToSet,
     /*const*/ Val valueToSet)

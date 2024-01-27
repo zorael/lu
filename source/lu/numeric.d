@@ -50,7 +50,7 @@ public:
     Returns:
         The multiple of `n` that reaches and possibly overshoots `num`.
  +/
-Number getMultipleOf(Number)
+auto getMultipleOf(Number)
     (const Number num,
     const int n,
     const Flag!"alwaysOneUp" oneUp = No.alwaysOneUp) pure nothrow @nogc
