@@ -382,54 +382,6 @@ unittest
 }
 
 
-// advancePast
-/++
-    Params:
-        inherit = Optional flag of whether or not the whole string should be
-            returned and the haystack variable cleared on no needle match.
-        haystack = Array to walk and advance.
-        needle = Token that delimits what should be returned and to where to advance.
-            May be another array or some individual character.
-        callingFile = Optional file name to attach to an exception.
-        callingLine = Optional line number to attach to an exception.
-
-    Returns:
-        The string `haystack` from the start up to the needle token. The original
-        variable is advanced to after the token.
- +/
-deprecated("Use `advancePast` with a runtime `inherit` flag instead")
-pragma(inline, true)
-auto advancePast(Flag!"inherit" inherit, Haystack, Needle)
-    (auto ref return scope Haystack haystack,
-    const scope Needle needle,
-    const string callingFile = __FILE__,
-    const size_t callingLine = __LINE__) @safe
-{
-    return advancePast(haystack, needle, inherit, callingFile, callingLine);
-}
-
-
-// nom
-/++
-    Compatibility alias to [advancePast].
- +/
-alias nom = advancePast;
-
-
-// NomException
-/++
-    Compatibility alias to [AdvanceException].
- +/
-alias NomException = AdvanceException;
-
-
-// NomExceptionImpl
-/++
-    Compatibility alias to [AdvanceExceptionImpl].
- +/
-alias NomExceptionImpl = AdvanceExceptionImpl;
-
-
 // AdvanceException
 /++
     Exception, to be thrown when a call to [advancePast] went wrong.
@@ -716,109 +668,6 @@ unittest
 }
 
 
-// beginsWith
-/++
-    Deprecated alias to Phobos' [std.algorithm.searching.startsWith|startsWith].
-
-    `beginsWith` performed the same function but was worse at it.
- +/
-static import std.algorithm.searching;
-deprecated("Use `std.algorithm.searching.startsWith` instead")
-alias beginsWith = std.algorithm.searching.startsWith;
-
-
-// beginsWithOneOf
-/++
-    Checks whether or not the first letter of a string begins with any of the
-    passed string of characters, or single character.
-
-    Merely slices; does not decode the string and may thus give weird results on
-    weird inputs.
-
-    Params:
-        haystack = String to examine the start of, or single character.
-        needles = String of characters to look for in the start of `haystack`,
-            or a single character.
-
-    Returns:
-        `true` if the first character of `haystack` is also in `needles`,
-        `false` if not.
- +/
-deprecated("Suggest to rewrite to reversely use Phobos' `std.algorithm.searching.canFind` instead")
-bool beginsWithOneOf(Haystack, Needle)
-    (const scope Haystack haystack,
-    const scope Needle needles) /*pure nothrow @nogc*/
-{
-    import std.range : ElementEncodingType, ElementType;
-    import std.string : indexOf;
-    import std.traits : isArray;
-
-    static if (isArray!Haystack && is(Needle : Haystack))
-    {
-        version(Windows)
-        {
-            // Windows workaround for memchr segfault
-            // See https://forum.dlang.org/post/qgzznkhvvozadnagzudu@forum.dlang.org
-            if ((needles.ptr is null) || !needles.length) return true;
-        }
-        else
-        {
-            // All strings begin with an empty string
-            if (!needles.length) return true;
-        }
-
-        // An empty line begins with nothing
-        if (!haystack.length) return false;
-
-        return (needles.indexOf(haystack[0]) != -1);
-    }
-    else static if (
-        is(Needle : ElementType!Haystack) ||
-        is(Needle : ElementEncodingType!Haystack))
-    {
-        // Haystack is a string, Needle is a char
-        return haystack[0] == needles;
-    }
-    else static if (
-        is(Haystack : ElementType!Needle) ||
-        is(Haystack : ElementEncodingType!Needle))
-    {
-        // Haystack is a char, Needle is a string
-        return needles.length ?
-            (needles.indexOf(haystack) != -1) :
-            true;
-    }
-    else
-    {
-        import std.format : format;
-
-        enum pattern = "Unexpected types passed to `beginWithOneOf`: `%s` and `%s`";
-        enum message = pattern.format(Haystack.stringof, Needle.stringof);
-        static assert(0, message);
-    }
-}
-
-///
-version(none)
-unittest
-{
-    assert("#channel".beginsWithOneOf("#%+"));
-    assert(!"#channel".beginsWithOneOf("~%+"));
-    assert("".beginsWithOneOf(""));
-    assert("abc".beginsWithOneOf(string.init));
-    assert(!"".beginsWithOneOf("abc"));
-
-    assert("abc".beginsWithOneOf('a'));
-    assert(!"abc".beginsWithOneOf('b'));
-    assert(!"abc".beginsWithOneOf(char.init));
-
-    assert('#'.beginsWithOneOf("#%+"));
-    assert(!'#'.beginsWithOneOf("~%+"));
-    assert('a'.beginsWithOneOf(string.init));
-    assert(!'d'.beginsWithOneOf("abc"));
-}
-
-
 // stripSuffix
 /++
     Strips the supplied string from the end of a string.
@@ -1088,17 +937,6 @@ sit amet
     any more offhand
     so shrug"), '\n' ~ indentedSkipTwo);
 }
-
-
-// contains
-/++
-    Deprecated alias to Phobos' [std.algorithm.searching.canFind|canFind].
-
-    It performed the same function but was worse at it.
- +/
-static import std.algorithm.searching;
-deprecated("Use `std.algorithm.searching.canFind` or `std.string.indexOf(haystack, needle) != -1` instead")
-alias contains = std.algorithm.searching.canFind;
 
 
 // strippedRight
