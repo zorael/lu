@@ -39,7 +39,7 @@ module lu.string;
 
 private:
 
-import std.traits : allSameType, isSomeFunction;
+import std.traits : allSameType;
 import std.typecons : Flag, No, Yes;
 
 public:
@@ -2248,10 +2248,15 @@ unittest
         delimited by whitespace. Quoted sections are treated as one substring.
  +/
 auto splitWithQuotes(string separator = " ")(const string line)
-if (separator.length)
 {
     import std.array : Appender;
     import std.string : representation;
+
+    static if (!separator.length)
+    {
+        enum message = "`splitWithQuotes` only works with non-empty separators";
+        static assert(0, message);
+    }
 
     if (!line.length) return null;
 
@@ -2508,10 +2513,16 @@ unittest
 auto replaceFromAA(char tokenCharacter = '$', Fn)
     (const string line,
     const Fn[string] aa)
-if (isSomeFunction!Fn)
 {
     import std.array : Appender;
     import std.string : indexOf;
+    import std.traits : isSomeFunction;
+
+    static if (!isSomeFunction!Fn)
+    {
+        enum message = "`replaceFromAA` only works with functions and delegates";
+        static assert(0, message);
+    }
 
     Appender!(char[]) sink;
     sink.reserve(line.length + 32);  // guesstimate

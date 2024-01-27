@@ -61,9 +61,6 @@ module lu.serialisation;
 
 private:
 
-import std.meta : allSatisfy;
-import std.range.primitives : isOutputRange;
-import std.traits : isAggregateType, isMutable;
 import std.typecons : Flag, No, Yes;
 
 public:
@@ -102,9 +99,24 @@ import lu.uda : CannotContainComments, Quoted, Separator, Unserialisable;
         things = Variadic list of objects to serialise.
  +/
 void serialise(Sink, Things...)(auto ref Sink sink, auto ref Things things)
-if ((Things.length > 1) && isOutputRange!(Sink, char[]) &&
-    allSatisfy!(isAggregateType, Things))
+if (Things.length > 1)
 {
+    import std.meta : allSatisfy;
+    import std.range.primitives : isOutputRange;
+    import std.traits : isAggregateType;
+
+    static if (!isOutputRange!(Sink, char[]))
+    {
+        enum message = "`serialise` sink must be an output range accepting `char[]`";
+        static assert(0, message);
+    }
+
+    static if (!allSatisfy!(isAggregateType, Things))
+    {
+        enum message = "`serialise` was passed one or more non-aggregate types";
+        static assert(0, message);
+    }
+
     foreach (immutable i, const thing; things)
     {
         if (i > 0) sink.put('\n');
@@ -142,11 +154,24 @@ if ((Things.length > 1) && isOutputRange!(Sink, char[]) &&
         thing = Object to serialise.
  +/
 void serialise(Sink, QualThing)(auto ref Sink sink, auto ref QualThing thing)
-if (isOutputRange!(Sink, char[]) && isAggregateType!QualThing)
 {
     import lu.string : stripSuffix;
     import std.format : format, formattedWrite;
-    import std.traits : Unqual;
+    import std.meta : allSatisfy;
+    import std.range.primitives : isOutputRange;
+    import std.traits : Unqual, isAggregateType;
+
+    static if (!isOutputRange!(Sink, char[]))
+    {
+        enum message = "`serialise` sink must be an output range accepting `char[]`";
+        static assert(0, message);
+    }
+
+    static if (!allSatisfy!(isAggregateType, QualThing))
+    {
+        enum message = "`serialise` was passed one or more non-aggregate types";
+        static assert(0, message);
+    }
 
     static if (__traits(hasMember, Sink, "data"))
     {
@@ -547,13 +572,25 @@ void deserialise(Range, Things...)
     out string[][string] missingEntries,
     out string[][string] invalidEntries,
     ref Things things) pure
-if (allSatisfy!(isAggregateType, Things) && allSatisfy!(isMutable, Things))
 {
     import lu.string : stripSuffix, stripped;
-    import lu.traits : isSerialisable;
+    import lu.traits : isSerialisable, udaIndexOf;
     import lu.uda : Unserialisable;
     import std.format : format;
-    import std.traits : Unqual, hasUDA;
+    import std.meta : allSatisfy;
+    import std.traits : Unqual, isAggregateType, isMutable;
+
+    static if (!allSatisfy!(isAggregateType, Things))
+    {
+        enum message = "`deserialise` was passed one or more non-aggregate types";
+        static assert(0, message);
+    }
+
+    static if (!allSatisfy!(isMutable, Things))
+    {
+        enum message = "`serialise` was passed one or more non-mutable types";
+        static assert(0, message);
+    }
 
     string section;
     bool[Things.length] processedThings;

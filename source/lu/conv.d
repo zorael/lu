@@ -25,8 +25,6 @@ module lu.conv;
 
 private:
 
-import std.range.primitives : isOutputRange;
-import std.traits : isIntegral;
 import std.typecons : Flag, No, Yes;
 
 public:
@@ -411,10 +409,27 @@ unittest
  +/
 void toAlphaInto(size_t maxDigits = 19, uint leadingZeroes = 0, Num, Sink)
     (const Num num, auto ref Sink sink)
-if (isIntegral!Num && isOutputRange!(Sink, char[]))
 {
-    static assert((maxDigits >= leadingZeroes), "Cannot pass more leading zeroes " ~
-        "than max digits to `toAlphaInto`");
+    import std.range.primitives : isOutputRange;
+    import std.traits : isIntegral;
+
+    static if (!isIntegral!Num)
+    {
+        enum message = "`toAlphaInto` must be passed an integral type";
+        static assert(0, message);
+    }
+
+    static if (!isOutputRange!(Sink, char[]))
+    {
+        enum message = "`toAlphaInto` sink must be an output range accepting `char[]`";
+        static assert(0, message);
+    }
+
+    static if (leadingZeroes > maxDigits)
+    {
+        enum message = "Cannot pass more leading zeroes than max digits to `toAlphaInto`";
+        static assert(0, message);
+    }
 
     if (num == 0)
     {

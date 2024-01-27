@@ -60,8 +60,6 @@ module lu.deltastrings;
 
 private:
 
-import std.range.primitives : isOutputRange;
-import std.traits : isAggregateType;
 import std.typecons : Flag, No, Yes;
 
 public:
@@ -109,8 +107,22 @@ void formatDeltaInto(Flag!"asserts" asserts = No.asserts, Sink, QualThing)
     auto ref QualThing after,
     const uint indents = 0,
     const string submember = string.init)
-if (isOutputRange!(Sink, char[]) && isAggregateType!QualThing)
 {
+    import std.range.primitives : isOutputRange;
+    import std.traits : isAggregateType;
+
+    static if (!isAggregateType!QualThing)
+    {
+        enum message = "`formatDeltaInto` must be passed an aggregate type";
+        static assert(0, message);
+    }
+
+    static if (!isOutputRange!(Sink, char[]))
+    {
+        enum message = "`formatDeltaInto` sink must be an output range accepting `char[]`";
+        static assert(0, message);
+    }
+
     immutable prefix = submember.length ? (submember ~ '.') : string.init;
 
     foreach (immutable i, ref member; after.tupleof)

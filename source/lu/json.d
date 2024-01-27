@@ -57,7 +57,6 @@ module lu.json;
 private:
 
 import std.json : JSONValue;
-import std.range.primitives : isOutputRange;
 import std.traits : isMutable;
 import std.typecons : Flag, No, Yes;
 
@@ -240,9 +239,16 @@ public:
      +/
     void serialiseInto(KeyOrderStrategy strategy : KeyOrderStrategy.inGivenOrder, Sink)
         (auto ref Sink sink, const string[] givenOrder) @safe
-    if (isOutputRange!(Sink, char[]))
     in (givenOrder.length, "Tried to serialise a JSON storage in order given without a given order")
     {
+        import std.range.primitives : isOutputRange;
+
+        static if (!isOutputRange!(Sink, char[]))
+        {
+            enum message = "`serialiseInto` sink must be an output range accepting `char[]`";
+            static assert(0, message);
+        }
+
         if (storage.isNull)
         {
             sink.put("{}");
@@ -288,8 +294,16 @@ public:
      +/
     void serialiseInto(KeyOrderStrategy strategy = KeyOrderStrategy.passthrough, Sink)
         (auto ref Sink sink) @safe
-    if ((strategy != KeyOrderStrategy.inGivenOrder) && isOutputRange!(Sink, char[]))
+    if (strategy != KeyOrderStrategy.inGivenOrder)
     {
+        import std.range.primitives : isOutputRange;
+
+        static if (!isOutputRange!(Sink, char[]))
+        {
+            enum message = "`serialiseInto` sink must be an output range accepting `char[]`";
+            static assert(0, message);
+        }
+
         if (storage.isNull)
         {
             sink.put("{}");
