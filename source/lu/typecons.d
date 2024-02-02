@@ -80,7 +80,7 @@ mixin template UnderscoreOpDispatcher()
         Returns:
             The value of the variable.
      +/
-    auto opDispatch(string var)() inout
+    ref auto opDispatch(string var)() inout
     {
         static if (!var.length)
         {
@@ -121,6 +121,10 @@ unittest
         assert(f.s == "hello");
         assert(f.b);
         assert(f.wordList == [ "hello", "world" ]);
+
+        // ref auto allows this
+        ++f.i;
+        assert(f.i == 43);
 
         /+
             Returns `this` by reference, so we can chain calls.
