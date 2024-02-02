@@ -43,6 +43,14 @@ mixin template UnderscoreOpDispatcher()
     {
         import std.traits : isArray, isAssociativeArray, isSomeString;
 
+        static if (!var.length)
+        {
+            import std.format : format;
+            enum pattern = "Empty variable name passed to `%s.opDispatch`";
+            enum message = pattern.format(typeof(this).stringof);
+            static assert(0, message);
+        }
+
         enum realVar = '_' ~ var;
         alias V = typeof(mixin(realVar));
 
@@ -74,6 +82,14 @@ mixin template UnderscoreOpDispatcher()
      +/
     auto opDispatch(string var)() inout
     {
+        static if (!var.length)
+        {
+            import std.format : format;
+            enum pattern = "Empty variable name passed to `%s.opDispatch`";
+            enum message = pattern.format(typeof(this).stringof);
+            static assert(0, message);
+        }
+
         enum realVar = '_' ~ var;
         return mixin(realVar);
     }
