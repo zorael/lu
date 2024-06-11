@@ -122,7 +122,7 @@ if (is(E == enum))
         ---
         enum SomeEnum { one, two, three };
 
-        string foo = Enum!SomeEnum.toString(one);
+        string foo = Enum!SomeEnum.toString(SomeEnum.one);
         assert(foo == "one");
         ---
 
@@ -130,7 +130,11 @@ if (is(E == enum))
             value = Enum member whose string name we want.
 
         Returns:
-            The string name of the passed enum member.
+            The string name of the passed enum member, or (for instance)
+            `cast(E)1234` if an invalid value of `1234` was passed, cast to type `E`.
+
+        See_Also:
+            [enumToString]
      +/
     string toString(E value) pure nothrow
     {
@@ -139,34 +143,39 @@ if (is(E == enum))
 
         foreach (immutable m; __traits(allMembers, E))
         {
-            case mixin("E." ~ m) : return m;
+            case mixin("E." ~ m): return m;
         }
 
         default:
-            string result = "cast(" ~ E.stringof ~ ")";
+            /+
+                This only happens if an invalid enum member value was passed,
+                cast to type `E`.
+
+                Format it into a string like "cast(E)1234" and return that.
+             +/
+            immutable log10Value =
+                (value < 10) ? 0 :
+                (value < 100) ? 1 :
+                (value < 1_000) ? 2 :
+                (value < 10_000) ? 3 :
+                (value < 100_000) ? 4 :
+                (value < 1_000_000) ? 5 :
+                (value < 10_000_000) ? 6 :
+                (value < 100_000_000) ? 7 :
+                (value < 1_000_000_000) ? 8 : 9;
+
+            enum head = "cast(" ~ E.stringof ~ ')';
+            auto result = head.dup;
+            result.length += log10Value + 1;
             uint val = value;
-            enum headLength = E.stringof.length + "cast()".length;
 
-            immutable log10Val =
-                (val < 10) ? 0 :
-                (val < 100) ? 1 :
-                (val < 1_000) ? 2 :
-                (val < 10_000) ? 3 :
-                (val < 100_000) ? 4 :
-                (val < 1_000_000) ? 5 :
-                (val < 10_000_000) ? 6 :
-                (val < 100_000_000) ? 7 :
-                (val < 1_000_000_000) ? 8 : 9;
-
-            result.length += log10Val + 1;
-
-            for (uint i; i != log10Val + 1; ++i)
+            foreach (immutable i; 0..log10Value+1)
             {
-                cast(char)result[headLength + log10Val - i] = cast(char)('0' + (val % 10));
+                result[head.length + log10Value-i] = cast(char)('0' + (val % 10));
                 val /= 10;
             }
 
-            return result;
+            return result; //.idup;
         }
     }
 }
@@ -186,21 +195,16 @@ unittest
         RPL_ENDOFMOTD
     }
 
-    with (T)
-    {
-        static assert(Enum!T.fromString("QUERY") == QUERY);
-        static assert(Enum!T.fromString("PRIVMSG") == PRIVMSG);
-        static assert(Enum!T.fromString("RPL_ENDOFMOTD") == RPL_ENDOFMOTD);
-        static assert(Enum!T.fromString("UNSET") == UNSET);
-        assertThrown!ConvException(Enum!T.fromString("DOESNTEXIST"));  // needs @system
-    }
+    static assert(Enum!T.fromString("QUERY") == T.QUERY);
+    static assert(Enum!T.fromString("PRIVMSG") == T.PRIVMSG);
+    static assert(Enum!T.fromString("RPL_ENDOFMOTD") == T.RPL_ENDOFMOTD);
+    static assert(Enum!T.fromString("UNSET") == T.UNSET);
+    assertThrown!ConvException(Enum!T.fromString("DOESNTEXIST"));  // needs @system
 
-    with (T)
-    {
-        static assert(Enum!T.toString(QUERY) == "QUERY");
-        static assert(Enum!T.toString(PRIVMSG) == "PRIVMSG");
-        static assert(Enum!T.toString(RPL_ENDOFMOTD) == "RPL_ENDOFMOTD");
-    }
+    static assert(Enum!T.toString(T.QUERY) == "QUERY");
+    static assert(Enum!T.toString(T.PRIVMSG) == "PRIVMSG");
+    static assert(Enum!T.toString(T.RPL_ENDOFMOTD) == "RPL_ENDOFMOTD");
+    static assert(Enum!T.toString(cast(T)1234) == "cast(T)1234");
 }
 
 
