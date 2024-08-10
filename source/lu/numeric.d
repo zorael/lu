@@ -6,7 +6,7 @@
     ---
     immutable width = 15.getMultipleOf(4);
     assert(width == 16);
-    immutable width2 = 16.getMultipleOf(4, Yes.alwaysOneUp);
+    immutable width2 = 16.getMultipleOf(4, alwaysOneUp: true);
     assert(width2 == 20);
     ---
 
@@ -20,8 +20,6 @@ module lu.numeric;
 
 private:
 
-import std.typecons : Flag, No, Yes;
-
 public:
 
 @safe:
@@ -31,21 +29,21 @@ public:
 /++
     Given a number, calculate the largest multiple of `n` needed to reach that number.
 
-    It rounds up, and if supplied `Yes.alwaysOneUp` it will always overshoot.
+    It rounds up, and if supplied `alwaysOneUp: true` it will always overshoot.
     This is good for when calculating format pattern widths.
 
     Example:
     ---
     immutable width = 15.getMultipleOf(4);
     assert(width == 16);
-    immutable width2 = 16.getMultipleOf(4, Yes.alwaysOneUp);
+    immutable width2 = 16.getMultipleOf(4, alwaysOneUp: true);
     assert(width2 == 20);
     ---
 
     Params:
         num = Number to reach.
         n = Base value to find a multiplier for.
-        oneUp = Whether or not to always overshoot.
+        alwaysOneUp = Whether or not to always overshoot.
 
     Returns:
         The multiple of `n` that reaches and possibly overshoots `num`.
@@ -53,7 +51,7 @@ public:
 auto getMultipleOf(Number)
     (const Number num,
     const int n,
-    const Flag!"alwaysOneUp" oneUp = No.alwaysOneUp) pure nothrow @nogc
+    const bool alwaysOneUp = false) pure nothrow @nogc
 in ((n > 0), "Cannot get multiple of 0 or negatives")
 in ((num >= 0), "Cannot get multiples for a negative number")
 {
@@ -61,12 +59,12 @@ in ((num >= 0), "Cannot get multiples for a negative number")
 
     if (num == n)
     {
-        return oneUp ? (n + 1) : n;
+        return alwaysOneUp ? (n + 1) : n;
     }
 
     immutable frac = (num / double(n));
     immutable floor_ = cast(uint)frac;
-    immutable mod = oneUp ? (floor_ + 1) : ((floor_ == frac) ? floor_ : (floor_ + 1));
+    immutable mod = alwaysOneUp ? (floor_ + 1) : ((floor_ == frac) ? floor_ : (floor_ + 1));
 
     return (mod * n);
 }
@@ -79,7 +77,7 @@ unittest
     immutable n1 = 15.getMultipleOf(4);
     assert((n1 == 16), n1.text);
 
-    immutable n2 = 16.getMultipleOf(4, Yes.alwaysOneUp);
+    immutable n2 = 16.getMultipleOf(4, alwaysOneUp: true);
     assert((n2 == 20), n2.text);
 
     immutable n3 = 16.getMultipleOf(4);
@@ -90,18 +88,18 @@ unittest
     immutable n5 = 1.getMultipleOf(1);
     assert((n5 == 1), n5.text);
 
-    immutable n6 = 1.getMultipleOf(1, Yes.alwaysOneUp);
+    immutable n6 = 1.getMultipleOf(1, alwaysOneUp: true);
     assert((n6 == 2), n6.text);
 
-    immutable n7 = 5.getMultipleOf(5, Yes.alwaysOneUp);
+    immutable n7 = 5.getMultipleOf(5, alwaysOneUp: true);
     assert((n7 == 6), n7.text);
 
-    immutable n8 = 5L.getMultipleOf(5L, Yes.alwaysOneUp);
+    immutable n8 = 5L.getMultipleOf(5L, alwaysOneUp: true);
     assert((n8 == 6L), n8.text);
 
-    immutable n9 = 5UL.getMultipleOf(5UL, No.alwaysOneUp);
+    immutable n9 = 5UL.getMultipleOf(5UL, alwaysOneUp: false);
     assert((n9 == 5UL), n9.text);
 
-    immutable n10 = (5.0).getMultipleOf(5UL, Yes.alwaysOneUp);
+    immutable n10 = (5.0).getMultipleOf(5UL, alwaysOneUp: true);
     assert((n10 == (6.0)), n10.text);
 }

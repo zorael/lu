@@ -25,8 +25,6 @@ module lu.conv;
 
 private:
 
-import std.typecons : Flag, No, Yes;
-
 public:
 
 @safe:
@@ -154,7 +152,7 @@ if (is(E == enum))
                     cast to type `E`.
 
                     Format it into a string like "cast(E)1234" and return that.
-                +/
+                 +/
                 immutable log10Value =
                     (value < 10) ? 0 :
                     (value < 100) ? 1 :
@@ -292,7 +290,7 @@ unittest
 
     Params:
         hex = Hexadecimal number in string form.
-        acceptLowercase = Flag of whether or not to accept `rrggbb` in lowercase form.
+        acceptLowercase = Whether or not to accept `rrggbb` in lowercase form.
 
     Returns:
         An integer equalling the value of the passed hexadecimal string.
@@ -301,7 +299,7 @@ unittest
  +/
 auto numFromHex(
     const string hex,
-    const Flag!"acceptLowercase" acceptLowercase = Yes.acceptLowercase) pure
+    const bool acceptLowercase = true) pure
 out (total; (total < 16^^hex.length), "`numFromHex` output is too large")
 {
     import std.string : representation;
@@ -369,7 +367,7 @@ out (total; (total < 16^^hex.length), "`numFromHex` output is too large")
  +/
 auto rgbFromHex(
     const string hexString,
-    const Flag!"acceptLowercase" acceptLowercase = No.acceptLowercase)
+    const bool acceptLowercase = false)
 {
     struct RGB
     {
@@ -414,7 +412,7 @@ unittest
         assert((rgb.b == 125), rgb.b.text);
     }
     {
-        auto rgb = rgbFromHex("9a4B7c", Yes.acceptLowercase);
+        auto rgb = rgbFromHex("9a4B7c", acceptLowercase: true);
 
         assert((rgb.r == 154), rgb.r.text);
         assert((rgb.g == 75), rgb.g.text);

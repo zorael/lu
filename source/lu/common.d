@@ -11,8 +11,6 @@ module lu.common;
 
 private:
 
-import std.typecons : Flag, No, Yes;
-
 public:
 
 
@@ -219,7 +217,7 @@ final class FileTypeMismatchException : Exception
     int numDomains = sharedDomains("irc.freenode.net", "leguin.freenode.net");
     assert(numDomains == 2);  // freenode.net
 
-    int numDomains2 = sharedDomains("Portlane2.EU.GameSurge.net", "services.gamesurge.net", No.caseSensitive);
+    int numDomains2 = sharedDomains("Portlane2.EU.GameSurge.net", "services.gamesurge.net", caseSensitive:false);
     assert(numDomains2 == 2);  // gamesurge.net
     ---
 
@@ -238,7 +236,7 @@ final class FileTypeMismatchException : Exception
 auto sharedDomains(
     const string one,
     const string other,
-    const Flag!"caseSensitive" caseSensitive = Yes.caseSensitive) pure @safe @nogc nothrow
+    const bool caseSensitive = true) pure @safe @nogc nothrow
 {
     if (!one.length || !other.length) return 0;
 
@@ -347,12 +345,12 @@ unittest
     immutable n12 = sharedDomains("rizon.net", "irc.rizon.net");
     assert((n12 == 2), n12.text);
 
-    immutable n13 = sharedDomains("irc.gamesurge.net", "Stuff.GameSurge.net", No.caseSensitive);
+    immutable n13 = sharedDomains("irc.gamesurge.net", "Stuff.GameSurge.net", caseSensitive:false);
     assert((n13 == 2), n13.text);
 
-    immutable n14 = sharedDomains("irc.freenode.net", "irc.FREENODE.net", No.caseSensitive);
+    immutable n14 = sharedDomains("irc.freenode.net", "irc.FREENODE.net", caseSensitive:false);
     assert((n14 == 3), n14.text);
 
-    immutable n15 = sharedDomains("irc.SpotChat.org", "irc.FREENODE.net", No.caseSensitive);
+    immutable n15 = sharedDomains("irc.SpotChat.org", "irc.FREENODE.net", caseSensitive:false);
     assert((n15 == 0), n15.text);
 }

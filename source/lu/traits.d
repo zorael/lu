@@ -12,7 +12,6 @@ module lu.traits;
 private:
 
 import std.traits : isArray, isAssociativeArray, isSomeFunction, isType;
-import std.typecons : Flag, No, Yes;
 
 public:
 

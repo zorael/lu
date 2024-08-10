@@ -16,13 +16,13 @@
     sink.put(2);
     sink.put(3);
 
-    sink.zero(No.clear);
+    sink.zero(clear: false);
     assert(sink.data == [ 0, 0, 0 ]);
 
-    sink.zero(No.clear, 42);
+    sink.zero(clear: false, 42);
     assert(sink.data == [ 42, 42, 42 ]);
 
-    sink.zero();  //(Yes.clear);
+    sink.zero();  //(clear: true);
     assert(!sink.data.length);
     ---
 
@@ -38,7 +38,6 @@ private:
 
 import std.array : Appender;
 import std.traits : isIntegral;
-import std.typecons : Flag, No, Yes;
 
 public:
 
@@ -130,7 +129,7 @@ unittest
  +/
 void zero(Sink : Appender!(T[]), T)
     (ref Sink sink,
-    const Flag!"clear" clear = Yes.clear,
+    const bool clear = true,
     T zeroValue = T.init)
 {
     foreach (ref thing; sink.data)
@@ -151,16 +150,16 @@ unittest
         sink.put('c');
         assert(sink.data == ['a', 'b', 'c']);
 
-        sink.zero(No.clear);
+        sink.zero(clear: false);
         assert(sink.data == [ 255, 255, 255 ]);
 
         sink.put('d');
         assert(sink.data == [ 255, 255, 255, 'd' ]);
 
-        sink.zero(No.clear, 'X');
+        sink.zero(clear: false, 'X');
         assert(sink.data == [ 'X', 'X', 'X', 'X' ]);
 
-        sink.zero(Yes.clear);
+        sink.zero(clear: true);
         assert(!sink.data.length);
     }
     {
@@ -170,13 +169,13 @@ unittest
         sink.put("ghi");
         assert(sink.data == [ "abc", "def", "ghi" ]);
 
-        sink.zero(No.clear, "(empty)");
+        sink.zero(clear: false, "(empty)");
         assert(sink.data == [ "(empty)", "(empty)", "(empty)" ]);
 
-        sink.zero(No.clear);
+        sink.zero(clear: false);
         assert(sink.data == [ string.init, string.init, string.init ]);
 
-        sink.zero(Yes.clear);
+        sink.zero(clear: true);
         assert(!sink.data.length);
     }
 }

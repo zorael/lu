@@ -21,7 +21,7 @@
 
         while (line.length > 0)
         {
-            immutable word = line.advancePast(" ", Yes.inherit);
+            immutable word = line.advancePast(" ", inherit: true);
             words ~= word;
         }
 
@@ -40,7 +40,6 @@ module lu.string;
 private:
 
 import std.traits : allSameType;
-import std.typecons : Flag, No, Yes;
 
 public:
 
@@ -55,7 +54,7 @@ public:
     The closest equivalent in Phobos is [std.algorithm.searching.findSplit],
     which largely serves the same function but doesn't advance the input string.
 
-    Additionally takes an optional `Flag!"inherit"` argument, to toggle
+    Additionally takes an optional `inherit` bool argument, to toggle
     whether the return value inherits the passed line (and clearing it) upon no
     needle match.
 
@@ -74,14 +73,14 @@ public:
 
     string foobar2 = "foo bar!";
     string foo2 = foobar2.advancePast(" ");
-    string bar2 = foobar2.advancePast("?", Yes.inherit);
+    string bar2 = foobar2.advancePast("?", inherit: true);
 
     assert((foo2 == "foo"), foo2);
     assert((bar2 == "bar!"), bar2);
     assert(!foobar2.length);
 
     string slice2 = "snarfl";
-    string verb2 = slice2.advancePast(" ", Yes.inherit);
+    string verb2 = slice2.advancePast(" ", inherit: true);
 
     assert((verb2 == "snarfl"), verb2);
     assert(!slice2.length, slice2);
@@ -106,7 +105,7 @@ public:
 auto advancePast(Haystack, Needle)
     (auto ref return scope Haystack haystack,
     const scope Needle needle,
-    const Flag!"inherit" inherit = No.inherit,
+    const bool inherit = false,
     const string callingFile = __FILE__,
     const size_t callingLine = __LINE__) @safe
 in
@@ -325,7 +324,7 @@ unittest
     }
     {
         string line = "Lorem";
-        immutable head = line.advancePast(" ", Yes.inherit);
+        immutable head = line.advancePast(" ", inherit: true);
         assert((head == "Lorem"), head);
         assert(!line.length, line);
     }
@@ -348,18 +347,18 @@ unittest
     }
     {
         string slice = "verb";
-        immutable verb = slice.advancePast(' ', Yes.inherit);
+        immutable verb = slice.advancePast(' ', inherit: true);
         assert((verb == "verb"), verb);
         assert(!slice.length, slice);
     }
     {
         string url = "https://google.com/index.html#fragment-identifier";
-        url = url.advancePast('#', Yes.inherit);
+        url = url.advancePast('#', inherit: true);
         assert((url == "https://google.com/index.html"), url);
     }
     {
         string url = "https://google.com/index.html";
-        url = url.advancePast('#', Yes.inherit);
+        url = url.advancePast('#', inherit: true);
         assert((url == "https://google.com/index.html"), url);
     }
     {
@@ -368,7 +367,7 @@ unittest
 
         while (line.length > 0)
         {
-            immutable word = line.advancePast(" ", Yes.inherit);
+            immutable word = line.advancePast(" ", inherit: true);
             words ~= word;
         }
 
@@ -377,7 +376,7 @@ unittest
     {
         import std.exception : assertThrown;
         string url = "https://google.com/index.html#fragment-identifier";
-        assertThrown!AdvanceException(url.advancePast("", Yes.inherit));
+        assertThrown!AdvanceException(url.advancePast("", inherit: true));
     }
 }
 

@@ -61,8 +61,6 @@ module lu.serialisation;
 
 private:
 
-import std.typecons : Flag, No, Yes;
-
 public:
 
 import lu.uda : CannotContainComments, Quoted, Separator, Unserialisable;
@@ -1103,7 +1101,7 @@ string justifiedEntryValueText(const string origLines) pure
     assert((unjustified.data.length > 0), "Unjustified data is empty");
 
     enum minimumWidth = 24;
-    immutable width = max(minimumWidth, longestEntryLength.getMultipleOf(4, Yes.alwaysOneUp));
+    immutable width = max(minimumWidth, longestEntryLength.getMultipleOf(4, alwaysOneUp: true));
 
     foreach (immutable i, immutable line; unjustified.data)
     {

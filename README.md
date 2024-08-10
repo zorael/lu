@@ -263,10 +263,10 @@ alias fourth = slice;
 assert(fourth == "spaces \\o/");
 
 /+
-    If the optional Yes.inherit is passed, the whole slice is returned
+    If the optional `inherit: true` is passed, the whole slice is returned
     if the delimiter isn't found, otherwise it throws.
  +/
-immutable fourth = slice.advancePast("?", Yes.inherit);
+immutable fourth = slice.advancePast("?", inherit: true);
 assert(fourth == "spaces \\o/");
 assert(slice.length == 0);
 

@@ -58,7 +58,6 @@ private:
 
 import std.json : JSONValue;
 import std.traits : isMutable;
-import std.typecons : Flag, No, Yes;
 
 public:
 
@@ -517,8 +516,8 @@ unittest
 void populateFromJSON(T)
     (ref T target,
     const JSONValue json,
-    const Flag!"lowercaseKeys" lowercaseKeys = No.lowercaseKeys,
-    const Flag!"lowercaseValues" lowercaseValues = No.lowercaseValues) @safe
+    const bool lowercaseKeys = false,
+    const bool lowercaseValues = false) @safe
 if (isMutable!T)
 {
     import std.traits : ValueType, isAssociativeArray, isArray, isDynamicArray, isSomeString;

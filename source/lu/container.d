@@ -1264,7 +1264,7 @@ public:
     /++
         Duplicates this. Explicitly copies the internal associative array.
 
-        If `No.copyState` is passed, it will not copy over the internal state
+        If `copyState: false` is passed, it will not copy over the internal state
         such as the number of rehashes and keys added since the last rehash.
 
         Example:
@@ -1277,11 +1277,11 @@ public:
         aa["ghi"] = 789;
         assert(aa.numRehashes == 1);
 
-        auto aa2 = aa.dup(Yes.copyState);
+        auto aa2 = aa.dup(copyState: false);
         assert(aa2 == aa);
         assert(aa2.numRehashes == 1);
 
-        auto aa3 = aa.dup;  //(No.copyState);
+        auto aa3 = aa.dup;  //(copyState: false);
         assert(aa3 == aa);
         assert(aa3.numRehashes == 0);
         ---
@@ -1292,7 +1292,7 @@ public:
         Returns:
             A duplicate of this object.
      +/
-    auto dup(const Flag!"copyState" copyState = No.copyState)
+    auto dup(const bool copyState = false)
     {
         auto copy = copyState ?
             this :
@@ -1588,13 +1588,13 @@ unittest
         assert("ghi" in alsoRealAA);
         assert("jkl" !in alsoRealAA);
 
-        auto aa2 = aa.dup(Yes.copyState);
+        auto aa2 = aa.dup(copyState: true);
         assert((aa2.numRehashes == 2), aa2.numRehashes.to!string);
         aa2["jkl"] = 123;
         assert("jkl" in aa2);
         assert("jkl" !in aa);
 
-        auto aa3 = aa.dup();  //(No.copyState);
+        auto aa3 = aa.dup();  //(copyState: false);
         assert(!aa3.numRehashes, aa3.numRehashes.to!string);
         assert(aa3.aaOf == aa.aaOf);
         assert(aa3.aaOf !is aa.aaOf);
@@ -1846,7 +1846,7 @@ public:
         if (mutex) return;
 
         mutex = new shared Mutex;
-        mutex.lock_nothrow();
+        (cast()mutex).lock_nothrow();
 
         if (K.init !in cast(AA)aa)
         {
@@ -1854,7 +1854,7 @@ public:
             (cast(AA)aa).remove(K.init);
         }
 
-        mutex.unlock_nothrow();
+        (cast()mutex).unlock_nothrow();
     }
 
     /++
@@ -1891,9 +1891,9 @@ public:
     auto opIndexAssign(V value, K key)
     in (mutex, typeof(this).stringof ~ " has null Mutex")
     {
-        mutex.lock_nothrow();
+        (cast()mutex).lock_nothrow();
         (cast(AA)aa)[key] = value;
-        mutex.unlock_nothrow();
+        (cast()mutex).unlock_nothrow();
         return value;
     }
 
@@ -1920,9 +1920,9 @@ public:
     auto opIndex(K key)
     in (mutex, typeof(this).stringof ~ " has null Mutex")
     {
-        mutex.lock_nothrow();
+        (cast()mutex).lock_nothrow();
         auto value = (cast(AA)aa)[key];
-        mutex.unlock_nothrow();
+        (cast()mutex).unlock_nothrow();
         return value;
     }
 
@@ -1947,9 +1947,9 @@ public:
     auto has(K key)
     in (mutex, typeof(this).stringof ~ " has null Mutex")
     {
-        mutex.lock_nothrow();
+        (cast()mutex).lock_nothrow();
         auto exists = (key in cast(AA)aa) !is null;
-        mutex.unlock_nothrow();
+        (cast()mutex).unlock_nothrow();
         return exists;
     }
 
@@ -1977,9 +1977,9 @@ public:
     auto remove(K key)
     in (mutex, typeof(this).stringof ~ " has null Mutex")
     {
-        mutex.lock_nothrow();
+        (cast()mutex).lock_nothrow();
         auto value = (cast(AA)aa).remove(key);
-        mutex.unlock_nothrow();
+        (cast()mutex).unlock_nothrow();
         return value;
     }
 
@@ -2023,9 +2023,9 @@ public:
         {
             static import lu.array;
 
-            mutex.lock_nothrow();
+            (cast()mutex).lock_nothrow();
             auto key = lu.array.uniqueKey(*(cast(AA*)&aa), min, max, value);
-            mutex.unlock_nothrow();
+            (cast()mutex).unlock_nothrow();
             return key;
         }
     }
@@ -2062,9 +2062,9 @@ public:
     auto opEquals(typeof(this) other)
     in (mutex, typeof(this).stringof ~ " has null Mutex")
     {
-        mutex.lock_nothrow();
+        (cast()mutex).lock_nothrow();
         auto isEqual = (cast(AA)aa == cast(AA)(other.aa));
-        mutex.unlock_nothrow();
+        (cast()mutex).unlock_nothrow();
         return isEqual;
     }
 
@@ -2097,9 +2097,9 @@ public:
     auto opEquals(AA other)
     in (mutex, typeof(this).stringof ~ " has null Mutex")
     {
-        mutex.lock_nothrow();
+        (cast()mutex).lock_nothrow();
         auto isEqual = (cast(AA)aa == other);
-        mutex.unlock_nothrow();
+        (cast()mutex).unlock_nothrow();
         return isEqual;
     }
 
@@ -2122,9 +2122,9 @@ public:
     auto rehash()
     in (mutex, typeof(this).stringof ~ " has null Mutex")
     {
-        mutex.lock_nothrow();
+        (cast()mutex).lock_nothrow();
         auto rehashed = (cast(AA)aa).rehash();
-        mutex.unlock_nothrow();
+        (cast()mutex).unlock_nothrow();
         return rehashed;
     }
 
@@ -2147,9 +2147,9 @@ public:
     void clear()
     in (mutex, typeof(this).stringof ~ " has null Mutex")
     {
-        mutex.lock_nothrow();
+        (cast()mutex).lock_nothrow();
         (cast(AA)aa).clear();
-        mutex.unlock_nothrow();
+        (cast()mutex).unlock_nothrow();
     }
 
     /++
@@ -2172,9 +2172,9 @@ public:
     auto length()
     in (mutex, typeof(this).stringof ~ " has null Mutex")
     {
-        mutex.lock_nothrow();
+        (cast()mutex).lock_nothrow();
         auto length = (cast(AA)aa).length;
-        mutex.unlock_nothrow();
+        (cast()mutex).unlock_nothrow();
         return length;
     }
 
@@ -2204,7 +2204,7 @@ public:
     {
         V retval;
 
-        mutex.lock_nothrow();
+        (cast()mutex).lock_nothrow();
         if (auto existing = key in cast(AA)aa)
         {
             retval = *existing;
@@ -2215,7 +2215,7 @@ public:
             retval = value;
         }
 
-        mutex.unlock_nothrow();
+        (cast()mutex).unlock_nothrow();
         return retval;
     }
 
@@ -2241,9 +2241,9 @@ public:
     auto keys()
     in (mutex, typeof(this).stringof ~ " has null Mutex")
     {
-        mutex.lock_nothrow();
+        (cast()mutex).lock_nothrow();
         auto keys = (cast(AA)aa).keys;  // allocates a new array
-        mutex.unlock_nothrow();
+        (cast()mutex).unlock_nothrow();
         return keys;
     }
 
@@ -2269,9 +2269,9 @@ public:
     auto values()
     in (mutex, typeof(this).stringof ~ " has null Mutex")
     {
-        mutex.lock_nothrow();
+        (cast()mutex).lock_nothrow();
         auto values = (cast(AA)aa).values;  // as above
-        mutex.unlock_nothrow();
+        (cast()mutex).unlock_nothrow();
         return values;
     }
 
@@ -2305,10 +2305,10 @@ public:
     auto get(K key, lazy V value)
     in (mutex, typeof(this).stringof ~ " has null Mutex")
     {
-        mutex.lock_nothrow();
+        (cast()mutex).lock_nothrow();
         auto existing = key in cast(AA)aa;
         auto retval = existing ? *existing : value;
-        mutex.unlock_nothrow();
+        (cast()mutex).unlock_nothrow();
         return retval;
     }
 
@@ -2350,9 +2350,9 @@ public:
     if (is(U == V) || is(U == void))
     in (mutex, typeof(this).stringof ~ " has null Mutex")
     {
-        mutex.lock_nothrow();
+        (cast()mutex).lock_nothrow();
         .object.update((*(cast(AA*)&aa)), key, createDg, updateDg);
-        mutex.unlock_nothrow();
+        (cast()mutex).unlock_nothrow();
     }
 
     /++
@@ -2378,9 +2378,9 @@ public:
     //if (isIntegral!V)
     in (mutex, typeof(this).stringof ~ " has null Mutex")
     {
-        mutex.lock_nothrow();
+        (cast()mutex).lock_nothrow();
         mixin("auto value = " ~ op ~ "(cast(AA)aa)[key];");
-        mutex.unlock_nothrow();
+        (cast()mutex).unlock_nothrow();
         return value;
     }
 
@@ -2409,9 +2409,9 @@ public:
     if (is(U == V) || is(U == ElementEncodingType!V))
     in (mutex, typeof(this).stringof ~ " has null Mutex")
     {
-        mutex.lock_nothrow();
+        (cast()mutex).lock_nothrow();
         mixin("(*(cast(AA*)&aa))[key] " ~ op ~ "= value;");
-        mutex.unlock_nothrow();
+        (cast()mutex).unlock_nothrow();
     }
 }
 
