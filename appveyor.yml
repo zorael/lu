@@ -32,11 +32,12 @@ install:
           cd "$env:USERPROFILE\dlang";
           if (Test-Path env:DVersion) {
             & bash install.sh install $env:DC-$env:DVersion;
+            $env:activator = & bash install.sh install $env:DC-$env:DVersion -a;
           }
           else {
             & bash install.sh install $env:DC;
+            $env:activator = & bash install.sh install $env:DC -a;
           }
-          $env:activator = & bash install.sh install $env:DC -a;
           popd;
         }
   - ps: SetUpDCompiler
