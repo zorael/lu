@@ -1516,7 +1516,7 @@ public:
         Constructor.
 
         Params:
-            aa = Associative arary to inherit. Taken by reference for now.
+            aa = Associative array to inherit. Taken by reference for now.
      +/
     this(AA aa) pure @safe nothrow @nogc
     {

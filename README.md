@@ -297,7 +297,7 @@ assert(overflow == [ "tag1", "tag2", "tag3", "tag4" ]);
 immutable intoArray = quoted.splitWithQuotes();
 assert(intoArray.length == 8);
 assert(intoArray[1] == "John Doe");
-assert(intoArary[3] == "Foo Bar");
+assert(intoArray[3] == "Foo Bar");
 assert(intoArray[4..8] == [ "tag1", "tag2", "tag3", "tag4" ]);
 ```
 
