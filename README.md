@@ -2,7 +2,15 @@
 
 Miscellaneous general-purpose library modules. Nothing extraordinary.
 
-API documentation can be found [here](https://lu.dpldocs.info).
+**Note**: Starting with `v4.0.0`, a more recent compiler version is required. This is to allow for use of named arguments, and to enable some compiler preview switches. You need a compiler based on D version **2.108** or later (April 2024). For **ldc** this translates to a minimum of version **1.38**, while for **gdc** you broadly need release series **14**.
+
+If your repositories (or other software sources) don't have compilers recent enough, you can use the official [`install.sh`](https://dlang.org/install.html) installation script to download current ones, or any version of choice.
+
+Releases of the library prior to `v4.0.0` remain available for older compilers.
+
+### In brief
+
+API documentation can be found [here](https://zorael.github.io/lu).
 
 * [`meld.d`](source/lu/meld.d): Combining two structs/classes of the same type into a union set of their members' values. Also works with arrays and associative arrays. A melding strategy can be supplied as a template parameter for fine-tuning behaviour, but in general non-`.init` values overwrite `.init` ones.
 
