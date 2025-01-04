@@ -22,11 +22,10 @@ jobs:
     name: 'Everything'
     strategy:
       matrix:
-        #os: [ ubuntu-latest, macOS-latest, windows-latest ]
-        os: [ ubuntu-latest, windows-latest ]
+        os: [ ubuntu-latest, macOS-latest, windows-latest ]
         dc: [ dmd-latest, dmd-2.108.0, ldc-latest, ldc-1.38.0 ]
         #exclude:
-          #- { os: macOS-latest, dc: dmd-2.084.0 }
+          #- { os: macOS-latest, dc: dmd-2.108.0 }
 
     runs-on: ${{ matrix.os }}
     continue-on-error: false
