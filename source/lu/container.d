@@ -1769,6 +1769,37 @@ unittest
 }
 
 
+// rehashingAA
+/++
+    Convenience helper to instantiate a [RehashingAA] instance with an
+    existing associative array.
+
+    The template parameters to instantiate [RehashingAA] is inferred from the
+    passed associative array.
+
+    Params:
+        aa = Original associative array.
+
+    Returns:
+        A new [RehashingAA] instance based on the passed associative array.
+ +/
+auto rehashingAA(AA : V[K], V, K)(AA aa)
+{
+    return RehashingAA!AA(aa);
+}
+
+///
+unittest
+{
+    {
+        auto orig = [ "abc" : 123, "def" : 456, "ghi" : 789 ];
+        auto aa = rehashingAA(orig);
+        assert("abc" in aa);
+        assert("jkl" !in aa);
+    }
+}
+
+
 // MutexedAA
 /++
     An associative array and a [core.sync.mutex.Mutex|Mutex]. Wraps associative
