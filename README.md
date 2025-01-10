@@ -47,7 +47,7 @@ assert(targetAA == [ "a":"a", "b":"b", "c":"c", "d":"d" ]);
 ```
 
 * [`objmanip.d`](source/lu/objmanip.d): Struct/class manipulation, such as
-setting a member field by its string name.
+setting a member field by its string name. Originally intended to only accept string values but now works with any type. When the passed value doesn't implicitly match, `std.conv.to` is used to coerce.
 
 ```d
 struct Foo
@@ -65,7 +65,7 @@ success = foo.setMemberByName("s", "some string");
 assert(success);
 assert(foo.s == "some string");
 
-success = foo.setMemberByName("i", "42");
+success = foo.setMemberByName("i", 42);
 assert(success);
 assert(foo.i == 42);
 
@@ -76,7 +76,6 @@ assert(foo.b == true);
 success = foo.setMemberByName("pi", "3.15");
 assert(!success);
 
-// Originally meant to work on string values but works on any type
 success = foo.setMemberByName("i", 999);
 assert(success);
 assert(foo.i == 999);
@@ -87,6 +86,8 @@ between two instances of a struct or class of the same type into an output
 range, as either assignment statements or assert statements.
 
 ```d
+Appender!(char[]) sink;
+
 struct Foo
 {
     string s;
@@ -97,8 +98,6 @@ struct Foo
 Foo altered;
 altered.s = "some string";
 altered.i = 42;
-
-Appender!(char[]) sink;
 
 /+
     Generate assignment statements by passing `No.asserts`.
@@ -165,7 +164,7 @@ assert(f.b);
 assert(f.wordList == [ "hello", "world" ]);
 
 /+
-    The generated functions return `this` by reference, to allow for chaining calls.
+    It returns `this` by reference, allowing for chaining calls.
  +/
 auto f2 = Foo()
     .i(9001)
@@ -183,6 +182,9 @@ assert(f2.wordList == [ "hello", "world" ]);
 * [`traits.d`](source/lu/traits.d): Various traits and cleverness.
 
 ```d
+/+
+    Statically enforces that a mixin template is mixed into a given type of scope.
+ +/
 mixin template MyMixin()
 {
     mixin MixinConstraints!(MixinScope.struct_ | MixinScope.class_);
@@ -208,7 +210,7 @@ void baz()
 ```
 
 * [`serialisation.d`](source/lu/serialisation.d): Functions and templates for
-serialising structs into an `.ini` file-**like** format, with entries and values
+serialising structs into a configure file-y format, with entries and values
 optionally separated into two columns by whitespace.
 
 ```d
@@ -255,13 +257,19 @@ assert(newFoo.pi == 3.14159);
 * [`string.d`](source/lu/string.d): String manipulation functions and templates.
 
 ```d
+/+
+    Advances a string slice past the first occurrence of a delimiter, returning
+    the slice up to the delimiter. The slice is mutated in place.
+
+    Not based on graphemes. Meant to be used with ASCII.
+ +/
 enum line = "Word split by spaces \\o/";
 string slice = line;  // mutable
 
 immutable first = slice.advancePast(" ");
 assert(first == "Word");
 
-immutable second = slice.advancePast(" ");
+immutable second = slice.advancePast(' ');
 assert(second == "split");
 
 immutable third = slice.advancePast(" ");
@@ -277,9 +285,11 @@ assert(fourth == "spaces \\o/");
 immutable fourth = slice.advancePast("?", inherit: true);
 assert(fourth == "spaces \\o/");
 assert(slice.length == 0);
+```
 
+```d
 /+
-    splitInto splits a string of words separated by whitespace into multiple ref
+    Splits a string of words separated by whitespace into multiple ref
     strings, and returns a SplitResults enum indicating whether the split words
     matched the number of passed ref strings. If there are more words than ref
     strings, the remainder is returned in an overflow array.
@@ -296,9 +306,11 @@ assert(results == SplitResults.overrun);
 assert(author == "John Doe");
 assert(title == "Foo Bar");
 assert(overflow == [ "tag1", "tag2", "tag3", "tag4" ]);
+```
 
+```d
 /+
-    splitWithQuotes splits a string into multiple parts, where multiple words
+    Splits a string into multiple parts, where multiple words
     enclosed between quotes are counted as one word. The quotes are removed from
     the result. The delimiter is optional and defaults to whitespace.
  +/
@@ -313,8 +325,10 @@ assert(intoArray[4..8] == [ "tag1", "tag2", "tag3", "tag4" ]);
 
 ```d
 /+
-    Credit for Enum goes to Stephan Koch (https://github.com/UplinkCoder). Used with permission.
+    Converts an enum member to its string name and vice versa.
     Generates less bloat than `std.conv.to` on larger enums. Restrictions apply.
+
+    Credit for Enum goes to Stephan Koch (https://github.com/UplinkCoder). Used with permission.
  +/
 
 enum Foo { abc, def, ghi }
@@ -331,7 +345,7 @@ immutable otherAbc = Enum!Foo.fromString("abc");
 immutable otherDef = Enum!Foo.fromString("def");
 immutable otherGhi = Enum!Foo.fromString("ghi");
 
-// Shorthand, infers the type from the argument
+// Shorthand convenience helper function, infers the type from the argument
 assert(enumToString(Foo.abc) == "abc");
 ```
 
@@ -351,7 +365,9 @@ buffer.popFront();
 assert(buffer.front == "def");
 buffer.popFront();
 assert(buffer.empty);
+```
 
+```d
 /+
     Simple circular buffer.
  +/
@@ -364,64 +380,89 @@ circBuf.put(3);
 circBut.put(4);
 assert(circBuf.front == 4);
 assert(circBuf.buf == [ 4, 2, 3 ]);
+```
 
+```d
 /+
     A wrapper of a built-in associative array with controllable rehashing.
     Should otherwise transparently behave like the underlying AA.
  +/
-RehashingAA!(int[string]) aa1;
-aa1.minimumNeededForRehash = 2;
+RehashingAA!(int[string]) aa;
+aa.minimumNeededForRehash = 2;
 
 void rehashCallback() { /* Do something */ }
 aa.onRehashDg = &rehashCallback;
 
-aa1["abc"] = 123;
-aa1["def"] = 456;
-assert(aa1.newKeysSinceLastRehash == 2);
-assert(aa1.numRehashes == 0);
-aa1["ghi"] = 789;
-assert(aa1.numRehashes == 1);
-assert(aa1.newKeysSinceLastRehash == 0);
-aa1.rehash();
-assert(aa1.numRehashes == 2);
+aa["abc"] = 123;
+aa["def"] = 456;
+assert(aa.newKeysSinceLastRehash == 2);
+assert(aa.numRehashes == 0);
+aa["ghi"] = 789;
+assert(aa.numRehashes == 1);
+assert(aa.newKeysSinceLastRehash == 0);
+aa.rehash();
+assert(aa.numRehashes == 2);
+```
 
+```d
 /+
     A wrapper of a built-in associative array with mutexed access to elements.
  +/
-MutexedAA!(string[int]) aa2;
-aa2.setup();  // important!
+MutexedAA!(string[int]) aa;
+aa.setup();  // important!
 
-aa2[1] = "one";
-aa2[2] = "two";
-aa2[3] = "three";
+aa[1] = "one";
+aa[2] = "two";
+aa[3] = "three";
 
-auto hasOne = aa2.has(1);
+auto hasOne = aa.has(1);
 assert(hasOne);
-assert(aa2[1] == "one");
+assert(aa[1] == "one");
 
-assert(aa2[2] == "two");
+assert(aa[2] == "two");
 
-auto three = aa2.get(3);
+auto three = aa.get(3);
 assert(three == "three");
 
-auto four = aa2.get(4, "four");
+auto four = aa.get(4, "four");
 assert(four == "four");
 
-auto five = aa2.require(5, "five");
+auto five = aa.require(5, "five");
 assert(five == "five");
-assert(aa2[5] == "five");
+assert(aa[5] == "five");
 
-auto keys = aa2.keys;
+auto keys = aa.keys;
 assert(keys.canFind(1));
 assert(keys.canFind(5));
 assert(!keys.canFind(6));
 
-auto values = aa2.values;
+auto values = aa.values;
 assert(values.canFind("one"));
 assert(values.canFind("four"));
 assert(!values.canFind("six"));
 
-aa2.rehash();
+aa.rehash();
+```
+
+```d
+/+
+    Convenience function initialise and set up a mutexed associative array
+    in one go.
+ +/
+auto aa = mutexedAA!(int[int]);
+//aa.setup();  // no need to setup when the helper functions are used
+aa[123] = 456;
+```
+
+```d
+/+
+    As above but additionally takes a pre-existing associative array to wrap.
+    Template parameters are inferred from the passed AA.
+ +/
+auto orig = [ "abc" : 123, "def" : 456 ];
+auto aa = mutexedAA(orig);
+//aa.setup();
+aa["ghi"] = 789;
 ```
 
 * [`json.d`](source/lu/json.d): Convenience wrappers around a Phobos `JSONValue`, which can be unwieldy. **Not** a JSON parser implementation.
