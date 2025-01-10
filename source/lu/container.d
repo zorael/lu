@@ -2653,3 +2653,111 @@ unittest
         assert(aa[1] == 43);
     }}
 }
+
+
+// mutexedAA
+/++
+    Convenience function to create and setup a [MutexedAA] instance in one go.
+    [MutexedAA.setup] need as such not be called.
+
+    Example:
+    ---
+    MutexedAA!(string[int]) aa;
+    aa.setup();  // important!
+
+    auto aa2 = mutexedAA!(string[int]);
+    // no need to setup
+    ---
+
+    Params:
+        AA = Associative array type.
+        V = Value type.
+        K = Key type.
+
+    Returns:
+        A new [MutexedAA] instance.
+ +/
+auto mutexedAA(AA : V[K], V, K)()
+if (__traits(isAssociativeArray, AA))
+{
+    MutexedAA!AA aa;
+    aa.setup();
+    return aa;
+}
+
+///
+unittest
+{
+    {
+        MutexedAA!(string[int]) aa;
+        assert(!aa.isReady);  // internal mutex not instantiated, requires .setup()
+    }
+    {
+        auto aa = mutexedAA!(string[int]);
+        assert(aa.isReady);  // mutex is in place already, no need to .setup()
+    }
+}
+
+
+// mutexedAA
+/++
+    Convenience function to create and setup a [MutexedAA] instance.
+    Overload that inherits an original associative array, or optionally duplicates it.
+    Infers the types to instantiate the [MutexedAA] with from the AA passed.
+
+    Note: The original associative array must be mutable.
+
+    Example:
+    ---
+    auto orig = [ 1 : "one", 2 : "two", 3 : "three" ];
+    auto aa = mutexedAA(orig);
+    // no need to setup
+    assert(1 in aa);
+    ---
+
+    Params:
+        performDup = Whether or not to dup the original associative array, or to
+            inherit it by reference. Default is `Yes.dup`.
+        orig = Original associative array.
+
+    Returns:
+        A new [MutexedAA] instance, initialised with the passed original associative array.
+ +/
+auto mutexedAA(Flag!"dup" performDup = Yes.dup, AA : V[K], V, K)(AA orig)
+if (__traits(isAssociativeArray, AA))
+{
+    static if (!__traits(compiles, orig[K.init] = V.init))
+    {
+        enum message = "Cannot create a `MutexedAA` instance from a non-mutable original associative array";
+        static assert(0, message);
+    }
+
+    MutexedAA!AA aa;
+    aa.setup();
+    //(cast()aa.mutex).lock_nothrow();  // No need, aa doesn't have any other references to it yet
+
+    static if (performDup) aa.aa = cast(shared)(orig.dup);
+    else aa.aa = cast(shared)orig;
+
+    //(cast()aa.mutex).unlock_nothrow();  // as above
+    return aa;
+}
+
+///
+unittest
+{
+    {
+        auto orig = [ 1 : "one", 2 : "two", 3 : "three" ];
+        auto aa = mutexedAA(orig);
+        aa[4] = "four";
+        assert(aa.has(4));
+        assert(4 !in orig);
+    }
+    {
+        auto orig = [ 1 : "one", 2 : "two", 3 : "three" ];
+        auto aa = mutexedAA!(No.dup)(orig);
+        aa[4] = "four";
+        assert(aa.has(4));
+        assert(4 in orig);
+    }
+}
