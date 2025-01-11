@@ -19,6 +19,21 @@
 docs.json
 __dummy.html
 docs/
+dub.selections.json
 
 # Code coverage
 *.lst
+
+# Tracing
+trace.json
+trace.tracy
+
+# dialect
+/liblu*
+/lu-test-unittest
+
+# misc
+generated-docs/
+RELEASE.md
+dscan
+safepush
