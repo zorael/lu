@@ -2,7 +2,7 @@
 
 Miscellaneous general-purpose library modules. Nothing extraordinary.
 
-**Note**: Starting with `v3.0.0`, a more recent compiler version is required. This is to allow for use of named arguments, and to enable some compiler preview switches. You need a compiler based on D version **2.108** or later (April 2024). For **ldc** this translates to a minimum of version **1.38**, while for **gdc** you broadly need release series **14**.
+**Note**: Starting with `v3.0.0`, a more recent compiler version is required. This is to allow for use of named arguments and to enable some compiler preview switches. You need a compiler based on D version **2.108** or later (April 2024). For **ldc** this translates to a minimum of version **1.38**, while for **gdc** you broadly need release series **14**.
 
 If your repositories (or other software sources) don't have compilers recent enough, you can use the official [`install.sh`](https://dlang.org/install.html) installation script to download current ones, or any version of choice.
 
@@ -289,10 +289,27 @@ assert(slice.length == 0);
 
 ```d
 /+
-    Splits a string of words separated by whitespace into multiple ref
-    strings, and returns a SplitResults enum indicating whether the split words
-    matched the number of passed ref strings. If there are more words than ref
-    strings, the remainder is returned in an overflow array.
+    Splits a string into multiple substrings delimited by whitespace, where
+    multiple words enclosed within quotes are counted as one substring.
+    The quotes are removed from the result. The delimiter can be any string or character.
+ +/
+enum quoted = `author "John Doe" title "Foo Bar"`;
+immutable intoArray = quoted.splitWithQuotes();
+assert(intoArray.length == 4);
+assert(intoArray[1] == "John Doe");
+assert(intoArray[3] == "Foo Bar");
+```
+
+```d
+/+
+    Splits a string of words by whitespace, storing the resulting substrings in
+    strings passed to it by reference. It returns a `SplitResults` enum indicating
+    how the number of split words matched the number of passed string symbols.
+
+    If there are more substrings than there were ref strings passed,
+    the remainder is stored in an overflow array, passed last.
+
+    As with `splitWithQuotes`, quoted strings are treated as one word.
  +/
 enum quoted = `author "John Doe" title "Foo Bar" tag1 tag2 tag3 tag4`;
 string authorHeader;
@@ -306,19 +323,6 @@ assert(results == SplitResults.overrun);
 assert(author == "John Doe");
 assert(title == "Foo Bar");
 assert(overflow == [ "tag1", "tag2", "tag3", "tag4" ]);
-```
-
-```d
-/+
-    Splits a string into multiple parts, where multiple words
-    enclosed between quotes are counted as one word. The quotes are removed from
-    the result. The delimiter is optional and defaults to whitespace.
- +/
-immutable intoArray = quoted.splitWithQuotes();
-assert(intoArray.length == 8);
-assert(intoArray[1] == "John Doe");
-assert(intoArray[3] == "Foo Bar");
-assert(intoArray[4..8] == [ "tag1", "tag2", "tag3", "tag4" ]);
 ```
 
 * [`conv.d`](source/lu/conv.d): Conversion functions and templates.
@@ -352,9 +356,7 @@ assert(enumToString(Foo.abc) == "abc");
 * [`container.d`](source/lu/container.d): Miscellaneous containers.
 
 ```d
-/+
-    Basic FIFO buffer.
- +/
+// Basic FIFO buffer
 Buffer!string buffer;
 
 buffer.put("abc");
@@ -368,9 +370,7 @@ assert(buffer.empty);
 ```
 
 ```d
-/+
-    Simple circular buffer.
- +/
+// Simple circular buffer
 CircularBuffer!(int, Yes.dynamic) circBuf;
 circBuf.resize(3);
 
@@ -393,6 +393,7 @@ aa.minimumNeededForRehash = 2;
 void rehashCallback() { /* Do something */ }
 aa.onRehashDg = &rehashCallback;
 
+assert(aa.newKeysSinceLastRehash == 0);
 aa["abc"] = 123;
 aa["def"] = 456;
 assert(aa.newKeysSinceLastRehash == 2);
@@ -409,7 +410,7 @@ assert(aa.numRehashes == 2);
     A wrapper of a built-in associative array with mutexed access to elements.
  +/
 MutexedAA!(string[int]) aa;
-aa.setup();  // important!
+aa.setup();  // necessary if declared without using the helper functions below
 
 aa[1] = "one";
 aa[2] = "two";
@@ -446,8 +447,7 @@ aa.rehash();
 
 ```d
 /+
-    Convenience function initialise and set up a mutexed associative array
-    in one go.
+    Convenience function initialise and set up a `MutexAA` in one go.
  +/
 auto aa = mutexedAA!(int[int]);
 //aa.setup();  // no need to setup when the helper functions are used
@@ -465,7 +465,7 @@ auto aa = mutexedAA(orig);
 aa["ghi"] = 789;
 ```
 
-* [`json.d`](source/lu/json.d): Convenience wrappers around a Phobos `JSONValue`, which can be unwieldy. **Not** a JSON parser implementation.
+* [`json.d`](source/lu/json.d): Convenience functions when working with Phobos `JSONValue`, which can be unwieldy. **Not** a JSON parser implementation.
 * [`common.d`](source/lu/common.d): Things that don't have a better home yet.
 * [`numeric.d`](source/lu/numeric.d): Functions and templates that calculate or manipulate numbers in some way.
 * [`uda.d`](source/lu/uda.d): Some user-defined attributes used here and there.
