@@ -8,6 +8,8 @@ If your repositories (or other software sources) don't have compilers recent eno
 
 Releases of the library prior to `v3.0.0` remain available for older compilers.
 
+**Please report bugs. Unreported bugs can only be fixed by accident.**
+
 ### In brief
 
 API documentation can be found [here](https://zorael.github.io/lu).
@@ -102,7 +104,7 @@ altered.i = 42;
 /+
     Generate assignment statements by passing `No.asserts`.
  +/
-sink.formatDeltaInto!(No.asserts)(Foo.init, altered);
+sink.putDelta!(No.asserts)(Foo.init, altered);
 
 assert(sink[] ==
 `s = "some string";
@@ -114,7 +116,7 @@ sink.clear();
 /+
     As above but prepend the name "altered" before the members.
  +/
-sink.formatDeltaInto!(No.asserts)(Foo.init, altered, 0, "altered");
+sink.putDelta!(No.asserts)(Foo.init, altered, 0, "altered");
 
 assert(sink[] ==
 `altered.s = "some string";
@@ -126,12 +128,14 @@ sink.clear();
 /+
     Generate assert statements by passing `Yes.asserts`.
  +/
-sink.formatDeltaInto!(Yes.asserts)(Foo.init, altered, 0, "altered");
+sink.putDelta!(Yes.asserts)(Foo.init, altered, 0, "altered");
 
 assert(sink[] ==
 `assert((altered.s == "some string"), altered.s);
 assert((altered.i == 42), altered.i.to!string);
 `);
+
+// A compatibility alias `formatDeltaInto` remains available for now
 ```
 
 * [`typecons.d`](source/lu/typecons.d): The `UnderscoreOpDispatcher` mixin
@@ -465,13 +469,15 @@ auto aa = mutexedAA(orig);
 aa["ghi"] = 789;
 ```
 
-* [`json.d`](source/lu/json.d): Convenience functions when working with Phobos `JSONValue`, which can be unwieldy. **Not** a JSON parser implementation.
+* [`json.d`](source/lu/json.d): Convenience functions for working with Phobos' `JSONValue`s, which can be unwieldy. **Not** a JSON parser implementation.
 * [`common.d`](source/lu/common.d): Things that don't have a better home yet.
 * [`numeric.d`](source/lu/numeric.d): Functions and templates that calculate or manipulate numbers in some way.
 * [`uda.d`](source/lu/uda.d): Some user-defined attributes used here and there.
 
 ## Roadmap
 
+* ~~replace use of `std.typecons.Flag` with named arguments wherever possible~~
+* ~~rename `formatDeltaInto` -> `putDelta`~~
 * nothing right now, ideas needed
 
 ## Built with
