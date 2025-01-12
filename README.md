@@ -2,14 +2,6 @@
 
 Miscellaneous general-purpose library modules. Nothing extraordinary.
 
-**Note**: Starting with `v3.0.0`, a more recent compiler version is required. This is to allow for use of named arguments and to enable some compiler preview switches. You need a compiler based on D version **2.108** or later (April 2024). For **ldc** this translates to a minimum of version **1.38**, while for **gdc** you broadly need release series **14**.
-
-If your repositories (or other software sources) don't have compilers recent enough, you can use the official [`install.sh`](https://dlang.org/install.html) installation script to download current ones, or any version of choice.
-
-Releases of the library prior to `v3.0.0` remain available for older compilers.
-
-**Please report bugs. Unreported bugs can only be fixed by accident.**
-
 ### In brief
 
 API documentation can be found [here](https://zorael.github.io/lu).
@@ -77,10 +69,6 @@ assert(foo.b == true);
 
 success = foo.setMemberByName("pi", "3.15");
 assert(!success);
-
-success = foo.setMemberByName("i", 999);
-assert(success);
-assert(foo.i == 999);
 ```
 
 * [`deltastrings.d`](source/lu/deltastrings.d): Expressing the differences
@@ -88,7 +76,7 @@ between two instances of a struct or class of the same type into an output
 range, as either assignment statements or assert statements.
 
 ```d
-Appender!(char[]) sink;
+Appender!(char[]) sink;  // or any other output range
 
 struct Foo
 {
@@ -473,6 +461,16 @@ aa["ghi"] = 789;
 * [`common.d`](source/lu/common.d): Things that don't have a better home yet.
 * [`numeric.d`](source/lu/numeric.d): Functions and templates that calculate or manipulate numbers in some way.
 * [`uda.d`](source/lu/uda.d): Some user-defined attributes used here and there.
+
+## Caveats
+
+Starting with `v3.0.0`, a more recent compiler version is required. This is to allow for use of named arguments and to enable some compiler preview switches. You need a compiler based on D version **2.108** or later (April 2024). For **ldc** this translates to a minimum of version **1.38**, while for **gdc** you broadly need release series **14**.
+
+If your repositories (or other software sources) don't have compilers recent enough, you can use the official [`install.sh`](https://dlang.org/install.html) installation script to download current ones, or any version of choice.
+
+Releases of the library prior to `v3.0.0` remain available for older compilers.
+
+**Please report bugs. Unreported bugs can only be fixed by accident.**
 
 ## Roadmap
 
