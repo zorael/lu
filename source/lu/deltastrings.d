@@ -21,7 +21,7 @@
     Appender!(char[]) sink;
 
     // Fill with delta between `Foo.init` and modified `altered`
-    sink.formatDeltaInto!(No.asserts)(Foo.init, altered);
+    sink.putDelta!(No.asserts)(Foo.init, altered);
 
     assert(sink.data ==
     `s = "some string";
@@ -31,7 +31,7 @@
     sink.clear();
 
     // Do the same but prepend the name "altered" to the member names
-    sink.formatDeltaInto!(No.asserts)(Foo.init, altered, 0, "altered");
+    sink.putDelta!(No.asserts)(Foo.init, altered, 0, "altered");
 
     assert(sink.data ==
     `altered.s = "some string";
@@ -41,7 +41,7 @@
     sink.clear();
 
     // Generate assert statements instead, for easy copy/pasting into unittest blocks
-    sink.formatDeltaInto!(Yes.asserts)(Foo.init, altered, 0, "altered");
+    sink.putDelta!(Yes.asserts)(Foo.init, altered, 0, "altered");
 
     assert(sink.data ==
     `assert((altered.s == "some string"), altered.s);
@@ -69,10 +69,13 @@ import lu.uda : Hidden;
 //@safe:
 
 
-// formatDeltaInto
+// putDelta
 /++
     Constructs statement lines for each changed field (or the delta) between two
     instances of a struct and stores them into a passed output sink.
+
+    Note: Renamed from [formatDeltaInto] to a name that makes sense with the
+    order of arguments.
 
     Example:
     ---
@@ -90,7 +93,7 @@ import lu.uda : Hidden;
     altered.b = true;
 
     Appender!(char[]) sink;
-    sink.formatDeltaInto!(No.asserts)(Foo.init, altered);
+    sink.putDelta!(No.asserts)(Foo.init, altered);
     ---
 
     Params:
@@ -101,7 +104,7 @@ import lu.uda : Hidden;
         indents = The number of tabs to indent the lines with.
         submember = The string name of a recursing symbol, if applicable.
  +/
-void formatDeltaInto(Flag!"asserts" asserts = No.asserts, Sink, QualThing)
+void putDelta(Flag!"asserts" asserts = No.asserts, Sink, QualThing)
     (auto ref Sink sink,
     auto ref QualThing before,
     auto ref QualThing after,
@@ -113,13 +116,13 @@ void formatDeltaInto(Flag!"asserts" asserts = No.asserts, Sink, QualThing)
 
     static if (!isAggregateType!QualThing)
     {
-        enum message = "`formatDeltaInto` must be passed an aggregate type";
+        enum message = "`putDelta` must be passed an aggregate type";
         static assert(0, message);
     }
 
     static if (!isOutputRange!(Sink, char[]))
     {
-        enum message = "`formatDeltaInto` sink must be an output range accepting `char[]`";
+        enum message = "`putDelta` sink must be an output range accepting `char[]`";
         static assert(0, message);
     }
 
@@ -148,7 +151,7 @@ void formatDeltaInto(Flag!"asserts" asserts = No.asserts, Sink, QualThing)
         else static if (isAggregateType!T)
         {
             // Recurse
-            sink.formatDeltaInto!asserts(before.tupleof[i], member, indents, prefix ~ memberstring);
+            sink.putDelta!asserts(before.tupleof[i], member, indents, prefix ~ memberstring);
         }
         else static if (!isType!member && !isSomeFunction!member && !__traits(isTemplate, member))
         {
@@ -338,7 +341,7 @@ unittest
         server.port = 1337;
     }
 
-    sink.formatDeltaInto!(No.asserts)(Connection.init, conn, 0, "conn");
+    sink.putDelta!(No.asserts)(Connection.init, conn, 0, "conn");
 
     assert(sink.data ==
 `conn.state = Connection.State.connected;
@@ -349,7 +352,7 @@ conn.server.port = 1337;
 
     sink = typeof(sink).init;
 
-    sink.formatDeltaInto!(Yes.asserts)(Connection.init, conn, 0, "conn");
+    sink.putDelta!(Yes.asserts)(Connection.init, conn, 0, "conn");
 
     assert(sink.data ==
 `assert((conn.state == Connection.State.connected), Enum!(Connection.State).toString(conn.state));
@@ -379,7 +382,7 @@ assert((conn.server.port == 1337), conn.server.port.to!string);
 
     sink = typeof(sink).init;
 
-    sink.formatDeltaInto!(No.asserts)(f1, f2);
+    sink.putDelta!(No.asserts)(f1, f2);
     assert(sink.data ==
 `s = "yarn";
 b = false;
@@ -388,7 +391,7 @@ c = '#';
 
     sink = typeof(sink).init;
 
-    sink.formatDeltaInto!(Yes.asserts)(f1, f2);
+    sink.putDelta!(Yes.asserts)(f1, f2);
     assert(sink.data ==
 `assert((s == "yarn"), s);
 assert(!b);
@@ -417,7 +420,7 @@ assert((c == '#'), c.to!string);
         c2.b = true;
         c2.child.i = 42;
 
-        sink.formatDeltaInto!(No.asserts)(c1, c2);
+        sink.putDelta!(No.asserts)(c1, c2);
         assert(sink.data ==
 `s = "harbl";
 b = true;
@@ -426,7 +429,7 @@ child.i = 42;
 
         sink = typeof(sink).init;
 
-        sink.formatDeltaInto!(Yes.asserts)(c1, c2);
+        sink.putDelta!(Yes.asserts)(c1, c2);
         assert(sink.data ==
 `assert((s == "harbl"), s);
 assert(b);
@@ -449,7 +452,7 @@ assert((child.i == 42), child.i.to!string);
 
         sink = typeof(sink).init;
 
-        sink.formatDeltaInto(b1, b2);
+        sink.putDelta(b1, b2);
         assert(sink.data ==
 `arr[0] = 1;
 arr[2] = 3;
@@ -461,7 +464,7 @@ carr[0] = 'a';
 
         sink = typeof(sink).init;
 
-        sink.formatDeltaInto!(Yes.asserts)(b1, b2);
+        sink.putDelta!(Yes.asserts)(b1, b2);
         assert(sink.data ==
 `assert((arr[0] == 1), arr[0].to!string);
 assert((arr[2] == 3), arr[2].to!string);
@@ -472,3 +475,16 @@ assert((carr[0] == 'a'), carr[0].to!string);
 `);
     }
 }
+
+
+// formatDeltaInto
+/++
+    Alias of [putDelta].
+
+    [formatDeltaInto] was renamed to [putDelta] that makes more sense with its
+    order of arguments.
+
+    TODO: Deprecate this later.
+ +/
+//deprecated("Use `putDelta` instead")
+alias formatDeltaInto = putDelta;
