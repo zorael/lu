@@ -779,98 +779,14 @@ unittest
 }
 
 
-static if ((__VERSION__ == 2088L) || (__VERSION__ == 2089L))
-{
-    // getSymbolsByUDA
-    /++
-        Provide a non-2.088, non-2.089 [std.traits.getSymbolsByUDA|getSymbolsByUDA].
+/++
+    [std.traits.getSymbolsByUDA|Phobos' getSymbolsByUDA] publicly imported.
 
-        The [std.traits.getSymbolsByUDA|getSymbolsByUDA] in 2.088/2.089 is
-        completely broken by having inserted a constraint to force it to only
-        work on aggregates, which a module apparently isn't.
-
-        Keep as-is, don't refactor to use [lu.traits.udaIndexOf|udaIndexOf].
-     +/
-    template getSymbolsByUDA(alias symbol, alias attribute)
-    //if (isAggregateType!symbol)  // <--
-    {
-        import std.traits : hasUDA;
-
-        alias membersWithUDA = getSymbolsByUDAImpl!(symbol, attribute, __traits(allMembers, symbol));
-
-        // if the symbol itself has the UDA, tack it on to the front of the list
-        static if (hasUDA!(symbol, attribute))
-        {
-            alias getSymbolsByUDA = AliasSeq!(symbol, membersWithUDA);
-        }
-        else
-        {
-            alias getSymbolsByUDA = membersWithUDA;
-        }
-    }
-
-
-    // getSymbolsByUDAImpl
-    /++
-        Implementation of [std.traits.getSymbolsByUDA|getSymbolsByUDA], copy/pasted.
-     +/
-    private template getSymbolsByUDAImpl(alias symbol, alias attribute, names...)
-    {
-        import std.meta : AliasSeq;
-
-        static if (names.length == 0)
-        {
-            alias getSymbolsByUDAImpl = AliasSeq!();
-        }
-        else
-        {
-            alias tail = getSymbolsByUDAImpl!(symbol, attribute, names[1 .. $]);
-
-            // Filtering inaccessible members.
-            static if (!__traits(compiles, __traits(getMember, symbol, names[0])))
-            {
-                alias getSymbolsByUDAImpl = tail;
-            }
-            else
-            {
-                import std.traits : hasUDA, isFunction;
-
-                alias member = __traits(getMember, symbol, names[0]);
-
-                // Filtering not compiled members such as alias of basic types.
-                static if (!__traits(compiles, hasUDA!(member, attribute)))
-                {
-                    alias getSymbolsByUDAImpl = tail;
-                }
-                // Get overloads for functions, in case different overloads have different sets of UDAs.
-                else static if (isFunction!member)
-                {
-                    import std.meta : AliasSeq, Filter;
-
-                    enum hasSpecificUDA(alias member) = hasUDA!(member, attribute);
-                    alias overloadsWithUDA = Filter!(hasSpecificUDA, __traits(getOverloads, symbol, names[0]));
-                    alias getSymbolsByUDAImpl = AliasSeq!(overloadsWithUDA, tail);
-                }
-                else static if (hasUDA!(member, attribute))
-                {
-                    alias getSymbolsByUDAImpl = AliasSeq!(member, tail);
-                }
-                else
-                {
-                    alias getSymbolsByUDAImpl = tail;
-                }
-            }
-        }
-    }
-}
-else
-{
-    /++
-        [std.traits.getSymbolsByUDA|Phobos' getSymbolsByUDA] publicly imported
-        in versions other than 2.088 and 2.089.
-     +/
-    public import std.traits : getSymbolsByUDA;
-}
+    This didn't get culled in v3.0.0, so we're stuck with it for now.
+    Deprecate it to ward people off from using it.
+ +/
+deprecated("Import `std.traits.getSymbolsByUDA` directly")
+/*public*/ import std.traits : getSymbolsByUDA;
 
 
 // isMutableArrayOfImmutables
