@@ -299,8 +299,8 @@ auto sharedDomains(
     }
 
     return (one.length > other.length) ?
-        numDomains(one, other, cast(bool)caseSensitive) :
-        numDomains(other, one, cast(bool)caseSensitive);
+        numDomains(one, other, caseSensitive) :
+        numDomains(other, one, caseSensitive);
 }
 
 ///
