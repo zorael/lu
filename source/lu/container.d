@@ -1437,7 +1437,6 @@ public:
             createDg = Delegate to invoke to create a new value if it doesn't exist.
             updateDg = Delegate to invoke to update an existing value.
      +/
-    static if (__VERSION__ >= 2088L)
     void update(U)
         (K key,
         scope V delegate() createDg,
@@ -1716,8 +1715,7 @@ unittest
         assert(0 !in aa);
         assert(3 !in aa);
     }
-    static if (__VERSION__ >= 2088L)
-    {{
+    {
         RehashingAA!(int[int]) aa;
 
         assert(1 !in aa);
@@ -1731,7 +1729,7 @@ unittest
             () => 42,
             (int i) => i + 1);
         assert(aa[1] == 43);
-    }}
+    }
     {
         RehashingAA!(string[int]) aa1;
         aa1[1] = "one";
@@ -2373,7 +2371,6 @@ public:
             createDg = Delegate to invoke to create a new value if it doesn't exist.
             updateDg = Delegate to invoke to update an existing value.
      +/
-    static if (__VERSION__ >= 2088L)
     void update(U)
         (K key,
         scope V delegate() createDg,
@@ -2665,8 +2662,7 @@ unittest
         assert(aa.has(key2));
         assert(aa[key2] == -1);
     }
-    static if (__VERSION__ >= 2088L)
-    {{
+    {
         MutexedAA!(int[int]) aa;
         aa.setup();
 
@@ -2682,7 +2678,7 @@ unittest
             () => 42,
             (int i) => i + 1);
         assert(aa[1] == 43);
-    }}
+    }
 }
 
 

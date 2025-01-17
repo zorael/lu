@@ -143,9 +143,7 @@ private:
                 .format(mixinParentInfo.type, mixinParentInfo.fqn, mixinName));
         }
     }
-    else static if (((__VERSION__ >= 2087L) && __traits(isModule, mixinParent)) ||
-        ((__VERSION__ < 2087L) &&
-            __traits(compiles, { mixin("import ", fullyQualifiedName!mixinParent, ";"); })))
+    else static if (__traits(isModule, mixinParent))
     {
         static if (!(mixinScope & MixinScope.module_))
         {
@@ -251,7 +249,7 @@ version(unittest)
  +/
 template CategoryName(alias sym)
 {
-    import std.traits : isDelegate, isFunction, fullyQualifiedName;
+    import std.traits : isDelegate, isFunction;
 
     // type
     /++
@@ -281,10 +279,7 @@ template CategoryName(alias sym)
     {
         enum type = "union";
     }
-    else static if (
-        ((__VERSION__ >= 2087L) && __traits(isModule, sym)) ||
-        ((__VERSION__ < 2087L) &&
-            __traits(compiles, { mixin("import ", fullyQualifiedName!sym, ";"); })))
+    else static if (__traits(isModule, sym))
     {
         enum type = "module";
     }

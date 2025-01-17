@@ -214,7 +214,7 @@ void serialise(Sink, QualThing)(auto ref Sink sink, auto ref QualThing thing)
                         static assert(0, pattern.format(Thing.stringof, memberstring));
                     }
                 }
-                else static if ((__VERSION__ >= 2087L) && (udaIndexOf!(thing.tupleof[i], string) != -1))
+                else static if (udaIndexOf!(thing.tupleof[i], string) != -1)
                 {
                     alias separators = getUDAs!(thing.tupleof[i], string);
                     enum separator = separators[0];
@@ -321,11 +321,7 @@ unittest
         double pi = 3.14159;
         @Separator(",") int[] arr = [ 1, 2, 3 ];
         @Separator(";") string[] harbl = [ "harbl;;", ";snarbl;", "dirp" ];
-
-        static if (__VERSION__ >= 2087L)
-        {
-            @("|") string[] matey = [ "a", "b", "c" ];
-        }
+        @("|") string[] matey = [ "a", "b", "c" ];
     }
 
     struct BarSettings
@@ -337,9 +333,7 @@ unittest
         double pipyon = 3.0;
     }
 
-    static if (__VERSION__ >= 2087L)
-    {
-        enum fooSerialised =
+    enum fooSerialised =
 `[Foo]
 fooasdf foo 1
 bar foo 1
@@ -349,19 +343,6 @@ pi 3.14159
 arr 1,2,3
 harbl harbl\;\;;\;snarbl\;;dirp
 matey a|b|c`;
-    }
-    else
-    {
-        enum fooSerialised =
-`[Foo]
-fooasdf foo 1
-bar foo 1
-bazzzzzzz foo 1
-flerrp "hirr steff  "
-pi 3.14159
-arr 1,2,3
-harbl harbl\;\;;\;snarbl\;;dirp`;
-    }
 
     Appender!(char[]) fooSink;
     fooSink.reserve(64);
@@ -839,6 +820,8 @@ naN     !"¤%&/`;
 
     with (foo)
     {
+        import std.math : isClose;
+
         assert((i == 42), i.text);
         assert((ia == [ 1, 2, -3, 4, 5 ]), ia.text);
         assert((s == "hello world!"), s);
@@ -849,20 +832,10 @@ naN     !"¤%&/`;
         assert((fa == [ 0.0f, 1.1f, -2.2f, 3.3f ]), fa.text);
         assert((d == 99.9), d.text);
 
-        static if (__VERSION__ >= 2091)
-        {
-            import std.math : isClose;
-        }
-        else
-        {
-            import std.math : approxEqual;
-            alias isClose = approxEqual;
-        }
-
         // rounding errors with LDC on Windows
-        assert(isClose(da[0], 99.9999), da[0].text);
-        assert(isClose(da[1], 0.0001), da[1].text);
-        assert(isClose(da[2], -1.0), da[2].text);
+        assert(da[0].isClose(99.9999), da[0].text);
+        assert(da[1].isClose(0.0001), da[1].text);
+        assert(da[2].isClose(-1.0), da[2].text);
 
         with (FooSettings.Bar)
         {
@@ -971,6 +944,8 @@ bara    blaawp,oorgle,blaawp`;
 
     with (c)
     {
+        import std.math : isClose;
+
         assert((i == 42), i.text);
         assert((ia == [ 1, 2, -3, 4, 5 ]), ia.text);
         assert((s == "hello world!"), s);
@@ -981,20 +956,10 @@ bara    blaawp,oorgle,blaawp`;
         assert((fa == [ 0.0f, 1.1f, -2.2f, 3.3f ]), fa.text);
         assert((d == 99.9), d.text);
 
-        static if (__VERSION__ >= 2091)
-        {
-            import std.math : isClose;
-        }
-        else
-        {
-            import std.math : approxEqual;
-            alias isClose = approxEqual;
-        }
-
         // rounding errors with LDC on Windows
-        assert(isClose(da[0], 99.9999), da[0].text);
-        assert(isClose(da[1], 0.0001), da[1].text);
-        assert(isClose(da[2], -1.0), da[2].text);
+        assert(da[0].isClose(99.9999), da[0].text);
+        assert(da[1].isClose(0.0001), da[1].text);
+        assert(da[2].isClose(-1.0), da[2].text);
 
         with (Class.Bar)
         {

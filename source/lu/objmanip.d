@@ -158,7 +158,7 @@ in (memberToSet.length, "Tried to set member by name but no member string was gi
                         {
                             alias separators = getUDAs!(thing.tupleof[i], Separator);
                         }
-                        else static if ((__VERSION__ >= 2087L) && (udaIndexOf!(thing.tupleof[i], string) != -1))
+                        else static if (udaIndexOf!(thing.tupleof[i], string) != -1)
                         {
                             alias separators = getUDAs!(thing.tupleof[i], string);
                         }
@@ -422,12 +422,9 @@ unittest
             string[] blurgh;
         }
 
-        static if (__VERSION__ >= 2087L)
+        @(`\o/`)
         {
-            @(`\o/`)
-            {
-                int[] blargh;
-            }
+            int[] blargh;
         }
     }
 
@@ -490,12 +487,9 @@ unittest
     assert(success);
     assert((foo.blurgh == [ "asdf\\o/fdsa\\", "hirr", "steff" ]), foo.blurgh.to!string);
 
-    static if (__VERSION__ >= 2087L)
-    {
-        success = foo.setMemberByName("blargh", `1\o/2\o/3\o/4\o/5`);
-        assert(success);
-        assert((foo.blargh == [ 1, 2, 3, 4, 5 ]), foo.blargh.to!string);
-    }
+    success = foo.setMemberByName("blargh", `1\o/2\o/3\o/4\o/5`);
+    assert(success);
+    assert((foo.blargh == [ 1, 2, 3, 4, 5 ]), foo.blargh.to!string);
 
     class C
     {
