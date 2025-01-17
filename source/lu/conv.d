@@ -369,7 +369,7 @@ auto rgbFromHex(
     const string hexString,
     const bool acceptLowercase = false)
 {
-    struct RGB
+    static struct RGB
     {
         int r;
         int g;
