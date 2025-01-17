@@ -40,7 +40,7 @@
     Appender!(char[]) sink;
 
     sink.serialise(f);
-    assert(sink.data.justifiedEntryValueText == fooJustified);
+    assert(sink[].justifiedEntryValueText == fooJustified);
 
     FooSettings mirror;
     deserialise(fooSerialised, mirror);
@@ -88,7 +88,7 @@ import lu.uda : CannotContainComments, Quoted, Separator, Unserialisable;
     Appender!(char[]) sink;
 
     sink.serialise(foo, bar);
-    assert(!sink.data.empty);
+    assert(!sink[].empty);
     ---
 
     Params:
@@ -143,7 +143,7 @@ if (Things.length > 1)
     Appender!(char[]) sink;
 
     sink.serialise(foo);
-    assert(!sink.data.empty);
+    assert(!sink[].empty);
     ---
 
     Params:
@@ -174,7 +174,7 @@ void serialise(Sink, QualThing)(auto ref Sink sink, auto ref QualThing thing)
     static if (__traits(hasMember, Sink, "data"))
     {
         // Sink is not empty, place a newline between current content and new
-        if (sink.data.length) sink.put("\n");
+        if (sink[].length) sink.put("\n");
     }
 
     alias Thing = Unqual!QualThing;
@@ -367,7 +367,7 @@ harbl harbl\;\;;\;snarbl\;;dirp`;
     fooSink.reserve(64);
 
     fooSink.serialise(FooSettings.init);
-    assert((fooSink.data == fooSerialised), '\n' ~ fooSink.data);
+    assert((fooSink[] == fooSerialised), '\n' ~ fooSink[]);
 
     enum barSerialised =
 `[Bar]
@@ -381,13 +381,13 @@ pipyon 3`;
     barSink.reserve(64);
 
     barSink.serialise(BarSettings.init);
-    assert((barSink.data == barSerialised), '\n' ~ barSink.data);
+    assert((barSink[] == barSerialised), '\n' ~ barSink[]);
 
     // try two at once
     Appender!(char[]) bothSink;
     bothSink.reserve(128);
     bothSink.serialise(FooSettings.init, BarSettings.init);
-    assert(bothSink.data == fooSink.data ~ "\n\n" ~ barSink.data);
+    assert(bothSink[] == fooSink[] ~ "\n\n" ~ barSink[]);
 
     class C
     {
@@ -407,7 +407,7 @@ b true`;
     Appender!(char[]) cSink;
     cSink.reserve(128);
     cSink.serialise(c);
-    assert((cSink.data == cSerialised), '\n' ~ cSink.data);
+    assert((cSink[] == cSerialised), '\n' ~ cSink[]);
 
     enum Letters { abc, def, ghi, }
 
@@ -423,7 +423,7 @@ let def`;
     Struct st;
     Appender!(char[]) enumTestSink;
     enumTestSink.serialise(st);
-    assert((enumTestSink.data == enumTestSerialised), '\n' ~ enumTestSink.data);
+    assert((enumTestSink[] == enumTestSerialised), '\n' ~ enumTestSink[]);
 }
 
 
@@ -1031,7 +1031,7 @@ bara    blaawp,oorgle,blaawp`;
     Appender!(char[]) sink;
 
     sink.serialise(foo, bar);
-    immutable justified = sink.data.justifiedEntryValueText;
+    immutable justified = sink[].justifiedEntryValueText;
     ---
 
     Params:
@@ -1098,17 +1098,17 @@ string justifiedEntryValueText(const string origLines) pure
     justified.reserve(decentReserveOfChars);
 
     assert((longestEntryLength > 0), "No longest entry; is the struct empty?");
-    assert((unjustified.data.length > 0), "Unjustified data is empty");
+    assert((unjustified[].length > 0), "Unjustified data is empty");
 
     enum minimumWidth = 24;
     immutable width = max(minimumWidth, longestEntryLength.getMultipleOf(4, alwaysOneUp: true));
 
-    foreach (immutable i, immutable line; unjustified.data)
+    foreach (immutable i, immutable line; unjustified[])
     {
         if (!line.length)
         {
             // Don't add a linebreak at the top of the file
-            if (justified.data.length) justified.put("\n");
+            if (justified[].length) justified.put("\n");
             continue;
         }
 
@@ -1138,7 +1138,7 @@ string justifiedEntryValueText(const string origLines) pure
         }
     }
 
-    return justified.data;
+    return justified[];
 }
 
 ///
@@ -1230,8 +1230,8 @@ nil                     5
 naN                     !"#¤%&/`;
 
     sink.serialise(foo, diff);
-    assert((sink.data == unjustified), '\n' ~ sink.data);
-    immutable configText = justifiedEntryValueText(sink.data.idup);
+    assert((sink[] == unjustified), '\n' ~ sink[]);
+    immutable configText = justifiedEntryValueText(sink[].idup);
 
     assert((configText == justified), '\n' ~ configText);
 }

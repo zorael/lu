@@ -761,7 +761,7 @@ unittest
 
     Appender!(char[]) sink;
     sink.formattedWrite("%sHello world", 2.tabs!2);
-    assert((sink.data == "    Hello world"), sink.data);
+    assert((sink[] == "    Hello world"), sink[]);
 }
 
 
@@ -839,30 +839,30 @@ any more offhand
 so shrug";
 
     string_.indentInto(sink);
-    assert((sink.data ==
+    assert((sink[] ==
 "    Lorem ipsum
     sit amet
     I don't remember
     any more offhand
-    so shrug"), '\n' ~ sink.data);
+    so shrug"), '\n' ~ sink[]);
 
     sink.clear();
     string_.indentInto!3(sink, 2);
-    assert((sink.data ==
+    assert((sink[] ==
 "      Lorem ipsum
       sit amet
       I don't remember
       any more offhand
-      so shrug"), '\n' ~ sink.data);
+      so shrug"), '\n' ~ sink[]);
 
     sink.clear();
     string_.indentInto(sink, 0);
-    assert((sink.data ==
+    assert((sink[] ==
 "Lorem ipsum
 sit amet
 I don't remember
 any more offhand
-so shrug"), '\n' ~ sink.data);
+so shrug"), '\n' ~ sink[]);
 }
 
 
@@ -891,7 +891,7 @@ string indent(uint spaces = 4)
     sink.reserve(wallOfText.length + 10*spaces*numTabs);  // Extra room for 10 indents
 
     wallOfText.indentInto!spaces(sink, numTabs, skip);
-    return sink.data;
+    return sink[];
 }
 
 ///
@@ -1743,10 +1743,10 @@ string escapeControlCharacters(/*const*/ return scope string line) pure nothrow
         }
     }
 
-    if (!sink.data.length) return line;
+    if (!sink[].length) return line;
 
     sink.put(asBytes[lastEnd..$]);
-    return sink.data;
+    return sink[];
 }
 
 ///
@@ -1829,7 +1829,7 @@ string removeControlCharacters(/*const*/ return scope string line) pure nothrow
     if (lastEnd == 0) return line;
 
     sink.put(asBytes[lastEnd..$]);
-    return sink.data;
+    return sink[];
 }
 
 ///
@@ -2380,7 +2380,7 @@ auto splitWithQuotes(string separator = " ")(const string line)
         }
     }
 
-    return sink.data;
+    return sink[];
 }
 
 ///
@@ -2547,7 +2547,7 @@ auto replaceFromAA(char tokenCharacter = '$', Fn)
     if (previousEnd == 0) return line;
 
     sink.put(line[previousEnd..$]);
-    return sink.data.idup;
+    return sink[].idup;
 }
 
 ///

@@ -17,13 +17,13 @@
     sink.put(3);
 
     sink.zero(clear: false);
-    assert(sink.data == [ 0, 0, 0 ]);
+    assert(sink[] == [ 0, 0, 0 ]);
 
     sink.zero(clear: false, 42);
-    assert(sink.data == [ 42, 42, 42 ]);
+    assert(sink[] == [ 42, 42, 42 ]);
 
     sink.zero();  //(clear: true);
-    assert(!sink.data.length);
+    assert(!sink[].length);
     ---
 
     Copyright: [JR](https://github.com/zorael)
@@ -132,7 +132,7 @@ void zero(Sink : Appender!(T[]), T)
     const bool clear = true,
     T zeroValue = T.init)
 {
-    foreach (ref thing; sink.data)
+    foreach (ref thing; sink[])
     {
         thing = zeroValue;
     }
@@ -148,34 +148,34 @@ unittest
         sink.put('a');
         sink.put('b');
         sink.put('c');
-        assert(sink.data == ['a', 'b', 'c']);
+        assert(sink[] == ['a', 'b', 'c']);
 
         sink.zero(clear: false);
-        assert(sink.data == [ 255, 255, 255 ]);
+        assert(sink[] == [ 255, 255, 255 ]);
 
         sink.put('d');
-        assert(sink.data == [ 255, 255, 255, 'd' ]);
+        assert(sink[] == [ 255, 255, 255, 'd' ]);
 
         sink.zero(clear: false, 'X');
-        assert(sink.data == [ 'X', 'X', 'X', 'X' ]);
+        assert(sink[] == [ 'X', 'X', 'X', 'X' ]);
 
         sink.zero(clear: true);
-        assert(!sink.data.length);
+        assert(!sink[].length);
     }
     {
         Appender!(string[]) sink;
         sink.put("abc");
         sink.put("def");
         sink.put("ghi");
-        assert(sink.data == [ "abc", "def", "ghi" ]);
+        assert(sink[] == [ "abc", "def", "ghi" ]);
 
         sink.zero(clear: false, "(empty)");
-        assert(sink.data == [ "(empty)", "(empty)", "(empty)" ]);
+        assert(sink[] == [ "(empty)", "(empty)", "(empty)" ]);
 
         sink.zero(clear: false);
-        assert(sink.data == [ string.init, string.init, string.init ]);
+        assert(sink[] == [ string.init, string.init, string.init ]);
 
         sink.zero(clear: true);
-        assert(!sink.data.length);
+        assert(!sink[].length);
     }
 }

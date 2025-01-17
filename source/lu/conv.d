@@ -431,8 +431,8 @@ unittest
     Appender!(char[]) sink;
     int num = 12345;
     num.toAlphaInto(sink);
-    assert(sink.data == "12345");
-    assert(sink.data == num.to!string);
+    assert(sink[] == "12345");
+    assert(sink[] == num.to!string);
     ---
 
     Params:
@@ -530,49 +530,49 @@ unittest
     {
         enum num = 123_456;
         num.toAlphaInto(sink);
-        assert((sink.data == "123456"), sink.data);
+        assert((sink[] == "123456"), sink[]);
         sink.clear();
     }
     {
         enum num = 0;
         num.toAlphaInto(sink);
-        assert((sink.data == "0"), sink.data);
+        assert((sink[] == "0"), sink[]);
         sink.clear();
     }
     {
         enum num = 999;
         num.toAlphaInto(sink);
-        assert((sink.data == "999"), sink.data);
+        assert((sink[] == "999"), sink[]);
         sink.clear();
     }
     {
         enum num = -987;
         num.toAlphaInto(sink);
-        assert((sink.data == "-987"), sink.data);
+        assert((sink[] == "-987"), sink[]);
         sink.clear();
     }
     {
         enum num = 123;
         num.toAlphaInto!(12, 6)(sink);
-        assert((sink.data == "000123"), sink.data);
+        assert((sink[] == "000123"), sink[]);
         sink.clear();
     }
     {
         enum num = -1;
         num.toAlphaInto!(3, 3)(sink);
-        assert((sink.data == "-001"), sink.data);
+        assert((sink[] == "-001"), sink[]);
         sink.clear();
     }
     {
         enum num = -123_456_789_012_345L;
         num.toAlphaInto!15(sink);
-        assert((sink.data == "-123456789012345"), sink.data);
+        assert((sink[] == "-123456789012345"), sink[]);
         sink.clear();
     }
     {
         enum num = long.min;
         num.toAlphaInto(sink);
-        assert((sink.data == "-9223372036854775808"), sink.data);
+        assert((sink[] == "-9223372036854775808"), sink[]);
         //sink.clear();
     }
 }
@@ -609,7 +609,7 @@ string toAlpha(size_t maxDigits = 19, uint leadingZeroes = 0, Num)(const Num num
     Appender!(char[]) sink;
     sink.reserve((num >= 0) ? maxDigits : maxDigits+1);
     num.toAlphaInto!(maxDigits, leadingZeroes, Num)(sink);
-    return sink.data;
+    return sink[];
 }
 
 ///

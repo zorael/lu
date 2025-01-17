@@ -218,7 +218,7 @@ public:
             serialiseInto!(KeyOrderStrategy.passthrough)(sink);
         }
 
-        File(filename, "w").writeln(sink.data);
+        File(filename, "w").writeln(sink[]);
     }
 
 
@@ -393,7 +393,7 @@ public:
 
         // KeyOrderStrategy.passthrough
         this_.serialiseInto!(KeyOrderStrategy.passthrough)(sink);
-        assert((sink.data ==
+        assert((sink[] ==
 `{
     "#abc": {
         "foobar": "v",
@@ -406,12 +406,12 @@ public:
     "#zzz": {
         "asdf": "v"
     }
-}`), '\n' ~ sink.data);
+}`), '\n' ~ sink[]);
         sink.clear();
 
         // KeyOrderStrategy.sorted
         this_.serialiseInto!(KeyOrderStrategy.sorted)(sink);
-        assert((sink.data ==
+        assert((sink[] ==
 `{
     "#abc": {
         "foobar": "v",
@@ -424,12 +424,12 @@ public:
     "#zzz": {
         "asdf": "v"
     }
-}`), '\n' ~ sink.data);
+}`), '\n' ~ sink[]);
         sink.clear();
 
         // KeyOrderStrategy.reverse
         this_.serialiseInto!(KeyOrderStrategy.reverse)(sink);
-        assert((sink.data ==
+        assert((sink[] ==
 `{
     "#zzz": {
         "asdf": "v"
@@ -442,12 +442,12 @@ public:
         "foobar": "v",
         "hirrsteff": "o"
     }
-}`), '\n' ~ sink.data);
+}`), '\n' ~ sink[]);
         sink.clear();
 
         // KeyOrderStrategy.inGivenOrder
         this_.serialiseInto!(KeyOrderStrategy.inGivenOrder)(sink, [ "#def", "#abc", "#foo", "#fighters" ]);
-        assert((sink.data ==
+        assert((sink[] ==
 `{
     "#def": {
         "flerpeloso": "o",
@@ -459,14 +459,14 @@ public:
     },
     "#foo": {},
     "#fighters": {}
-}`), '\n' ~ sink.data);
+}`), '\n' ~ sink[]);
         sink.clear();
 
         // Empty JSONValue
         JSONStorage this2;
         this2.serialiseInto(sink);
-        assert((sink.data ==
-`{}`), '\n' ~ sink.data);
+        assert((sink[] ==
+`{}`), '\n' ~ sink[]);
     }
 }
 

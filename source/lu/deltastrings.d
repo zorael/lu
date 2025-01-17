@@ -23,7 +23,7 @@
     // Fill with delta between `Foo.init` and modified `altered`
     sink.putDelta!(No.asserts)(Foo.init, altered);
 
-    assert(sink.data ==
+    assert(sink[] ==
     `s = "some string";
     i = 42;
     b = true;
@@ -33,7 +33,7 @@
     // Do the same but prepend the name "altered" to the member names
     sink.putDelta!(No.asserts)(Foo.init, altered, 0, "altered");
 
-    assert(sink.data ==
+    assert(sink[] ==
     `altered.s = "some string";
     altered.i = 42;
     altered.b = true;
@@ -43,7 +43,7 @@
     // Generate assert statements instead, for easy copy/pasting into unittest blocks
     sink.putDelta!(Yes.asserts)(Foo.init, altered, 0, "altered");
 
-    assert(sink.data ==
+    assert(sink[] ==
     `assert((altered.s == "some string"), altered.s);
     assert((altered.i == 42), altered.i.to!string);
     assert(altered.b, altered.b.to!string);
@@ -343,23 +343,23 @@ unittest
 
     sink.putDelta!(No.asserts)(Connection.init, conn, 0, "conn");
 
-    assert(sink.data ==
+    assert(sink[] ==
 `conn.state = Connection.State.connected;
 conn.nickname = "NICKNAME";
 conn.server.address = "address.tld";
 conn.server.port = 1337;
-`, '\n' ~ sink.data);
+`, '\n' ~ sink[]);
 
     sink = typeof(sink).init;
 
     sink.putDelta!(Yes.asserts)(Connection.init, conn, 0, "conn");
 
-    assert(sink.data ==
+    assert(sink[] ==
 `assert((conn.state == Connection.State.connected), Enum!(Connection.State).toString(conn.state));
 assert((conn.nickname == "NICKNAME"), conn.nickname);
 assert((conn.server.address == "address.tld"), conn.server.address);
 assert((conn.server.port == 1337), conn.server.port.to!string);
-`, '\n' ~ sink.data);
+`, '\n' ~ sink[]);
 
     struct Foo
     {
@@ -383,20 +383,20 @@ assert((conn.server.port == 1337), conn.server.port.to!string);
     sink = typeof(sink).init;
 
     sink.putDelta!(No.asserts)(f1, f2);
-    assert(sink.data ==
+    assert(sink[] ==
 `s = "yarn";
 b = false;
 c = '#';
-`, '\n' ~ sink.data);
+`, '\n' ~ sink[]);
 
     sink = typeof(sink).init;
 
     sink.putDelta!(Yes.asserts)(f1, f2);
-    assert(sink.data ==
+    assert(sink[] ==
 `assert((s == "yarn"), s);
 assert(!b);
 assert((c == '#'), c.to!string);
-`, '\n' ~ sink.data);
+`, '\n' ~ sink[]);
 
     sink = typeof(sink).init;
 
@@ -421,20 +421,20 @@ assert((c == '#'), c.to!string);
         c2.child.i = 42;
 
         sink.putDelta!(No.asserts)(c1, c2);
-        assert(sink.data ==
+        assert(sink[] ==
 `s = "harbl";
 b = true;
 child.i = 42;
-`, '\n' ~ sink.data);
+`, '\n' ~ sink[]);
 
         sink = typeof(sink).init;
 
         sink.putDelta!(Yes.asserts)(c1, c2);
-        assert(sink.data ==
+        assert(sink[] ==
 `assert((s == "harbl"), s);
 assert(b);
 assert((child.i == 42), child.i.to!string);
-`, '\n' ~ sink.data);
+`, '\n' ~ sink[]);
     }
     {
         struct Blah
@@ -453,7 +453,7 @@ assert((child.i == 42), child.i.to!string);
         sink = typeof(sink).init;
 
         sink.putDelta(b1, b2);
-        assert(sink.data ==
+        assert(sink[] ==
 `arr[0] = 1;
 arr[2] = 3;
 arr[4] = 5;
@@ -465,7 +465,7 @@ carr[0] = 'a';
         sink = typeof(sink).init;
 
         sink.putDelta!(Yes.asserts)(b1, b2);
-        assert(sink.data ==
+        assert(sink[] ==
 `assert((arr[0] == 1), arr[0].to!string);
 assert((arr[2] == 3), arr[2].to!string);
 assert((arr[4] == 5), arr[4].to!string);
