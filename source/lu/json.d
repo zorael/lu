@@ -787,11 +787,15 @@ static auto getOrFallback(V = string)
     }
     else static if (isFloatingPoint!V)
     {
-        return valuePtr ? (*valuePtr).floating : fallback;
+        return valuePtr ? cast(V)(*valuePtr).floating : fallback;
     }
     else static if (isIntegral!V)
     {
-        return valuePtr ? (*valuePtr).integer : fallback;
+        return valuePtr ? cast(V)(*valuePtr).integer : fallback;
+    }
+    else static if (is(V == bool))
+    {
+        return valuePtr ? (*valuePtr).boolean : fallback;
     }
     else
     {
