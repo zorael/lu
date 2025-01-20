@@ -45,6 +45,9 @@ public:
 // Separator
 /++
     Public import of `lu.uda.Separator`.
+
+    See_Also:
+        [lu.uda.Separator]
  +/
 import lu.uda : Separator;
 
@@ -178,7 +181,7 @@ in (memberToSet.length, "Tried to set member by name but no member string was gi
                         enum doubleEphemeral = ephemeralSeparator ~ ephemeralSeparator;
                         enum doubleEscapePlaceholder = "\2\2";
 
-                        string values = valueToSet.replace("\\\\", doubleEscapePlaceholder);
+                        string values = valueToSet.replace("\\\\", doubleEscapePlaceholder);  // mutable
 
                         foreach (immutable thisSeparator; separators)
                         {

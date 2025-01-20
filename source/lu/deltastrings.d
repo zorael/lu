@@ -486,5 +486,5 @@ assert((carr[0] == 'a'), carr[0].to!string);
 
     TODO: Deprecate this later.
  +/
-//deprecated("Use `putDelta` instead")
+//deprecated("Use `lu.deltastrings.putDelta` instead")
 alias formatDeltaInto = putDelta;

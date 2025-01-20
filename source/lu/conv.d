@@ -38,6 +38,12 @@ public:
     [std.conv.to] is typically the go-to for this job; however it quickly bloats
     the binary and is not performant on larger enums.
 
+    Limitations:
+        Does not work with enums whose members' values cannot be used in a
+        switch statement. This includes enums with members that share values
+        with other members, as well as enums of values that are non-string
+        arrays or other complex types.
+
     Params:
         E = enum to base this template on.
  +/
@@ -57,15 +63,25 @@ if (is(E == enum))
         written by Stephan Koch (https://github.com/UplinkCoder).
         Used with permission.
 
+        Limitations:
+            Does not work with enums whose members' values cannot be used in a
+            switch statement. This includes enums with members that share values
+            with other members, as well as enums of values that are non-string
+            arrays or other complex types.
+
         Example:
         ---
-        enum SomeEnum { one, two, three };
+        enum E { a, b, c }
 
-        SomeEnum foo = Enum!SomeEnum.fromString("one");
-        SomeEnum bar = Enum!SomeEnum.fromString("three");
+        E a = Enum!E.fromString("a");
+        E c = Enum!E.fromString("c");
 
-        assert(foo == SomeEnum.one);
-        assert(bar == SomeEnum.three);
+        assert(a == E.a);
+        assert(c == E.c);
+
+        // Enum members must not share values
+        enum F { d = 1, duplicate = 1 }
+        //F d = Enum!F.fromString("d");  // compile-time error
         ---
 
         Params:
@@ -77,9 +93,6 @@ if (is(E == enum))
 
         Throws: [std.conv.ConvException|ConvException] if no matching enum member with the
             passed name could be found.
-
-        Bugs:
-            Does not work with enums that have members with duplicate values.
      +/
     E fromString(const string enumstring) pure
     {
@@ -116,12 +129,25 @@ if (is(E == enum))
         written by Stephan Koch (https://github.com/UplinkCoder).
         Used with permission.
 
+        Limitations:
+            Does not work with enums whose members' values cannot be used in a
+            switch statement. This includes enums with members that share values
+            with other members, as well as enums of values that are non-string
+            arrays or other complex types.
+
         Example:
         ---
-        enum SomeEnum { one, two, three };
+        enum E { a, b, c }
 
-        string foo = Enum!SomeEnum.toString(SomeEnum.one);
-        assert(foo == "one");
+        string a = Enum!E.toString(E.a);
+        string c = Enum!E.toString(E.c);
+
+        assert(a == "a");
+        assert(c == "c");
+
+        // Enum members must not share values
+        enum F { d = 1, duplicate = 1 }
+        //string d = Enum!F.toString(F.d);  // compile-time error
         ---
 
         Params:
@@ -444,6 +470,9 @@ unittest
             output, mirroring the format specifier "`%0nd`".
         num = Integer to translate into string.
         sink = Output range sink.
+
+    See_Also:
+        [toAlpha]
  +/
 void toAlphaInto(size_t maxDigits = 19, uint leadingZeroes = 0, Num, Sink)
     (const Num num, auto ref Sink sink)
@@ -604,6 +633,9 @@ unittest
 
     Returns:
         The passed integer `num` in string form.
+
+    See_Also:
+        [toAlphaInto]
  +/
 string toAlpha(size_t maxDigits = 19, uint leadingZeroes = 0, Num)(const Num num) pure
 {

@@ -1,6 +1,6 @@
 /++
     Various functions related to serialising and deserialising structs into/from
-    .ini-like files.
+    configuration file-y files.
 
     Example:
     ---
@@ -1044,7 +1044,7 @@ bara    blaawp,oorgle,blaawp`;
         origLines = Unjustified raw serialised text.
 
     Returns:
-        .ini file-like text, justified into two columns.
+        Configuraiton file-y text, justified into two columns.
  +/
 string justifiedEntryValueText(const string origLines) pure
 {
