@@ -893,6 +893,7 @@ unittest
     assert(stringOfTypeOf!Bar == "Bar");
 }
 
+
 // stringOfTypeOf
 /++
     The string representation of the type of something. Alias parameter overload.

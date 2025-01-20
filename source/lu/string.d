@@ -889,7 +889,6 @@ string indent(uint spaces = 4)
 
     Appender!(char[]) sink;
     sink.reserve(wallOfText.length + 10*spaces*numTabs);  // Extra room for 10 indents
-
     wallOfText.indentInto!spaces(sink, numTabs, skip);
     return sink[];
 }
