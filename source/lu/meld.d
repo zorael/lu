@@ -396,271 +396,279 @@ unittest
             this.bur = bur;
         }
     }
-
-    TestFoo f1; // = new TestFoo;
-    f1.abc = "ABC";
-    f1.def = "DEF";
-    f1.aa = [ "abc" : 123, "ghi" : 789 ];
-    f1.arr = [ 1, 0, 3, 0, 5 ];
-
-    TestFoo f2; // = new TestFoo;
-    f2.abc = "this won't get copied";
-    f2.def = "neither will this";
-    f2.i = 42;
-    f2.f = 3.14f;
-    f2.aa = [ "abc" : 999, "def" : 456 ];
-    f2.arr = [ 0, 2, 0, 4 ];
-
-    f2.meldInto(f1);
-
-    with (f1)
     {
-        import std.math : isNaN;
+        TestFoo f1; // = new TestFoo;
+        f1.abc = "ABC";
+        f1.def = "DEF";
+        f1.aa = [ "abc" : 123, "ghi" : 789 ];
+        f1.arr = [ 1, 0, 3, 0, 5 ];
 
-        assert((abc == "ABC"), abc);
-        assert((def == "DEF"), def);
-        assert((i == 42), i.to!string);
-        assert((f == 3.14f), f.to!string);
-        assert(d.isNaN, d.to!string);
-        assert((aa == [ "abc" : 123, "def" : 456, "ghi" : 789 ]), aa.to!string);
-        assert((arr == [ 1, 2, 3, 4, 5 ]), arr.to!string);
+        TestFoo f2; // = new TestFoo;
+        f2.abc = "this won't get copied";
+        f2.def = "neither will this";
+        f2.i = 42;
+        f2.f = 3.14f;
+        f2.aa = [ "abc" : 999, "def" : 456 ];
+        f2.arr = [ 0, 2, 0, 4 ];
+
+        f2.meldInto(f1);
+
+        with (f1)
+        {
+            import std.math : isNaN;
+
+            assert((abc == "ABC"), abc);
+            assert((def == "DEF"), def);
+            assert((i == 42), i.to!string);
+            assert((f == 3.14f), f.to!string);
+            assert(d.isNaN, d.to!string);
+            assert((aa == [ "abc" : 123, "def" : 456, "ghi" : 789 ]), aa.to!string);
+            assert((arr == [ 1, 2, 3, 4, 5 ]), arr.to!string);
+        }
     }
-
-    TestFoo f3; // new TestFoo;
-    f3.abc = "abc";
-    f3.def = "def";
-    f3.i = 100_135;
-    f3.f = 99.9f;
-    f3.aa = [ "abc" : 123, "ghi" : 789 ];
-    f3.arr = [ 1, 0, 3, 0, 5 ];
-
-    TestFoo f4; // new TestFoo;
-    f4.abc = "OVERWRITTEN";
-    f4.def = "OVERWRITTEN TOO";
-    f4.i = 0;
-    f4.f = 0.1f;
-    f4.d = 99.999;
-    f4.aa = [ "abc" : 999, "def" : 456 ];
-    f4.arr = [ 9, 2, 0, 4 ];
-
-    f4.meldInto!(MeldingStrategy.aggressive)(f3);
-
-    with (f3)
     {
-        import std.math : isClose;
+        TestFoo f3; // new TestFoo;
+        f3.abc = "abc";
+        f3.def = "def";
+        f3.i = 100_135;
+        f3.f = 99.9f;
+        f3.aa = [ "abc" : 123, "ghi" : 789 ];
+        f3.arr = [ 1, 0, 3, 0, 5 ];
 
-        assert((abc == "OVERWRITTEN"), abc);
-        assert((def == "OVERWRITTEN TOO"), def);
-        assert((i == 100_135), i.to!string); // 0 is int.init
-        assert((f == 0.1f), f.to!string);
-        assert(d.isClose(99.999), d.to!string);
-        assert((aa == [ "abc" : 999, "def" : 456, "ghi" : 789 ]), aa.to!string);
-        assert((arr == [ 9, 2, 3, 4, 5 ]), arr.to!string);
+        TestFoo f4; // new TestFoo;
+        f4.abc = "OVERWRITTEN";
+        f4.def = "OVERWRITTEN TOO";
+        f4.i = 0;
+        f4.f = 0.1f;
+        f4.d = 99.999;
+        f4.aa = [ "abc" : 999, "def" : 456 ];
+        f4.arr = [ 9, 2, 0, 4 ];
+
+        f4.meldInto!(MeldingStrategy.aggressive)(f3);
+
+        with (f3)
+        {
+            import std.math : isClose;
+
+            assert((abc == "OVERWRITTEN"), abc);
+            assert((def == "OVERWRITTEN TOO"), def);
+            assert((i == 100_135), i.to!string); // 0 is int.init
+            assert((f == 0.1f), f.to!string);
+            assert(d.isClose(99.999), d.to!string);
+            assert((aa == [ "abc" : 999, "def" : 456, "ghi" : 789 ]), aa.to!string);
+            assert((arr == [ 9, 2, 3, 4, 5 ]), arr.to!string);
+        }
     }
-
-    // Overwriting is just aggressive but always overwrites bools.
-
-    struct User
     {
-        enum Class { anyone, blacklist, whitelist, admin }
-        string nickname;
-        string alias_;
-        string ident;
-        string address;
-        string login;
-        bool special;
-        Class class_;
-    }
+        // Overwriting is just aggressive but always overwrites bools.
+        struct User
+        {
+            enum Class { anyone, blacklist, whitelist, admin }
+            string nickname;
+            string alias_;
+            string ident;
+            string address;
+            string login;
+            bool special;
+            Class class_;
+        }
 
-    User one;
-    with (one)
+        User one;
+        with (one)
+        {
+            nickname = "foobar";
+            ident = "NaN";
+            address = "herpderp.net";
+            special = false;
+            class_ = User.Class.whitelist;
+        }
+
+        User two;
+        with (two)
+        {
+            nickname = "foobar^";
+            alias_ = "FooBar";
+            address = "asdf.org";
+            login = "kamelusu";
+            special = true;
+            class_ = User.Class.blacklist;
+        }
+
+        //import lu.conv : Enum;
+
+        User twoCopy = two;
+
+        one.meldInto!(MeldingStrategy.conservative)(two);
+        with (two)
+        {
+            assert((nickname == "foobar^"), nickname);
+            assert((alias_ == "FooBar"), alias_);
+            assert((ident == "NaN"), ident);
+            assert((address == "asdf.org"), address);
+            assert((login == "kamelusu"), login);
+            assert(special);
+            assert(class_ == User.Class.whitelist);//, Enum!(User.Class).toString(class_));
+        }
+
+        one.class_ = User.Class.blacklist;
+
+        one.meldInto!(MeldingStrategy.overwriting)(twoCopy);
+        with (twoCopy)
+        {
+            assert((nickname == "foobar"), nickname);
+            assert((alias_ == "FooBar"), alias_);
+            assert((ident == "NaN"), ident);
+            assert((address == "herpderp.net"), address);
+            assert((login == "kamelusu"), login);
+            assert(!special);
+            assert(class_ == User.Class.blacklist);//, Enum!(User.Class).toString(class_));
+        }
+    }
     {
-        nickname = "foobar";
-        ident = "NaN";
-        address = "herpderp.net";
-        special = false;
-        class_ = User.Class.whitelist;
-    }
+        struct EnumThing
+        {
+            enum Enum { unset, one, two, three }
+            Enum enum_;
+        }
 
-    User two;
-    with (two)
+        EnumThing e1;
+        EnumThing e2;
+        e2.enum_ = EnumThing.Enum.three;
+        assert(e1.enum_ == EnumThing.Enum.init);//, Enum!(EnumThing.Enum).toString(e1.enum_));
+        e2.meldInto(e1);
+        assert(e1.enum_ == EnumThing.Enum.three);//, Enum!(EnumThing.Enum).toString(e1.enum_));
+
+        struct WithArray
+        {
+            string[] arr;
+        }
+
+        WithArray w1, w2;
+        w1.arr = [ "arr", "matey", "I'ma" ];
+        w2.arr = [ "pirate", "stereotype", "unittest" ];
+        w2.meldInto(w1);
+        assert((w1.arr == [ "arr", "matey", "I'ma", "pirate", "stereotype", "unittest" ]), w1.arr.to!string);
+
+        WithArray w3, w4;
+        w3.arr = [ "arr", "matey", "I'ma" ];
+        w4.arr = [ "arr", "matey", "I'ma" ];
+        w4.meldInto(w3);
+        assert((w3.arr == [ "arr", "matey", "I'ma" ]), w3.arr.to!string);
+    }
     {
-        nickname = "foobar^";
-        alias_ = "FooBar";
-        address = "asdf.org";
-        login = "kamelusu";
-        special = true;
-        class_ = User.Class.blacklist;
+        struct Server
+        {
+            string address;
+        }
+
+        struct Bot
+        {
+            string nickname;
+            Server server;
+        }
+
+        Bot b1, b2;
+        b1.nickname = "foobar";
+        b1.server.address = "freenode.net";
+
+        assert(!b2.nickname.length, b2.nickname);
+        assert(!b2.server.address.length, b2.nickname);
+        b1.meldInto(b2);
+        assert((b2.nickname == "foobar"), b2.nickname);
+        assert((b2.server.address == "freenode.net"), b2.server.address);
+
+        b2.nickname = "harbl";
+        b2.server.address = "rizon.net";
+
+        b2.meldInto!(MeldingStrategy.aggressive)(b1);
+        assert((b1.nickname == "harbl"), b1.nickname);
+        assert((b1.server.address == "rizon.net"), b1.server.address);
     }
-
-    //import lu.conv : Enum;
-
-    User twoCopy = two;
-
-    one.meldInto!(MeldingStrategy.conservative)(two);
-    with (two)
     {
-        assert((nickname == "foobar^"), nickname);
-        assert((alias_ == "FooBar"), alias_);
-        assert((ident == "NaN"), ident);
-        assert((address == "asdf.org"), address);
-        assert((login == "kamelusu"), login);
-        assert(special);
-        assert(class_ == User.Class.whitelist);//, Enum!(User.Class).toString(class_));
+        class Class
+        {
+            static int i;
+            string s;
+            bool b;
+        }
+
+        Class abc = new Class;
+        abc.i = 42;
+        abc.s = "some string";
+        abc.b = true;
+
+        Class def = new Class;
+        def.s = "other string";
+        abc.meldInto(def);
+
+        assert((def.i == 42), def.i.to!string);
+        assert((def.s == "other string"), def.s);
+        assert(def.b);
+
+        abc.meldInto!(MeldingStrategy.aggressive)(def);
+        assert((def.s == "some string"), def.s);
     }
-
-    one.class_ = User.Class.blacklist;
-
-    one.meldInto!(MeldingStrategy.overwriting)(twoCopy);
-    with (twoCopy)
     {
-        assert((nickname == "foobar"), nickname);
-        assert((alias_ == "FooBar"), alias_);
-        assert((ident == "NaN"), ident);
-        assert((address == "herpderp.net"), address);
-        assert((login == "kamelusu"), login);
-        assert(!special);
-        assert(class_ == User.Class.blacklist);//, Enum!(User.Class).toString(class_));
-    }
+        struct Bools
+        {
+            bool a = true;
+            bool b = false;
+        }
 
-    struct EnumThing
+        Bools bools1, bools2, inverted, backupInverted;
+
+        bools2.a = false;
+
+        inverted.a = false;
+        inverted.b = true;
+        backupInverted = inverted;
+
+        bools2.meldInto(bools1);
+        assert(!bools1.a);
+        assert(!bools1.b);
+
+        bools2.meldInto(inverted);
+        assert(!inverted.a);
+        assert(inverted.b);
+        inverted = backupInverted;
+
+        bools2.meldInto!(MeldingStrategy.overwriting)(inverted);
+        assert(!inverted.a);
+        assert(!inverted.b);
+        inverted = backupInverted;
+    }
     {
-        enum Enum { unset, one, two, three }
-        Enum enum_;
+        struct Asdf
+        {
+            string nickname = "sadf";
+            string server = "asdf.net";
+        }
+
+        Asdf a, b;
+        a.server = "a";
+        b.server = "b";
+        b.meldInto!(MeldingStrategy.aggressive)(a);
+        assert((a.server == "b"), a.server);
+
+        a.server = "a";
+        b.server = Asdf.init.server;
+        b.meldInto!(MeldingStrategy.aggressive)(a);
+        assert((a.server == "a"), a.server);
     }
-
-    EnumThing e1;
-    EnumThing e2;
-    e2.enum_ = EnumThing.Enum.three;
-    assert(e1.enum_ == EnumThing.Enum.init);//, Enum!(EnumThing.Enum).toString(e1.enum_));
-    e2.meldInto(e1);
-    assert(e1.enum_ == EnumThing.Enum.three);//, Enum!(EnumThing.Enum).toString(e1.enum_));
-
-    struct WithArray
     {
-        string[] arr;
+        struct Blah
+        {
+            int yes = 42;
+            @Unmeldable int no = 24;
+        }
+
+        Blah blah1, blah2;
+        blah1.yes = 5;
+        blah1.no = 42;
+        blah1.meldInto!(MeldingStrategy.aggressive)(blah2);
+        assert((blah2.yes == 5), blah2.yes.to!string);
+        assert((blah2.no == 24), blah2.no.to!string);
     }
-
-    WithArray w1, w2;
-    w1.arr = [ "arr", "matey", "I'ma" ];
-    w2.arr = [ "pirate", "stereotype", "unittest" ];
-    w2.meldInto(w1);
-    assert((w1.arr == [ "arr", "matey", "I'ma", "pirate", "stereotype", "unittest" ]), w1.arr.to!string);
-
-    WithArray w3, w4;
-    w3.arr = [ "arr", "matey", "I'ma" ];
-    w4.arr = [ "arr", "matey", "I'ma" ];
-    w4.meldInto(w3);
-    assert((w3.arr == [ "arr", "matey", "I'ma" ]), w3.arr.to!string);
-
-    struct Server
-    {
-        string address;
-    }
-
-    struct Bot
-    {
-        string nickname;
-        Server server;
-    }
-
-    Bot b1, b2;
-    b1.nickname = "foobar";
-    b1.server.address = "freenode.net";
-
-    assert(!b2.nickname.length, b2.nickname);
-    assert(!b2.server.address.length, b2.nickname);
-    b1.meldInto(b2);
-    assert((b2.nickname == "foobar"), b2.nickname);
-    assert((b2.server.address == "freenode.net"), b2.server.address);
-
-    b2.nickname = "harbl";
-    b2.server.address = "rizon.net";
-
-    b2.meldInto!(MeldingStrategy.aggressive)(b1);
-    assert((b1.nickname == "harbl"), b1.nickname);
-    assert((b1.server.address == "rizon.net"), b1.server.address);
-
-    class Class
-    {
-        static int i;
-        string s;
-        bool b;
-    }
-
-    Class abc = new Class;
-    abc.i = 42;
-    abc.s = "some string";
-    abc.b = true;
-
-    Class def = new Class;
-    def.s = "other string";
-    abc.meldInto(def);
-
-    assert((def.i == 42), def.i.to!string);
-    assert((def.s == "other string"), def.s);
-    assert(def.b);
-
-    abc.meldInto!(MeldingStrategy.aggressive)(def);
-    assert((def.s == "some string"), def.s);
-
-    struct Bools
-    {
-        bool a = true;
-        bool b = false;
-    }
-
-    Bools bools1, bools2, inverted, backupInverted;
-
-    bools2.a = false;
-
-    inverted.a = false;
-    inverted.b = true;
-    backupInverted = inverted;
-
-    bools2.meldInto(bools1);
-    assert(!bools1.a);
-    assert(!bools1.b);
-
-    bools2.meldInto(inverted);
-    assert(!inverted.a);
-    assert(inverted.b);
-    inverted = backupInverted;
-
-    bools2.meldInto!(MeldingStrategy.overwriting)(inverted);
-    assert(!inverted.a);
-    assert(!inverted.b);
-    inverted = backupInverted;
-
-    struct Asdf
-    {
-        string nickname = "sadf";
-        string server = "asdf.net";
-    }
-
-    Asdf a, b;
-    a.server = "a";
-    b.server = "b";
-    b.meldInto!(MeldingStrategy.aggressive)(a);
-    assert((a.server == "b"), a.server);
-
-    a.server = "a";
-    b.server = Asdf.init.server;
-    b.meldInto!(MeldingStrategy.aggressive)(a);
-    assert((a.server == "a"), a.server);
-
-    struct Blah
-    {
-        int yes = 42;
-        @Unmeldable int no = 24;
-    }
-
-    Blah blah1, blah2;
-    blah1.yes = 5;
-    blah1.no = 42;
-    blah1.meldInto!(MeldingStrategy.aggressive)(blah2);
-    assert((blah2.yes == 5), blah2.yes.to!string);
-    assert((blah2.no == 24), blah2.no.to!string);
 }
 
 
@@ -781,32 +789,41 @@ unittest
 {
     import std.conv : to;
 
-    auto arr1 = [ 123, 0, 789, 0, 456, 0 ];
-    auto arr2 = [ 0, 456, 0, 123, 0, 789 ];
-    arr1.meldInto!(MeldingStrategy.conservative)(arr2);
-    assert((arr2 == [ 123, 456, 789, 123, 456, 789 ]), arr2.to!string);
+    {
+        auto arr1 = [ 123, 0, 789, 0, 456, 0 ];
+        auto arr2 = [ 0, 456, 0, 123, 0, 789 ];
+        arr1.meldInto!(MeldingStrategy.conservative)(arr2);
+        assert((arr2 == [ 123, 456, 789, 123, 456, 789 ]), arr2.to!string);
+    }
+    {
+        auto arr1 = [ 'Z', char.init, 'Z', char.init, 'Z' ];
+        auto arr2 = [ 'A', 'B', 'C', 'D', 'E', 'F' ];
+        arr1.meldInto!(MeldingStrategy.aggressive)(arr2);
+        assert((arr2 == [ 'Z', 'B', 'Z', 'D', 'Z', 'F' ]), arr2.to!string);
 
-    auto yarr1 = [ 'Z', char.init, 'Z', char.init, 'Z' ];
-    auto yarr2 = [ 'A', 'B', 'C', 'D', 'E', 'F' ];
-    yarr1.meldInto!(MeldingStrategy.aggressive)(yarr2);
-    assert((yarr2 == [ 'Z', 'B', 'Z', 'D', 'Z', 'F' ]), yarr2.to!string);
-
-    auto harr1 = [ char.init, 'X' ];
-    yarr1.meldInto(harr1);
-    assert((harr1 == [ 'Z', 'X', 'Z', char.init, 'Z' ]), harr1.to!string);
-
-    char[5] harr2 = [ '1', '2', '3', '4', '5' ];
-    char[] harr3;
-    harr2.meldInto(harr3);
-    assert((harr2 == harr3), harr3.to!string);
-
-    int[3] asdf;
-    int[3] hasdf;
-    asdf.meldInto(hasdf);
-
-    int[] dyn = new int[2];
-    int[3] stat;
-    dyn.meldInto(stat);
+        auto arr3 = [ char.init, 'X' ];
+        arr1.meldInto(arr3);
+        assert((arr3 == [ 'Z', 'X', 'Z', char.init, 'Z' ]), arr3.to!string);
+    }
+    {
+        char[5] arr1 = [ '1', '2', '3', '4', '5' ];
+        char[] arr2;
+        arr1.meldInto(arr2);
+        assert((arr1 == arr2), arr2.to!string);
+    }
+    {
+        int[3] arr1 = [ 1, 0, 3 ];
+        int[3] arr2 = [ 0, 2, 0 ];
+        arr1.meldInto(arr2);
+        assert((arr2 == [ 1, 2, 3 ]), arr2.to!string);
+    }
+    {
+        int[] dyn = new int[3];
+        int[4] stat = [ 9, 2, 0, 4 ];
+        dyn = [ 1, 0, 3 ];
+        dyn.meldInto!(MeldingStrategy.conservative)(stat);
+        assert((stat == [ 9, 2, 3, 4 ]), stat.to!string);
+    }
 }
 
 
@@ -821,7 +838,7 @@ unittest
     ---
     int[string] aa1 = [ "abc" : 42, "def" : -1 ];
     int[string] aa2 = [ "ghi" : 10, "jkl" : 7 ];
-    arr1.meldInto(arr2);
+    arr1.meldInto(aa2);
 
     assert("abc" in aa2);
     assert("def" in aa2);
@@ -900,37 +917,43 @@ if (isAssociativeArray!AA && is(QualAA : AA) && isMutable!AA)
 ///
 unittest
 {
-    bool[string] aa1;
-    bool[string] aa2;
+    import std.conv : to;
 
-    aa1["a"] = true;
-    aa1["b"] = false;
-    aa2["c"] = true;
-    aa2["d"] = false;
+    {
+        bool[string] aa1;
+        bool[string] aa2;
 
-    assert("a" in aa1);
-    assert("b" in aa1);
-    assert("c" in aa2);
-    assert("d" in aa2);
+        aa1["a"] = true;
+        aa1["b"] = false;
+        aa2["c"] = true;
 
-    aa1.meldInto!(MeldingStrategy.overwriting)(aa2);
+        assert("a" in aa1);
+        assert("b" in aa1);
+        assert("c" in aa2);
 
-    assert("a" in aa2);
-    assert("b" in aa2);
+        aa1.meldInto!(MeldingStrategy.overwriting)(aa2);
 
-    string[string] saa1;
-    string[string] saa2;
+        assert("a" in aa2);
+        assert("b" in aa2);
+        assert("c" in aa2);
+    }
+    {
+        string[string] aa1;
+        string[string] aa2;
 
-    saa1["a"] = "a";
-    saa1["b"] = "b";
-    saa2["c"] = "c";
-    saa2["d"] = "d";
+        aa1["a"] = "a";
+        aa1["b"] = "b";
+        aa2["c"] = "c";
 
-    saa1.meldInto!(MeldingStrategy.conservative)(saa2);
-    assert("a" in saa2);
-    assert("b" in saa2);
+        aa1.meldInto!(MeldingStrategy.conservative)(aa2);
 
-    saa1["a"] = "A";
-    saa1.meldInto!(MeldingStrategy.aggressive)(saa2);
-    assert(saa2["a"] == "A");
+        assert("a" in aa2);
+        assert("b" in aa2);
+        assert("c" in aa2);
+
+        aa1["a"] = "A";
+        aa1.meldInto!(MeldingStrategy.aggressive)(aa2);
+
+        assert(aa2["a"] == "A");
+    }
 }

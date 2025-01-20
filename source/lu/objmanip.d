@@ -70,7 +70,7 @@ import lu.uda : Separator;
 
     foo.setMemberByName("name", "James Bond");
     foo.setMemberByName("number", "007");
-    foo.setMemberByName("alive", "false");
+    foo.setMemberByName("alive", false);
 
     assert(foo.name == "James Bond");
     assert(foo.number == 7);
@@ -401,181 +401,193 @@ unittest
     import lu.uda : Separator;
     import std.conv : to;
 
-    struct Foo
     {
-        string bar;
-        int baz;
-        float* f;
-        string[string] aa;
-
-        @Separator("|")
-        @Separator(" ")
+        struct Foo
         {
-            string[] arr;
-            string[] matey;
+            string bar;
+            int baz;
+            float* f;
+            string[string] aa;
+
+            @Separator("|")
+            @Separator(" ")
+            {
+                string[] arr;
+                string[] matey;
+            }
+
+            @Separator(";;")
+            {
+                string[] parrots;
+                string[] withSpaces;
+            }
+
+            @Separator(`\o/`)
+            {
+                string[] blurgh;
+            }
+
+            @(`\o/`)
+            {
+                int[] blargh;
+            }
         }
 
-        @Separator(";;")
+        Foo foo;
+        bool success;
+
+        success = foo.setMemberByName("bar", "asdf fdsa adf");
+        assert(success);
+        assert((foo.bar == "asdf fdsa adf"), foo.bar);
+
+        success = foo.setMemberByName("baz", "42");
+        assert(success);
+        assert((foo.baz == 42), foo.baz.to!string);
+
+        success = foo.setMemberByName("aa", `["abc":"def", "ghi":"jkl"]`);
+        assert(success);
+        assert((foo.aa == [ "abc":"def", "ghi":"jkl" ]), foo.aa.to!string);
+
+        success = foo.setMemberByName("arr", "herp|derp|dirp|darp");
+        assert(success);
+        assert((foo.arr == [ "herp", "derp", "dirp", "darp"]), foo.arr.to!string);
+
+        success = foo.setMemberByName("arr", "herp derp dirp|darp");
+        assert(success);
+        assert((foo.arr == [ "herp", "derp", "dirp", "darp"]), foo.arr.to!string);
+
+        success = foo.setMemberByName("matey", "this,should,not,be,separated");
+        assert(success);
+        assert((foo.matey == [ "this,should,not,be,separated" ]), foo.matey.to!string);
+
+        success = foo.setMemberByName("parrots", "squaawk;;parrot sounds;;repeating");
+        assert(success);
+        assert((foo.parrots == [ "squaawk", "parrot sounds", "repeating"]),
+            foo.parrots.to!string);
+
+        success = foo.setMemberByName("withSpaces", `         squoonk         ;;"  spaced  ";;" "`);
+        assert(success);
+        assert((foo.withSpaces == [ "squoonk", `  spaced  `, " "]),
+            foo.withSpaces.to!string);
+
+        success = foo.setMemberByName("invalid", "oekwpo");
+        assert(!success);
+
+        /*success = foo.setMemberByName("", "true");
+        assert(!success);*/
+
+        success = foo.setMemberByName("matey", "hirr steff\\ stuff staff\\|stirf hooo");
+        assert(success);
+        assert((foo.matey == [ "hirr", "steff stuff", "staff|stirf", "hooo" ]), foo.matey.to!string);
+
+        success = foo.setMemberByName("matey", "hirr steff\\\\ stuff staff\\\\|stirf hooo");
+        assert(success);
+        assert((foo.matey == [ "hirr", "steff\\", "stuff", "staff\\", "stirf", "hooo" ]), foo.matey.to!string);
+
+        success = foo.setMemberByName("matey", "asdf\\ fdsa\\\\ hirr                                steff");
+        assert(success);
+        assert((foo.matey == [ "asdf fdsa\\", "hirr", "steff" ]), foo.matey.to!string);
+
+        success = foo.setMemberByName("blurgh", "asdf\\\\o/fdsa\\\\\\o/hirr\\o/\\o/\\o/\\o/\\o/\\o/\\o/\\o/steff");
+        assert(success);
+        assert((foo.blurgh == [ "asdf\\o/fdsa\\", "hirr", "steff" ]), foo.blurgh.to!string);
+
+        success = foo.setMemberByName("blargh", `1\o/2\o/3\o/4\o/5`);
+        assert(success);
+        assert((foo.blargh == [ 1, 2, 3, 4, 5 ]), foo.blargh.to!string);
+    }
+    {
+        class C
         {
-            string[] parrots;
-            string[] withSpaces;
+            string abc;
+            int def;
         }
 
-        @Separator(`\o/`)
+        C c = new C;
+        bool success;
+
+        success = c.setMemberByName("abc", "this is abc");
+        assert(success);
+        assert((c.abc == "this is abc"), c.abc);
+
+        success = c.setMemberByName("def", "42");
+        assert(success);
+        assert((c.def == 42), c.def.to!string);
+    }
+    {
+        import lu.conv : Enum;
+
+        enum E { abc, def, ghi }
+
+        struct S
         {
-            string[] blurgh;
+            E e = E.ghi;
         }
 
-        @(`\o/`)
+        S s;
+        bool success;
+
+        assert(s.e == E.ghi);
+        success = s.setMemberByName("e", "def");
+        assert(success);
+        assert((s.e == E.def), Enum!E.toString(s.e));
+    }
+    {
+        struct StructWithOpAssign
         {
-            int[] blargh;
+            string thing = "init";
+
+            void opAssign(const string thing)
+            {
+                this.thing = thing;
+            }
         }
-    }
 
-    Foo foo;
-    bool success;
+        StructWithOpAssign assignable;
+        assert((assignable.thing == "init"), assignable.thing);
+        assignable = "new thing";
+        assert((assignable.thing == "new thing"), assignable.thing);
 
-    success = foo.setMemberByName("bar", "asdf fdsa adf");
-    assert(success);
-    assert((foo.bar == "asdf fdsa adf"), foo.bar);
-
-    success = foo.setMemberByName("baz", "42");
-    assert(success);
-    assert((foo.baz == 42), foo.baz.to!string);
-
-    success = foo.setMemberByName("aa", `["abc":"def", "ghi":"jkl"]`);
-    assert(success);
-    assert((foo.aa == [ "abc":"def", "ghi":"jkl" ]), foo.aa.to!string);
-
-    success = foo.setMemberByName("arr", "herp|derp|dirp|darp");
-    assert(success);
-    assert((foo.arr == [ "herp", "derp", "dirp", "darp"]), foo.arr.to!string);
-
-    success = foo.setMemberByName("arr", "herp derp dirp|darp");
-    assert(success);
-    assert((foo.arr == [ "herp", "derp", "dirp", "darp"]), foo.arr.to!string);
-
-    success = foo.setMemberByName("matey", "this,should,not,be,separated");
-    assert(success);
-    assert((foo.matey == [ "this,should,not,be,separated" ]), foo.matey.to!string);
-
-    success = foo.setMemberByName("parrots", "squaawk;;parrot sounds;;repeating");
-    assert(success);
-    assert((foo.parrots == [ "squaawk", "parrot sounds", "repeating"]),
-        foo.parrots.to!string);
-
-    success = foo.setMemberByName("withSpaces", `         squoonk         ;;"  spaced  ";;" "`);
-    assert(success);
-    assert((foo.withSpaces == [ "squoonk", `  spaced  `, " "]),
-        foo.withSpaces.to!string);
-
-    success = foo.setMemberByName("invalid", "oekwpo");
-    assert(!success);
-
-    /*success = foo.setMemberByName("", "true");
-    assert(!success);*/
-
-    success = foo.setMemberByName("matey", "hirr steff\\ stuff staff\\|stirf hooo");
-    assert(success);
-    assert((foo.matey == [ "hirr", "steff stuff", "staff|stirf", "hooo" ]), foo.matey.to!string);
-
-    success = foo.setMemberByName("matey", "hirr steff\\\\ stuff staff\\\\|stirf hooo");
-    assert(success);
-    assert((foo.matey == [ "hirr", "steff\\", "stuff", "staff\\", "stirf", "hooo" ]), foo.matey.to!string);
-
-    success = foo.setMemberByName("matey", "asdf\\ fdsa\\\\ hirr                                steff");
-    assert(success);
-    assert((foo.matey == [ "asdf fdsa\\", "hirr", "steff" ]), foo.matey.to!string);
-
-    success = foo.setMemberByName("blurgh", "asdf\\\\o/fdsa\\\\\\o/hirr\\o/\\o/\\o/\\o/\\o/\\o/\\o/\\o/steff");
-    assert(success);
-    assert((foo.blurgh == [ "asdf\\o/fdsa\\", "hirr", "steff" ]), foo.blurgh.to!string);
-
-    success = foo.setMemberByName("blargh", `1\o/2\o/3\o/4\o/5`);
-    assert(success);
-    assert((foo.blargh == [ 1, 2, 3, 4, 5 ]), foo.blargh.to!string);
-
-    class C
-    {
-        string abc;
-        int def;
-    }
-
-    C c = new C;
-
-    success = c.setMemberByName("abc", "this is abc");
-    assert(success);
-    assert((c.abc == "this is abc"), c.abc);
-
-    success = c.setMemberByName("def", "42");
-    assert(success);
-    assert((c.def == 42), c.def.to!string);
-
-    import lu.conv : Enum;
-
-    enum E { abc, def, ghi }
-
-    struct S
-    {
-        E e = E.ghi;
-    }
-
-    S s;
-
-    assert(s.e == E.ghi);
-    success = s.setMemberByName("e", "def");
-    assert(success);
-    assert((s.e == E.def), Enum!E.toString(s.e));
-
-    struct StructWithOpAssign
-    {
-        string thing = "init";
-
-        void opAssign(const string thing)
+        struct StructWithAssignableMember
         {
-            this.thing = thing;
+            StructWithOpAssign child;
         }
+
+        StructWithAssignableMember parent;
+        bool success;
+
+        success = parent.setMemberByName("child", "flerp");
+        assert(success);
+        assert((parent.child.thing == "flerp"), parent.child.thing);
     }
-
-    StructWithOpAssign assignable;
-    assert((assignable.thing == "init"), assignable.thing);
-    assignable = "new thing";
-    assert((assignable.thing == "new thing"), assignable.thing);
-
-    struct StructWithAssignableMember
     {
-        StructWithOpAssign child;
-    }
-
-    StructWithAssignableMember parent;
-    success = parent.setMemberByName("child", "flerp");
-    assert(success);
-    assert((parent.child.thing == "flerp"), parent.child.thing);
-
-    class ClassWithOpAssign
-    {
-        string thing = "init";
-
-        void opAssign(const string thing) //@safe pure nothrow @nogc
+        class ClassWithOpAssign
         {
-            this.thing = thing;
+            string thing = "init";
+
+            void opAssign(const string thing) //@safe pure nothrow @nogc
+            {
+                this.thing = thing;
+            }
         }
-    }
 
-    class ClassWithAssignableMember
-    {
-        ClassWithOpAssign child;
-
-        this()
+        class ClassWithAssignableMember
         {
-            child = new ClassWithOpAssign;
-        }
-    }
+            ClassWithOpAssign child;
 
-    ClassWithAssignableMember parent2 = new ClassWithAssignableMember;
-    success = parent2.setMemberByName("child", "flerp");
-    assert(success);
-    assert((parent2.child.thing == "flerp"), parent2.child.thing);
+            this()
+            {
+                child = new ClassWithOpAssign;
+            }
+        }
+
+        ClassWithAssignableMember parent = new ClassWithAssignableMember;
+        bool success;
+
+        success = parent.setMemberByName("child", "flerp");
+        assert(success);
+        assert((parent.child.thing == "flerp"), parent.child.thing);
+    }
 }
 
 
@@ -601,7 +613,7 @@ unittest
     foo.setMemberByName("d", 3.14);
 
     assert(foo.i == 42);
-    assert(foo.d = 3.14);
+    assert(foo.d == 3.14);
     ---
 
     Params:
@@ -833,6 +845,8 @@ if (isAggregateType!Thing && isMutable!Thing && isEqualityComparable!Token)
 ///
 unittest
 {
+    import std.conv : to;
+
     struct Bar
     {
         string s = "content";
@@ -844,76 +858,87 @@ unittest
         string s = "more content";
     }
 
-    Foo foo1, foo2;
-    foo1.replaceMembers("-");
-    assert(foo1 == foo2);
-
-    foo2.s = "-";
-    foo2.replaceMembers("-");
-    assert(!foo2.s.length);
-    foo2.b.s = "-";
-    foo2.replaceMembers!(Yes.recurse)("-", "herblp");
-    assert((foo2.b.s == "herblp"), foo2.b.s);
-
-    Foo foo3;
-    foo3.s = "---";
-    foo3.b.s = "---";
-    foo3.replaceMembers!(No.recurse)("---");
-    assert(!foo3.s.length);
-    assert((foo3.b.s == "---"), foo3.b.s);
-    foo3.replaceMembers!(Yes.recurse)("---");
-    assert(!foo3.b.s.length);
-
-    class Baz
     {
-        string barS = "init";
-        string barT = "*";
-        Foo f;
+        Foo foo1;
+        Foo foo2;
+
+        foo1.replaceMembers("-");
+        assert(foo1 == foo2);
+
+        foo2.s = "-";
+        foo2.replaceMembers("-");
+        assert(!foo2.s.length);
+
+        foo2.b.s = "-";
+        foo2.replaceMembers!(Yes.recurse)("-", "herblp");
+        assert((foo2.b.s == "herblp"), foo2.b.s);
     }
-
-    Baz b1 = new Baz;
-    Baz b2 = new Baz;
-
-    b1.replaceMembers("-");
-    assert((b1.barS == b2.barS), b1.barS);
-    assert((b1.barT == b2.barT), b1.barT);
-
-    b1.replaceMembers("*");
-    assert(b1.barS.length, b1.barS);
-    assert(!b1.barT.length, b1.barT);
-    assert(b1.f.s.length, b1.f.s);
-
-    b1.replaceMembers!(Yes.recurse)("more content");
-    assert(!b1.f.s.length, b1.f.s);
-
-    import std.conv : to;
-
-    struct Qux
     {
-        int i = 42;
+        Foo foo;
+        foo.s = "---";
+        foo.b.s = "---";
+
+        foo.replaceMembers!(No.recurse)("---");
+        assert(!foo.s.length);
+        assert((foo.b.s == "---"), foo.b.s);
+
+        foo.replaceMembers!(Yes.recurse)("---");
+        assert(!foo.b.s.length);
     }
-
-    Qux q;
-
-    q.replaceMembers("*");
-    assert(q.i == 42);
-
-    q.replaceMembers(43);
-    assert(q.i == 42);
-
-    q.replaceMembers(42, 99);
-    assert((q.i == 99), q.i.to!string);
-
-    struct Flerp
     {
-        string[] arr;
-    }
+        class Baz
+        {
+            string barS = "init";
+            string barT = "*";
+            Foo f;
+        }
 
-    Flerp flerp;
-    flerp.arr = [ "-" ];
-    assert(flerp.arr.length == 1);
-    flerp.replaceMembers("-");
-    assert(!flerp.arr.length);
+        Baz b1 = new Baz;
+        Baz b2 = new Baz;
+
+        b1.replaceMembers("-");
+        assert((b1.barS == b2.barS), b1.barS);
+        assert((b1.barT == b2.barT), b1.barT);
+
+        b1.replaceMembers("*");
+        assert(b1.barS.length, b1.barS);
+        assert(!b1.barT.length, b1.barT);
+        assert(b1.f.s.length, b1.f.s);
+
+        b1.replaceMembers!(Yes.recurse)("more content");
+        assert(!b1.f.s.length, b1.f.s);
+    }
+    {
+        struct Qux
+        {
+            int i = 42;
+        }
+
+        Qux q;
+
+        q.replaceMembers("*");
+        assert(q.i == 42);
+
+        q.replaceMembers(43);
+        assert(q.i == 42);
+
+        q.replaceMembers(42, 99);
+        assert((q.i == 99), q.i.to!string);
+    }
+    {
+        struct Flerp
+        {
+            string[] arr;
+        }
+
+        Flerp flerp;
+
+        flerp.arr = [ "-" ];
+        assert(flerp.arr.length == 1);
+
+        flerp.replaceMembers("-");
+        assert(!flerp.arr.length);
+    }
 }
 
 

@@ -199,24 +199,17 @@ unittest
     import std.exception  : assertThrown;
 
     {
-        enum T
-        {
-            UNSET,
-            QUERY,
-            PRIVMSG,
-            RPL_ENDOFMOTD
-        }
+        enum E { a, b, c }
 
-        static assert(Enum!T.fromString("QUERY") == T.QUERY);
-        static assert(Enum!T.fromString("PRIVMSG") == T.PRIVMSG);
-        static assert(Enum!T.fromString("RPL_ENDOFMOTD") == T.RPL_ENDOFMOTD);
-        static assert(Enum!T.fromString("UNSET") == T.UNSET);
-        assertThrown!ConvException(Enum!T.fromString("DOESNTEXIST"));  // needs @system
+        static assert(Enum!E.fromString("a") == E.a);
+        static assert(Enum!E.fromString("b") == E.b);
+        static assert(Enum!E.fromString("c") == E.c);
+        assertThrown!ConvException(Enum!E.fromString("d"));  // needs @system
 
-        static assert(Enum!T.toString(T.QUERY) == "QUERY");
-        static assert(Enum!T.toString(T.PRIVMSG) == "PRIVMSG");
-        static assert(Enum!T.toString(T.RPL_ENDOFMOTD) == "RPL_ENDOFMOTD");
-        static assert(Enum!T.toString(cast(T)1234) == "cast(T)1234");
+        static assert(Enum!E.toString(E.a) == "a");
+        static assert(Enum!E.toString(E.b) == "b");
+        static assert(Enum!E.toString(E.c) == "c");
+        static assert(Enum!E.toString(cast(E)1234) == "cast(E)1234");
     }
     {
         enum E
@@ -627,42 +620,42 @@ unittest
 {
     {
         enum num = 123_456;
-        immutable translated = num.toAlpha;
+        immutable translated = num.toAlpha();
         assert((translated == "123456"), translated);
     }
     {
         enum num = 0;
-        immutable translated = num.toAlpha;
+        immutable translated = num.toAlpha();
         assert((translated == "0"), translated);
     }
     {
         enum num = 999;
-        immutable translated = num.toAlpha;
+        immutable translated = num.toAlpha();
         assert((translated == "999"), translated);
     }
     {
         enum num = -987;
-        immutable translated = num.toAlpha;
+        immutable translated = num.toAlpha();
         assert((translated == "-987"), translated);
     }
     {
         enum num = 123;
-        immutable translated = num.toAlpha!(12, 6);
+        immutable translated = num.toAlpha!(12, 6)();
         assert((translated == "000123"), translated);
     }
     {
         enum num = -1;
-        immutable translated = num.toAlpha!(3, 3);
+        immutable translated = num.toAlpha!(3, 3)();
         assert((translated == "-001"), translated);
     }
     {
         enum num = -123_456_789_012_345L;
-        immutable translated = num.toAlpha!15;
+        immutable translated = num.toAlpha!15();
         assert((translated == "-123456789012345"), translated);
     }
     {
         enum num = long.min;
-        immutable translated = num.toAlpha;
+        immutable translated = num.toAlpha();
         assert((translated == "-9223372036854775808"), translated);
     }
 }

@@ -323,28 +323,29 @@ unittest
     import lu.uda : Separator, Quoted;
     import std.array : Appender;
 
-    struct FooSettings
     {
-        string fooasdf = "foo 1";
-        string bar = "foo 1";
-        string bazzzzzzz = "foo 1";
-        @Quoted flerrp = "hirr steff  ";
-        double pi = 3.14159;
-        @Separator(",") int[] arr = [ 1, 2, 3 ];
-        @Separator(";") string[] harbl = [ "harbl;;", ";snarbl;", "dirp" ];
-        @("|") string[] matey = [ "a", "b", "c" ];
-    }
+        struct FooSettings
+        {
+            string fooasdf = "foo 1";
+            string bar = "foo 1";
+            string bazzzzzzz = "foo 1";
+            @Quoted flerrp = "hirr steff  ";
+            double pi = 3.14159;
+            @Separator(",") int[] arr = [ 1, 2, 3 ];
+            @Separator(";") string[] harbl = [ "harbl;;", ";snarbl;", "dirp" ];
+            @("|") string[] matey = [ "a", "b", "c" ];
+        }
 
-    struct BarSettings
-    {
-        string foofdsa = "foo 2";
-        string bar = "bar 2";
-        string bazyyyyyyy = "baz 2";
-        @Quoted flarrp = "   hirrsteff";
-        double pipyon = 3.0;
-    }
+        struct BarSettings
+        {
+            string foofdsa = "foo 2";
+            string bar = "bar 2";
+            string bazyyyyyyy = "baz 2";
+            @Quoted flarrp = "   hirrsteff";
+            double pipyon = 3.0;
+        }
 
-    enum fooSerialised =
+        enum fooSerialised =
 `[Foo]
 fooasdf foo 1
 bar foo 1
@@ -355,13 +356,13 @@ arr 1,2,3
 harbl harbl\;\;;\;snarbl\;;dirp
 matey a|b|c`;
 
-    Appender!(char[]) fooSink;
-    fooSink.reserve(64);
+        Appender!(char[]) fooSink;
+        fooSink.reserve(64);
 
-    fooSink.serialise(FooSettings.init);
-    assert((fooSink[] == fooSerialised), '\n' ~ fooSink[]);
+        fooSink.serialise(FooSettings.init);
+        assert((fooSink[] == fooSerialised), '\n' ~ fooSink[]);
 
-    enum barSerialised =
+        enum barSerialised =
 `[Bar]
 foofdsa foo 2
 bar bar 2
@@ -369,53 +370,56 @@ bazyyyyyyy baz 2
 flarrp "   hirrsteff"
 pipyon 3`;
 
-    Appender!(char[]) barSink;
-    barSink.reserve(64);
+        Appender!(char[]) barSink;
+        barSink.reserve(64);
 
-    barSink.serialise(BarSettings.init);
-    assert((barSink[] == barSerialised), '\n' ~ barSink[]);
+        barSink.serialise(BarSettings.init);
+        assert((barSink[] == barSerialised), '\n' ~ barSink[]);
 
-    // try two at once
-    Appender!(char[]) bothSink;
-    bothSink.reserve(128);
-    bothSink.serialise(FooSettings.init, BarSettings.init);
-    assert(bothSink[] == fooSink[] ~ "\n\n" ~ barSink[]);
-
-    class C
-    {
-        int i;
-        bool b;
+        // try two at once
+        Appender!(char[]) bothSink;
+        bothSink.reserve(128);
+        bothSink.serialise(FooSettings.init, BarSettings.init);
+        assert(bothSink[] == fooSink[] ~ "\n\n" ~ barSink[]);
     }
+    {
+        class C
+        {
+            int i;
+            bool b;
+        }
 
-    C c = new C;
-    c.i = 42;
-    c.b = true;
+        C c = new C;
+        c.i = 42;
+        c.b = true;
 
-    enum cSerialised =
+        enum cSerialised =
 `[C]
 i 42
 b true`;
 
-    Appender!(char[]) cSink;
-    cSink.reserve(128);
-    cSink.serialise(c);
-    assert((cSink[] == cSerialised), '\n' ~ cSink[]);
-
-    enum Letters { abc, def, ghi, }
-
-    struct Struct
-    {
-        Letters let = Letters.def;
+        Appender!(char[]) cSink;
+        cSink.reserve(128);
+        cSink.serialise(c);
+        assert((cSink[] == cSerialised), '\n' ~ cSink[]);
     }
+    {
+        enum Letters { abc, def, ghi, }
 
-    enum enumTestSerialised =
+        struct Struct
+        {
+            Letters let = Letters.def;
+        }
+
+        enum enumTestSerialised =
 `[Struct]
 let def`;
 
-    Struct st;
-    Appender!(char[]) enumTestSink;
-    enumTestSink.serialise(st);
-    assert((enumTestSink[] == enumTestSerialised), '\n' ~ enumTestSink[]);
+        Struct st;
+        Appender!(char[]) enumTestSink;
+        enumTestSink.serialise(st);
+        assert((enumTestSink[] == enumTestSerialised), '\n' ~ enumTestSink[]);
+    }
 }
 
 
@@ -844,110 +848,115 @@ naN     !"¤%&/`;
     string[][string] missing;
     string[][string] invalid;
 
-    FooSettings foo;
-    serialisedFileContents
-        .splitter("\n")
-        .deserialise(missing, invalid, foo);
-
-    with (foo)
     {
-        import std.math : isClose;
 
-        assert((i == 42), i.text);
-        assert((ia == [ 1, 2, -3, 4, 5 ]), ia.text);
-        assert((s == "hello world!"), s);
-        assert((sa == [ "hello", "world", "!" ]), sa.text);
-        assert(b);
-        assert((ba == [ true, false, true ]), ba.text);
-        assert((f == 3.14f), f.text);
-        assert((fa == [ 0.0f, 1.1f, -2.2f, 3.3f ]), fa.text);
-        assert((d == 99.9), d.text);
+        FooSettings foo;
+        serialisedFileContents
+            .splitter("\n")
+            .deserialise(missing, invalid, foo);
 
-        // rounding errors with LDC on Windows
-        assert(da[0].isClose(99.9999), da[0].text);
-        assert(da[1].isClose(0.0001), da[1].text);
-        assert(da[2].isClose(-1.0), da[2].text);
-
-        with (FooSettings.Bar)
+        with (foo)
         {
-            assert((bar == oorgle), bar.text);
-            assert((bara == [ blaawp, oorgle, blaawp ]), bara.text);
+            import std.math : isClose;
+
+            assert((i == 42), i.text);
+            assert((ia == [ 1, 2, -3, 4, 5 ]), ia.text);
+            assert((s == "hello world!"), s);
+            assert((sa == [ "hello", "world", "!" ]), sa.text);
+            assert(b);
+            assert((ba == [ true, false, true ]), ba.text);
+            assert((f == 3.14f), f.text);
+            assert((fa == [ 0.0f, 1.1f, -2.2f, 3.3f ]), fa.text);
+            assert((d == 99.9), d.text);
+
+            // rounding errors with LDC on Windows
+            assert(da[0].isClose(99.9999), da[0].text);
+            assert(da[1].isClose(0.0001), da[1].text);
+            assert(da[2].isClose(-1.0), da[2].text);
+
+            with (FooSettings.Bar)
+            {
+                assert((bar == oorgle), bar.text);
+                assert((bara == [ blaawp, oorgle, blaawp ]), bara.text);
+            }
+        }
+
+        import std.algorithm.searching : canFind;
+
+        assert("Foo" in missing);
+        assert(missing["Foo"].canFind("missing"));
+        assert(!missing["Foo"].canFind("commented"));
+        assert(!missing["Foo"].canFind("slashed"));
+        assert("Foo" in invalid);
+        assert(invalid["Foo"].canFind("invalid"));
+    }
+    {
+        struct DifferentSection
+        {
+            string ignored;
+            string because;
+            int nil;
+            string naN;
+        }
+
+        // Can read other structs from the same file
+
+        DifferentSection diff;
+        serialisedFileContents
+            .splitter("\n")
+            .deserialise(missing, invalid, diff);
+
+        with (diff)
+        {
+            assert((ignored == "completely"), ignored);
+            assert((because == "no DifferentSection struct was passed"), because);
+            assert((nil == 5), nil.text);
+            assert((naN == `!"¤%&/`), naN);
         }
     }
-
-    import std.algorithm.searching : canFind;
-
-    assert("Foo" in missing);
-    assert(missing["Foo"].canFind("missing"));
-    assert(!missing["Foo"].canFind("commented"));
-    assert(!missing["Foo"].canFind("slashed"));
-    assert("Foo" in invalid);
-    assert(invalid["Foo"].canFind("invalid"));
-
-    struct DifferentSection
     {
-        string ignored;
-        string because;
-        int nil;
-        string naN;
-    }
+        enum Letters { abc, def, ghi }
 
-    // Can read other structs from the same file
+        struct StructWithSuffixToStrip
+        {
+            Letters lt = Letters.def;
+        }
 
-    DifferentSection diff;
-    serialisedFileContents
-        .splitter("\n")
-        .deserialise(missing, invalid, diff);
-
-    with (diff)
-    {
-        assert((ignored == "completely"), ignored);
-        assert((because == "no DifferentSection struct was passed"), because);
-        assert((nil == 5), nil.text);
-        assert((naN == `!"¤%&/`), naN);
-    }
-
-    enum Letters { abc, def, ghi, }
-
-    struct Struct
-    {
-        Letters lt = Letters.def;
-    }
-
-    enum configContents =
+        enum configContents =
 `[Struct]
 lt ghi
 `;
-    Struct st;
-    configContents
-        .splitter("\n")
-        .deserialise(missing, invalid, st);
+        StructWithSuffixToStrip st;
+        configContents
+            .splitter("\n")
+            .deserialise!("WithSuffixToStrip")(missing, invalid, st);
 
-    assert(st.lt == Letters.ghi);
-
-    class Class
-    {
-        enum Bar { blaawp = 5, oorgle = -1 }
-        int i;
-        string s;
-        bool b;
-        float f;
-        double d;
-        Bar bar;
-        string omitted;
-
-        @Separator(",")
-        {
-            int[] ia;
-            string[] sa;
-            bool[] ba;
-            float[] fa;
-            double[] da;
-            Bar[] bara;
-        }
+        assert(st.lt == Letters.ghi);
     }
+    {
+        class Class
+        {
+            enum Bar { blaawp = 5, oorgle = -1 }
+            int i;
+            string s;
+            bool b;
+            float f;
+            double d;
+            Bar bar;
+            string omitted;
 
-    enum serialisedFileContentsClass =
+            @Separator(",")
+            {
+                int[] ia;
+                string[] sa;
+                bool[] ba;
+                float[] fa;
+                double[] da;
+                Bar[] bara;
+            }
+        }
+
+        enum serialisedFileContentsClass =
 `[Class]
 i       42
 ia      1,2,-3,4,5
@@ -968,34 +977,35 @@ da      99.9999,0.0001,-1
 bar     oorgle
 bara    blaawp,oorgle,blaawp`;
 
-    Class c = new Class;
-    serialisedFileContentsClass
-        .splitter("\n")
-        .deserialise(missing, invalid, c);
+        Class c = new Class;
+        serialisedFileContentsClass
+            .splitter("\n")
+            .deserialise(missing, invalid, c);
 
-    with (c)
-    {
-        import std.math : isClose;
-
-        assert((i == 42), i.text);
-        assert((ia == [ 1, 2, -3, 4, 5 ]), ia.text);
-        assert((s == "hello world!"), s);
-        assert((sa == [ "hello", "world", "!" ]), sa.text);
-        assert(b);
-        assert((ba == [ true, false, true ]), ba.text);
-        assert((f == 3.14f), f.text);
-        assert((fa == [ 0.0f, 1.1f, -2.2f, 3.3f ]), fa.text);
-        assert((d == 99.9), d.text);
-
-        // rounding errors with LDC on Windows
-        assert(da[0].isClose(99.9999), da[0].text);
-        assert(da[1].isClose(0.0001), da[1].text);
-        assert(da[2].isClose(-1.0), da[2].text);
-
-        with (Class.Bar)
+        with (c)
         {
-            assert((bar == oorgle), b.text);
-            assert((bara == [ blaawp, oorgle, blaawp ]), bara.text);
+            import std.math : isClose;
+
+            assert((i == 42), i.text);
+            assert((ia == [ 1, 2, -3, 4, 5 ]), ia.text);
+            assert((s == "hello world!"), s);
+            assert((sa == [ "hello", "world", "!" ]), sa.text);
+            assert(b);
+            assert((ba == [ true, false, true ]), ba.text);
+            assert((f == 3.14f), f.text);
+            assert((fa == [ 0.0f, 1.1f, -2.2f, 3.3f ]), fa.text);
+            assert((d == 99.9), d.text);
+
+            // rounding errors with LDC on Windows
+            assert(da[0].isClose(99.9999), da[0].text);
+            assert(da[1].isClose(0.0001), da[1].text);
+            assert(da[2].isClose(-1.0), da[2].text);
+
+            with (Class.Bar)
+            {
+                assert((bar == oorgle), b.text);
+                assert((bara == [ blaawp, oorgle, blaawp ]), bara.text);
+            }
         }
     }
 }

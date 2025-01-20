@@ -350,7 +350,7 @@ conn.server.address = "address.tld";
 conn.server.port = 1337;
 `, '\n' ~ sink[]);
 
-    sink = typeof(sink).init;
+    sink.clear();
 
     sink.putDelta!(Yes.asserts)(Connection.init, conn, 0, "conn");
 
@@ -380,7 +380,7 @@ assert((conn.server.port == 1337), conn.server.port.to!string);
     f2.b = false;
     f2.c = '#';
 
-    sink = typeof(sink).init;
+    sink.clear();
 
     sink.putDelta!(No.asserts)(f1, f2);
     assert(sink[] ==
@@ -389,7 +389,7 @@ b = false;
 c = '#';
 `, '\n' ~ sink[]);
 
-    sink = typeof(sink).init;
+    sink.clear();
 
     sink.putDelta!(Yes.asserts)(f1, f2);
     assert(sink[] ==
@@ -398,7 +398,7 @@ assert(!b);
 assert((c == '#'), c.to!string);
 `, '\n' ~ sink[]);
 
-    sink = typeof(sink).init;
+    sink.clear();
 
     {
         struct S
@@ -427,7 +427,7 @@ b = true;
 child.i = 42;
 `, '\n' ~ sink[]);
 
-        sink = typeof(sink).init;
+        sink.clear();
 
         sink.putDelta!(Yes.asserts)(c1, c2);
         assert(sink[] ==
@@ -450,7 +450,7 @@ assert((child.i == 42), child.i.to!string);
         b2.sarr = [ "hello", string.init, "world" ];
         b2.carr = [ 'a', char.init ];
 
-        sink = typeof(sink).init;
+        sink.clear();
 
         sink.putDelta(b1, b2);
         assert(sink[] ==
@@ -462,7 +462,7 @@ sarr[2] = "world";
 carr[0] = 'a';
 `);
 
-        sink = typeof(sink).init;
+        sink.clear();
 
         sink.putDelta!(Yes.asserts)(b1, b2);
         assert(sink[] ==
