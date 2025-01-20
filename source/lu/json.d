@@ -761,7 +761,7 @@ unittest
     Helper to get a value from a JSON object or return a fallback value if it
     doesn't exist.
 
-    TODO: Move to [lu.json].
+    Limitations: Only work on [std.json.JSONType.object]-type [std.json.JSONValue|JSONValue]s.
 
     Params:
         json = [std.json.JSONValue|JSONValue] object to extract from.
@@ -772,7 +772,7 @@ unittest
         The value found in the JSON object, or the fallback value if the key
         was not found.
  +/
-static auto getOrFallback(V = string)
+static V getOrFallback(V = string)
     (const JSONValue json,
     const string key,
     const V fallback = V.init) pure @safe
@@ -796,6 +796,11 @@ static auto getOrFallback(V = string)
     else static if (is(V == bool))
     {
         return valuePtr ? (*valuePtr).boolean : fallback;
+    }
+    else static if (is(V == JSONValue))
+    {
+        // Wise?
+        return valuePtr ? *valuePtr : fallback;
     }
     else
     {
@@ -836,16 +841,16 @@ unittest
             assert((value == 123L), value.to!string);
         }
         {
-            const value = getOrFallback!long(json, "456");
-            assert((value == 456L), value.to!string);
+            const int value = getOrFallback!int(json, "456");
+            assert((value == 456), value.to!string);
         }
         {
             const value = getOrFallback!long(json, "789");
             assert((value == 0L), value.to!string);
         }
         {
-            const value = getOrFallback!long(json, "012", 999);
-            assert((value == 999L), value.to!string);
+            const short value = getOrFallback!short(json, "012", 999);
+            assert((value == 999), value.to!string);
         }
     }
 }
