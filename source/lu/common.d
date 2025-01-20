@@ -240,7 +240,10 @@ auto sharedDomains(
 {
     if (!one.length || !other.length) return 0;
 
-    static uint numDomains(const char[] one, const char[] other, const bool caseSensitive)
+    static uint numDomains(
+        const char[] one,
+        const char[] other,
+        const bool caseSensitive)
     {
         uint dots;
         double doubleDots;

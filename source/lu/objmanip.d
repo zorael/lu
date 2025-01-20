@@ -131,8 +131,12 @@ in (memberToSet.length, "Tried to set member by name but no member string was gi
 
                 case memberstring:
                 {
-                    import std.traits : isAggregateType, isArray,
-                        isAssociativeArray, isPointer, isSomeString;
+                    import std.traits :
+                        isAggregateType,
+                        isArray,
+                        isAssociativeArray,
+                        isPointer,
+                        isSomeString;
 
                     static if (isAggregateType!T)
                     {
