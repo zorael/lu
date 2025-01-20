@@ -732,7 +732,7 @@ in ((num >= 0), "Negative number of tabs passed to `tabs`")
     import std.algorithm.iteration : joiner;
     import std.array : array;
 
-    enum char[spaces] tab = ' '.repeat.takeExactly(spaces).array;
+    static immutable char[spaces] tab = ' '.repeat.takeExactly(spaces).array;
     return tab[].repeat.takeExactly(num).joiner;
 }
 
