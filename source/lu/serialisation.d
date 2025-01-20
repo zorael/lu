@@ -147,13 +147,16 @@ if (Things.length > 1)
     ---
 
     Params:
+        suffixToStrip = Substring to strip off the end of struct names when
+            writing them to the output range. Defaults to "Settings". May be empty.
         sink = Reference output range to write to, usually an
             [std.array.Appender|Appender].
         thing = Object to serialise.
  +/
-void serialise(Sink, QualThing)(auto ref Sink sink, auto ref QualThing thing)
+void serialise(string suffixToStrip = "Settings", Sink, QualThing)
+    (auto ref Sink sink,
+    auto ref QualThing thing)
 {
-    import lu.string : stripSuffix;
     import std.format : format, formattedWrite;
     import std.meta : allSatisfy;
     import std.range.primitives : isOutputRange;
@@ -179,7 +182,15 @@ void serialise(Sink, QualThing)(auto ref Sink sink, auto ref QualThing thing)
 
     alias Thing = Unqual!QualThing;
 
-    sink.formattedWrite("[%s]\n", Thing.stringof.stripSuffix("Settings"));
+    static if (suffixToStrip.length)
+    {
+        import lu.string : stripSuffix;
+        sink.formattedWrite("[%s]\n", Thing.stringof.stripSuffix(suffixToStrip));
+    }
+    else
+    {
+        sink.formattedWrite("[%s]\n", Thing.stringof);
+    }
 
     foreach (immutable i, member; thing.tupleof)
     {
@@ -535,6 +546,8 @@ private string serialiseArrayImpl(T)(const auto ref T array, const Serialisation
     ---
 
     Params:
+        suffixToStrip = Substring to strip off the end of struct names when
+            reading them from the input range. Defaults to "Settings". May be empty.
         range = Input range from which to read the serialised text.
         missingEntries = Out reference of an associative array of string arrays
             of expected entries that were missing.
@@ -545,13 +558,13 @@ private string serialiseArrayImpl(T)(const auto ref T array, const Serialisation
 
     Throws: [DeserialisationException] if there were bad lines.
  +/
-void deserialise(Range, Things...)
+void deserialise(string suffixToStrip = "Settings", Range, Things...)
     (auto ref Range range,
     out string[][string] missingEntries,
     out string[][string] invalidEntries,
     ref Things things) pure
 {
-    import lu.string : stripSuffix, stripped;
+    import lu.string : stripped;
     import lu.traits : isSerialisable, udaIndexOf;
     import lu.uda : Unserialisable;
     import std.format : format;
@@ -675,10 +688,19 @@ void deserialise(Range, Things...)
                 import lu.uda : CannotContainComments;
                 import std.traits : Unqual;
 
-                alias T = Unqual!(typeof(thing));
-                enum settingslessT = T.stringof.stripSuffix("Settings").idup;
+                alias Thing = Unqual!(typeof(thing));
 
-                if (section != settingslessT) continue; // thingloop;
+                static if (suffixToStrip.length)
+                {
+                    import lu.string : stripSuffix;
+                    enum thingTypeName = Thing.stringof.stripSuffix(suffixToStrip);
+                }
+                else
+                {
+                    enum thingTypeName = Thing.stringof;
+                }
+
+                if (section != thingTypeName) continue; // thingloop;
                 processedThings[i] = true;
 
                 immutable result = splitEntryValue(line.strippedLeft);
@@ -742,7 +764,16 @@ void deserialise(Range, Things...)
     {
         foreach (immutable entry, immutable encountered; entryMatches)
         {
-            immutable sectionName = encounteredSection.stripSuffix("Settings");
+            static if (suffixToStrip.length)
+            {
+                import lu.string : stripSuffix;
+                immutable sectionName = encounteredSection.stripSuffix("Settings");
+            }
+            else
+            {
+                alias sectionName = encounteredSection;
+            }
+
             if (!encountered) missingEntries[sectionName] ~= entry;
         }
     }
