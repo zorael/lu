@@ -132,7 +132,7 @@ if (is(E == enum))
             `cast(E)1234` if an invalid value of `1234` was passed, cast to type `E`.
 
         See_Also:
-            [enumToString]
+            [toString]
      +/
     string toString(E value) pure //nothrow  // infer nothrow
     {
@@ -239,9 +239,16 @@ unittest
 }
 
 
-// enumToString
+// toString
 /++
-    Convenience wrapper around [Enum] that infers the type of the passed enum member.
+    Convenience wrapper around [Enum.toString] that infers the type of the enum
+    to instantiate it with from the passed enum member.
+
+    Limitations:
+        Does not work with enums whose members' values cannot be used in a
+        switch statement. This includes enums with members that share values
+        with other members, as well as enums of values that are non-string
+        arrays or other complex types.
 
     Params:
         value = Enum member whose string name we want.
@@ -252,7 +259,7 @@ unittest
     See_Also:
         [Enum]
  +/
-auto enumToString(E)(const E value)
+auto toString(E)(const E value)
 if (is(E == enum))
 {
     return Enum!E.toString(value);
@@ -261,21 +268,24 @@ if (is(E == enum))
 ///
 unittest
 {
-    enum T
-    {
-        UNSET,
-        QUERY,
-        PRIVMSG,
-        RPL_ENDOFMOTD
-    }
+    enum E { a, b, c }
 
-    with (T)
-    {
-        static assert(enumToString(QUERY) == "QUERY");
-        static assert(enumToString(PRIVMSG) == "PRIVMSG");
-        static assert(enumToString(RPL_ENDOFMOTD) == "RPL_ENDOFMOTD");
-    }
+    static assert(E.a.toString() == "a");
+    static assert(E.b.toString() == "b");
+    static assert(E.c.toString() == "c");
 }
+
+
+// enumToString
+/++
+    Compatibility alias to [toString].
+
+    See_Also:
+        [toString]
+        [Enum]
+ +/
+//deprecated("Use `lu.conv.toString` instead")
+alias enumToString = toString;
 
 
 // numFromHex
