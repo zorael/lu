@@ -83,8 +83,11 @@ enum MeldingStrategy
 
 /++
     UDA conveying that this member's value cannot or should not be melded.
+
+    See_Also:
+        [lu.uda.Meldable]
  +/
-enum Unmeldable;
+/*public*/ import lu.uda : Unmeldable;
 
 
 // meldInto

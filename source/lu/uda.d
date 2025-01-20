@@ -42,3 +42,9 @@ enum CannotContainComments;
     UDA conveying that this member's value must be quoted when serialised.
  +/
 enum Quoted;
+
+
+/++
+    UDA conveying that this member's value cannot or should not be melded.
+ +/
+enum Unmeldable;
