@@ -96,7 +96,7 @@ import lu.uda : CannotContainComments, Quoted, Separator, Unserialisable;
             their .ini file-like format).
         things = Variadic list of objects to serialise.
  +/
-void serialise(Sink, Things...)(auto ref Sink sink, auto ref Things things)
+void serialise(string suffixToStrip = "Settings", Sink, Things...)(auto ref Sink sink, auto ref Things things)
 if (Things.length > 1)
 {
     import std.meta : allSatisfy;
@@ -118,7 +118,7 @@ if (Things.length > 1)
     foreach (immutable i, const thing; things)
     {
         if (i > 0) sink.put('\n');
-        sink.serialise(thing);
+        sink.serialise!suffixToStrip(thing);
     }
 }
 
@@ -771,7 +771,7 @@ void deserialise(string suffixToStrip = "Settings", Range, Things...)
             static if (suffixToStrip.length)
             {
                 import lu.string : stripSuffix;
-                immutable sectionName = encounteredSection.stripSuffix("Settings");
+                immutable sectionName = encounteredSection.stripSuffix(suffixToStrip);
             }
             else
             {
