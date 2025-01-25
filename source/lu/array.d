@@ -1,5 +1,5 @@
 /++
-    Some array utilities. Also a simple truth map.
+    Some array utilities. Also a simple truth table.
 
     Example:
     ---
