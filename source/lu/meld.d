@@ -629,7 +629,7 @@ unittest
 
         bools2.meldInto(inverted);
         assert(!inverted.a);
-        assert(inverted.b);
+        assert( inverted.b);
         inverted = backupInverted;
 
         bools2.meldInto!(MeldingStrategy.overwriting)(inverted);

@@ -884,7 +884,7 @@ naN     !"¤%&/`;
         import std.algorithm.searching : canFind;
 
         assert("Foo" in missing);
-        assert(missing["Foo"].canFind("missing"));
+        assert( missing["Foo"].canFind("missing"));
         assert(!missing["Foo"].canFind("commented"));
         assert(!missing["Foo"].canFind("slashed"));
         assert("Foo" in invalid);

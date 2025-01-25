@@ -418,11 +418,10 @@ unittest
     void foo2(string, int);
     void foo3(bool, bool, bool);
 
-    static assert(TakesParams!(foo));//, AliasSeq!()));
-    static assert(TakesParams!(foo1, string));
-    static assert(TakesParams!(foo2, string, int));
-    static assert(TakesParams!(foo3, bool, bool, bool));
-
+    static assert( TakesParams!(foo));//, AliasSeq!()));
+    static assert( TakesParams!(foo1, string));
+    static assert( TakesParams!(foo2, string, int));
+    static assert( TakesParams!(foo3, bool, bool, bool));
     static assert(!TakesParams!(foo, string));
     static assert(!TakesParams!(foo1, string, int));
     static assert(!TakesParams!(foo2, bool, bool, bool));
@@ -546,13 +545,13 @@ unittest
     enum E { foo }
     E e;
 
-    static assert(isSerialisable!i);
-    static assert(isSerialisable!c);
+    static assert( isSerialisable!i);
+    static assert( isSerialisable!c);
     static assert(!isSerialisable!c2); // should static arrays pass?
     static assert(!isSerialisable!S);
     static assert(!isSerialisable!C);
     static assert(!isSerialisable!E);
-    static assert(isSerialisable!e);
+    static assert( isSerialisable!e);
 }
 
 
@@ -571,9 +570,9 @@ enum isTrulyString(S) = is(S == string) || is(S == dstring) || is(S == wstring);
 ///
 unittest
 {
-    static assert(isTrulyString!string);
-    static assert(isTrulyString!dstring);
-    static assert(isTrulyString!wstring);
+    static assert( isTrulyString!string);
+    static assert( isTrulyString!dstring);
+    static assert( isTrulyString!wstring);
     static assert(!isTrulyString!(char[]));
     static assert(!isTrulyString!(dchar[]));
     static assert(!isTrulyString!(wchar[]));
@@ -597,10 +596,10 @@ unittest
     static assert(!isMerelyArray!string);
     static assert(!isMerelyArray!dstring);
     static assert(!isMerelyArray!wstring);
-    static assert(isMerelyArray!(char[]));
-    static assert(isMerelyArray!(dchar[]));
-    static assert(isMerelyArray!(wchar[]));
-    static assert(isMerelyArray!(int[5]));
+    static assert( isMerelyArray!(char[]));
+    static assert( isMerelyArray!(dchar[]));
+    static assert( isMerelyArray!(wchar[]));
+    static assert( isMerelyArray!(int[5]));
 }
 
 
@@ -804,12 +803,11 @@ enum isMutableArrayOfImmutables(Array : Element[], Element) =
 ///
 unittest
 {
-    static assert(isMutableArrayOfImmutables!string);
-    static assert(isMutableArrayOfImmutables!wstring);
-    static assert(isMutableArrayOfImmutables!dstring);
+    static assert( isMutableArrayOfImmutables!string);
+    static assert( isMutableArrayOfImmutables!wstring);
+    static assert( isMutableArrayOfImmutables!dstring);
     static assert(!isMutableArrayOfImmutables!(immutable(string)));
-
-    static assert(isMutableArrayOfImmutables!(immutable(int)[]));
+    static assert( isMutableArrayOfImmutables!(immutable(int)[]));
     static assert(!isMutableArrayOfImmutables!(immutable(int[])));
 }
 

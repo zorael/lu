@@ -1829,13 +1829,13 @@ unittest
     assert(aa[5] == "five");
 
     auto keys = aa.keys;
-    assert(keys.canFind(1));
-    assert(keys.canFind(5));
+    assert( keys.canFind(1));
+    assert( keys.canFind(5));
     assert(!keys.canFind(6));
 
     auto values = aa.values;
-    assert(values.canFind("one"));
-    assert(values.canFind("four"));
+    assert( values.canFind("one"));
+    assert( values.canFind("four"));
     assert(!values.canFind("six"));
 
     aa.rehash();
@@ -2259,8 +2259,8 @@ public:
         aa[2] = 99;
 
         auto keys = aa.keys;
-        assert(keys.canFind(1));
-        assert(keys.canFind(2));
+        assert( keys.canFind(1));
+        assert( keys.canFind(2));
         assert(!keys.canFind(3));
         ---
 
@@ -2287,8 +2287,8 @@ public:
         aa[2] = 99;
 
         auto values = aa.values;
-        assert(values.canFind(42));
-        assert(values.canFind(99));
+        assert( values.canFind(42));
+        assert( values.canFind(99));
         assert(!values.canFind(0));
         ---
 
@@ -2589,13 +2589,13 @@ unittest
         assert(aa.length == 2);
 
         auto keys = aa.keys;
-        assert(keys.canFind(1));
-        assert(keys.canFind(2));
+        assert( keys.canFind(1));
+        assert( keys.canFind(2));
         assert(!keys.canFind(3));
 
         auto values = aa.values;
-        assert(values.canFind(42));
-        assert(values.canFind(99));
+        assert( values.canFind(42));
+        assert( values.canFind(99));
         assert(!values.canFind(0));
 
         assert(aa.get(1, 0) == 42);
