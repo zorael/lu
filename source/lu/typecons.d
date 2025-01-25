@@ -11,15 +11,24 @@ module lu.typecons;
 
 private:
 
+import std.typecons : Flag, No, Yes;
+
 public:
 
 
-// UnderscoreOpDispatcher
+// OpDispatcher
 /++
     Mixin template generating an `opDispatch` redirecting calls to members whose
-    names match the passed variable string but with an underscore prepended.
+    names match the passed variable string but with a given token string in
+    the front or at the end of the name.
+
+    Params:
+        token = The token to look for as part of the variable name, either in
+            the front of it or at the end of it.
+        inFront = Whether to look for the token in front of the variable name
+            instead of at the end of it; defaults to `Yes.inFront`.
  +/
-mixin template UnderscoreOpDispatcher()
+mixin template OpDispatcher(string token, Flag!"inFront" inFront = Yes.inFront)
 {
     version(unittest)
     {
@@ -27,6 +36,14 @@ mixin template UnderscoreOpDispatcher()
         mixin MixinConstraints!(
             (MixinScope.struct_ | MixinScope.class_ | MixinScope.union_),
             typeof(this).stringof);
+    }
+
+    static if (!token.length)
+    {
+        import std.format : format;
+        enum pattern = "Empty token passed to `%s.PrefixOpDispatcher`";
+        enum message = pattern.format(typeof(this).stringof);
+        static assert(0, message);
     }
 
     /++
@@ -51,7 +68,10 @@ mixin template UnderscoreOpDispatcher()
             static assert(0, message);
         }
 
-        enum realVar = '_' ~ var;
+        enum realVar = inFront ?
+            token ~ var :
+            var ~ token;
+
         alias V = typeof(mixin(realVar));
 
         static if (isAssociativeArray!V)
@@ -90,7 +110,10 @@ mixin template UnderscoreOpDispatcher()
             static assert(0, message);
         }
 
-        enum realVar = '_' ~ var;
+        enum realVar = inFront ?
+            token ~ var :
+            var ~ token;
+
         return mixin(realVar);
     }
 }
@@ -99,7 +122,7 @@ mixin template UnderscoreOpDispatcher()
 unittest
 {
     {
-        struct Foo
+        static struct Foo
         {
             int _i;
             string _s;
@@ -107,7 +130,7 @@ unittest
             string[] _add;
             alias wordList = _add;
 
-            mixin UnderscoreOpDispatcher;
+            mixin OpDispatcher!("_", Yes.inFront);
         }
 
         Foo f;
@@ -133,25 +156,87 @@ unittest
             .i(9001)
             .s("world")
             .b(false)
-            .add("hello")
-            .add("world");
+            .add("hi")
+            .add("there");
 
         assert(f2.i == 9001);
         assert(f2.s == "world");
         assert(!f2.b);
-        assert(f2.wordList == [ "hello", "world" ]);
+        assert(f2.wordList == [ "hi", "there" ]);
     }
     {
-        struct Bar
+        static struct  Foo
         {
-            string[string] _aa;
+            int i_private;
+            string s_private;
+            bool b_private = true;
+            string[] add_private;
+            alias wordList = add_private;
 
-            mixin UnderscoreOpDispatcher;
+            mixin OpDispatcher!("_private", No.inFront);
         }
 
-        Bar bar;
-        bar.aa = [ "hello" : "world" ];
-        bar.aa = [ "foo" : "bar" ];
-        assert(bar.aa == [ "hello" : "world", "foo" : "bar"]);
+        Foo f;
+        f.i = 9;
+        f.s = "foo";
+        f.b = false;
+        f.add("bar");
+        f.add("baz");
+
+        assert(f.i == 9);
+        assert(f.s == "foo");
+        assert(!f.b);
+        assert(f.wordList == [ "bar", "baz" ]);
     }
+}
+
+
+// UnderscoreOpDispatcher
+/++
+    Mixin template generating an `opDispatch` redirecting calls to members whose
+    names match the passed variable string but with an underscore prepended to
+    the name.
+
+    This is a convenience mixin for `OpDispatcher!("_", Yes.inFront)`.
+
+    Example:
+    ---
+    struct Bar
+    {
+        string _s;
+        int _i;
+        bool _b;
+        string[string] _aa;
+
+        mixin UnderscoreOpDispatcher;
+    }
+    ---
+
+    See_Also:
+        [OpDispatcher]
+ +/
+mixin template UnderscoreOpDispatcher()
+{
+    mixin OpDispatcher!("_", Yes.inFront);
+}
+
+///
+unittest
+{
+    static struct Bar
+    {
+        string _s;
+        int _i;
+        bool _b = true;
+        string[string] _aa;
+        mixin UnderscoreOpDispatcher;
+    }
+
+    Bar bar;
+    bar.s = "hi there";
+    bar.i = -123;
+    bar.b = false;
+    bar.aa = [ "hello" : "world" ];
+    bar.aa = [ "foo" : "bar" ];
+    assert(bar.aa == [ "hello" : "world", "foo" : "bar"]);
 }
