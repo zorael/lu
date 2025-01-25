@@ -32,7 +32,7 @@
     enum E { a, b, c, d }
 
     const enumTable = truthTable(E.b, E.c);
-    assert((enumTable.length == 4));
+    assert((enumTable.length == 3));
     assert(enumTable == [ false, true, true, false ]);
 
     static staticTable = truthTable!(Yes.fullEnumRange, E.a, E.b);
@@ -447,11 +447,11 @@ unittest
         static assert((table == [ false, true, true, true, false ]), table.to!string);
         static assert((table == [ 0, 1, 1, 1, 0 ]), table.to!string);
 
-        assert(!table[E.a]);
-        assert( table[E.b]);
-        assert( table[E.c]);
-        assert( table[E.d]);
-        assert(!table[E.e]);
+        static assert(!table[E.a]);
+        static assert( table[E.b]);
+        static assert( table[E.c]);
+        static assert( table[E.d]);
+        static assert(!table[E.e]);
     }
     {
         static immutable table = truthTable!(No.fullEnumRange)(E.a, E.b);
@@ -461,8 +461,8 @@ unittest
         static assert((table == [ true, true ]), table.to!string);
         static assert((table == [ 1, 1 ]), table.to!string);
 
-        assert(table[E.a]);
-        assert(table[E.b]);
+        static assert(table[E.a]);
+        static assert(table[E.b]);
     }
 }
 
@@ -588,7 +588,7 @@ unittest
     enum E { a, b, c, d, e }
 
     const table = truthTable!(E.b, E.c);
-    assert(is(typeof(table) : bool[__traits(allMembers, E).length]);
+    assert(is(typeof(table) : bool[__traits(allMembers, E).length]));
 
     assert(!table[E.a]);
     assert( table[E.b]);

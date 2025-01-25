@@ -6,7 +6,9 @@ Miscellaneous general-purpose library modules. Nothing extraordinary.
 
 API documentation can be found [here](https://zorael.github.io/lu).
 
-* [`meld.d`](source/lu/meld.d): Combining two structs/classes of the same type into a union set of their members' values. Also works with arrays and associative arrays. A melding strategy can be supplied as a template parameter for fine-tuning behaviour, but in general non-`.init` values overwrite `.init` ones.
+#### [`meld.d`](source/lu/meld.d)
+
+Combining two structs/classes of the same type into a union set of their members' values. Also works with arrays and associative arrays. A melding strategy can be supplied as a template parameter for fine-tuning behaviour, but in general non-`.init` values overwrite `.init` ones.
 
 ```d
 // Aggregate
@@ -40,7 +42,9 @@ sourceAA.meldInto(targetAA);
 assert(targetAA == [ "a":"a", "b":"b", "c":"c", "d":"d" ]);
 ```
 
-* [`objmanip.d`](source/lu/objmanip.d): Struct/class manipulation, such as
+#### [`objmanip.d`](source/lu/objmanip.d)
+
+Struct/class manipulation, such as
 setting a member field by its string name. Originally intended to only accept string values but now works with any type. When the passed value doesn't implicitly match, `std.conv.to` is used to coerce.
 
 ```d
@@ -67,13 +71,16 @@ success = foo.setMemberByName("b", "true");
 assert(success);
 assert(foo.b == true);
 
+success = foo.setMemberByName("b", "foo");
+assert(!success);
+
 success = foo.setMemberByName("pi", "3.15");
 assert(!success);
 ```
 
-* [`deltastrings.d`](source/lu/deltastrings.d): Expressing the differences
-between two instances of a struct or class of the same type into an output
-range, as either assignment statements or assert statements.
+#### [`deltastrings.d`](source/lu/deltastrings.d)
+
+Expressing the difference between two instances of a struct or class of the same type, as either assignment statements or assert statements. The output is written to an output range.
 
 ```d
 Appender!(char[]) sink;  // or any other output range
@@ -126,10 +133,14 @@ assert((altered.i == 42), altered.i.to!string);
 // A compatibility alias `formatDeltaInto` remains available for now
 ```
 
-* [`typecons.d`](source/lu/typecons.d): The `UnderscoreOpDispatcher` mixin
+#### [`typecons.d`](source/lu/typecons.d)
+
+The `OpDispatcher` mixin
 template. When mixed into some aggregate, it generates an `opDispatch` that
-allows for accessing and mutating any (potentially private) members of it whose
-names start with an underscore. (Dynamic) arrays are appended to.
+allows for accessing and mutating any members of it whose
+names either start or end with a token string, even if they are private. Dynamic arrays are appended to.
+
+A convenience mixin `UnderscoreOpDispatcher` is provided that instantiates an `OpDispatcher` with an underscore token, set to look for members that start with `_`.
 
 ```d
 struct Foo
@@ -140,7 +151,7 @@ struct Foo
     string[] _add;
     alias wordList = _add;
 
-    mixin UnderscoreOpDispatcher;
+    mixin UnderscoreOpDispatcher;  // OpDispatcher!("_", Yes.inFront);
 }
 
 Foo f;
@@ -169,9 +180,30 @@ assert(f2.i == 9001);
 assert(f2.s == "world");
 assert(!f2.b);
 assert(f2.wordList == [ "hello", "world" ]);
+
+/+
+    The `inFront` template argument makes it look for members that have the token string in the front of their name. Set to `No.inFront`, it looks for members whose names end with the string.
+ +/
+struct Bar
+{
+    int i_private;
+    string s_private;
+    bool b_private = true;
+    string[] add_private;
+
+    mixin OpDispatcher!("_private", No.inFront);
+}
+
+Bar b;
+b.i = 9;
+b.s = "boop";
+b.b = false;
+b.add("hi there");
 ```
 
-* [`traits.d`](source/lu/traits.d): Various traits and cleverness.
+#### [`traits.d`](source/lu/traits.d)
+
+Various traits and cleverness.
 
 ```d
 /+
@@ -201,7 +233,9 @@ void baz()
 }
 ```
 
-* [`serialisation.d`](source/lu/serialisation.d): Functions and templates for
+#### [`serialisation.d`](source/lu/serialisation.d)
+
+Functions and templates for
 serialising structs into a configure file-y format, with entries and values
 optionally separated into two columns by whitespace.
 
@@ -246,7 +280,9 @@ assert(newFoo.b == true);
 assert(newFoo.pi == 3.14159);
 ```
 
-* [`string.d`](source/lu/string.d): String manipulation functions and templates.
+#### [`string.d`](source/lu/string.d)
+
+String manipulation functions and templates.
 
 ```d
 /+
@@ -317,7 +353,9 @@ assert(title == "Foo Bar");
 assert(overflow == [ "tag1", "tag2", "tag3", "tag4" ]);
 ```
 
-* [`conv.d`](source/lu/conv.d): Conversion functions and templates.
+#### [`conv.d`](source/lu/conv.d)
+
+Conversion functions and templates.
 
 ```d
 /+
@@ -345,7 +383,9 @@ immutable otherGhi = Enum!Foo.fromString("ghi");
 assert(enumToString(Foo.abc) == "abc");
 ```
 
-* [`container.d`](source/lu/container.d): Miscellaneous containers.
+#### [`container.d`](source/lu/container.d)
+
+Miscellaneous containers.
 
 ```d
 // Basic FIFO buffer
@@ -457,8 +497,93 @@ auto aa = mutexedAA(orig);
 aa["ghi"] = 789;
 ```
 
-* [`json.d`](source/lu/json.d): Convenience functions for working with Phobos' `JSONValue`s, which can be unwieldy. **Not** a JSON parser implementation.
-* [`common.d`](source/lu/common.d): Things that don't have a better home yet.
+#### [`array.d`](source/lu/array.d)
+
+Some array utilities. Also a simple truth table.
+
+```d
+/+
+    Table of runtime values, but may be used at CTFE.
+ +/
+const table = truthTable(1, 3, 5);
+assert(table.length == 6);
+assert(table == [ false, true, false, true, false, true ]);
+assert(table == [ 0, 1, 0, 1, 0, 1 ]);
+
+assert(!table[0]);
+assert( table[1]);
+assert(!table[2]);
+assert( table[3]);
+assert(!table[4]);
+assert( table[5]);
+
+/+
+    Table of compile-time values.
+ +/
+static staticTable = truthTable!(2, 7);
+static assert(is(typeof(staticTable) : bool[8]));
+static assert(staticTable == [ false, false, true, false, false, false, false, true ]);
+static assert(staticTable == [ 0, 0, 1, 0, 0, 0, 0, 1 ]);
+
+static assert(!staticTable[0]);
+static assert(!staticTable[1]);
+static assert( staticTable[2]);
+static assert(!staticTable[3]);
+static assert(!staticTable[4]);
+static assert(!staticTable[5]);
+static assert(!staticTable[6]);
+static assert( staticTable[7]);
+```
+
+#### [`json.d`](source/lu/json.d)
+
+Convenience functions for working with Phobos' `JSONValue`s, which can be unwieldy. **Not** a JSON parser implementation.
+
+```d
+auto json = JSONValue([ "foo" : 123, "bar" : 456, "baz" : 789 ]);
+
+assert("foo" in json);
+assert("qux" !in json);
+
+string bar;
+
+if (auto barJSON = "bar" in json)
+{
+    // Quite annoying roundabout way to safely get a value
+    bar = (*barJSON).str;
+}
+else
+{
+    bar = "not found";
+}
+
+// Less annoying roundabout way to safely get a value
+string baz = json.getOrFallback("baz", "not found");
+assert(baz == "baz");
+
+string xyzzy = json.getOrFallback("xyzzy", "not found");
+assert(xyzzy == "not found");
+```
+
+#### [`common.d`](source/lu/common.d)
+
+Things that don't have a better home yet.
+
+```d
+/+
+    Returns the number of shared domains between two hostnames.
+    Top-level domains are counted as well, so "youtube.com" and "github.com"
+    share one domain. Case-sensitivity can be controlled with the optional
+    `caseSensitive` parameter.
+ +/
+assert(sharedDomains("irc.libera.chat", "zinc.libera.chat") == 2);
+assert(sharedDomains("irc.gamesurge.net", "Stuff.GameSurge.net", caseSensitive: false) ==  2);
+assert(sharedDomains("forum.dlang.org", "en.wikipedia.org") == 1);  // subtract 1 if you want to ignore TLDs
+assert(sharedDomains("www.reddit.com", "www.twitch.tv") == 0);
+```
+
+#### Less noteworthy
+
 * [`numeric.d`](source/lu/numeric.d): Functions and templates that calculate or manipulate numbers in some way.
 * [`uda.d`](source/lu/uda.d): Some user-defined attributes used here and there.
 
@@ -476,6 +601,7 @@ Releases of the library prior to `v3.0.0` remain available for older compilers.
 
 * ~~replace use of `std.typecons.Flag` with named arguments wherever possible~~
 * ~~rename `formatDeltaInto` -> `putDelta`~~
+* ~~write truth table~~
 * nothing right now, ideas needed
 
 ## Built with
