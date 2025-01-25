@@ -1,5 +1,5 @@
 /++
-    Simple array utilities.
+    Some array utilities. Also a simple truth map.
 
     Example:
     ---
@@ -24,6 +24,24 @@
 
     sink.zero();  //(clear: true);
     assert(!sink[].length);
+
+    immutable table = truthTable(1, 3, 5);
+    assert((table.length == 6));
+    assert(table == [ false, true, false, true, false, true ]);
+
+    enum E { a, b, c, d }
+
+    const enumTable = truthTable(E.b, E.c);
+    assert((enumTable.length == 4));
+    assert(enumTable == [ false, true, true, false ]);
+
+    static staticTable = truthTable!(Yes.fullEnumRange, E.a, E.b);
+    assert(is(typeof(staticTable) == bool[4]));
+    assert(staticTable == [ true, true, false, false ]);
+
+    immutable staticNumTable = truthTable!(2, 4, 6);
+    assert(is(typeof(staticNumTable) == bool[7]));
+    assert(staticNumTable == [ false, false, true, false, true, false, true ]);
     ---
 
     Copyright: [JR](https://github.com/zorael)
@@ -36,8 +54,11 @@ module lu.array;
 
 private:
 
+import lu.traits : isEnum, isImplicitlyConvertibleToSize_t;
 import std.array : Appender;
-import std.traits : isIntegral;
+import std.meta : allSatisfy, templateNot;
+import std.traits : allSameType, isIntegral, isType;
+import std.typecons : Flag, No, Yes;
 
 public:
 
@@ -177,5 +198,500 @@ unittest
 
         sink.zero(clear: true);
         assert(!sink[].length);
+    }
+}
+
+
+// truthTable
+/++
+    Generates a truth table from a list of runtime numbers.
+
+    The table is an array of booleans, where each index corresponds to a number
+    in the input list. The boolean at each index is `true` if the number is in
+    the input list, and `false` otherwise.
+
+    Can be used during compile-time. Produces a dynamic array unless a
+    `highestValueOverride` is provided, in which case it will be a static array
+    sized to accomodate that value.
+
+    If the list of numbers is known at compile-time, there is also an overload
+    that, given the numbers as template arguments, produces a static array.
+
+    Note: This is not a sparse array and will be as large as requested.
+
+    Example:
+    ---
+    const table = truthTable(1, 3, 5);
+    assert(table.length == 6);
+    assert(table == [ false, true, false, true, false, true ]);
+    assert(table == [ 0, 1, 0, 1, 0, 1 ]);
+
+    assert(!table[0]);
+    assert( table[1]);
+    assert(!table[2]);
+    assert( table[3]);
+    assert(!table[4]);
+    assert( table[5]);
+
+    const staticTable = truthTable!5(1, 2, 3);
+    assert(staticTable.length == 6);
+    assert(staticTable == [ true, true, true, false, false, false ]);
+    assert(staticTable == [ 1, 1, 1, 0, 0, 0 ]);
+    ---
+
+    Params:
+        highestValueOverride = (Optional) The highest value the truth table should
+            size itself to accomodate for. If not set, the highest value in the
+            input list is used.
+        numbers = The numbers to generate a truth table from.
+
+    Returns:
+        A truth table as an array of booleans.
+
+    Throws:
+        [ArrayException] if a negative number is passed, or if a
+        `highestValueOverride` is set and a number is out of bounds.
+ +/
+auto truthTable(int highestValueOverride = 0, Numbers...)(Numbers numbers)
+if (
+    Numbers.length &&
+    allSatisfy!(isImplicitlyConvertibleToSize_t, numbers))  // doesn't work with Numbers
+{
+    static if (highestValueOverride < 0)
+    {
+        enum message = "Negative highest value overrides are not allowed in a truth table";
+        static assert(0, message);
+    }
+
+    static if (highestValueOverride > 0)
+    {
+        bool[highestValueOverride+1] table;
+    }
+    else
+    {
+        size_t highestValue;
+
+        foreach (number; numbers)
+        {
+            if (cast(ptrdiff_t)number < 0)
+            {
+                enum message = "Negative values are not allowed in a truth table";
+                throw new ArrayException(message);
+            }
+
+            if (number > highestValue) highestValue = number;
+        }
+
+        auto table = new bool[highestValue+1];
+    }
+
+    foreach (number; numbers)
+    {
+        if (cast(ptrdiff_t)number < 0)
+        {
+            // Duplicate of the above, but can't be helped
+            enum message = "Negative values are not allowed in a truth table";
+            throw new ArrayException(message);
+        }
+
+        if ((highestValueOverride > 0) && (cast(size_t)number > table.length))
+        {
+            enum message = "Number out of bounds in truth table due to highest value override";
+            throw new ArrayException(message);
+        }
+
+        table[cast(size_t)number] = true;
+    }
+
+    return table;
+}
+
+///
+unittest
+{
+    import lu.traits : UnqualArray;
+    import std.conv : to;
+
+    {
+        static immutable table = truthTable(1, 3, 5);
+        alias T = UnqualArray!(typeof(table));
+        static assert(is(T == bool[]), T.stringof);
+        static assert((table.length == 6), table.length.to!string);
+        static assert((table == [ false, true, false, true, false, true ]), table.to!string);
+        static assert((table == [ 0, 1, 0, 1, 0, 1 ]), table.to!string);
+
+        static assert(!table[0]);
+        static assert( table[1]);
+        static assert(!table[2]);
+        static assert( table[3]);
+        static assert(!table[4]);
+        static assert( table[5]);
+    }
+    {
+        static immutable table = truthTable!5(1, 2, 3);
+        static assert(is(typeof(table) : bool[6]), typeof(table).stringof);
+        static assert((table == [ false, true, true, true, false, false ]), table.to!string);
+        static assert((table == [ 0, 1, 1, 1, 0, 0 ]), table.to!string);
+
+        static assert(!table[0]);
+        static assert( table[1]);
+        static assert( table[2]);
+        static assert( table[3]);
+        static assert(!table[4]);
+        static assert(!table[5]);
+    }
+}
+
+
+// truthTable
+/++
+    Generates a truth table from a list of runtime enum values.
+
+    The table is an array of booleans, where each index corresponds to an enum value
+    in the input list. The boolean at each index is `true` if the value is in
+    the input list, and `false` otherwise.s
+
+    Can be used during compile-time. If `Yes.fullEnumRange` is passed, the returned
+    table will be a static array sized to accomodate the highest value in the enum.
+    If `No.fullEnumRange` is passed, the returned table will be a dynamic one
+    sized to accomodate the highest value in the input list.
+
+    Note: This is not a sparse array and will be as large as requested.
+        Additionally it is stack-allocated if `Yes.fullEnumRange` is passed, so
+        be mindful of the size of the enum.
+
+    Example:
+    ---
+    enum E { a, b, c, d, e, f }
+
+    const table = truthTable(E.b, E.c, E.d);
+    assert(table.length == 4);
+    assert(table == [ false, true, true, true]);
+    assert(table == [ 0, 1, 1, 1 ]);
+
+    assert(!table[E.a]);
+    assert( table[E.b]);
+    assert( table[E.c]);
+    assert( table[E.d]);
+
+    const staticTable = truthTable!(Yes.fullEnumRange)(E.b, E.c);
+    assert(staticTable.length == 6);
+    assert(staticTable == [ false, true, true, false, false, false ]);
+    assert(staticTable == [ 0, 1, 1, 0, 0, 0 ]);
+    ---
+
+    Params:
+        fullEnumRange = Whether to generate a truth table for the full enum range.
+        values = The enum values to generate a truth table from.
+
+    Returns:
+        A truth table as an array of booleans.
+ +/
+auto truthTable(Flag!"fullEnumRange" fullEnumRange, Enums...)(Enums values)
+if (
+    Enums.length &&
+    allSameType!Enums &&
+    is(Enums[0] == enum) &&
+    is(Enums[0] : size_t))
+{
+    static if (fullEnumRange)
+    {
+        alias ThisEnum = Enums[0];
+
+        enum tableLength = ()
+        {
+            size_t highestValue;
+
+            foreach (memberstring; __traits(allMembers, ThisEnum))
+            {
+                auto value = mixin("ThisEnum." ~ memberstring);
+
+                if (cast(ptrdiff_t)value < 0)
+                {
+                    enum message = "Negative values are not allowed in a truth table";
+                    assert(0, message);
+                }
+
+                if (value > highestValue) highestValue = value;
+            }
+
+            return highestValue;
+        }();
+
+        bool[tableLength+1] table;
+
+        foreach (value; values)
+        {
+            table[cast(size_t)value] = true;
+        }
+
+        return table;
+    }
+    else
+    {
+        return truthTable(values);
+    }
+}
+
+///
+unittest
+{
+    import lu.traits : UnqualArray;
+    import std.conv : to;
+
+    enum E { a, b, c, d, e }
+
+    {
+        static immutable table = truthTable!(Yes.fullEnumRange)(E.b, E.d, E.c, E.b);
+        static assert(is(typeof(table) : bool[5]), typeof(table).stringof);
+        static assert((table == [ false, true, true, true, false ]), table.to!string);
+        static assert((table == [ 0, 1, 1, 1, 0 ]), table.to!string);
+
+        assert(!table[E.a]);
+        assert( table[E.b]);
+        assert( table[E.c]);
+        assert( table[E.d]);
+        assert(!table[E.e]);
+    }
+    {
+        static immutable table = truthTable!(No.fullEnumRange)(E.a, E.b);
+        alias T = UnqualArray!(typeof(table));
+        static assert(is(T == bool[]), T.stringof);
+        static assert((table.length == 2), table.length.to!string);
+        static assert((table == [ true, true ]), table.to!string);
+        static assert((table == [ 1, 1 ]), table.to!string);
+
+        assert(table[E.a]);
+        assert(table[E.b]);
+    }
+}
+
+
+// truthTable
+/++
+    Generates a static truth table from a list of compile-time numbers.
+
+    The table is a static array of booleans, where each index corresponds to a number
+    in the input list. The boolean at each index is `true` if the number is in
+    the input list, and `false` otherwise.
+
+    Note: This is not a sparse array and will be as large as requested.
+        In addition it is stack-allocated, so be mindful of the values of the
+        numbers passed.
+
+    Example:
+    ---
+    const table = truthTable!(1, 3, 5);
+    assert(is(typeof(table) : bool[6]));
+    assert(table == [ false, true, false, true, false, true ]);
+    assert(table == [ 0, 1, 0, 1, 0, 1 ]);
+
+    assert(!table[0]);
+    assert( table[1]);
+    assert(!table[2]);
+    assert( table[3]);
+    assert(!table[4]);
+    assert( table[5]);
+    ---
+
+    Params:
+        numbers = The compile-time numbers to generate a static truth table from.
+
+    Returns:
+        A truth table as a static array of booleans.
+ +/
+auto truthTable(numbers...)()
+if (
+    numbers.length &&
+    allSatisfy!(templateNot!isType, numbers) &&
+    allSatisfy!(isImplicitlyConvertibleToSize_t, numbers))
+{
+    enum tableLength = ()
+    {
+        size_t highestValue;
+
+        foreach (number; numbers)
+        {
+            if (cast(ptrdiff_t)number < 0)
+            {
+                enum message = "Negative values are not allowed in a truth table";
+                assert(0, message);
+            }
+
+            if (number > highestValue) highestValue = number;
+        }
+
+        return highestValue;
+    }();
+
+    bool[tableLength+1] table;
+
+    foreach (number; numbers)
+    {
+        table[cast(size_t)number] = true;
+    }
+
+    return table;
+}
+
+///
+unittest
+{
+    import std.conv : to;
+
+    {
+        static immutable table = truthTable!(1, 3, 5);
+        static assert(is(typeof(table) : bool[6]), typeof(table).stringof);
+        static assert((table == [ false, true, false, true, false, true ]), table.to!string);
+        static assert((table == [ 0, 1, 0, 1, 0, 1 ]), table.to!string);
+
+        static assert(!table[0]);
+        static assert( table[1]);
+        static assert(!table[2]);
+        static assert( table[3]);
+        static assert(!table[4]);
+        static assert( table[5]);
+    }
+    {
+        enum E { a, b, c, d, e }
+
+        static immutable table = truthTable!(E.b, E.c);
+        static assert(is(typeof(table) : bool[3]), typeof(table).stringof);
+        static assert((table == [ false, true, true ]), table.to!string);
+        static assert((table == [ 0, 1, 1 ]), table.to!string);
+
+        static assert(!table[E.a]);
+        static assert( table[E.b]);
+        static assert( table[E.c]);
+    }
+}
+
+
+// truthTable
+/++
+    Generates a static truth table from a list of compile-time enum values.
+
+    The table is a static array of booleans, where each index corresponds to a number
+    in the input list. The boolean at each index is `true` if the number is in
+    the input list, and `false` otherwise.
+
+    If `Yes.fullEnumRange` is passed, the returned table will be sized to
+    accomodate the highest value in the enum. If `No.fullEnumRange` is passed,
+    the returned table will be sized to accomodate the highest value in the input list.
+
+    Note: This is not a sparse array and will be as large as requested.
+        In addition it is stack-allocated, so be mindful of the size of the
+        numbers passed.
+
+    Example:
+    ---
+    enum E { a, b, c, d, e }
+
+    const table = truthTable!(E.b, E.c);
+    assert(is(typeof(table) : bool[__traits(allMembers, E).length]);
+
+    assert(!table[E.a]);
+    assert( table[E.b]);
+    assert( table[E.c]);
+    assert(!table[E.d]);
+    assert(!table[E.e]);
+
+    const staticTable = truthTable!(Yes.fullEnumRange, E.c, E.d);
+    assert(is(typeof(staticTable) : bool[__traits(allMembers, E).length]));
+    assert(staticTable == [ false, false, true, true, false ]);
+    assert(staticTable == [ 0, 0, 1, 1, 0 ]);
+    ---
+
+    Params:
+        fullEnumRange = Whether to generate a truth table for the full enum range.
+        values = The enum values to generate a truth table from.
+
+    Returns:
+        A truth table as an array of booleans.
+ +/
+auto truthTable(Flag!"fullEnumRange" fullEnumRange, values...)()
+if (
+    values.length &&
+    allSatisfy!(templateNot!isType, values) &&
+    allSatisfy!(isEnum, values) &&
+    allSatisfy!(isImplicitlyConvertibleToSize_t, values))
+{
+    static if (fullEnumRange)
+    {
+        alias ThisEnum = typeof(values[0]);
+
+        enum tableLength = ()
+        {
+            size_t highestValue;
+
+            foreach (memberstring; __traits(allMembers, ThisEnum))
+            {
+                auto member = mixin("ThisEnum." ~ memberstring);
+
+                if (cast(ptrdiff_t)member < 0)
+                {
+                    enum message = "Negative values are not allowed in a truth table";
+                    assert(0, message);
+                }
+
+                if (member > highestValue) highestValue = member;
+            }
+
+            return highestValue;
+        }();
+
+        bool[tableLength+1] table;
+
+        foreach (value; values)
+        {
+            table[cast(size_t)value] = true;
+        }
+
+        return table;
+    }
+    else
+    {
+        // Reuse the non-enum overload
+        return truthTable!values();
+    }
+}
+
+///
+unittest
+{
+    enum E { a, b, c, d, e }
+
+    static immutable table = truthTable!(Yes.fullEnumRange, E.b, E.c);
+    static assert(is(typeof(table) : bool[__traits(allMembers, E).length]), typeof(table).stringof);
+    static assert((table == [ false, true, true, false, false ]), table.to!string);
+    static assert((table == [ 0, 1, 1, 0, 0 ]), table.to!string);
+
+    static assert(!table[E.a]);
+    static assert( table[E.b]);
+    static assert( table[E.c]);
+    static assert(!table[E.d]);
+    static assert(!table[E.e]);
+}
+
+
+// ArrayException
+/++
+    Exception, to be thrown when there was an error with an array-related
+    function in `lu.array`.
+
+    It is a normal [object.Exception|Exception] but its type bears meaning
+    and allows for catching only array-related exceptions.
+ +/
+final class ArrayException : Exception
+{
+    /++
+        Create a new [ArrayException].
+     +/
+    this(const string message,
+        const string file = __FILE__,
+        const size_t line = __LINE__,
+        Throwable nextInChain = null) pure nothrow @nogc @safe
+    {
+        super(message, file, line, nextInChain);
     }
 }
