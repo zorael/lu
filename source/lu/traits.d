@@ -779,16 +779,6 @@ unittest
 }
 
 
-/++
-    [std.traits.getSymbolsByUDA|Phobos' getSymbolsByUDA] publicly imported.
-
-    This didn't get culled in v3.0.0, so we're stuck with it for now.
-    Deprecate it to ward people off from using it.
- +/
-deprecated("Import `std.traits.getSymbolsByUDA` directly")
-/*public*/ import std.traits : getSymbolsByUDA;
-
-
 // isMutableArrayOfImmutables
 /++
     Evaluates whether or not a passed array type is a mutable array of immutable
