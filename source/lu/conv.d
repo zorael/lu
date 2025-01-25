@@ -303,7 +303,7 @@ unittest
         [toString]
         [Enum]
  +/
-//deprecated("Use `lu.conv.toString` instead")
+deprecated("Use `lu.conv.toString` instead")
 alias enumToString = toString;
 
 

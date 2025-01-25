@@ -483,8 +483,6 @@ assert((carr[0] == 'a'), carr[0].to!string);
 
     [formatDeltaInto] was renamed to [putDelta] that makes more sense with its
     order of arguments.
-
-    TODO: Deprecate this later.
  +/
-//deprecated("Use `lu.deltastrings.putDelta` instead")
+deprecated("Use `lu.deltastrings.putDelta` instead")
 alias formatDeltaInto = putDelta;
