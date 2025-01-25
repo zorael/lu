@@ -12,6 +12,7 @@ module lu.traits;
 private:
 
 import std.traits : isArray, isAssociativeArray, isSomeFunction, isType;
+import std.meta : allSatisfy, templateNot;
 
 public:
 
@@ -918,4 +919,139 @@ unittest
     static assert(stringOfTypeOf!foo == "Foo");
     static assert(stringOfTypeOf!i == "int");
     static assert(stringOfTypeOf!n == "int");
+}
+
+
+// isImplicitlyConvertibleToSize_t
+/++
+    Aliases itself to whether or not a type is implicitly convertible to `size_t`.
+
+    For use with [std.meta.Filter], [std.traits.allSatisfy] and similar,
+    which cannot take `is()` expressions.
+ +/
+enum isImplicitlyConvertibleToSize_t(T) = is(T : size_t);
+
+///
+unittest
+{
+    static assert( isImplicitlyConvertibleToSize_t!int);
+    static assert( isImplicitlyConvertibleToSize_t!char);
+    static assert( isImplicitlyConvertibleToSize_t!size_t);
+    static assert(!isImplicitlyConvertibleToSize_t!string);
+    static assert(!isImplicitlyConvertibleToSize_t!(int[]));
+}
+
+
+// isImplicitlyConvertibleToSize_t
+/++
+    Aliases itself to whether or not a symbol is of a type that is implicitly
+    convertible to `size_t`.
+
+    For use with [std.meta.Filter], [std.traits.allSatisfy] and similar,
+    which cannot take `is()` expressions.
+ +/
+enum isImplicitlyConvertibleToSize_t(alias T) = is(typeof(T) : size_t);
+
+///
+unittest
+{
+    int i;
+    char c;
+    size_t s_t;
+    string s;
+    int[] arr;
+
+    static assert( isImplicitlyConvertibleToSize_t!i);
+    static assert( isImplicitlyConvertibleToSize_t!c);
+    static assert( isImplicitlyConvertibleToSize_t!s_t);
+    static assert(!isImplicitlyConvertibleToSize_t!s);
+    static assert(!isImplicitlyConvertibleToSize_t!arr);
+}
+
+
+// isEnum
+/++
+    Aliases itself to whether or not a type is an enum.
+
+    For use with [std.meta.Filter], [std.traits.allSatisfy] and similar,
+    which cannot take `is()` expressions.
+ +/
+template isEnum(T)
+if (isType!T)
+{
+    enum isEnum = is(T == enum);
+}
+
+///
+unittest
+{
+    enum E { a, b, c }
+
+    static assert( isEnum!E);
+    static assert(!isEnum!int);
+    static assert(!isEnum!string);
+}
+
+
+// isEnum
+/++
+    Aliases itself to whether or not a symbol is of a type is an enum.
+
+    For use with [std.meta.Filter], [std.traits.allSatisfy] and similar,
+    which cannot take `is()` expressions.
+ +/
+template isEnum(alias T)
+if (!isType!T)
+{
+    enum isEnum = is(typeof(T) == enum);
+}
+
+///
+unittest
+{
+    enum E { a, b, c}
+
+    int i;
+    char c;
+    size_t s_t;
+    string s;
+    int[] arr;
+
+    static assert(!isEnum!i);
+    static assert(!isEnum!c);
+    static assert(!isEnum!s_t);
+    static assert(!isEnum!s);
+    static assert(!isEnum!arr);
+    static assert( isEnum!(E.a));
+    static assert( isEnum!(E.c));
+}
+
+
+// allOfSameType
+/++
+    Aliases itself to whether or not all passed values are of the same type.
+
+    A copy of [std.traits.allSameType] but modified to accept values rather than types.
+
+    Params:
+        values = Variadic list of values to compare.
+
+    See_Also:
+        [std.traits.allSameType]
+ +/
+template allOfSameType(values...)
+if (allSatisfy!(templateNot!isType, values))
+{
+    enum allOfSameType = ()
+    {
+        static foreach (value; values[values.length > 1..__dollar])
+        {
+            static if (!is(typeof(values[0]) == typeof(value)))
+            {
+                if (__ctfe) return false;
+            }
+        }
+
+        return true;
+    }();
 }
