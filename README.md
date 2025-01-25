@@ -182,7 +182,9 @@ assert(!f2.b);
 assert(f2.wordList == [ "hello", "world" ]);
 
 /+
-    The `inFront` template argument makes it look for members that have the token string in the front of their name. Set to `No.inFront`, it looks for members whose names end with the string.
+    The `inFront` template argument makes it look for members that have the
+    token string in the front of their name. Set to `No.inFront`, it looks for
+    members whose names end with the string.
  +/
 struct Bar
 {
@@ -235,9 +237,7 @@ void baz()
 
 #### [`serialisation.d`](source/lu/serialisation.d)
 
-Functions and templates for
-serialising structs into a configure file-y format, with entries and values
-optionally separated into two columns by whitespace.
+Functions and templates for serialising structs into a configure file-y format, with entries and values optionally separated into two columns by whitespace.
 
 ```d
 struct Foo
@@ -289,7 +289,8 @@ String manipulation functions and templates.
     Advances a string slice past the first occurrence of a delimiter, returning
     the slice up to the delimiter. The slice is mutated in place.
 
-    Not based on graphemes. Meant to be used with ASCII.
+    Not based on graphemes. Really meant to be used on ASCII strings.
+    Your mileage may vary with UTF-8.
  +/
 enum line = "Word split by spaces \\o/";
 string slice = line;  // mutable
@@ -364,7 +365,6 @@ Conversion functions and templates.
 
     Credit for Enum goes to Stephan Koch (https://github.com/UplinkCoder). Used with permission.
  +/
-
 enum Foo { abc, def, ghi }
 
 immutable someAbc = Foo.abc;
@@ -380,7 +380,7 @@ immutable otherDef = Enum!Foo.fromString("def");
 immutable otherGhi = Enum!Foo.fromString("ghi");
 
 // Shorthand convenience helper function, infers the type from the argument
-assert(enumToString(Foo.abc) == "abc");
+assert(Foo.abc.toString() == "abc");
 ```
 
 #### [`container.d`](source/lu/container.d)
@@ -418,6 +418,7 @@ assert(circBuf.buf == [ 4, 2, 3 ]);
 /+
     A wrapper of a built-in associative array with controllable rehashing.
     Should otherwise transparently behave like the underlying AA.
+    Use the `.aaOf` escape hatch to access the underlying associative array.
  +/
 RehashingAA!(int[string]) aa;
 aa.minimumNeededForRehash = 2;
@@ -435,6 +436,11 @@ assert(aa.numRehashes == 1);
 assert(aa.newKeysSinceLastRehash == 0);
 aa.rehash();
 assert(aa.numRehashes == 2);
+
+foreach (key, value; aa.aaOf)
+{
+    // opApply is not implemented yet, so you can't `foreach` over `aa` directly
+}
 ```
 
 ```d
@@ -503,7 +509,8 @@ Some array utilities. Also a simple truth table.
 
 ```d
 /+
-    Table of runtime values, but may be used at CTFE.
+    Table of runtime values, but the function may be called during CTFE to
+    produce a compile-time (dynamic) array.
  +/
 const table = truthTable(1, 3, 5);
 assert(table.length == 6);
@@ -518,7 +525,7 @@ assert(!table[4]);
 assert( table[5]);
 
 /+
-    Table of compile-time values.
+    Table of compile-time values. Produces a static array.
  +/
 static staticTable = truthTable!(2, 7);
 static assert(is(typeof(staticTable) : bool[8]));
