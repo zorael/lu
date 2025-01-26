@@ -41,28 +41,28 @@ public:
     ---
 
     Params:
-        num = Number to reach.
+        number = Number to reach.
         n = Base value to find a multiplier for.
         alwaysOneUp = Whether or not to always overshoot.
 
     Returns:
-        The multiple of `n` that reaches and possibly overshoots `num`.
+        The multiple of `n` that reaches and possibly overshoots `number`.
  +/
 auto getMultipleOf(Number)
-    (const Number num,
+    (const Number number,
     const int n,
     const bool alwaysOneUp = false) pure nothrow @nogc
 in ((n > 0), "Cannot get multiple of 0 or negatives")
-in ((num >= 0), "Cannot get multiples for a negative number")
+in ((number >= 0), "Cannot get multiples for a negative number")
 {
-    if (num == 0) return 0;
+    if (number == 0) return 0;
 
-    if (num == n)
+    if (number == n)
     {
         return alwaysOneUp ? (n + 1) : n;
     }
 
-    immutable frac = (num / double(n));
+    immutable frac = (number / double(n));
     immutable floor_ = cast(uint)frac;
     immutable mod = alwaysOneUp ? (floor_ + 1) : ((floor_ == frac) ? floor_ : (floor_ + 1));
 
