@@ -539,7 +539,7 @@ unittest
     Overload that takes a type.
 
     Params:
-        sym = Alias of symbol to introspect.
+        T = Type to introspect.
  +/
 template isSerialisable(T)
 if (isType!T)
