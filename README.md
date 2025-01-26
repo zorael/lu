@@ -42,8 +42,7 @@ assert(targetAA == [ "a":"a", "b":"b", "c":"c", "d":"d" ]);
 
 #### [`objmanip.d`](source/lu/objmanip.d)
 
-Struct/class manipulation, such as
-setting a member field by its string name. Originally intended to only accept string values but now works with any assignable type. When the passed value doesn't implicitly match, `std.conv.to` is used to coerce.
+Struct/class manipulation, such as setting a member field by its string name. Originally intended to only accept string values but now works with any assignable type. When the passed value doesn't implicitly match, `std.conv.to` is used to coerce.
 
 ```d
 struct Foo
@@ -133,10 +132,7 @@ assert((altered.i == 42), altered.i.to!string);
 
 #### [`typecons.d`](source/lu/typecons.d)
 
-The `OpDispatcher` mixin
-template. When mixed into some aggregate, it generates an `opDispatch` that
-allows for accessing and mutating any members of it whose
-names either start or end with a token string, even if they are private. Dynamic arrays are appended to.
+The `OpDispatcher` mixintemplate. When mixed into some aggregate, it generates an `opDispatch` that allows for accessing and mutating any members of it whose names either start or end with a token string, even if they are private. Dynamic arrays are appended to.
 
 A convenience mixin `UnderscoreOpDispatcher` is provided that instantiates an `OpDispatcher` with an underscore token, set to look for members that start with `_`.
 
@@ -592,11 +588,6 @@ assert(sharedDomains("www.reddit.com", "www.twitch.tv") == 0);
 // Reversed
 assert(sharedDomains("org.kde.Platform", "org.kde.KStyle.Awaita", reverse: true) == 2);
 ```
-
-#### Less noteworthy
-
-* [`numeric.d`](source/lu/numeric.d): Functions and templates that do calculations or other numeric manipulation, in some way or another.
-* [`uda.d`](source/lu/uda.d): Some user-defined attributes used here and there.
 
 ## Caveats
 
