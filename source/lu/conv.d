@@ -13,6 +13,10 @@
 
     assert(foo == SomeEnum.one);
     assert(bar == SomeEnum.three);
+
+    assert(Enum!SomeEnum.toString(SomeEnum.one) == "one");
+    assert(Enum!SomeEnum.toString(SomeEnum.two) == "two");
+    assert(SomeEnum.three.toString() == "three");
     ---
 
     Copyright: [JR](https://github.com/zorael)
@@ -52,7 +56,7 @@ if (is(E == enum))
 {
     // fromString
     /++
-        Takes the member of an enum by string and returns that enum member.
+        Takes the member of an enum by string and returns the member of that name.
 
         It lowers to a big switch of the enum member strings. It is faster than
         [std.conv.to] and generates less template bloat. However, it does not work
@@ -222,7 +226,7 @@ if (is(E == enum))
 unittest
 {
     import std.conv : ConvException;
-    import std.exception  : assertThrown;
+    import std.exception : assertThrown;
 
     {
         enum E { a, b, c }
@@ -260,7 +264,7 @@ unittest
 
 // toString
 /++
-    Convenience wrapper around [Enum.toString] that infers the type of the enum
+    Convenience wrapper around [Enum.toString] that infers the type
     to instantiate it with from the passed enum member.
 
     Limitations:
@@ -297,7 +301,7 @@ unittest
 
 // enumToString
 /++
-    Compatibility alias to [toString].
+    Deprecated alias of [toString].
 
     See_Also:
         [toString]
@@ -381,7 +385,7 @@ out (total; (total < 16^^hex.length), "`numFromHex` output is too large")
 // rgbFromHex
 /++
     Convenience wrapper that takes a hex string and populates a Voldemort
-    struct with its RR, GG and BB components.
+    struct with its integer RR, GG and BB components.
 
     This is to be used when mapping a `#RRGGBB` colour to their decimal
     red/green/blue equivalents.
@@ -452,7 +456,7 @@ unittest
 
 // toAlphaInto
 /++
-    Translates an integer into an alphanumeric string. Assumes ASCII.
+    Translates an integer into an alphanumeric string.
     Overload that takes an output range sink.
 
     Example:
@@ -612,7 +616,7 @@ unittest
 
 // toAlpha
 /++
-    Translates an integer into an alphanumeric string. Assumes ASCII.
+    Translates an integer into an alphanumeric string.
     Overload that returns the string.
 
     Merely leverages [toAlphaInto].

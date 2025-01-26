@@ -73,7 +73,7 @@ import lu.uda : Separator;
 
     foo.setMemberByName("name", "James Bond");
     foo.setMemberByName("number", "007");
-    foo.setMemberByName("alive", false);
+    foo.setMemberByName("alive", "false");
 
     assert(foo.name == "James Bond");
     assert(foo.number == 7);
@@ -81,10 +81,9 @@ import lu.uda : Separator;
     ---
 
     Params:
-        thing = Reference object whose members to set.
-        memberToSet = String name of the thing's member to set.
-        valueToSet = String contents of the value to set the member to; string
-            even if the member is of a different type.
+        thing = Reference to object whose members to set.
+        memberToSet = String name of member to set.
+        valueToSet = Value to set the member to, in string form.
 
     Returns:
         `true` if a member was found and set, `false` if nothing was done.
@@ -620,8 +619,8 @@ unittest
     ---
 
     Params:
-        thing = Reference object whose members to set.
-        memberToSet = String name of the thing's member to set.
+        thing = Reference to object whose members to set.
+        memberToSet = String name of member to set.
         valueToSet = Value, of the same type as the target member.
 
     Returns:
@@ -634,7 +633,9 @@ auto setMemberByName(Thing, Val)
     (ref Thing thing,
     const string memberToSet,
     /*const*/ Val valueToSet)
-if (isAggregateType!Thing && isMutable!Thing && !is(Val : string))
+if (isAggregateType!Thing &&
+    isMutable!Thing &&
+    !is(Val : string))
 in (memberToSet.length, "Tried to set member by name but no member string was given")
 {
     bool success;
@@ -754,7 +755,7 @@ final class SetMemberException : Exception
     string valueToSet;
 
     /++
-        Create a new [SetMemberException], without attaching anything.
+        Creates a new [SetMemberException], without attaching anything.
      +/
     this(const string message,
         const string file = __FILE__,
@@ -765,7 +766,7 @@ final class SetMemberException : Exception
     }
 
     /++
-        Create a new [SetMemberException], attaching extra set-member information.
+        Creates a new [SetMemberException], attaching extra set-member information.
      +/
     this(const string message,
         const string typeName,
@@ -793,8 +794,9 @@ final class SetMemberException : Exception
     Params:
         recurse = Whether or not to recurse into aggregate members.
         thing = Reference to a struct or class whose members to iterate over.
-        token = What value to look for in members, be it a string or an integer
-            or whatever; anything that can be compared to.
+        token = What value to look for in members to determine if they should be
+            replaced, be it a string or an integer or whatever; anything that
+            can be compared to.
         replacement = What to assign matched values. Defaults to the `.init`
             of the matched type.
  +/
@@ -802,7 +804,9 @@ void replaceMembers(Flag!"recurse" recurse = No.recurse, Thing, Token)
     (ref Thing thing,
     Token token,
     Token replacement = Token.init) pure nothrow @nogc
-if (isAggregateType!Thing && isMutable!Thing && isEqualityComparable!Token)
+if (isAggregateType!Thing &&
+    isMutable!Thing &&
+    isEqualityComparable!Token)
 {
     import std.range : ElementEncodingType, ElementType;
     import std.traits : isAggregateType, isArray, isSomeString;

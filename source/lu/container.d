@@ -1,5 +1,5 @@
 /++
-    Containers.
+    Containers of varying quality.
 
     Example:
     ---
@@ -30,6 +30,16 @@
         buffer.clear();
         assert(buffer.empty);
     }
+    {
+        CircularBuffer!(int, Yes.dynamic) buf;
+        buf.resize(3);
+        buf.put(1);
+        buf.put(2);
+        buf.put(3);
+        but.put(4);
+        assert(buf.front == 4);
+        assert(buf.buf == [ 4, 2, 3 ]);
+    }}
     {
         RehashingAA!(int[string]) aa;
         aa.minimumNeededForRehash = 2;
@@ -1772,8 +1782,7 @@ unittest
     Convenience helper to instantiate a [RehashingAA] instance with an
     existing associative array.
 
-    The template parameters to instantiate [RehashingAA] is inferred from the
-    passed associative array.
+    The template parameters with which to instantiate the [RehashingAA] are inferred.
 
     Params:
         aa = Original associative array.

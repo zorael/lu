@@ -1,5 +1,5 @@
 /++
-    Functionality generic enough to be used in several places.
+    Things that don't have a better home yet.
 
     Copyright: [JR](https://github.com/zorael)
     License: [Boost Software License 1.0](https://www.boost.org/users/license.html)
@@ -77,7 +77,7 @@ final class ReturnValueException : Exception
     int retval;
 
     /++
-        Create a new [ReturnValueException], without attaching anything.
+        Creates a new [ReturnValueException], without attaching anything.
      +/
     this(const string message,
         const string file = __FILE__,
@@ -88,7 +88,7 @@ final class ReturnValueException : Exception
     }
 
     /++
-        Create a new [ReturnValueException], attaching a command.
+        Creates a new [ReturnValueException], attaching a command.
      +/
     this(const string message,
         const string command,
@@ -101,7 +101,7 @@ final class ReturnValueException : Exception
     }
 
     /++
-        Create a new [ReturnValueException], attaching a command and a returned value.
+        Creates a new [ReturnValueException], attaching a command and a returned value.
      +/
     this(const string message,
         const string command,
@@ -132,7 +132,7 @@ final class FileExistsException : Exception
     string filename;
 
     /++
-        Create a new [FileExistsException], without attaching a filename.
+        Creates a new [FileExistsException], without attaching a filename.
      +/
     this(const string message,
         const string file = __FILE__,
@@ -143,7 +143,7 @@ final class FileExistsException : Exception
     }
 
     /++
-        Create a new [FileExistsException], attaching a filename.
+        Creates a new [FileExistsException], attaching a filename.
      +/
     this(const string message,
         const string filename,
@@ -169,7 +169,7 @@ final class FileExistsException : Exception
 final class FileTypeMismatchException : Exception
 {
     /++
-        The filename of the non-FIFO.
+        The filename of the file in question.
      +/
     string filename;
 
@@ -179,7 +179,7 @@ final class FileTypeMismatchException : Exception
     ushort attrs;
 
     /++
-        Create a new [FileTypeMismatchException], without embedding a filename.
+        Creates a new [FileTypeMismatchException], without embedding a filename.
      +/
     this(const string message,
         const string file = __FILE__,
@@ -190,7 +190,7 @@ final class FileTypeMismatchException : Exception
     }
 
     /++
-        Create a new [FileTypeMismatchException], embedding a filename.
+        Creates a new [FileTypeMismatchException], embedding a filename.
      +/
     this(const string message,
         const string filename,

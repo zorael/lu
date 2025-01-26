@@ -24,7 +24,7 @@ public:
 
     Params:
         token = The token to look for as part of the variable name, either in
-            the front of it or at the end of it.
+            the front of it or at the end of it. May be any non-zero number of characters.
         inFront = Whether to look for the token in front of the variable name
             instead of at the end of it; defaults to `Yes.inFront`.
  +/

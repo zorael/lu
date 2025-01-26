@@ -1,5 +1,5 @@
 /++
-    String manipulation functions complementing the standard library.
+    String manipulation functions.
 
     Example:
     ---
@@ -48,14 +48,14 @@ public:
 
 // advancePast
 /++
-    Given some string, finds the supplied needle token in it, returns the
-    string up to that point, and advances the passed string by ref to after the token.
+    Given a reference to some string, finds the supplied needle token in it, returns the
+    string up to that point, and advances the passed ref string to after the token.
 
     The closest equivalent in Phobos is [std.algorithm.searching.findSplit],
     which largely serves the same function but doesn't advance the input string.
 
     Additionally takes an optional `inherit` bool argument, to toggle
-    whether the return value inherits the passed line (and clearing it) upon no
+    whether the return value inherits the passed line (and clears it) upon no
     needle match.
 
     Example:
@@ -92,8 +92,8 @@ public:
             May be another array or some individual character.
         inherit = Optional flag of whether or not the whole string should be
             returned and the haystack variable cleared on no needle match.
-        callingFile = Optional file name to attach to an exception.
-        callingLine = Optional line number to attach to an exception.
+        callingFile = Optional file name to attach to any exception thrown.
+        callingLine = Optional line number to attach to any exception thrown.
 
     Returns:
         The string `haystack` from the start up to the needle token. The original
@@ -400,7 +400,7 @@ abstract class AdvanceException : Exception
     string needle() pure @safe;
 
     /++
-        Create a new [AdvanceExceptionImpl], without attaching anything.
+        Creates a new [AdvanceExceptionImpl], without attaching anything.
      +/
     this(
         const string message,
@@ -416,7 +416,6 @@ abstract class AdvanceException : Exception
 // AdvanceExceptionImpl
 /++
     Exception, to be thrown when a call to [advancePast] went wrong.
-
     This is the templated implementation, so that we can support more than one
     kind of needle and haystack combination.
 
@@ -424,7 +423,7 @@ abstract class AdvanceException : Exception
 
     Params:
         Haystack = Haystack array type.
-        Needle = Needle array or char-like type.
+        Needle = Needle array or character type.
  +/
 final class AdvanceExceptionImpl(Haystack, Needle) : AdvanceException
 {
@@ -465,7 +464,7 @@ public:
     }
 
     /++
-        Create a new `AdvanceExceptionImpl`, without attaching anything.
+        Creates a new `AdvanceExceptionImpl`, without attaching anything.
      +/
     this(
         const string message,
@@ -477,7 +476,7 @@ public:
     }
 
     /++
-        Create a new `AdvanceExceptionImpl`, attaching a command.
+        Creates a new `AdvanceExceptionImpl`, attaching a command.
      +/
     this(
         const string message,
@@ -496,8 +495,7 @@ public:
 
 // plurality
 /++
-    Selects the correct singular or plural form of a word depending on the
-    numerical count of it.
+    Returns the singular or plural form of a word based on a numeric value.
 
     Technically works with any type provided the number is some comparable integral.
 
@@ -515,7 +513,7 @@ public:
     ---
 
     Params:
-        num = Numerical count.
+        num = Numeric value.
         singular = The singular form.
         plural = The plural form.
 
@@ -554,8 +552,8 @@ unittest
     Removes paired preceding and trailing tokens around a string line.
     Assumes ASCII.
 
-    You should not need to use this directly; rather see [unquoted] and
-    [unsinglequoted].
+    You should normally not need to use this directly; rather see [unquoted]
+    and [unsinglequoted] for the usual cases.
 
     Params:
         token = Token character to strip away.
@@ -706,7 +704,7 @@ unittest
 
 // tabs
 /++
-    Returns a range of *spaces* equal to that of `num` tabs (\t).
+    Returns a range of *spaces* equal to that of `num` tabs (`'\t'`).
 
     Use [std.conv.to] or [std.conv.text] or similar to flatten to a string.
 
@@ -767,14 +765,15 @@ unittest
 
 // indentInto
 /++
-    Indents lines in a string into an output range sink with the supplied number of tabs.
+    Indents lines in a string into an output range sink with the supplied number
+    of space-based tabs.
 
     Params:
-        spaces = How many spaces in an indenting tab.
-        wallOfText = String to indent the individual lines of.
+        spaces = How many spaces make up an indentation.
+        wallOfText = String to indent the lines of.
         sink = Output range to fill with the indented lines.
-        numTabs = Optional amount of tabs to indent with, default 1.
-        skip = How many lines to skip indenting.
+        numTabs = Amount of tabs to indent with, default `1`.
+        skip = How many lines to skip before starting to indent.
  +/
 void indentInto(uint spaces = 4, Sink)
     (const string wallOfText,
@@ -868,17 +867,17 @@ so shrug"), '\n' ~ sink[]);
 
 // indent
 /++
-    Indents lines in a string with the supplied number of tabs. Returns a newly
-    allocated string.
+    Indents lines in a string with the supplied number of space-based tabs.
+    Returns a newly-allocated string.
 
     Params:
-        spaces = How many spaces make up a tab.
+        spaces = How many spaces make up an indentation.
         wallOfText = String to indent the lines of.
-        numTabs = Amount of tabs to indent with, default 1.
-        skip = How many lines to skip indenting.
+        numTabs = Amount of tabs to indent with, default `1`.
+        skip = How many lines to skip before starting to indent.
 
     Returns:
-        A string with all the lines of the original string indented.
+        A string with lines of the original string indented.
  +/
 string indent(uint spaces = 4)
     (const string wallOfText,
@@ -1462,7 +1461,7 @@ unittest
 /++
     Base64-encodes a string.
 
-    Merely wraps [std.base64.Base64.encode|Base64.encode] and
+    Merely wraps [std.base64.Base64.encode] and
     [std.string.representation] into one function that will work with strings.
 
     Params:
@@ -1502,7 +1501,7 @@ unittest
 /++
     Base64-decodes a string.
 
-    Merely wraps [std.base64.Base64.decode|Base64.decode] and
+    Merely wraps [std.base64.Base64.decode] and
     [std.string.representation] into one function that will work with strings.
 
     Params:
@@ -1689,9 +1688,9 @@ unittest
 
 // escapeControlCharacters
 /++
-    Replaces the control characters '\n', '\t', '\r' and '\0' with the escaped
-    "\\n", "\\t", "\\r" and "\\0". Does not allocate a new string if there
-    was nothing to escape.
+    Replaces the control characters `'\n'`, `'\t'`, `'\r'` and `'\0'` in a string
+    with the escaped `"\\n"`, `"\\t"`, `"\\r"` and `"\\0"`.
+    Does not allocate a new string if there was nothing to escape.
 
     Params:
         line = String line to escape characters in.
@@ -1786,10 +1785,11 @@ unittest
     Does not allocate a new string if there was nothing to remove.
 
     Params:
-        line = String line to "remove" characters from.
+        line = String line to remove characters from.
 
     Returns:
-        A new string with control characters removed, or the original one unchanged.
+        A new string with any control characters removed, or the original one
+        unchanged if there were none.
  +/
 string removeControlCharacters(/*const*/ return scope string line) pure nothrow
 {
@@ -1887,15 +1887,15 @@ enum SplitResults
 
 // splitInto
 /++
-    Splits a string by a passed separator and assign the delimited words to the
-    passed strings by ref.
+    Splits a string by a passed separator and assigns the delimited words to the
+    passed ref strings.
 
     Note: Does *not* take quoted substrings into consideration.
 
     Params:
-        separator = What token to separate the input string into words with.
+        separator = Separator with which to delimit the input string into words.
         slice = Input string of words separated by `separator`.
-        strings = Variadic list of strings to assign the split words in `slice`.
+        strings = Variadic list of ref strings to assign the split words in `slice`.
 
     Returns:
         A [SplitResults] with the results of the split attempt.
@@ -1903,7 +1903,9 @@ enum SplitResults
 auto splitInto(string separator = " ", Strings...)
     (auto ref string slice,
     scope ref Strings strings)
-if (Strings.length && is(Strings[0] == string) && allSameType!Strings)
+if (Strings.length &&
+    is(Strings[0] == string)
+    && allSameType!Strings)
 {
     if (!slice.length)
     {
@@ -2021,14 +2023,14 @@ unittest
 // splitInto
 /++
     Splits a string by a passed separator and assign the delimited words to the
-    passed strings by ref. Overload that stores overflow strings into a passed array.
+    passed ref strings. Overload that stores overflow strings into a passed array.
 
     Note: *Does* take quoted substrings into consideration.
 
     Params:
-        separator = What token to separate the input string into words with.
+        separator = Separator with which to delimit the input string into words.
         slice = Input string of words separated by `separator`.
-        strings = Variadic list of strings to assign the split words in `slice`.
+        strings = Variadic list of ref strings to assign the split words in `slice`.
         overflow = Overflow array.
 
     Returns:
@@ -2038,7 +2040,8 @@ auto splitInto(string separator = " ", Strings...)
     (const string slice,
     ref Strings strings,
     out string[] overflow)
-if (!Strings.length || (is(Strings[0] == string) && allSameType!Strings))
+if (!Strings.length ||
+    (is(Strings[0] == string) && allSameType!Strings))
 {
     if (!slice.length)
     {
@@ -2227,7 +2230,7 @@ unittest
     Splits a string into an array of strings by whitespace, but honours quotes.
 
     Intended to be used with ASCII strings; may or may not work with more
-    elaborate UTF-8 strings.
+    elaborate UTF-8.
 
     Example:
     ---
@@ -2475,10 +2478,10 @@ unittest
 
 // replaceFromAA
 /++
-    Replaces space-separated tokens (that begin with a token character) in a
-    string with values from a supplied associative array.
-
-    The AA values are of some type of function or delegate returning strings.
+    Replaces space-separated words that begin with a token character in a
+    string that match keys in a supplied associative array.
+    The associative array values must be of some callable type of function or
+    delegate returning strings.
 
     Example:
     ---

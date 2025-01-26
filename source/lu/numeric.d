@@ -1,5 +1,5 @@
 /++
-    Functions and templates that do numeric calculations or other manipulation,
+    Functions and templates that do calculations or other numeric manipulation,
     in some way or another.
 
     Example:

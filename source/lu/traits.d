@@ -23,12 +23,12 @@ public:
  +/
 enum MixinScope
 {
-    function_  = 1 << 0,  /// Mixed in inside a function.
-    class_     = 1 << 1,  /// Mixed in inside a class.
-    struct_    = 1 << 2,  /// Mixed in inside a struct.
-    interface_ = 1 << 3,  /// Mixed in inside an interface.
-    union_     = 1 << 4,  /// Mixed in inside a union.
-    module_    = 1 << 5,  /// Mixed in inside a module.
+    function_  = 1 << 0,  /// Mixed into a function.
+    class_     = 1 << 1,  /// Mixed into a class.
+    struct_    = 1 << 2,  /// Mixed into a struct.
+    interface_ = 1 << 3,  /// Mixed into an interface.
+    union_     = 1 << 4,  /// Mixed into a union.
+    module_    = 1 << 5,  /// Mixed into a module.
 }
 
 
@@ -228,9 +228,6 @@ version(unittest)
     Provides string representations of the category of a symbol, where such is not
     a fundamental primitive variable but a module, a function, a delegate,
     a class or a struct.
-
-    Accurate module detection only works on compilers 2.087 and later, due to
-    missing support for `__traits(isModule)`.
 
     Example:
     ---
@@ -491,11 +488,10 @@ unittest
     alias F2 = typeof(foo2);
     alias F3 = typeof(foo3);
 
-    static assert(TakesParams!F);//, AliasSeq!()));
-    static assert(TakesParams!(F1, string));
-    static assert(TakesParams!(F2, string, int));
-    static assert(TakesParams!(F3, bool, bool, bool));
-
+    static assert( TakesParams!F);//, AliasSeq!()));
+    static assert( TakesParams!(F1, string));
+    static assert( TakesParams!(F2, string, int));
+    static assert( TakesParams!(F3, bool, bool, bool));
     static assert(!TakesParams!(F, string));
     static assert(!TakesParams!(F1, string, int));
     static assert(!TakesParams!(F2, bool, bool, bool));
@@ -728,7 +724,7 @@ unittest
 
 // isStruct
 /++
-    Eponymous template that is true if the passed type is a struct.
+    Eponymous template that is `true` if the passed type is a struct.
 
     Used with [std.meta.Filter], which cannot take `is()` expressions.
 
@@ -863,6 +859,9 @@ unittest
 // stringOfTypeOf
 /++
     The string representation of a type. Non-alias parameter overload.
+
+    Should logically be called `stringOf`, but it's meant to make it easy to get
+    the string types of a mixture of types and symbols.
 
     Params:
         T = Type to get the string representation of.

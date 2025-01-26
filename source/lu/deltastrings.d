@@ -479,7 +479,7 @@ assert((carr[0] == 'a'), carr[0].to!string);
 
 // formatDeltaInto
 /++
-    Alias of [putDelta].
+    Deprecated alias of [putDelta].
 
     [formatDeltaInto] was renamed to [putDelta] that makes more sense with its
     order of arguments.

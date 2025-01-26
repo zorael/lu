@@ -1,6 +1,5 @@
 /++
-    Simple JSON wrappers around Phobos' [std.json] to make keeping JSON storages easier.
-    This is not a replacement for [std.json]; it merely extends it.
+    Simple wrappers around Phobos [std.json]. This is *not* a replacement for it.
 
     Example:
     ---
@@ -95,7 +94,7 @@ public:
     alias storage this;
 
     /++
-        Strategy in which to sort object-type JSON keys when we format/serialise
+        Strategy with which to sort object-type JSON keys when we format/serialise
         the stored [storage] to string.
      +/
     enum KeyOrderStrategy
@@ -140,7 +139,7 @@ public:
         Loads JSON from disk.
 
         In the case where the file doesn't exist or is otherwise invalid, then
-        [std.json.JSONValue|JSONValue] is initialised to null (by way of
+        [std.json.JSONValue|JSONValue] is initialised to `null` (by way of
         [JSONStorage.reset]).
 
         Params:
@@ -501,7 +500,8 @@ unittest
     memory without the overhead of dealing with [std.json.JSONValue|JSONValue]s.
 
     Note: This only works with [std.json.JSONValue|JSONValue]s that conform to
-    arrays and associative arrays, not such that mix element/value types.
+    arrays and associative arrays and will not work with such that (for instance)
+    mix value types.
 
     Params:
         target = Reference to target array or associative array to write to.
@@ -758,14 +758,15 @@ unittest
 
 // getOrFallback
 /++
-    Helper to get a value from a JSON object or return a fallback value if it
-    doesn't exist.
+    Fetches a value from a [std.json.JSONValue|JSONValue], or returns a fallback
+    value if the key doesn't exist in the object.
 
-    Limitations: Only work on [std.json.JSONType.object]-type [std.json.JSONValue|JSONValue]s.
+    Limitations: Only work on [std.json.JSONType.object|JSONType.object]-type
+    [std.json.JSONValue|JSONValue]s.
 
     Params:
-        json = [std.json.JSONValue|JSONValue] object to extract from.
-        key = Key to look up in the JSON object.
+        json = [std.json.JSONValue|JSONValue] object to access.
+        key = Key to look up.
         fallback = Value to return if the key is not found.
 
     Returns:

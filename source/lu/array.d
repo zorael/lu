@@ -1,5 +1,5 @@
 /++
-    Some array utilities. Also a simple truth table.
+    Simple array utilities.
 
     Example:
     ---
@@ -142,6 +142,10 @@ unittest
 /++
     Zeroes out the contents of an [std.array.Appender|Appender].
 
+    This is in contrast to the built-in `.clear()` method, which keeps the
+    memory contents and only resets the internal position pointer to the start
+    of it.
+
     Params:
         sink = The [std.array.Appender|Appender] to zero out.
         clear = (Optional) Whether to also call the `.clear()` method of the
@@ -172,10 +176,10 @@ unittest
         assert(sink[] == ['a', 'b', 'c']);
 
         sink.zero(clear: false);
-        assert(sink[] == [ 255, 255, 255 ]);
+        assert(sink[] == [ char.init, char.init, char.init ]);
 
         sink.put('d');
-        assert(sink[] == [ 255, 255, 255, 'd' ]);
+        assert(sink[] == [ char.init, char.init, char.init, 'd' ]);
 
         sink.zero(clear: false, 'X');
         assert(sink[] == [ 'X', 'X', 'X', 'X' ]);
@@ -215,7 +219,7 @@ unittest
     sized to accomodate that value.
 
     If the list of numbers is known at compile-time, there is also an overload
-    that, given the numbers as template arguments, produces a static array.
+    that, given the numbers as template arguments, also produces a static array.
 
     Note: This is not a sparse array and will be as large as requested.
 
@@ -253,8 +257,7 @@ unittest
         `highestValueOverride` is set and a number is out of bounds.
  +/
 auto truthTable(int highestValueOverride = 0, Numbers...)(Numbers numbers)
-if (
-    Numbers.length &&
+if (Numbers.length &&
     allSatisfy!(isImplicitlyConvertibleToSize_t, Numbers))
 {
     static if (highestValueOverride < 0)
@@ -349,12 +352,15 @@ unittest
 
     The table is an array of booleans, where each index corresponds to an enum value
     in the input list. The boolean at each index is `true` if the value is in
-    the input list, and `false` otherwise.s
+    the input list, and `false` otherwise.
 
     Can be used during compile-time. If `Yes.fullEnumRange` is passed, the returned
     table will be a static array sized to accomodate the highest value in the enum.
     If `No.fullEnumRange` is passed, the returned table will be a dynamic one
     sized to accomodate the highest value in the input list.
+
+    If no `fullEnumRange` argument is passed, the function call resolves to the
+    overload that takes compile-time numbers instead.
 
     Note: This is not a sparse array and will be as large as requested.
         Additionally it is stack-allocated if `Yes.fullEnumRange` is passed, so
@@ -388,8 +394,7 @@ unittest
         A truth table as an array of booleans.
  +/
 auto truthTable(Flag!"fullEnumRange" fullEnumRange, Enums...)(Enums values)
-if (
-    Enums.length &&
+if (Enums.length &&
     allSameType!Enums &&
     is(Enums[0] == enum) &&
     is(Enums[0] : size_t))
@@ -501,8 +506,7 @@ unittest
         A truth table as a static array of booleans.
  +/
 auto truthTable(numbers...)()
-if (
-    numbers.length &&
+if (numbers.length &&
     allSatisfy!(templateNot!isType, numbers) &&
     allSatisfy!(isImplicitlyConvertibleToSize_t, numbers))
 {
@@ -610,8 +614,7 @@ unittest
         A truth table as an array of booleans.
  +/
 auto truthTable(Flag!"fullEnumRange" fullEnumRange, values...)()
-if (
-    values.length &&
+if (values.length &&
     allSatisfy!(templateNot!isType, values) &&
     allSatisfy!(isEnum, values) &&
     allSatisfy!(isImplicitlyConvertibleToSize_t, values))
@@ -676,8 +679,7 @@ unittest
 
 // ArrayException
 /++
-    Exception, to be thrown when there was an error with an array-related
-    function in `lu.array`.
+    Exception, to be thrown when there was an array-related error.
 
     It is a normal [object.Exception|Exception] but its type bears meaning
     and allows for catching only array-related exceptions.
@@ -685,7 +687,7 @@ unittest
 final class ArrayException : Exception
 {
     /++
-        Create a new [ArrayException].
+        Creates a new [ArrayException].
      +/
     this(const string message,
         const string file = __FILE__,

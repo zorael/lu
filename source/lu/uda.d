@@ -10,7 +10,7 @@
 module lu.uda;
 
 /++
-    UDA conveying that a field cannot (or should not) be serialised.
+    UDA conveying that the annotated member cannot (or should not) be serialised.
  +/
 enum Unserialisable;
 
@@ -27,24 +27,24 @@ struct Separator
 }
 
 /++
-    UDA conveying that this member contains sensitive information and should not
-    be printed in clear text; e.g. passwords.
+    UDA conveying that the annotated member contains sensitive information and
+    should not be printed in clear text; e.g. passwords.
  +/
 enum Hidden;
 
 /++
-    UDA conveying that this member may contain characters that would otherwise
-    indicate a comment, but isn't.
+    UDA conveying that the annotated member may contain characters that would
+    otherwise indicate a comment, and that this should be ignored.
  +/
 enum CannotContainComments;
 
 /++
-    UDA conveying that this member's value must be quoted when serialised.
+    UDA conveying that the annotated member's value must be quoted when serialised.
  +/
 enum Quoted;
 
 
 /++
-    UDA conveying that this member's value cannot or should not be melded.
+    UDA conveying that the annotated member's value cannot or should not be melded.
  +/
 enum Unmeldable;

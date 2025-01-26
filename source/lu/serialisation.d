@@ -92,8 +92,8 @@ import lu.uda : CannotContainComments, Quoted, Separator, Unserialisable;
     ---
 
     Params:
-        sink = Reference output range to write the serialised objects to (in
-            their .ini file-like format).
+        sink = Output range to write the serialised objects to (in
+            their configuration file-y format).
         things = Variadic list of objects to serialise.
  +/
 void serialise(string suffixToStrip = "Settings", Sink, Things...)(auto ref Sink sink, auto ref Things things)
@@ -125,7 +125,7 @@ if (Things.length > 1)
 
 // serialise
 /++
-    Serialises the fields of an object into an .ini file-like format.
+    Serialises the fields of an object into a configuration file-y format.
 
     It only serialises fields not annotated with
     [lu.uda.Unserialisable|Unserialisable], and it doesn't recurse into other
@@ -147,10 +147,9 @@ if (Things.length > 1)
     ---
 
     Params:
-        suffixToStrip = Substring to strip off the end of struct names when
-            writing them to the output range. Defaults to "Settings". May be empty.
-        sink = Reference output range to write to, usually an
-            [std.array.Appender|Appender].
+        suffixToStrip = Substring to strip off the end of struct/class names when
+            writing them to the output range. Defaults to "`Settings`". May be empty.
+        sink = Output range to write to, usually an [std.array.Appender|Appender].
         thing = Object to serialise.
  +/
 void serialise(string suffixToStrip = "Settings", Sink, QualThing)
@@ -433,12 +432,14 @@ let def`;
 private struct SerialisationUDAs
 {
     /++
-        Whether or not the member was annotated [lu.uda.Unserialisable|Unserialisable].
+        The value of the [lu.uda.Separator|Separator] UDA the array was
+        annotated with.
      +/
     bool unserialisable;
 
     /++
-        Whether or not the member was annotated with a [lu.uda.Separator|Separator].
+        The value of the [lu.uda.Separator|Separator] UDA the array was
+        annotated with.
      +/
     string separator;
 
@@ -477,7 +478,7 @@ private struct SerialisationUDAs
             a runtime value.
 
     Returns:
-        A string, to be saved as a serialised row in an .ini file-like format.
+        A string, to be saved as a serialised row in a configuration file-y format.
  +/
 private string serialiseArrayImpl(T)(const auto ref T array, const SerialisationUDAs udas)
 {
@@ -550,12 +551,12 @@ private string serialiseArrayImpl(T)(const auto ref T array, const Serialisation
     ---
 
     Params:
-        suffixToStrip = Substring to strip off the end of struct names when
-            reading them from the input range. Defaults to "Settings". May be empty.
+        suffixToStrip = Substring to strip off the end of struct/class names when
+            reading them from the input range. Defaults to "`Settings`". May be empty.
         range = Input range from which to read the serialised text.
-        missingEntries = Out reference of an associative array of string arrays
+        missingEntries = out-reference of an associative array of string arrays
             of expected entries that were missing.
-        invalidEntries = Out reference of an associative array of string arrays
+        invalidEntries = out-reference of an associative array of string arrays
             of unexpected entries that did not belong.
         things = Reference variadic list of one or more objects to apply the
             deserialised values to.
@@ -1251,7 +1252,7 @@ naN                     !"#¤%&/`;
 final class DeserialisationException : Exception
 {
     /++
-        Create a new [DeserialisationException].
+        Creates a new [DeserialisationException].
      +/
     this(const string message,
         const string file = __FILE__,

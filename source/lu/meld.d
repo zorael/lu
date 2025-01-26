@@ -93,7 +93,7 @@ enum MeldingStrategy
 // meldInto
 /++
     Takes two structs or classes of the same type and melds them together,
-    making the members a union of the two.
+    making the members of the resulting aggregate a union of the two.
 
     In the case of classes it only overwrites members in `intoThis` that are
     `typeof(member).init`, so only unset members get their values overwritten by
@@ -120,8 +120,8 @@ enum MeldingStrategy
     bar.def = 42;
     foo.meldInto(bar);
 
-    assert(bar.abc == "from foo");
-    assert(bar.def == 42);
+    assert( bar.abc == "from foo");
+    assert( bar.def == 42);
     assert(!bar.b);  // false overwrote default value true
     ---
 
@@ -134,7 +134,9 @@ enum MeldingStrategy
 void meldInto(MeldingStrategy strategy = MeldingStrategy.conservative, QualThing, Thing)
     (auto ref QualThing meldThis,
     ref Thing intoThis)
-if (isAggregateType!Thing && is(QualThing : Thing) && isMutable!Thing)
+if (isAggregateType!Thing &&
+    is(QualThing : Thing) &&
+    isMutable!Thing)
 {
     static if (is(Thing == struct) && (strategy == MeldingStrategy.conservative))
     {
@@ -700,7 +702,9 @@ unittest
 void meldInto(MeldingStrategy strategy = MeldingStrategy.conservative, Array1, Array2)
     (auto ref Array1 meldThis,
     ref Array2 intoThis) pure nothrow
-if (isMerelyArray!Array1 && isMerelyArray!Array2 && isMutable!Array2)
+if (isMerelyArray!Array1 &&
+    isMerelyArray!Array2 &&
+    isMutable!Array2)
 {
     import std.traits : isDynamicArray, isStaticArray;
 
@@ -855,7 +859,9 @@ unittest
 void meldInto(MeldingStrategy strategy = MeldingStrategy.conservative, QualAA, AA)
     (QualAA meldThis,
     ref AA intoThis) pure
-if (isAssociativeArray!AA && is(QualAA : AA) && isMutable!AA)
+if (isAssociativeArray!AA &&
+    is(QualAA : AA)
+    && isMutable!AA)
 {
     if (!meldThis.length)
     {
