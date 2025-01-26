@@ -212,6 +212,9 @@ final class FileTypeMismatchException : Exception
 
     This is useful to see to what extent two addresses are similar.
 
+    Pass `reverse: true` to do reverse domain matching, like for flatpak
+    application IDs.
+
     Example:
     ---
     int numDomains = sharedDomains("irc.freenode.net", "leguin.freenode.net");
@@ -219,11 +222,15 @@ final class FileTypeMismatchException : Exception
 
     int numDomains2 = sharedDomains("Portlane2.EU.GameSurge.net", "services.gamesurge.net", caseSensitive:false);
     assert(numDomains2 == 2);  // gamesurge.net
+
+    int numDomains3 = sharedDomains("org.kde.Platform", "org.kde.KStyle.Awaita", reverse: true);
+    assert(numDomains3 == 2);  // org.kde
     ---
 
     Params:
         one = First domain string.
         other = Second domain string.
+        reverse = Whether or not to do reverse domain matching.
         caseSensitive = Whether or not comparison should be done on a
             case-sensitive basis.
 
@@ -236,6 +243,7 @@ final class FileTypeMismatchException : Exception
 auto sharedDomains(
     const string one,
     const string other,
+    const bool reverse = false,
     const bool caseSensitive = true) pure @safe @nogc nothrow
 {
     if (!one.length || !other.length) return 0;
@@ -243,7 +251,8 @@ auto sharedDomains(
     static uint numDomains(
         const char[] one,
         const char[] other,
-        const bool caseSensitive)
+        const bool caseSensitive,
+        const bool reverse)
     {
         uint dots;
         double doubleDots;
@@ -264,7 +273,7 @@ auto sharedDomains(
 
         foreach (immutable i; 0..one.length)
         {
-            immutable c1 = one[$-i-1];
+            immutable c1 = reverse ? one[i] : one[$-i-1];
 
             if (i == other.length)
             {
@@ -272,7 +281,7 @@ auto sharedDomains(
                 break;
             }
 
-            immutable c2 = other[$-i-1];
+            immutable c2 = reverse ? other[i] : other[$-i-1];
 
             if (caseSensitive)
             {
@@ -302,8 +311,8 @@ auto sharedDomains(
     }
 
     return (one.length > other.length) ?
-        numDomains(one, other, caseSensitive) :
-        numDomains(other, one, caseSensitive);
+        numDomains(one, other, caseSensitive, reverse) :
+        numDomains(other, one, caseSensitive, reverse);
 }
 
 ///
@@ -312,48 +321,84 @@ unittest
 {
     import std.conv : text;
 
-    immutable n1 = sharedDomains("irc.freenode.net", "help.freenode.net");
-    assert((n1 == 2), n1.text);
+    {
+        immutable n = sharedDomains("irc.freenode.net", "help.freenode.net");
+        assert((n == 2), n.text);
+    }
+    {
+        immutable n = sharedDomains("irc.rizon.net", "services.rizon.net");
+        assert((n == 2), n.text);
+    }
+    {
+        immutable n = sharedDomains("www.google.com", "www.yahoo.com");
+        assert((n == 1), n.text);
+    }
+    {
+        immutable n = sharedDomains("www.google.se", "www.google.co.uk");
+        assert((n == 0), n.text);
+    }
+    {
+        immutable n = sharedDomains("", string.init);
+        assert((n == 0), n.text);
+    }
+    {
+        immutable n = sharedDomains("irc.rizon.net", "rizon.net");
+        assert((n == 2), n.text);
+    }
+    {
+        immutable n = sharedDomains("rizon.net", "rizon.net");
+        assert((n == 2), n.text);
+    }
+    {
+        immutable n = sharedDomains("net", "net");
+        assert((n == 1), n.text);
+    }
+    {
+        immutable n = sharedDomains("forum.dlang.org", "...");
+        assert((n == 0), n.text);
+    }
+    {
+        immutable n = sharedDomains("blahrizon.net", "rizon.net");
+        assert((n == 1), n.text);
+    }
+    {
+        immutable n = sharedDomains("rizon.net", "blahrizon.net");
+        assert((n == 1), n.text);
+    }
+    {
+        immutable n = sharedDomains("rizon.net", "irc.rizon.net");
+        assert((n == 2), n.text);
+    }
+    {
+        immutable n = sharedDomains("irc.gamesurge.net", "Stuff.GameSurge.net", caseSensitive:false);
+        assert((n == 2), n.text);
+    }
+    {
+        immutable n = sharedDomains("irc.freenode.net", "irc.FREENODE.net", caseSensitive:false);
+        assert((n == 3), n.text);
+    }
 
-    immutable n2 = sharedDomains("irc.rizon.net", "services.rizon.net");
-    assert((n2 == 2), n2.text);
-
-    immutable n3 = sharedDomains("www.google.com", "www.yahoo.com");
-    assert((n3 == 1), n3.text);
-
-    immutable n4 = sharedDomains("www.google.se", "www.google.co.uk");
-    assert((n4 == 0), n4.text);
-
-    immutable n5 = sharedDomains("", string.init);
-    assert((n5 == 0), n5.text);
-
-    immutable n6 = sharedDomains("irc.rizon.net", "rizon.net");
-    assert((n6 == 2), n6.text);
-
-    immutable n7 = sharedDomains("rizon.net", "rizon.net");
-    assert((n7 == 2), n7.text);
-
-    immutable n8 = sharedDomains("net", "net");
-    assert((n8 == 1), n8.text);
-
-    immutable n9 = sharedDomains("forum.dlang.org", "...");
-    assert((n9 == 0), n8.text);
-
-    immutable n10 = sharedDomains("blahrizon.net", "rizon.net");
-    assert((n10 == 1), n10.text);
-
-    immutable n11 = sharedDomains("rizon.net", "blahrizon.net");
-    assert((n11 == 1), n11.text);
-
-    immutable n12 = sharedDomains("rizon.net", "irc.rizon.net");
-    assert((n12 == 2), n12.text);
-
-    immutable n13 = sharedDomains("irc.gamesurge.net", "Stuff.GameSurge.net", caseSensitive:false);
-    assert((n13 == 2), n13.text);
-
-    immutable n14 = sharedDomains("irc.freenode.net", "irc.FREENODE.net", caseSensitive:false);
-    assert((n14 == 3), n14.text);
-
-    immutable n15 = sharedDomains("irc.SpotChat.org", "irc.FREENODE.net", caseSensitive:false);
-    assert((n15 == 0), n15.text);
+    /+
+        Reverse domains, like those of flatpak application IDs.
+     +/
+    {
+        immutable n = sharedDomains("irc.SpotChat.org", "irc.FREENODE.net", caseSensitive:false);
+        assert((n == 0), n.text);
+    }
+    {
+        immutable n = sharedDomains("org.kde.Plasma", "org.kde.Kate", reverse: true);
+        assert((n == 2), n.text);
+    }
+    {
+        immutable n = sharedDomains("com.redhat.Something", "com.redhat.Other", reverse: true);
+        assert((n == 2), n.text);
+    }
+    {
+        immutable n = sharedDomains("org.freedesktop.Platform.GL.default", "org.freedesktop.Platform.VAAPI.Intel", reverse: true);
+        assert((n == 3), n.text);
+    }
+    {
+        immutable n = sharedDomains("org.kde.Platform", "im.riot.Riot", reverse: true);
+        assert((n == 0), n.text);
+    }
 }
