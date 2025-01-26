@@ -562,7 +562,7 @@ unittest
     Returns:
         A slice of the passed string line without enclosing tokens.
  +/
-private auto unenclosed(char token = '"')(/*const*/ return scope string line) pure nothrow @nogc
+/*private*/ auto unenclosed(char token = '"')(/*const*/ return scope string line) pure nothrow @nogc
 {
     enum escaped = "\\" ~ token;
 
