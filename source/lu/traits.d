@@ -502,52 +502,67 @@ unittest
 /++
     Eponymous template bool of whether a variable can be treated as a mutable
     variable, like a fundamental integral, and thus be serialised.
-
-    Currently it does not support static arrays.
+    Overload that takes a non-type symbol.
 
     Params:
         sym = Alias of symbol to introspect.
  +/
 template isSerialisable(alias sym)
+if (!isType!sym)
 {
-    import std.traits : isType;
-
-    static if (!isType!sym)
-    {
-        import std.traits : isSomeFunction;
-
-        alias T = typeof(sym);
-
-        enum isSerialisable =
-            !isSomeFunction!T &&
-            !__traits(isTemplate, T) &&
-            //!__traits(isAssociativeArray, T) &&
-            !__traits(isStaticArray, T);
-    }
-    else
-    {
-        enum isSerialisable = false;
-    }
+    enum isSerialisable = isSerialisable!(typeof(sym));
 }
 
 ///
 unittest
 {
+    enum E { a, b, c }
+
+    E e;
+    string s;
     int i;
     char[] c;
     char[8] c2;
-    struct S {}
-    class C {}
-    enum E { foo }
-    E e;
 
+    static assert( isSerialisable!e);
+    static assert( isSerialisable!s);
     static assert( isSerialisable!i);
     static assert( isSerialisable!c);
-    static assert(!isSerialisable!c2); // should static arrays pass?
-    static assert(!isSerialisable!S);
-    static assert(!isSerialisable!C);
-    static assert(!isSerialisable!E);
-    static assert( isSerialisable!e);
+    static assert(!isSerialisable!c2);
+}
+
+
+// isSerialisable
+/++
+    Eponymous template bool of whether a variable can be treated as a mutable
+    variable, like a fundamental integral, and thus be serialised.
+    Overload that takes a type.
+
+    Params:
+        sym = Alias of symbol to introspect.
+ +/
+template isSerialisable(T)
+if (isType!T)
+{
+    enum isSerialisable =
+        !isSomeFunction!T &&
+        !__traits(isTemplate, T) &&
+        //!__traits(isAssociativeArray, T) &&
+        !__traits(isStaticArray, T);
+}
+
+///
+unittest
+{
+    enum E { a, b, c }
+    struct S {}
+    class C {}
+
+    static assert( isSerialisable!S);
+    static assert( isSerialisable!C);
+    static assert( isSerialisable!E);
+    static assert( isSerialisable!(char[]));
+    static assert(!isSerialisable!(char[8]));
 }
 
 
