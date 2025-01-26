@@ -2,9 +2,7 @@
 
 Miscellaneous general-purpose library modules. Nothing extraordinary.
 
-### In brief
-
-API documentation can be found [here](https://zorael.github.io/lu).
+API documentation can be found [here](https://zorael.github.io/lu/lu.html).
 
 #### [`meld.d`](source/lu/meld.d)
 
@@ -45,7 +43,7 @@ assert(targetAA == [ "a":"a", "b":"b", "c":"c", "d":"d" ]);
 #### [`objmanip.d`](source/lu/objmanip.d)
 
 Struct/class manipulation, such as
-setting a member field by its string name. Originally intended to only accept string values but now works with any type. When the passed value doesn't implicitly match, `std.conv.to` is used to coerce.
+setting a member field by its string name. Originally intended to only accept string values but now works with any assignable type. When the passed value doesn't implicitly match, `std.conv.to` is used to coerce.
 
 ```d
 struct Foo
@@ -544,7 +542,7 @@ static assert( staticTable[7]);
 
 #### [`json.d`](source/lu/json.d)
 
-Convenience functions for working with Phobos' `JSONValue`s, which can be unwieldy. **Not** a JSON parser implementation.
+Simple wrappers around Phobos [std.json].
 
 ```d
 auto json = JSONValue([ "foo" : 123, "bar" : 456, "baz" : 789 ]);
@@ -582,16 +580,22 @@ Things that don't have a better home yet.
     Top-level domains are counted as well, so "youtube.com" and "github.com"
     share one domain. Case-sensitivity can be controlled with the optional
     `caseSensitive` parameter.
+
+    Reverse the order of the domains with the optional `reverse` parameter,
+    such as for flatpak application IDs.
  +/
 assert(sharedDomains("irc.libera.chat", "zinc.libera.chat") == 2);
 assert(sharedDomains("irc.gamesurge.net", "Stuff.GameSurge.net", caseSensitive: false) ==  2);
 assert(sharedDomains("forum.dlang.org", "en.wikipedia.org") == 1);  // subtract 1 if you want to ignore TLDs
 assert(sharedDomains("www.reddit.com", "www.twitch.tv") == 0);
+
+// Reversed
+assert(sharedDomains("org.kde.Platform", "org.kde.KStyle.Awaita", reverse: true) == 2);
 ```
 
 #### Less noteworthy
 
-* [`numeric.d`](source/lu/numeric.d): Functions and templates that calculate or manipulate numbers in some way.
+* [`numeric.d`](source/lu/numeric.d): Functions and templates that do calculations or other numeric manipulation, in some way or another.
 * [`uda.d`](source/lu/uda.d): Some user-defined attributes used here and there.
 
 ## Caveats
