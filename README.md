@@ -42,7 +42,7 @@ assert(targetAA == [ "a":"a", "b":"b", "c":"c", "d":"d" ]);
 
 #### [`objmanip.d`](source/lu/objmanip.d)
 
-Struct/class manipulation, such as setting a member field by its string name. Originally intended to only accept string values but now works with any assignable type. When the passed value doesn't implicitly match, `std.conv.to` is used to coerce.
+Struct/class manipulation, such as assigning a member a value by its string name. Originally intended to only accept string values but now works with any assignable type. When the passed value doesn't implicitly match, `std.conv.to` is used to coerce.
 
 ```d
 struct Foo
@@ -77,7 +77,7 @@ assert(!success);
 
 #### [`deltastrings.d`](source/lu/deltastrings.d)
 
-Expressing the difference between two instances of a struct or class of the same type, as either assignment statements or assert statements. The output is written to an output range.
+Expressing the difference between two instances of a struct or class of the same type, as a D code string of either assignment statements or assert statement. The output is written to an output range.
 
 ```d
 Appender!(char[]) sink;  // or any other output range
@@ -132,9 +132,9 @@ assert((altered.i == 42), altered.i.to!string);
 
 #### [`typecons.d`](source/lu/typecons.d)
 
-The `OpDispatcher` mixintemplate. When mixed into some aggregate, it generates an `opDispatch` that allows for accessing and mutating any members of it whose names either start or end with a token string, even if they are private. Dynamic arrays are appended to.
+The `OpDispatcher` mixin template. When mixed into some aggregate, it generates an `opDispatch` that allows for accessing and mutating any members of it whose names either start or end with a token string. Dynamic arrays are appended to.
 
-A convenience mixin `UnderscoreOpDispatcher` is provided that instantiates an `OpDispatcher` with an underscore token, set to look for members that start with `_`.
+A convenience mixin `UnderscoreOpDispatcher` is provided that instantiates an `OpDispatcher` with an underscore token, set to allow access to members that start with `_`.
 
 ```d
 struct Foo
@@ -538,7 +538,7 @@ static assert( staticTable[7]);
 
 #### [`json.d`](source/lu/json.d)
 
-Simple wrappers around Phobos [std.json].
+Simple wrappers around Phobos `std.json`.
 
 ```d
 auto json = JSONValue([ "foo" : 123, "bar" : 456, "baz" : 789 ]);
@@ -601,9 +601,6 @@ Releases of the library prior to `v3.0.0` remain available for older compilers.
 
 ## Roadmap
 
-* ~~replace use of `std.typecons.Flag` with named arguments wherever possible~~
-* ~~rename `formatDeltaInto` -> `putDelta`~~
-* ~~write truth table~~
 * nothing right now, ideas needed
 
 ## Built with
