@@ -255,7 +255,7 @@ unittest
 auto truthTable(int highestValueOverride = 0, Numbers...)(Numbers numbers)
 if (
     Numbers.length &&
-    allSatisfy!(isImplicitlyConvertibleToSize_t, numbers))  // doesn't work with Numbers
+    allSatisfy!(isImplicitlyConvertibleToSize_t, Numbers))
 {
     static if (highestValueOverride < 0)
     {
