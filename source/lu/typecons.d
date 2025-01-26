@@ -217,6 +217,7 @@ unittest
  +/
 mixin template UnderscoreOpDispatcher()
 {
+    private import lu.typecons : OpDispatcher;
     mixin OpDispatcher!("_", Yes.inFront);
 }
 
