@@ -917,16 +917,23 @@ unittest
     For use with [std.meta.Filter], [std.traits.allSatisfy] and similar,
     which cannot take `is()` expressions.
  +/
-enum isImplicitlyConvertibleToSize_t(T) = is(T : size_t);
+template isImplicitlyConvertibleToSize_t(T)
+if (isType!T)
+{
+    enum isImplicitlyConvertibleToSize_t = is(T : size_t);
+}
 
 ///
 unittest
 {
+    enum E { a, b, c }
+
     static assert( isImplicitlyConvertibleToSize_t!int);
     static assert( isImplicitlyConvertibleToSize_t!char);
     static assert( isImplicitlyConvertibleToSize_t!size_t);
     static assert(!isImplicitlyConvertibleToSize_t!string);
     static assert(!isImplicitlyConvertibleToSize_t!(int[]));
+    static assert( isImplicitlyConvertibleToSize_t!E);
 }
 
 
@@ -938,11 +945,17 @@ unittest
     For use with [std.meta.Filter], [std.traits.allSatisfy] and similar,
     which cannot take `is()` expressions.
  +/
-enum isImplicitlyConvertibleToSize_t(alias T) = is(typeof(T) : size_t);
+template isImplicitlyConvertibleToSize_t(alias T)
+if (!isType!T)
+{
+    enum isImplicitlyConvertibleToSize_t = is(typeof(T) : size_t);
+}
 
 ///
 unittest
 {
+    enum E { a, b, c }
+
     int i;
     char c;
     size_t s_t;
@@ -954,6 +967,7 @@ unittest
     static assert( isImplicitlyConvertibleToSize_t!s_t);
     static assert(!isImplicitlyConvertibleToSize_t!s);
     static assert(!isImplicitlyConvertibleToSize_t!arr);
+    static assert( isImplicitlyConvertibleToSize_t!(E.a));
 }
 
 
