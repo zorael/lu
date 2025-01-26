@@ -25,6 +25,15 @@ configuration "library" {
 }
 
 configuration "unittest" {
+    dflags "-preview=dip1000" "-preview=dip1008" platform="dmd"
+    dflags "-preview=dip1000" "-preview=dip1008" platform="ldc"
+    dflags "-fpreview=dip1000" "-fpreview=dip1008" platform="gdc"
+    dflags "-preview=fieldwise" "-preview=fixAliasThis" platform="dmd"
+    dflags "-preview=fieldwise" "-preview=fixAliasThis" platform="ldc"
+    dflags "-fpreview=fieldwise" "-fpreview=fixaliasthis" platform="gdc"
+    dflags "-preview=in" "-preview=inclusiveincontracts" platform="dmd"
+    dflags "-preview=in" "-preview=inclusiveincontracts" platform="ldc"
+    dflags "-fpreview=in" "-fpreview=inclusiveincontracts" platform="gdc"
     sourcePaths "source"
     importPaths "source"
 }
