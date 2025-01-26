@@ -394,7 +394,10 @@ unittest
         assert((n == 2), n.text);
     }
     {
-        immutable n = sharedDomains("org.freedesktop.Platform.GL.default", "org.freedesktop.Platform.VAAPI.Intel", reverse: true);
+        immutable n = sharedDomains(
+            "org.freedesktop.Platform.GL.default",
+            "org.freedesktop.Platform.VAAPI.Intel",
+            reverse: true);
         assert((n == 3), n.text);
     }
     {
