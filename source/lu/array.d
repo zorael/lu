@@ -57,7 +57,7 @@ private:
 import lu.traits : isEnum, isImplicitlyConvertibleToSize_t;
 import std.array : Appender;
 import std.meta : allSatisfy, templateNot;
-import std.traits : allSameType, isIntegral, isType;
+import std.traits : allSameType, isAssociativeArray, isIntegral, isMutable, isType;
 import std.typecons : Flag, No, Yes;
 
 public:
@@ -695,5 +695,155 @@ final class ArrayException : Exception
         Throwable nextInChain = null) pure nothrow @nogc @safe
     {
         super(message, file, line, nextInChain);
+    }
+}
+
+
+// pruneAA
+/++
+    Iterates an associative array and deletes invalid entries, either if the value
+    is in a default `.init` state or as per the optionally passed predicate.
+
+    It is undefined behaviour to remove keys from an associative array
+    when foreaching through it. Use this as a separate pass to safely remove entries.
+
+    Example:
+    ---
+    auto aa =
+    [
+        "abc" : "def",
+        "ghi" : string.init;
+        "mno" : "123",
+        "pqr" : string.init,
+    ];
+
+    pruneAA(aa);
+
+    assert("ghi" !in aa);
+    assert("pqr" !in aa);
+
+    pruneAA!((entry) => entry.length > 0)(aa);
+
+    assert("abc" !in aa);
+    assert("mno" !in aa);
+    ---
+
+    Params:
+        pred = Optional predicate if special logic is needed to determine whether
+            an entry is to be removed or not.
+        aa = The associative array to modify.
+ +/
+void pruneAA(alias pred = null, AA)(ref AA aa)
+if (isAssociativeArray!AA && isMutable!AA)
+{
+    if (!aa.length) return;
+
+    string[] toRemove;
+
+    // Mark
+    foreach (/*immutable*/ key, value; aa)
+    {
+        static if (!is(typeof(pred) == typeof(null)))
+        {
+            import std.functional : binaryFun, unaryFun;
+
+            alias unaryPred = unaryFun!pred;
+            alias binaryPred = binaryFun!pred;
+
+            static if (__traits(compiles, unaryPred(value)))
+            {
+                if (unaryPred(value)) toRemove ~= key;
+            }
+            else static if (__traits(compiles, binaryPred(key, value)))
+            {
+                if (unaryPred(key, value)) toRemove ~= key;
+            }
+            else
+            {
+                enum message = "Unknown predicate type passed to `pruneAA`";
+                static assert(0, message);
+            }
+        }
+        else
+        {
+            if (value == typeof(value).init)
+            {
+                toRemove ~= key;
+            }
+        }
+    }
+
+    // Sweep
+    foreach (immutable key; toRemove)
+    {
+        aa.remove(key);
+    }
+}
+
+///
+unittest
+{
+    import std.conv : text;
+
+    {
+        auto aa =
+        [
+            "abc" : "def",
+            "ghi" : "jkl",
+            "mno" : "123",
+            "pqr" : string.init,
+        ];
+
+        pruneAA!((a) => a == "def")(aa);
+        assert("abc" !in aa);
+
+        pruneAA!((a,b) => a == "pqr")(aa);
+        assert("pqr" !in aa);
+
+        pruneAA!`a == "123"`(aa);
+        assert("mno" !in aa);
+    }
+    {
+        struct Record
+        {
+            string name;
+            int id;
+        }
+
+        auto aa =
+        [
+            "rhubarb"   : Record("rhubarb", 100),
+            "raspberry" : Record("raspberry", 80),
+            "blueberry" : Record("blueberry", 0),
+            "apples"    : Record("green apples", 60),
+            "yakisoba"  : Record("yakisoba", 78),
+            "cabbage"   : Record.init,
+        ];
+
+        pruneAA(aa);
+        assert("cabbage" !in aa);
+
+        pruneAA!((entry) => entry.id < 80)(aa);
+        assert("blueberry" !in aa);
+        assert("apples" !in aa);
+        assert("yakisoba" !in aa);
+        assert((aa.length == 2), aa.length.text);
+    }
+    {
+        import std.algorithm.searching : canFind;
+
+        string[][string] aa =
+        [
+            "abc" : [ "a", "b", "c" ],
+            "def" : [ "d", "e", "f" ],
+            "ghi" : [ "g", "h", "i" ],
+            "jkl" : [ "j", "k", "l" ],
+        ];
+
+        pruneAA(aa);
+        assert((aa.length == 4), aa.length.text);
+
+        pruneAA!((entry) => entry.canFind("a"))(aa);
+        assert("abc" !in aa);
     }
 }
