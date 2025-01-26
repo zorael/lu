@@ -1867,12 +1867,12 @@ private:
      +/
     shared Mutex mutex;
 
-public:
     /++
         The internal associative array.
      +/
     shared AA aa;
 
+public:
     /++
         Sets up this instance. Does nothing if it has already been set up.
 
@@ -1893,6 +1893,32 @@ public:
         }
 
         (cast()mutex).unlock_nothrow();
+    }
+
+    // aaOf
+    /++
+        Returns the internal associative array, for when the wrapper is insufficient.
+
+        Example:
+        ---
+        MutexedAA!(string[int]) aa;
+        aa.setup();  // important!
+        aa[1] = "one";
+        aa[2] = "two";
+        aa[3] = "three";
+
+        foreach (immutable k, const v; aa.aaOf)
+        {
+            // ...
+        }
+        ---
+
+        Returns:
+            The internal associative array.
+     +/
+    ref auto aaOf() inout
+    {
+        return aa;
     }
 
     /++
