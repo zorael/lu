@@ -26,12 +26,12 @@ enum LuSemVer
     /++
         SemVer minor version of the library.
      +/
-    minor = 0,
+    minor = 1,
 
     /++
         SemVer patch version of the library.
      +/
-    patch = 3,
+    patch = 0,
 }
 
 
