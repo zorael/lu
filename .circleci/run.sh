@@ -2,8 +2,8 @@
 
 set -uexo pipefail
 
-#DMD_VERSION="2.098.0"
-#LDC_VERSION="1.28.0"
+#DMD_VERSION="2.108.0"
+#LDC_VERSION="1.38.0"
 CURL_USER_AGENT="CirleCI $(curl --version | head -n 1)"
 
 update_repos() {
@@ -18,34 +18,32 @@ install_deps() {
 }
 
 download_install_script() {
+    local i url urls
+
+    urls=( "https://dlang.org/install.sh" "https://nightlies.dlang.org/install.sh" )
+
     for i in {0..4}; do
-        if curl -fsS -A "$CURL_USER_AGENT" --max-time 5 https://dlang.org/install.sh -O ||
-                curl -fsS -A "$CURL_USER_AGENT" --max-time 5 https://nightlies.dlang.org/install.sh -O ; then
-            break
-        elif [[ "$i" -ge 4 ]]; then
-            sleep $((1 << i))
-        else
-            echo 'Failed to download install script' 1>&2
-            exit 1
-        fi
+        [[ $i = 0 ]] || sleep $((i*3))
+
+        for url in "${urls[@]}"; do
+            if curl -fsS -A "$CURL_USER_AGENT" --max-time 5 "$url" -O; then
+                return
+            fi
+        done
     done
+
+    echo 'Failed to download install script' 1>&2
+    exit 1
 }
 
 install_and_activate_compiler() {
     local compiler compiler_version_ext compiler_build
 
-    compiler=$1
+    compiler="$1"
     [[ $# -gt 1 ]] && compiler_version_ext="-$2" || compiler_version_ext=""
     compiler_build="${compiler}${compiler_version_ext}"
 
-    source "$(CURL_USER_AGENT=\"$CURL_USER_AGENT\" bash install.sh $compiler_build --activate)"
-}
-
-use_lu_master() {
-    if [[ ! -d lu ]]; then
-        git clone https://github.com/zorael/lu.git
-        dub add-local lu
-    fi
+    source "$(CURL_USER_AGENT=\"$CURL_USER_AGENT\" bash install.sh "$compiler_build" --activate)"
 }
 
 build() {
@@ -57,12 +55,10 @@ build() {
     shift 2  # shift away compiler and arch
     # "$@" is now any extra parameters passed to build
 
-    dub clean
-
-    time dub test  $compiler_switch $arch_switch "$@"
-    time dub build $compiler_switch $arch_switch "$@" --nodeps -b debug
-    time dub build $compiler_switch $arch_switch "$@" --nodeps -b plain
-    time dub build $compiler_switch $arch_switch "$@" --nodeps -b release
+    time dub test  "$compiler_switch" "$arch_switch" "$@"
+    time dub build "$compiler_switch" "$arch_switch" "$@" --nodeps -b debug
+    time dub build "$compiler_switch" "$arch_switch" "$@" --nodeps -b plain
+    time dub build "$compiler_switch" "$arch_switch" "$@" --nodeps -b release
 }
 
 # execution start
@@ -79,9 +75,6 @@ case $1 in
         dmd --version
         dub --version
 
-        #use_lu_master
-
-        #time build dmd x86  # no 32-bit libs?
         time build dmd x86_64
         ;;
 
@@ -90,9 +83,6 @@ case $1 in
         ldc2 --version
         dub --version
 
-        #use_lu_master
-
-        #time build ldc2 x86  # no 32-bit libs?
         time build ldc2 x86_64
         ;;
 
