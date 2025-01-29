@@ -1,0 +1,10 @@
+# Regex expressions for use with the output of dscanner
+
+container\.d.+'MutexedAA' has method 'opEquals', but not 'toHash'.
+container\.d.+'RehashingAA' has method 'opEquals', but not 'toHash'.
+container\.d.+Methods 'opCmp', 'toHash', 'opEquals', 'opCast', and/or 'toString' are non-const.
+conv\.d.+Parameter enumstring is never used.
+json\.d.+Variable rawRange is never modified
+string\.d.+Assignment to auto-ref function parameter
+array\.d.+Variable table is never modified
+array\.d.+Variable tableLength is never used
