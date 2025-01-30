@@ -52,6 +52,8 @@ module lu.assert_;
     Params:
         actual = Actual string.
         expected = Expected string.
+        file = File name to report in the error message.
+        line = Line number to report in the error message.
  +/
 void assertMultilineEquals(
     const(char[]) actual,

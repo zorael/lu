@@ -44,12 +44,9 @@ public:
 
 // Separator
 /++
-    Public import of `lu.uda.Separator`.
-
-    See_Also:
-        [lu.uda.Separator]
+    Public import of [lu.uda.Separator].
  +/
-import lu.uda : Separator;
+/*public*/ import lu.uda : Separator;
 
 
 // setMemberByName
@@ -951,7 +948,7 @@ unittest
 
 // pruneAA
 /++
-    Deprecated public import of `lu.array.pruneAA`, since it was moved there.
+    Deprecated public import of [lu.array.pruneAA]. Import it directly instead.
  +/
 deprecated("Import `lu.array.pruneAA` directly")
 /*public*/ import lu.array : pruneAA;

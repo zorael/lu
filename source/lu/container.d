@@ -1789,6 +1789,9 @@ unittest
 
     Returns:
         A new [RehashingAA] instance based on the passed associative array.
+
+    See_Also:
+        [RehashingAA]
  +/
 auto rehashingAA(AA : V[K], V, K)(AA aa)
 {
@@ -1854,6 +1857,9 @@ unittest
         AA = Associative array type.
         V = Value type.
         K = Key type.
+
+    See_Also:
+        [mutexedAA]
  +/
 struct MutexedAA(AA : V[K], V, K)
 {
@@ -2738,6 +2744,9 @@ unittest
 
     Returns:
         A new [MutexedAA] instance.
+
+    See_Also:
+        [MutexedAA]
  +/
 auto mutexedAA(AA : V[K], V, K)()
 if (__traits(isAssociativeArray, AA))
@@ -2784,6 +2793,9 @@ unittest
 
     Returns:
         A new [MutexedAA] instance, initialised with the passed original associative array.
+
+    See_Also:
+        [MutexedAA]
  +/
 auto mutexedAA(Flag!"dup" performDup = Yes.dup, AA : V[K], V, K)(AA orig)
 if (__traits(isAssociativeArray, AA))

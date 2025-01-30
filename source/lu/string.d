@@ -386,6 +386,9 @@ unittest
     Exception, to be thrown when a call to [advancePast] went wrong.
 
     It is a normal [object.Exception|Exception] but with an attached needle and haystack.
+
+    See_Also:
+        [AdvanceExceptionImpl]
  +/
 abstract class AdvanceException : Exception
 {
@@ -424,6 +427,9 @@ abstract class AdvanceException : Exception
     Params:
         Haystack = Haystack array type.
         Needle = Needle array or character type.
+
+    See_Also:
+        [AdvanceException]
  +/
 final class AdvanceExceptionImpl(Haystack, Needle) : AdvanceException
 {
@@ -561,6 +567,10 @@ unittest
 
     Returns:
         A slice of the passed string line without enclosing tokens.
+
+    See_Also:
+        [unquoted]
+        [unsinglequoted]
  +/
 /*private*/ auto unenclosed(char token = '"')(/*const*/ return scope string line) pure nothrow @nogc
 {
@@ -606,6 +616,10 @@ unittest
 
     Returns:
         A slice of the `line` argument that excludes the quotes.
+
+    See_Also:
+        [unsinglequoted]
+        [unenclosed]
  +/
 pragma(inline, true)
 auto unquoted(/*const*/ return scope string line) pure nothrow @nogc
@@ -645,6 +659,10 @@ unittest
 
     Returns:
         A slice of the `line` argument that excludes the single-quotes.
+
+    See_Also:
+        [unquoted]
+        [unenclosed]
  +/
 pragma(inline, true)
 auto unsinglequoted(/*const*/ return scope string line) pure nothrow @nogc
@@ -774,6 +792,9 @@ unittest
         sink = Output range to fill with the indented lines.
         numTabs = Amount of tabs to indent with, default `1`.
         skip = How many lines to skip before starting to indent.
+
+    See_Also:
+        [tabs]
  +/
 void indentInto(uint spaces = 4, Sink)
     (const string wallOfText,
@@ -878,6 +899,10 @@ so shrug"), '\n' ~ sink[]);
 
     Returns:
         A string with lines of the original string indented.
+
+    See_Also:
+        [indentInto]
+        [tabs]
  +/
 string indent(uint spaces = 4)
     (const string wallOfText,
@@ -949,6 +974,10 @@ sit amet
 
     Returns:
         The passed line without any trailing whitespace or linebreaks.
+
+    See_Also:
+        [strippedLeft]
+        [stripped]
  +/
 auto strippedRight(/*const*/ return scope string line) pure nothrow @nogc
 {
@@ -1008,6 +1037,10 @@ unittest
 
     Returns:
         The passed line without any trailing passed characters.
+
+    See_Also:
+        [strippedLeft]
+        [stripped]
  +/
 auto strippedRight(Line, Chaff)
     (/*const*/ return scope Line line,
@@ -1132,6 +1165,10 @@ unittest
 
     Returns:
         The passed line without any preceding whitespace or linebreaks.
+
+    See_Also:
+        [strippedRight]
+        [stripped]
  +/
 auto strippedLeft(/*const*/ return scope string line) pure nothrow @nogc
 {
@@ -1191,6 +1228,10 @@ unittest
 
     Returns:
         The passed line without any preceding passed characters.
+
+    See_Also:
+        [strippedRight]
+        [stripped]
  +/
 auto strippedLeft(Line, Chaff)
     (/*const*/ return scope Line line,
@@ -1317,6 +1358,10 @@ unittest
 
     Returns:
         The passed line, stripped of surrounding whitespace.
+
+    See_Also:
+        [strippedRight]
+        [strippedLeft]
  +/
 auto stripped(/*const*/ return scope string line) pure nothrow @nogc
 {
@@ -1376,6 +1421,10 @@ unittest
 
     Returns:
         The passed line, stripped of surrounding passed characters.
+
+    See_Also:
+        [strippedRight]
+        [strippedLeft]
  +/
 auto stripped(Line, Chaff)
     (/*const*/ return scope Line line,
@@ -1471,6 +1520,7 @@ unittest
         An encoded Base64 string.
 
     See_Also:
+        [decode64]
         - https://en.wikipedia.org/wiki/Base64
  +/
 string encode64(const string line) pure nothrow
@@ -1511,6 +1561,7 @@ unittest
         A decoded normal string.
 
     See_Also:
+        [encode64]
         - https://en.wikipedia.org/wiki/Base64
  +/
 string decode64(const string encoded) pure
@@ -1697,6 +1748,9 @@ unittest
 
     Returns:
         A new string with control characters escaped, or the original one unchanged.
+
+    See_Also:
+        [removeControlCharacters]
  +/
 string escapeControlCharacters(/*const*/ return scope string line) pure nothrow
 {
@@ -1790,6 +1844,9 @@ unittest
     Returns:
         A new string with any control characters removed, or the original one
         unchanged if there were none.
+
+    See_Also:
+        [escapeControlCharacters]
  +/
 string removeControlCharacters(/*const*/ return scope string line) pure nothrow
 {
@@ -1865,6 +1922,9 @@ unittest
 // SplitResults
 /++
     The result of a call to [splitInto].
+
+    See_Also:
+        [splitInto]
  +/
 enum SplitResults
 {
@@ -1899,13 +1959,16 @@ enum SplitResults
 
     Returns:
         A [SplitResults] with the results of the split attempt.
+
+    See_Also:
+        [SplitResults]
  +/
 auto splitInto(string separator = " ", Strings...)
     (auto ref string slice,
     scope ref Strings strings)
 if (Strings.length &&
-    is(Strings[0] == string)
-    && allSameType!Strings)
+    is(Strings[0] == string) &&
+    allSameType!Strings)
 {
     if (!slice.length)
     {
@@ -2035,6 +2098,9 @@ unittest
 
     Returns:
         A [SplitResults] with the results of the split attempt.
+
+    See_Also:
+        [SplitResults]
  +/
 auto splitInto(string separator = " ", Strings...)
     (const string slice,

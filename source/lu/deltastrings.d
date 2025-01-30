@@ -64,9 +64,12 @@ import std.typecons : Flag, No, Yes;
 
 public:
 
-import lu.uda : Hidden;
 
-//@safe:
+// Hidden
+/++
+    Public import of [lu.uda.Hidden].
+ +/
+/*public*/ import lu.uda : Hidden;
 
 
 // putDelta
@@ -495,10 +498,13 @@ assert((carr[0] == 'a'), carr[0].to!string);
 
 // formatDeltaInto
 /++
-    Deprecated alias of [putDelta].
+    Deprecated alias of `putDelta``.
 
     [formatDeltaInto] was renamed to [putDelta] that makes more sense with its
     order of arguments.
+
+    See_Also:
+        [putDelta]
  +/
 deprecated("Use `lu.deltastrings.putDelta` instead")
 alias formatDeltaInto = putDelta;

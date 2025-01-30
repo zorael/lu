@@ -208,7 +208,7 @@ final class FileTypeMismatchException : Exception
 
 // sharedDomains
 /++
-    Calculates how many dot-separated suffixes two strings share.
+    Calculates how many dot-separated domains two strings share.
 
     This is useful to see to what extent two addresses are similar.
 

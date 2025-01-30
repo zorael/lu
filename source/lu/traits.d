@@ -79,6 +79,9 @@ enum MixinScope
             All other kinds of scopes will be statically rejected.
         mixinName = Optional string name of the mixing-in mixin.
             Can be anything; it's just used for the error messages.
+
+    See_Also:
+        [MixinScope]
  +/
 mixin template MixinConstraints(MixinScope mixinScope, string mixinName = "a constrained mixin")
 {
@@ -575,6 +578,9 @@ unittest
 
     Params:
         S = String type to introspect.
+
+    See_Also:
+        [isMerelyArray]
  +/
 enum isTrulyString(S) = is(S == string) || is(S == dstring) || is(S == wstring);
 
@@ -598,6 +604,9 @@ unittest
 
     Params:
         S = Array type to introspect.
+
+    See_Also:
+        [isTrulyString]
  +/
 enum isMerelyArray(S) = isArray!S && !isTrulyString!S;
 
@@ -622,6 +631,9 @@ unittest
     Params:
         QualArray = Qualified array type.
         QualType = Qualified type, element of `QualArray`.
+
+    See_Also:
+        [std.traits.Unqual]
  +/
 template UnqualArray(QualArray : QualType[], QualType)
 if (!isAssociativeArray!QualType)
@@ -661,6 +673,9 @@ unittest
         QualArray = Qualified associative array type.
         QualElem = Qualified type, element of `QualArray`.
         QualKey = Qualified type, key of `QualArray`.
+
+    See_Also:
+        [std.traits.Unqual]
  +/
 template UnqualArray(QualArray : QualElem[QualKey], QualElem, QualKey)
 if (!isArray!QualElem)
@@ -700,6 +715,9 @@ unittest
         QualArray = Qualified associative array type.
         QualElem = Qualified type, element of `QualArray`.
         QualKey = Qualified type, key of `QualArray`.
+
+    See_Also:
+        [std.traits.Unqual]
  +/
 template UnqualArray(QualArray : QualElem[QualKey], QualElem, QualKey)
 if (isArray!QualElem)
@@ -823,6 +841,10 @@ unittest
 
     Returns:
         The index of the UDA if found, or `-1` if it was not present.
+
+    See_Also:
+        [std.traits.hasUDA]
+        [std.traits.getSymbolsByUDA]
  +/
 enum udaIndexOf(alias symbol, T) = ()
 {

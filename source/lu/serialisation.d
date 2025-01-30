@@ -59,11 +59,33 @@
  +/
 module lu.serialisation;
 
-private:
 
-public:
+// CannotContainComments
+/++
+    Public import of [lu.uda.CannotContainComments].
+ +/
+/*public*/ import lu.uda : CannotContainComments;
 
-import lu.uda : CannotContainComments, Quoted, Separator, Unserialisable;
+
+// Quoted
+/++
+    Public import of [lu.uda.Quoted].
+ +/
+/*public*/ import lu.uda : Quoted;
+
+
+// Separator
+/++
+    Public import of [lu.uda.Separator].
+ +/
+/*public*/ import lu.uda : Separator;
+
+
+// Unserialisable
+/++
+    Public import of [lu.uda.Unserialisable].
+ +/
+/*public*/ import lu.uda : Unserialisable;
 
 
 // serialise
@@ -95,6 +117,9 @@ import lu.uda : CannotContainComments, Quoted, Separator, Unserialisable;
         sink = Output range to write the serialised objects to (in
             their configuration file-y format).
         things = Variadic list of objects to serialise.
+
+    See_Also:
+        [deserialise]
  +/
 void serialise(string suffixToStrip = "Settings", Sink, Things...)(auto ref Sink sink, auto ref Things things)
 if (Things.length > 1)
@@ -151,6 +176,9 @@ if (Things.length > 1)
             writing them to the output range. Defaults to "`Settings`". May be empty.
         sink = Output range to write to, usually an [std.array.Appender|Appender].
         thing = Object to serialise.
+
+    See_Also:
+        [deserialise]
  +/
 void serialise(string suffixToStrip = "Settings", Sink, QualThing)
     (auto ref Sink sink,
@@ -479,6 +507,9 @@ private struct SerialisationUDAs
 
     Returns:
         A string, to be saved as a serialised row in a configuration file-y format.
+
+    See_Also:
+        [serialise]
  +/
 private string serialiseArrayImpl(T)(const auto ref T array, const SerialisationUDAs udas)
 {
@@ -562,6 +593,9 @@ private string serialiseArrayImpl(T)(const auto ref T array, const Serialisation
             deserialised values to.
 
     Throws: [DeserialisationException] if there were bad lines.
+
+    See_Also:
+        [serialise]
  +/
 void deserialise(string suffixToStrip = "Settings", Range, Things...)
     (auto ref Range range,
@@ -1045,7 +1079,10 @@ bara    blaawp,oorgle,blaawp`;
         origLines = Unjustified raw serialised text.
 
     Returns:
-        Configuraiton file-y text, justified into two columns.
+        Configuration file-y text, justified into two columns.
+
+    See_Also:
+        [splitEntryValue]
  +/
 string justifiedEntryValueText(const string origLines) pure
 {

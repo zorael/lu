@@ -397,6 +397,9 @@ out (total; (total < 16^^hex.length), "`numFromHex` output is too large")
 
     Returns:
         A Voldemort struct with `r`, `g` and `b` members,
+
+    See_Also:
+        [numFromHex]
  +/
 auto rgbFromHex(
     const string hexString,

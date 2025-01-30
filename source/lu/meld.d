@@ -82,10 +82,7 @@ enum MeldingStrategy
 
 
 /++
-    UDA conveying that this member's value cannot or should not be melded.
-
-    See_Also:
-        [lu.uda.Meldable]
+    Public import of [lu.uda.Meldable].
  +/
 /*public*/ import lu.uda : Unmeldable;
 
@@ -831,7 +828,7 @@ unittest
 }
 
 
-// meldInto
+// meldInto (AA)
 /++
     Takes two associative arrays and melds them together, making a union of the two.
 
@@ -860,8 +857,8 @@ void meldInto(MeldingStrategy strategy = MeldingStrategy.conservative, QualAA, A
     (QualAA meldThis,
     ref AA intoThis) pure
 if (isAssociativeArray!AA &&
-    is(QualAA : AA)
-    && isMutable!AA)
+    is(QualAA : AA) &&
+    isMutable!AA)
 {
     if (!meldThis.length)
     {
