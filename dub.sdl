@@ -25,6 +25,9 @@ configuration "library" {
 }
 
 configuration "unittest" {
+    sourcePaths "source"
+    importPaths "source"
+
     dflags "-preview=dip1000" "-preview=dip1008" platform="dmd"
     dflags "-preview=dip1000" "-preview=dip1008" platform="ldc"
     dflags "-fpreview=dip1000" "-fpreview=dip1008" platform="gdc"
@@ -34,6 +37,9 @@ configuration "unittest" {
     dflags "-preview=in" "-preview=inclusiveincontracts" platform="dmd"
     dflags "-preview=in" "-preview=inclusiveincontracts" platform="ldc"
     dflags "-fpreview=in" "-fpreview=inclusiveincontracts" platform="gdc"
+}
+
+configuration "unittest-noflags" {
     sourcePaths "source"
     importPaths "source"
 }
