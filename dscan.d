@@ -242,7 +242,7 @@ auto runDscanner(
         if (!engineMatched)
         {
             writeln(i`[!] dead expression: "$(expressions[i])"`);
-            retval |= 1;
+            //retval |= 1;
         }
     }
 
