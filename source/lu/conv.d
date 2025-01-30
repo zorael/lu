@@ -27,10 +27,6 @@
  +/
 module lu.conv;
 
-private:
-
-public:
-
 @safe:
 
 

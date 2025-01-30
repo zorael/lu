@@ -9,10 +9,6 @@
  +/
 module lu.common;
 
-private:
-
-public:
-
 
 // Next
 /++

@@ -18,10 +18,6 @@
  +/
 module lu.numeric;
 
-private:
-
-public:
-
 @safe:
 
 
