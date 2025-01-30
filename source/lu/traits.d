@@ -781,6 +781,7 @@ enum isStruct(T) = is(T == struct);
         fun = A function alias to get the parameter string of.
  +/
 template stringofParams(alias fun)
+if (isSomeFunction!fun)
 {
     import std.traits : Parameters, Unqual, staticMap;
 
