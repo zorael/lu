@@ -166,6 +166,8 @@ void putDelta(Flag!"asserts" asserts = No.asserts, Sink, QualThing)
 
                     static if (isSomeString!E)
                     {
+                        enum shouldEscape = true;
+
                         static if (asserts)
                         {
                             enum pattern = "%sassert((%s%s[%d] == \"%s\"), %2$s%3$s[%4$d]);\n";
@@ -277,10 +279,24 @@ void putDelta(Flag!"asserts" asserts = No.asserts, Sink, QualThing)
                 }
                 else static if (isArray!T)
                 {
-                    foreach (n, val; member)
+                    foreach (immutable n, const rawVal; member)
                     {
                         if (before.tupleof[i][n] == after.tupleof[i][n]) continue;
-                        sink.formattedWrite(pattern, indentation, prefix, memberstring, n, member[n]);
+
+                        static if (__traits(compiles, { alias _ = shouldEscape; }))
+                        {
+                            import std.array : replace;
+
+                            auto val = rawVal
+                                .replace('\\', `\\`)
+                                .replace('"', `\"`);
+                        }
+                        else
+                        {
+                            alias val = rawVal;
+                        }
+
+                        sink.formattedWrite(pattern, indentation, prefix, memberstring, n, val);
                     }
                 }
                 else
