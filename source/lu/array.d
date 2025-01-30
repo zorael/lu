@@ -421,9 +421,9 @@ if (Enums.length &&
             }
 
             return highestValue;
-        }();
+        }() + 1;
 
-        bool[tableLength+1] table;
+        bool[tableLength] table;
 
         foreach (value; values)
         {
@@ -526,9 +526,9 @@ if (numbers.length &&
         }
 
         return highestValue;
-    }();
+    }() + 1;
 
-    bool[tableLength+1] table;
+    bool[tableLength] table;
 
     foreach (number; numbers)
     {
@@ -641,9 +641,9 @@ if (values.length &&
             }
 
             return highestValue;
-        }();
+        }() + 1;
 
-        bool[tableLength+1] table;
+        bool[tableLength] table;
 
         foreach (value; values)
         {
