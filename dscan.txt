@@ -7,4 +7,3 @@ conv\.d.+Parameter enumstring is never used.
 json\.d.+Variable rawRange is never modified
 string\.d.+Assignment to auto-ref function parameter
 array\.d.+Variable table is never modified
-array\.d.+Variable tableLength is never used
