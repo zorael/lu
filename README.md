@@ -536,6 +536,38 @@ static assert(!staticTable[6]);
 static assert( staticTable[7]);
 ```
 
+#### [`assert_.d`](source/lu/assert_.d)
+
+Multiline string assertions, so you can see where the mismatch occurred.
+
+```d
+enum actual =
+"abc
+def
+ghi
+jkl
+mno
+pqr";
+
+enum expected =
+"abc
+def
+ghi
+jkl
+mnO
+pqr";
+
+actual.assertMultilineEquals(expected);
+
+/*
+core.exception.AssertError@some/file.d(123):
+Line mismatch at some/file.d:147, block 5:3; expected 'O'(79) was 'o'(111)
+expected:"mnO"
+  actual:"mno"
+            ^
+ */
+```
+
 #### [`json.d`](source/lu/json.d)
 
 Simple wrappers around Phobos `std.json`.
