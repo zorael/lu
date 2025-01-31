@@ -121,10 +121,13 @@ expected:"%s"
 }
 
 ///
-version(none)  // It naturally asserts if we let it run
 unittest
 {
-    enum actual =
+    import std.exception : assertNotThrown, assertThrown;
+    import core.exception : AssertError;
+
+    {
+        enum actual =
 "abc
 def
 ghi
@@ -132,7 +135,7 @@ jkl
 mno
 pqr";
 
-    enum expected =
+        enum expected =
 "abc
 def
 ghi
@@ -140,13 +143,45 @@ jkl
 mnO
 pqr";
 
-    actual.assertMultilineEquals(expected);
+        assertThrown!AssertError(actual.assertMultilineEquals(expected));
 
-    /*
-    core.exception.AssertError@source/lu/assert_.d(123):
-    Line mismatch at source/lu/assert_.d:147, block 5:3; expected 'O'(79) was 'o'(111)
-    expected:"mnO"
-      actual:"mno"
-                ^
-     */
+        /*
+        core.exception.AssertError@source/lu/assert_.d(123):
+        Line mismatch at source/lu/assert_.d:147, block 5:3; expected 'O'(79) was 'o'(111)
+        expected:"mnO"
+          actual:"mno"
+                    ^
+         */
+    }
+    {
+        enum actual =
+"lorem ipsum
+sit amet
+consectetur
+adipiscing";
+
+        enum expected =
+"lorem ipsum
+sit amet
+consectetur";
+
+        assertThrown!AssertError(actual.assertMultilineEquals(expected));
+
+        /*
+        core.exception.AssertError@source/lu/assert_.d(118):
+        Line mismatch at source/lu/assert_.d:169, block 4:1; expected EOL was 'a'(97)
+        expected:""
+          actual:"adipiscing"
+                  ^
+         */
+    }
+    {
+        enum actual =
+"i thought what I'd do was
+I'd pretend
+I was one of those deaf-mutes";
+
+        enum expected = actual;
+        assertNotThrown!AssertError(actual.assertMultilineEquals(expected));
+    }
 }
