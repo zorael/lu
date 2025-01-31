@@ -1394,7 +1394,7 @@ public:
             ---
 
             Params:
-                min = Optional minimum key value; defaults to `1``.
+                min = Optional minimum key value; defaults to `1`.
                 max = Optional maximum key value; defaults to `K.max`, where `K` is
                     the key type of the passed associative array.
                 value = Optional value to assign to the key; defaults to `V.init`,
@@ -2072,7 +2072,7 @@ public:
             ---
 
             Params:
-                min = Optional minimum key value; defaults to `1``.
+                min = Optional minimum key value; defaults to `1`.
                 max = Optional maximum key value; defaults to `K.max`, where `K` is
                     the key type of the passed associative array.
                 value = Optional value to assign to the key; defaults to `V.init`,
