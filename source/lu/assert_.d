@@ -3,36 +3,31 @@
 
     Example:
     ---
-    enum correct =
+    enum actual =
     "abc
     def
     ghi
     jkl
     mno
-    pqr
-    stu
-    vw
-    xyz";
+    pqr";
 
-    enum incorrect =
+    enum expected =
     "abc
     def
     ghi
     jkl
     mnO
-    pqr
-    stu
-    vw
-    xyz";
+    pqr";
 
-    assertMultilineEquals(correct, incorrect);
+    actual.assertMultilineEquals(expected);
 
     /*
-    Line mismatch at source/lu/assert_.d:143, block 5:3; expected 'O'(79) was 'o'(111)
+    core.exception.AssertError@some/file.d(123):
+    Line mismatch at some/file.d:147, block 5:3; expected 'O'(79) was 'o'(111)
     expected:"mnO"
       actual:"mno"
                 ^
-    */
+     */
     ---
 
     Copyright: [JR](https://github.com/zorael)
@@ -126,26 +121,32 @@ expected:"%s"
 }
 
 ///
-version(none)
+version(none)  // It naturally asserts if we let it run
 unittest
 {
     enum actual =
 "abc
 def
-ghi";
+ghi
+jkl
+mno
+pqr";
 
     enum expected =
 "abc
-deF
-ghi";
+def
+ghi
+jkl
+mnO
+pqr";
 
-    assertMultilineEquals(actual, expected);
+    actual.assertMultilineEquals(expected);
 
-/+
-core.exception.AssertError@somefile.d(123):
-Line mismatch at somefile.d:456, block 2:3; expected 'F'(70) was 'f'(102)
-expected:"deF"
-  actual:"def"
-            ^
- +/
+    /*
+    core.exception.AssertError@source/lu/assert_.d(123):
+    Line mismatch at source/lu/assert_.d:147, block 5:3; expected 'O'(79) was 'o'(111)
+    expected:"mnO"
+      actual:"mno"
+                ^
+     */
 }
