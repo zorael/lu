@@ -28,7 +28,7 @@
                 6,
             }
         }
-    */
+     */
 
     // Prints keys in sorted order.
     json.serialiseInto!(JSONStorage.KeyOrderStrategy.sorted)(stdout.lockingTextWriter)

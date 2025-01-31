@@ -22,7 +22,7 @@
     f.pi = 3.14159;
 
     enum fooSerialised =
-   `[Foo]
+    `[Foo]
     fooasdf foo
     bar bar
     bazzzzzzz baz
