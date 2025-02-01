@@ -200,7 +200,6 @@ do
     return haystack[0..index];
 }
 
-
 ///
 unittest
 {

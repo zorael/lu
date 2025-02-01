@@ -216,7 +216,7 @@ unittest
 
     Can be used during compile-time. Produces a dynamic array unless a
     `highestValueOverride` is provided, in which case it will be a static array
-    sized to accomodate that value.
+    sized to accommodate that value.
 
     If the list of numbers is known at compile-time, there is also an overload
     that, given the numbers as template arguments, also produces a static array.
@@ -245,7 +245,7 @@ unittest
 
     Params:
         highestValueOverride = (Optional) The highest value the truth table should
-            size itself to accomodate for. If not set, the highest value in the
+            size itself to accommodate for. If not set, the highest value in the
             input list is used.
         numbers = The numbers to generate a truth table from.
 
@@ -355,9 +355,9 @@ unittest
     the input list, and `false` otherwise.
 
     Can be used during compile-time. If `Yes.fullEnumRange` is passed, the returned
-    table will be a static array sized to accomodate the highest value in the enum.
+    table will be a static array sized to accommodate the highest value in the enum.
     If `No.fullEnumRange` is passed, the returned table will be a dynamic one
-    sized to accomodate the highest value in the input list.
+    sized to accommodate the highest value in the input list.
 
     If no `fullEnumRange` argument is passed, the function call resolves to the
     overload that takes compile-time numbers instead.
@@ -580,8 +580,8 @@ unittest
     the input list, and `false` otherwise.
 
     If `Yes.fullEnumRange` is passed, the returned table will be sized to
-    accomodate the highest value in the enum. If `No.fullEnumRange` is passed,
-    the returned table will be sized to accomodate the highest value in the input list.
+    accommodate the highest value in the enum. If `No.fullEnumRange` is passed,
+    the returned table will be sized to accommodate the highest value in the input list.
 
     Note: This is not a sparse array and will be as large as requested.
         In addition it is stack-allocated, so be mindful of the size of the

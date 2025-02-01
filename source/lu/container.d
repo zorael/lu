@@ -930,7 +930,7 @@ public:
 
     // opIndexOpAssign
     /++
-        Performs an assingment operation on a value in the internal associative array.
+        Performs an assignment operation on a value in the internal associative array.
 
         Example:
         ---
