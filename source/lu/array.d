@@ -57,7 +57,7 @@ private:
 import lu.traits : isEnum, isImplicitlyConvertibleToSize_t;
 import std.array : Appender;
 import std.meta : allSatisfy, templateNot;
-import std.traits : allSameType, isAssociativeArray, isIntegral, isMutable, isType;
+import std.traits : allSameType, isIntegral, isMutable, isType;
 import std.typecons : Flag, No, Yes;
 
 public:
@@ -734,11 +734,9 @@ final class ArrayException : Exception
         aa = Reference to the associative array to modify.
  +/
 void pruneAA(alias pred = null, AA : V[K], V, K)(ref AA aa)
-if (isAssociativeArray!AA && isMutable!AA)
+if (isMutable!AA)
 {
     if (!aa.length) return;
-
-    string[] toRemove;
 
     static if (!is(typeof(pred) == typeof(null)))
     {
@@ -750,7 +748,7 @@ if (isAssociativeArray!AA && isMutable!AA)
         }
         else static if (__traits(compiles, binaryFun!pred(K.init, V.init)))
         {
-            enum binary = true;
+            enum predIsBinary = true;
             alias predicate = binaryFun!pred;
         }
         else
@@ -764,10 +762,12 @@ if (isAssociativeArray!AA && isMutable!AA)
         alias predicate = (v) => (v == V.init);
     }
 
+    string[] toRemove;
+
     // Mark
     foreach (/*immutable*/ key, value; aa)
     {
-        static if (__traits(compiles, { alias _ = binary; }))
+        static if (__traits(compiles, { alias _ = predIsBinary; }))
         {
             if (predicate(key, value)) toRemove ~= key;
         }
