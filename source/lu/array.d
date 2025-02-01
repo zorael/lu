@@ -729,52 +729,56 @@ final class ArrayException : Exception
     ---
 
     Params:
-        pred = Optional predicate if special logic is needed to determine whether
-            an entry is to be removed or not.
-        aa = The associative array to modify.
+        pred = Optional unary or binary predicate if special logic is needed to
+            determine whether an entry is to be removed or not.
+        aa = Reference to the associative array to modify.
  +/
-void pruneAA(alias pred = null, AA)(ref AA aa)
+void pruneAA(alias pred = null, AA : V[K], V, K)(ref AA aa)
 if (isAssociativeArray!AA && isMutable!AA)
 {
     if (!aa.length) return;
 
     string[] toRemove;
 
-    // Mark
-    foreach (/*immutable*/ key, value; aa)
+    static if (!is(typeof(pred) == typeof(null)))
     {
-        static if (!is(typeof(pred) == typeof(null)))
+        import std.functional : binaryFun, unaryFun;
+
+        static if (__traits(compiles, unaryFun!pred(V.init)))
         {
-            import std.functional : binaryFun, unaryFun;
-
-            alias unaryPred = unaryFun!pred;
-            alias binaryPred = binaryFun!pred;
-
-            static if (__traits(compiles, unaryPred(value)))
-            {
-                if (unaryPred(value)) toRemove ~= key;
-            }
-            else static if (__traits(compiles, binaryPred(key, value)))
-            {
-                if (unaryPred(key, value)) toRemove ~= key;
-            }
-            else
-            {
-                enum message = "Unknown predicate type passed to `pruneAA`";
-                static assert(0, message);
-            }
+            alias predicate = unaryFun!pred;
+        }
+        else static if (__traits(compiles, binaryFun!pred(K.init, V.init)))
+        {
+            enum binary = true;
+            alias predicate = binaryFun!pred;
         }
         else
         {
-            if (value == typeof(value).init)
-            {
-                toRemove ~= key;
-            }
+            enum message = "Unknown predicate type passed to `pruneAA`";
+            static assert(0, message);
+        }
+    }
+    else
+    {
+        alias predicate = (v) => (v == V.init);
+    }
+
+    // Mark
+    foreach (/*immutable*/ key, value; aa)
+    {
+        static if (__traits(compiles, { alias _ = binary; }))
+        {
+            if (predicate(key, value)) toRemove ~= key;
+        }
+        else
+        {
+            if (predicate(value)) toRemove ~= key;
         }
     }
 
     // Sweep
-    foreach (immutable key; toRemove)
+    foreach (/*immutable*/ key; toRemove)
     {
         aa.remove(key);
     }
@@ -845,5 +849,27 @@ unittest
 
         pruneAA!((entry) => entry.canFind("a"))(aa);
         assert("abc" !in aa);
+    }
+    {
+        auto aa =
+        [
+            "rhubarb"   : 500,
+            "raspberry" : 500,
+            "blueberry" : 499,
+            "apples"    : 900,
+            "yakisoba"  : 499,
+            "cabbage"   : 999,
+        ];
+
+        pruneAA!((key, val) => (key[0] == 'r') || (val < 500))(aa);
+        assert("rhubarb" !in aa);
+        assert("raspberry" !in aa);
+        assert("blueberry" !in aa);
+        assert("apples" in aa);
+        assert("yakisoba" !in aa);
+        assert("cabbage" in aa);
+
+        pruneAA!`a[0] == 'c'`(aa);
+        assert("cabbage" !in aa);
     }
 }
