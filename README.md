@@ -642,7 +642,6 @@ Releases of the library prior to `v3.0.0` remain available for older compilers.
 ## Built with
 
 * [**D**](https://dlang.org)
-* [`dub`](https://code.dlang.org)
 
 ## License
 
