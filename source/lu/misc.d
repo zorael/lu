@@ -7,7 +7,7 @@
     Authors:
         [JR](https://github.com/zorael)
  +/
-module lu.common;
+module lu.misc;
 
 
 // Next

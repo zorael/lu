@@ -149,13 +149,13 @@ public:
             Whatever [std.file.readText|readText] and/or
             [std.json.parseJSON|parseJSON] throws.
 
-            [lu.common.FileTypeMismatchException] if the filename exists
+            [lu.misc.FileTypeMismatchException] if the filename exists
             but is not a file.
      +/
     void load(const string filename) @safe
     in (filename.length, "Tried to load an empty filename into a JSON storage")
     {
-        import lu.common : FileTypeMismatchException;
+        import lu.misc : FileTypeMismatchException;
         import std.file : exists, getAttributes, isFile, readText;
         import std.path : baseName;
 
