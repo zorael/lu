@@ -4,7 +4,7 @@ Miscellaneous general-purpose library modules. Nothing extraordinary.
 
 API documentation can be found [here](https://zorael.github.io/lu/lu.html).
 
-#### [`meld.d`](source/lu/meld.d)
+#### [`lu.meld`](https://zorael.github.io/lu/lu.meld.html)
 
 Combining two structs/classes of the same type into a union set of their members' values. Also works with arrays and associative arrays. A melding strategy can be supplied as a template parameter for fine-tuning behaviour, but in general non-`.init` values overwrite `.init` ones.
 
@@ -40,7 +40,7 @@ sourceAA.meldInto(targetAA);
 assert(targetAA == [ "a":"a", "b":"b", "c":"c", "d":"d" ]);
 ```
 
-#### [`objmanip.d`](source/lu/objmanip.d)
+#### [`lu.objmanip`](https://zorael.github.io/lu/lu.objmanip.html)
 
 Struct/class manipulation, such as assigning a member a value by its string name. Originally intended to only accept string values but now works with any assignable type. When the passed value doesn't implicitly match, `std.conv.to` is used to coerce.
 
@@ -75,7 +75,7 @@ success = foo.setMemberByName("pi", "3.15");
 assert(!success);
 ```
 
-#### [`deltastrings.d`](source/lu/deltastrings.d)
+#### [`lu.deltastrings`](https://zorael.github.io/lu/lu.deltastrings.html)
 
 Expressing the difference between two instances of a struct or class of the same type, as a D code string of either assignment statements or assert statement. The output is written to an output range.
 
@@ -130,7 +130,7 @@ assert((altered.i == 42), altered.i.to!string);
 // A compatibility alias `formatDeltaInto` remains available for now
 ```
 
-#### [`typecons.d`](source/lu/typecons.d)
+#### [`lu.typecons`](https://zorael.github.io/lu/lu.typecons.html)
 
 The `OpDispatcher` mixin template. When mixed into some aggregate, it generates an `opDispatch` that allows for accessing and mutating any members of it whose names either start or end with a token string. Dynamic arrays are appended to.
 
@@ -197,7 +197,7 @@ b.b = false;
 b.add("hi there");
 ```
 
-#### [`traits.d`](source/lu/traits.d)
+#### [`lu.traits`](https://zorael.github.io/lu/lu.traits.html)
 
 Various traits and cleverness.
 
@@ -229,7 +229,7 @@ void baz()
 }
 ```
 
-#### [`serialisation.d`](source/lu/serialisation.d)
+#### [`lu.serialisation`](https://zorael.github.io/lu/lu.serialisation.html)
 
 Functions and templates for serialising structs into a configure file-y format, with entries and values optionally separated into two columns by whitespace.
 
@@ -274,7 +274,7 @@ assert(newFoo.b == true);
 assert(newFoo.pi == 3.14159);
 ```
 
-#### [`string.d`](source/lu/string.d)
+#### [`lu.string`](https://zorael.github.io/lu/lu.string.html)
 
 String manipulation functions and templates.
 
@@ -348,7 +348,7 @@ assert(title == "Foo Bar");
 assert(overflow == [ "tag1", "tag2", "tag3", "tag4" ]);
 ```
 
-#### [`conv.d`](source/lu/conv.d)
+#### [`lu.conv`](https://zorael.github.io/lu/lu.conv.html)
 
 Conversion functions and templates.
 
@@ -377,7 +377,7 @@ immutable otherGhi = Enum!Foo.fromString("ghi");
 assert(Foo.abc.toString() == "abc");
 ```
 
-#### [`container.d`](source/lu/container.d)
+#### [`lu.container`](https://zorael.github.io/lu/lu.container.html)
 
 Miscellaneous containers.
 
@@ -497,7 +497,7 @@ auto aa = mutexedAA(orig);
 aa["ghi"] = 789;
 ```
 
-#### [`array.d`](source/lu/array.d)
+#### [`lu.array`](https://zorael.github.io/lu/lu.array.html)
 
 Some array utilities. Also a simple truth table.
 
@@ -536,11 +536,15 @@ static assert(!staticTable[6]);
 static assert( staticTable[7]);
 ```
 
-#### [`assert_.d`](source/lu/assert_.d)
+#### [`lu.assert_`](https://zorael.github.io/lu/lu.assert_.html)
 
-Multiline string assertions, so you can see where the mismatch occurred.
+`assert` helpers.
 
 ```d
+/+
+    `assert`s that two strings of multiple lines are equal, and visualises
+    where lines differ when they don't.
+ +/
 enum actual =
 "abc
 def
@@ -568,7 +572,7 @@ expected:"mnO"
  */
 ```
 
-#### [`json.d`](source/lu/json.d)
+#### [`lu.json`](https://zorael.github.io/lu/lu.json.html)
 
 Simple wrappers around Phobos `std.json`.
 
@@ -598,7 +602,7 @@ string xyzzy = json.getOrFallback("xyzzy", "not found");
 assert(xyzzy == "not found");
 ```
 
-#### [`common.d`](source/lu/common.d)
+#### [`lu.misc`](https://zorael.github.io/lu/lu.misc.html)
 
 Things that don't have a better home yet.
 
