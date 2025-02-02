@@ -142,8 +142,8 @@ if (Things.length > 1)
 
     foreach (immutable i, const thing; things)
     {
-        if (i > 0) sink.put('\n');
-        sink.serialise!suffixToStrip(thing);
+        immutable somethingWasPut = sink.serialise!suffixToStrip(thing);
+        if (somethingWasPut && (i < things.length+(-1))) sink.put('\n');
     }
 }
 
@@ -177,10 +177,13 @@ if (Things.length > 1)
         sink = Output range to write to, usually an [std.array.Appender|Appender].
         thing = Object to serialise.
 
+    Returns:
+        `true` if something was written to the output range, `false` if not.
+
     See_Also:
         [deserialise]
  +/
-void serialise(string suffixToStrip = "Settings", Sink, QualThing)
+auto serialise(string suffixToStrip = "Settings", Sink, QualThing)
     (auto ref Sink sink,
     auto ref QualThing thing)
 {
@@ -201,13 +204,38 @@ void serialise(string suffixToStrip = "Settings", Sink, QualThing)
         static assert(0, message);
     }
 
+    alias Thing = Unqual!QualThing;
+
+    enum hasSerialisableMembers = ()
+    {
+        static foreach (immutable i; 0..Thing.tupleof.length)
+        {
+            import lu.traits : isSerialisable, udaIndexOf;
+            import lu.uda : Unserialisable;
+
+            static if (
+                isSerialisable!(Thing.tupleof[i]) &&
+                (udaIndexOf!(Thing.tupleof[i], Unserialisable) == -1) &&
+                !isAggregateType!(typeof(Thing.tupleof[i])))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }();
+
+    static if (!hasSerialisableMembers)
+    {
+        // Does this need to be a runtime check too?
+        /*if (!hasSerialisableMembers)*/ return false;
+    }
+
     static if (__traits(hasMember, Sink, "data"))
     {
         // Sink is not empty, place a newline between current content and new
         if (sink[].length) sink.put("\n");
     }
-
-    alias Thing = Unqual!QualThing;
 
     static if (suffixToStrip.length)
     {
@@ -342,6 +370,8 @@ void serialise(string suffixToStrip = "Settings", Sink, QualThing)
         // Not an Appender, may be stdout.lockingTextWriter
         sink.put('\n');
     }
+
+    return true;
 }
 
 ///
@@ -1100,6 +1130,7 @@ string justifiedEntryValueText(const string origLines) pure
     Appender!(string[]) unjustified;
     unjustified.reserve(decentReserveOfLines);
     size_t longestEntryLength;
+    bool putLinebreak;
 
     foreach (immutable rawline; origLines.splitter("\n"))
     {
@@ -1107,9 +1138,15 @@ string justifiedEntryValueText(const string origLines) pure
 
         if (!line.length)
         {
-            unjustified.put("");
+            if (!putLinebreak)
+            {
+                unjustified.put("");
+                putLinebreak = true;
+            }
             continue;
         }
+
+        putLinebreak = false;
 
         switch (line[0])
         {
