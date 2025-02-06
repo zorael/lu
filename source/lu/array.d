@@ -762,7 +762,7 @@ if (isMutable!AA)
         alias predicate = (v) => (v == V.init);
     }
 
-    string[] toRemove;
+    K[] toRemove;
 
     // Mark
     foreach (/*immutable*/ key, value; aa)
@@ -871,5 +871,25 @@ unittest
 
         pruneAA!`a[0] == 'c'`(aa);
         assert("cabbage" !in aa);
+    }
+    {
+        auto aa =
+        [
+            123 : 456,
+            789 : 123,
+            111 : 222,
+            333 : 444,
+            555 : 666,
+        ];
+
+        pruneAA!(val => val < 300)(aa);
+        assert(123  in aa);
+        assert(789 !in aa);
+        assert(111 !in aa);
+        assert(333  in aa);
+        assert(555  in aa);
+
+        pruneAA!`b > 400`(aa);
+        assert(555 !in aa);
     }
 }
