@@ -893,3 +893,221 @@ unittest
         assert(555 !in aa);
     }
 }
+
+
+// countUntilLastOccurrenceOf
+/++
+    Finds the index of the last occurrence of a needle in a haystack.
+    The needle may be a single element (character) or an array of the same type
+    as the haystack.
+
+    Overload that takes a needle instead of a predicate.
+
+    Params:
+        haystack = The array to search.
+        needle = The element or array to search for.
+
+    Returns:
+        The index of the last occurrence of `needle` in `haystack`, or `-1`
+        if none were found.
+
+    See_Also:
+        [std.algorithm.searching.countUntil]
+ +/
+auto countUntilLastOccurrenceOf(Haystack, Needle)
+    (const scope Haystack haystack,
+    const scope Needle needle) pure
+{
+    import std.algorithm.searching : countUntil;
+    import std.range : ElementEncodingType, ElementType;
+    import std.traits : isArray;
+
+    static if (!isArray!Haystack)
+    {
+        enum message = "`countUntilLastOccurrenceOf` only works on array-type haystacks";
+        static assert(0, message);
+    }
+
+    static if (
+        !isArray!Haystack &&
+        !is(Needle : ElementType!Haystack) &&
+        !is(Needle : ElementEncodingType!Haystack))
+    {
+        enum message = "`countUntilLastOccurrenceOf` only works with array- or single-element-type needles";
+        static assert(0, message);
+    }
+
+    static if (isArray!Needle)
+    {
+        immutable needleLength = needle.length;
+        if (!needleLength) return 0;
+    }
+    else
+    {
+        enum needleLength = 1;
+    }
+
+    if (!haystack.length) return -1;
+
+    ptrdiff_t needlePos = haystack.countUntil(needle);
+    ptrdiff_t previousNeedlePos = needlePos;
+    size_t offset;
+
+    while (needlePos != -1)
+    {
+        previousNeedlePos = needlePos;
+        offset += needlePos + needleLength;
+        needlePos = haystack[offset..$].countUntil(needle);
+    }
+
+    return (offset - needleLength);
+}
+
+///
+unittest
+{
+    import std.conv : to;
+
+    {
+        enum haystack = "haystack";
+        enum needle = "a";
+        enum index = haystack.countUntilLastOccurrenceOf(needle);
+        assert((index == 5), index.to!string);
+    }
+    {
+        enum haystack = "1234567890";
+        enum needle = '7';
+        immutable index = haystack.countUntilLastOccurrenceOf(needle);
+        assert((index == 6), index.to!string);
+    }
+    {
+        enum haystack = "123456789";
+        enum needle = '0';
+        immutable index = haystack.countUntilLastOccurrenceOf(needle);
+        assert((index == -1), index.to!string);
+    }
+    {
+        enum haystack = "1234567890";
+        enum needle = "";
+        immutable index = haystack.countUntilLastOccurrenceOf(needle);
+        static assert((index == 0), index.to!string);
+    }
+    {
+        enum haystack = "";
+        enum needle = "";
+        immutable index = haystack.countUntilLastOccurrenceOf(needle);
+        assert((index == 0), index.to!string);
+    }
+    {
+        enum haystack = "";
+        enum needle = "blarp";
+        immutable index = haystack.countUntilLastOccurrenceOf(needle);
+        assert((index == -1), index.to!string);
+    }
+    {
+        static immutable haystack = [ 1, 2, 3, 4, 5, 1, 2, 3 ];
+        enum needle = 1;
+        immutable index = haystack.countUntilLastOccurrenceOf(needle);
+        assert((index == 5), index.to!string);
+    }
+    {
+        static immutable haystack = [ 1, 2, 3, 1, 2, 3, 4, 5, 6 ];
+        static immutable needle = [ 1, 2, 3 ];
+        immutable index = haystack.countUntilLastOccurrenceOf(needle);
+        assert((index == 3), index.to!string);
+    }
+}
+
+
+// countUntilLastMatchOf
+/++
+    Finds the index of the last match of a predicate in a haystack. The predicate
+    is evaluated against each element.
+
+    Overload that takes a predicate instead of a needle.
+
+    Params:
+        pred = A predicate to match the needle against the elements in the haystack.
+        haystack = The array to search.
+
+    Returns:
+        The index of the last match of `pred` when evaluating all elements in
+        `haystack`, or `-1` if none were found.
+
+    See_Also:
+        [std.algorithm.searching.countUntil]
+ +/
+auto countUntilLastMatchOf(alias pred, Haystack)
+    (const scope Haystack haystack) pure
+{
+    import std.algorithm.searching : countUntil;
+    import std.functional : unaryFun;
+    import std.traits : isArray;
+
+    static if (!isArray!Haystack)
+    {
+        enum message = "`countUntilLastMatchOf` only works on array-type haystacks";
+        static assert(0, message);
+    }
+
+    alias predicate = unaryFun!pred;
+
+    if (!haystack.length) return -1;
+
+    ptrdiff_t needlePos = haystack.countUntil!predicate;
+    ptrdiff_t previousNeedlePos = needlePos;
+    size_t offset;
+
+    while (needlePos != -1)
+    {
+        previousNeedlePos = needlePos;
+        offset += needlePos + 1;  // walk one element past the match
+        needlePos = haystack[offset..$].countUntil!predicate;
+    }
+
+    return (offset - 1);
+}
+
+///
+unittest
+{
+    import std.conv : to;
+
+    {
+        enum haystack = "haystack";
+        alias pred = (n) => (n == 'a');
+        enum index = haystack.countUntilLastMatchOf!pred;
+        static assert((index == 5), index.to!string);
+    }
+    {
+        enum haystack = "haystack";
+        alias pred = (n) => (n < 'a');
+        enum index = haystack.countUntilLastMatchOf!pred;
+        static assert((index == -1), index.to!string);
+    }
+    {
+        enum haystack = "haystack";
+        alias pred = (n) => (n == char.init);
+        enum index = haystack.countUntilLastMatchOf!pred;
+        static assert((index == -1), index.to!string);
+    }
+    {
+        enum haystack = string.init;
+        alias pred = (n) => (n == '\0');
+        enum index = haystack.countUntilLastMatchOf!pred;
+        static assert((index == -1), index.to!string);
+    }
+    {
+        import std.uni : toLower;
+        enum haystack = "HAYSTACK";
+        alias pred = (n) => (n.toLower == 'a');
+        enum index = haystack.countUntilLastMatchOf!pred;
+        static assert((index == 5), index.to!string);
+    }
+    {
+        enum haystack = "haystack";
+        enum pred = "a == 'y'";
+        enum index = haystack.countUntilLastMatchOf!pred;
+        static assert((index == 2), index.to!string);
+    }
+}
