@@ -1894,8 +1894,8 @@ public:
 
         if (K.init !in cast(AA)aa)
         {
-            aa[K.init] = V.init;
-            aa.remove(K.init);
+            (cast(AA)aa)[K.init] = V.init;
+            (cast(AA)aa).remove(K.init);
         }
 
         (cast()mutex).unlock_nothrow();
@@ -1961,9 +1961,8 @@ public:
     auto opIndexAssign(V value, K key)
     in (mutex, typeof(this).stringof ~ " has null Mutex")
     {
-        AA unqualAA = cast(AA)aa;
         (cast()mutex).lock_nothrow();
-        unqualAA[key] = value;
+        (cast(AA)aa)[key] = value;
         (cast()mutex).unlock_nothrow();
         return value;
     }
@@ -1991,9 +1990,8 @@ public:
     auto opIndex(K key)
     in (mutex, typeof(this).stringof ~ " has null Mutex")
     {
-        AA unqualAA = cast(AA)aa;
         (cast()mutex).lock_nothrow();
-        auto value = unqualAA[key];
+        auto value = (cast(AA)aa)[key];
         (cast()mutex).unlock_nothrow();
         return value;
     }
@@ -2019,9 +2017,8 @@ public:
     auto has(K key)
     in (mutex, typeof(this).stringof ~ " has null Mutex")
     {
-        AA unqualAA = cast(AA)aa;
         (cast()mutex).lock_nothrow();
-        auto exists = (key in unqualAA) !is null;
+        auto exists = (key in cast(AA)aa) !is null;
         (cast()mutex).unlock_nothrow();
         return exists;
     }
@@ -2050,9 +2047,8 @@ public:
     auto remove(K key)
     in (mutex, typeof(this).stringof ~ " has null Mutex")
     {
-        AA unqualAA = cast(AA)aa;
         (cast()mutex).lock_nothrow();
-        auto value = unqualAA.remove(key);
+        auto value = (cast(AA)aa).remove(key);
         (cast()mutex).unlock_nothrow();
         return value;
     }
@@ -2136,11 +2132,8 @@ public:
     auto opEquals(typeof(this) other)
     in (mutex, typeof(this).stringof ~ " has null Mutex")
     {
-        AA unqualAA = cast(AA)aa;
-        AA unqualOtherAA = cast(AA)(other.aa);
-
         (cast()mutex).lock_nothrow();
-        auto isEqual = (unqualAA == unqualOtherAA);
+        auto isEqual = (cast(AA)aa == cast(AA)(other.aa));
         (cast()mutex).unlock_nothrow();
         return isEqual;
     }
@@ -2174,9 +2167,8 @@ public:
     auto opEquals(AA other)
     in (mutex, typeof(this).stringof ~ " has null Mutex")
     {
-        AA unqualAA = cast(AA)aa;
         (cast()mutex).lock_nothrow();
-        auto isEqual = (unqualAA == other);
+        auto isEqual = (cast(AA)aa == other);
         (cast()mutex).unlock_nothrow();
         return isEqual;
     }
@@ -2200,9 +2192,8 @@ public:
     auto rehash()
     in (mutex, typeof(this).stringof ~ " has null Mutex")
     {
-        AA unqualAA = cast(AA)aa;
         (cast()mutex).lock_nothrow();
-        auto rehashed = unqualAA.rehash();
+        auto rehashed = (cast(AA)aa).rehash();
         (cast()mutex).unlock_nothrow();
         return rehashed;
     }
@@ -2226,9 +2217,8 @@ public:
     void clear()
     in (mutex, typeof(this).stringof ~ " has null Mutex")
     {
-        AA unqualAA = cast(AA)aa;
         (cast()mutex).lock_nothrow();
-        unqualAA.clear();
+        (cast(AA)aa).clear();
         (cast()mutex).unlock_nothrow();
     }
 
@@ -2252,9 +2242,8 @@ public:
     auto length()
     in (mutex, typeof(this).stringof ~ " has null Mutex")
     {
-        AA unqualAA = cast(AA)aa;
         (cast()mutex).lock_nothrow();
-        auto length = unqualAA.length;
+        auto length = (cast(AA)aa).length;
         (cast()mutex).unlock_nothrow();
         return length;
     }
@@ -2284,20 +2273,19 @@ public:
     in (mutex, typeof(this).stringof ~ " has null Mutex")
     {
         V retval;
-        AA unqualAA = cast(AA)aa;
 
         (cast()mutex).lock_nothrow();
-        if (auto existing = key in unqualAA)
+        if (auto existing = key in cast(AA)aa)
         {
             retval = *existing;
         }
         else
         {
-            unqualAA[key] = value;
+            (cast(AA)aa)[key] = value;
             retval = value;
         }
-        (cast()mutex).unlock_nothrow();
 
+        (cast()mutex).unlock_nothrow();
         return retval;
     }
 
@@ -2323,9 +2311,8 @@ public:
     auto keys()
     in (mutex, typeof(this).stringof ~ " has null Mutex")
     {
-        AA unqualAA = cast(AA)aa;
         (cast()mutex).lock_nothrow();
-        auto keys = unqualAA.keys;  // allocates a new array
+        auto keys = (cast(AA)aa).keys;  // allocates a new array
         (cast()mutex).unlock_nothrow();
         return keys;
     }
@@ -2352,9 +2339,8 @@ public:
     auto values()
     in (mutex, typeof(this).stringof ~ " has null Mutex")
     {
-        AA unqualAA = cast(AA)aa;
         (cast()mutex).lock_nothrow();
-        auto values = unqualAA.values;  // as above
+        auto values = (cast(AA)aa).values;  // as above
         (cast()mutex).unlock_nothrow();
         return values;
     }
@@ -2389,9 +2375,8 @@ public:
     auto get(K key, lazy V value)
     in (mutex, typeof(this).stringof ~ " has null Mutex")
     {
-        AA unqualAA = cast(AA)aa;
         (cast()mutex).lock_nothrow();
-        auto existing = key in unqualAA;
+        auto existing = key in cast(AA)aa;
         auto retval = existing ? *existing : value;
         (cast()mutex).unlock_nothrow();
         return retval;
@@ -2462,9 +2447,8 @@ public:
     //if (isIntegral!V)
     in (mutex, typeof(this).stringof ~ " has null Mutex")
     {
-        AA unqualAA = cast(AA)aa;
         (cast()mutex).lock_nothrow();
-        mixin("auto value = " ~ op ~ "unqualAA[key];");
+        mixin("auto value = " ~ op ~ "(cast(AA)aa)[key];");
         (cast()mutex).unlock_nothrow();
         return value;
     }
