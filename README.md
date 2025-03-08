@@ -565,15 +565,15 @@ assert(fooIndex == 2);
 
 ```d
 /+
-    `assert`s that two strings of multiple lines are equal, and visualises
-    where lines differ when they don't.
+    Asserts that two strings of multiple lines are equal.
+    If they differ, the difference is visualised in a helpful error message.
  +/
 enum actual =
 "abc
 def
 ghi
 jkl
-mno
+mnonm
 pqr";
 
 enum expected =
@@ -581,7 +581,7 @@ enum expected =
 def
 ghi
 jkl
-mnO
+mnOnm
 pqr";
 
 actual.assertMultilineEquals(expected);
@@ -589,8 +589,8 @@ actual.assertMultilineEquals(expected);
 /*
 core.exception.AssertError@some/file.d(123):
 Line mismatch at some/file.d:147, block 5:3; expected 'O'(79) was 'o'(111)
-expected:"mnO"
-  actual:"mno"
+expected:"mnOnm"
+  actual:"mnonm"
             ^
  */
 ```
@@ -618,10 +618,10 @@ else
 }
 
 // Less annoying roundabout way to safely get a value
-string baz = json.getOrFallback("baz", "not found");
+string baz = json.safelyGet("baz", "not found");
 assert(baz == "baz");
 
-string xyzzy = json.getOrFallback("xyzzy", "not found");
+string xyzzy = json.safelyGet("xyzzy", "not found");
 assert(xyzzy == "not found");
 ```
 
