@@ -499,7 +499,7 @@ aa["ghi"] = 789;
 
 #### [`lu.array`](https://zorael.github.io/lu/lu.array.html)
 
-Some array utilities. Also a simple truth table.
+Some array utilities.
 
 ```d
 /+
@@ -534,6 +534,29 @@ static assert(!staticTable[4]);
 static assert(!staticTable[5]);
 static assert(!staticTable[6]);
 static assert( staticTable[7]);
+
+/+
+    Finds the last occurrence of an element (or series of elements) in a haystack.
+ +/
+const intHaystack = [ 1, 2, 3, 1, 2, 3 ];
+const intNeedle = 2;
+const intIndex = intHaystack.countUntilLastOccurrenceOf(intNeedle);
+assert(intIndex == 4);
+
+const stringHaystack = "abcdefabcdefabc";
+const stringNeedle = "fab";
+const stringIndex = stringHaystack.countUntilLastOccurrenceOf(stringNeedle);
+assert(stringIndex == 11);
+
+/+
+    Similarly, finds the last match of a predicate in a haystack.
+ +/
+struct Foo { int i; }
+
+const fooHaystack = [ Foo(1), Foo(2), Foo(2), Foo(3), Foo(5) ];
+alias pred = foo => ((foo.i % 2) == 0);
+const fooIndex = fooHaystack.countUntilLastMatchOf!pred;
+assert(fooIndex == 2);
 ```
 
 #### [`lu.assert_`](https://zorael.github.io/lu/lu.assert_.html)
