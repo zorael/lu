@@ -31,7 +31,7 @@ enum LuSemVer
     /++
         SemVer patch version of the library.
      +/
-    patch = 1,
+    patch = 2,
 }
 
 
