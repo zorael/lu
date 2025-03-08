@@ -756,7 +756,7 @@ unittest
 }
 
 
-// getOrFallback
+// safelyGet
 /++
     Fetches a value from a [std.json.JSONValue|JSONValue], or returns a fallback
     value if the key doesn't exist in the object.
@@ -773,7 +773,7 @@ unittest
         The value found in the JSON object, or the fallback value if the key
         was not found.
  +/
-static V getOrFallback(V = string)
+V safelyGet(V = string)
     (const JSONValue json,
     const string key,
     const V fallback = V.init) pure @safe
@@ -805,7 +805,7 @@ static V getOrFallback(V = string)
     }
     else
     {
-        static assert(0, "Unsupported JSON type passed to `getOrFallback`");
+        static assert(0, "Unsupported JSON type passed to `safelyGet`");
     }
 }
 
@@ -818,19 +818,19 @@ unittest
         const json = JSONValue([ "abc" : "def", "ghi" : "jkl" ]);
 
         {
-            const value = getOrFallback(json, "abc");
+            const value = json.safelyGet("abc");
             assert((value == "def"), value);
         }
         {
-            const value = getOrFallback(json, "ghi");
+            const value = json.safelyGet("ghi");
             assert((value == "jkl"), value);
         }
         {
-            const value = getOrFallback(json, "mno");
+            const value = json.safelyGet("mno");
             assert((value == string.init), value);
         }
         {
-            const value = getOrFallback(json, "pqr", "INVALID");
+            const value = json.safelyGet("pqr", "INVALID");
             assert((value == "INVALID"), value);
         }
     }
@@ -838,20 +838,30 @@ unittest
         const json = JSONValue([ "123" : 123, "456" : 456 ]);
 
         {
-            const value = getOrFallback!long(json, "123");
+            const value = json.safelyGet!long("123");
             assert((value == 123L), value.to!string);
         }
         {
-            const int value = getOrFallback!int(json, "456");
+            const int value = json.safelyGet!int("456");
             assert((value == 456), value.to!string);
         }
         {
-            const value = getOrFallback!long(json, "789");
+            const value = json.safelyGet!long("789");
             assert((value == 0L), value.to!string);
         }
         {
-            const short value = getOrFallback!short(json, "012", 999);
+            const short value = json.safelyGet!short("012", 999);
             assert((value == 999), value.to!string);
         }
     }
 }
+
+
+// getOrFallback
+/++
+    Compatibility alias to [safelyGet].
+
+    Enable the deprecation later.
+ +/
+//deprecated("Use `lu.json.safelyGet` instead")
+alias getOrFallback = safelyGet;
