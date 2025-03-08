@@ -232,7 +232,7 @@ void putDelta(Flag!"asserts" asserts = No.asserts, Sink, QualThing)
                     static if (asserts)
                     {
                         enum pattern = "%sassert((%s%s == " ~ typename ~ ".%s), " ~
-                            "%2$s%3$s.toString());\n";
+                            "%2$s%3$s.toString);\n";
                     }
                     else
                     {
@@ -374,7 +374,7 @@ conn.server.port = 1337;
     sink.putDelta!(Yes.asserts)(Connection.init, conn, 0, "conn");
 
     assert(sink[] ==
-`assert((conn.state == Connection.State.connected), conn.state.toString());
+`assert((conn.state == Connection.State.connected), conn.state.toString);
 assert((conn.nickname == "NICKNAME"), conn.nickname);
 assert((conn.server.address == "address.tld"), conn.server.address);
 assert((conn.server.port == 1337), conn.server.port.to!string);

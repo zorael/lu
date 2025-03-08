@@ -16,7 +16,7 @@
 
     assert(Enum!SomeEnum.toString(SomeEnum.one) == "one");
     assert(Enum!SomeEnum.toString(SomeEnum.two) == "two");
-    assert(SomeEnum.three.toString() == "three");
+    assert(SomeEnum.three.toString == "three");
     ---
 
     Copyright: [JR](https://github.com/zorael)
@@ -289,9 +289,9 @@ unittest
 {
     enum E { a, b, c }
 
-    static assert(E.a.toString() == "a");
-    static assert(E.b.toString() == "b");
-    static assert(E.c.toString() == "c");
+    static assert(E.a.toString == "a");
+    static assert(E.b.toString == "b");
+    static assert(E.c.toString == "c");
 }
 
 
