@@ -1016,6 +1016,12 @@ unittest
         immutable index = haystack.countUntilLastOccurrenceOf(needle);
         assert((index == 3), index.to!string);
     }
+    {
+        enum haystack= "abcdefabcdefabc";
+        enum needle = "fab";
+        immutable index = haystack.countUntilLastOccurrenceOf(needle);
+        assert((index == 11), index.to!string);
+    }
 }
 
 
@@ -1109,5 +1115,13 @@ unittest
         enum pred = "a == 'y'";
         enum index = haystack.countUntilLastMatchOf!pred;
         static assert((index == 2), index.to!string);
+    }
+    {
+        static struct Foo { int i; }
+
+        static immutable haystack = [ Foo(1), Foo(2), Foo(2), Foo(3), Foo(5) ];
+        alias pred = (foo) => ((foo.i % 2) == 0);
+        immutable index = haystack.countUntilLastMatchOf!pred;
+        assert((index == 2), index.to!string);
     }
 }
