@@ -1894,8 +1894,8 @@ public:
 
         if (K.init !in cast(AA)aa)
         {
-            (cast(AA)aa)[K.init] = V.init;
-            (cast(AA)aa).remove(K.init);
+            aa[K.init] = cast(shared)(V.init);
+            aa.remove(K.init);
         }
 
         (cast()mutex).unlock_nothrow();
@@ -1962,7 +1962,7 @@ public:
     in (mutex, typeof(this).stringof ~ " has null Mutex")
     {
         (cast()mutex).lock_nothrow();
-        (cast(AA)aa)[key] = value;
+        aa[key] = cast(shared)value;
         (cast()mutex).unlock_nothrow();
         return value;
     }
@@ -2281,7 +2281,7 @@ public:
         }
         else
         {
-            (cast(AA)aa)[key] = value;
+            aa[key] = cast(shared)value;
             retval = value;
         }
 
